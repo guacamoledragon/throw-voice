@@ -9,7 +9,7 @@ import net.dv8tion.jda.entities.User;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 
-public class RecordAudio implements AudioReceiveHandler
+public class AudioReceiveHandle implements AudioReceiveHandler
 {
     double volume = 1.0;
     ConcurrentLinkedQueue<byte[]> data = new ConcurrentLinkedQueue<>();
