@@ -1,7 +1,3 @@
-/**
- * Created by Austin on 10/9/2016.
- */
-
 import net.dv8tion.jda.audio.AudioReceiveHandler;
 import net.dv8tion.jda.audio.CombinedAudio;
 import net.dv8tion.jda.audio.UserAudio;
