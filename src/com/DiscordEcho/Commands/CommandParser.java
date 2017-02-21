@@ -1,15 +1,14 @@
 package com.DiscordEcho.Commands;
 
 import com.DiscordEcho.DiscordEcho;
+import net.dv8tion.jda.core.events.message.GenericMessageEvent;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import java.util.ArrayList;
 
 public class CommandParser {
-    public CommandContainer parse(String rw, GuildMessageReceivedEvent e){
+    public CommandContainer parse(String raw, GuildMessageReceivedEvent e){
         ArrayList<String> split = new ArrayList<>();
-        String prefix = DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix;
-        String raw = rw;
-        String beheaded = raw.replaceFirst(prefix, "");
+        String beheaded = raw.substring(1);
         String[] splitBeheaded = beheaded.split(" ");
         for(String s : splitBeheaded) {split.add(s);}
         String invoke = split.get(0);

@@ -17,7 +17,8 @@ public class EchoCommand implements Command {
     @Override
     public void action(String[] args, GuildMessageReceivedEvent e) {
         if (args.length != 1) {
-            DiscordEcho.sendMessage(e.getChannel(), DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix + usage());
+            String prefix = DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix;
+            DiscordEcho.sendMessage(e.getChannel(), usage(prefix));
             return;
         }
 
@@ -34,13 +35,13 @@ public class EchoCommand implements Command {
                 return;
             }
         } catch (Exception ex) {
-            DiscordEcho.sendMessage(e.getChannel(), DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix + usage());
+            String prefix = DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix;
+            DiscordEcho.sendMessage(e.getChannel(), usage(prefix));
             return;
         }
 
 
         AudioReceiveListener ah = (AudioReceiveListener) e.getGuild().getAudioManager().getReceiveHandler();
-        ah.canReceive = false;
         byte[] voiceData;
         if (ah == null || (voiceData = ah.getUncompVoice(time)) == null) {
             DiscordEcho.sendMessage(e.getChannel(), "I wasn't recording!");
@@ -53,8 +54,8 @@ public class EchoCommand implements Command {
     }
 
     @Override
-    public String usage() {
-        return "echo [seconds]";
+    public String usage(String prefix) {
+        return prefix + "echo [seconds]";
     }
 
     @Override

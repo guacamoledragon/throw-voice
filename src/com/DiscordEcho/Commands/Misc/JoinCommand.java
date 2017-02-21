@@ -15,7 +15,8 @@ public class JoinCommand implements Command {
     @Override
     public void action(String[] args, GuildMessageReceivedEvent e) {
         if (args.length != 0) {
-            DiscordEcho.sendMessage(e.getChannel(), DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix + usage());
+
+
             return;
         }
 
@@ -38,8 +39,8 @@ public class JoinCommand implements Command {
     }
 
     @Override
-    public String usage() {
-        return "join";
+    public String usage(String prefix) {
+        return prefix + "join";
     }
 
     @Override

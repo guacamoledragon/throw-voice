@@ -41,12 +41,12 @@ public class DiscordEcho
     {
         try
         {
-            FileReader fr = new FileReader("shark_secret");
+            FileReader fr = new FileReader("token");
             BufferedReader br = new BufferedReader(fr);
-            String secret = br.readLine();
+            String token = br.readLine();
 
             JDA api = new JDABuilder(AccountType.BOT)
-                    .setToken(secret)
+                    .setToken(token)
                     .addListener(new EventListener())
                     .buildBlocking();
     }
@@ -75,17 +75,28 @@ public class DiscordEcho
         }
 
         CommandHandler.commands.put("help", new HelpCommand());
-        CommandHandler.commands.put("autojoin", new AutoJoinCommand());
-        CommandHandler.commands.put("autoleave", new AutoLeaveCommand());
-        CommandHandler.commands.put("autosave", new AutoSaveCommand());
+        CommandHandler.aliases.put("info", "help");
+        
         CommandHandler.commands.put("join", new JoinCommand());
+        CommandHandler.aliases.put("record", "join");
+        
         CommandHandler.commands.put("leave", new LeaveCommand());
-        CommandHandler.commands.put("symbol", new SymbolCommand());
+        CommandHandler.aliases.put("stop", "leave");
+        
         CommandHandler.commands.put("save", new SaveCommand());
         CommandHandler.commands.put("clip", new ClipCommand());
-        CommandHandler.commands.put("volume", new VolumeCommand());
-        CommandHandler.commands.put("savelocation", new SaveLocationCommand());
         CommandHandler.commands.put("echo", new EchoCommand());
+                
+        CommandHandler.commands.put("autojoin", new AutoJoinCommand());
+        CommandHandler.commands.put("autoleave", new AutoLeaveCommand());
+        
+        CommandHandler.commands.put("prefix", new PrefixCommand());
+        CommandHandler.aliases.put("symbol", "prefix");
+        
+        CommandHandler.commands.put("volume", new VolumeCommand());
+        CommandHandler.commands.put("autosave", new AutoSaveCommand());
+        CommandHandler.commands.put("savelocation", new SaveLocationCommand());
+        CommandHandler.commands.put("alerts", new AlertsCommand());
 
     }
 
@@ -99,7 +110,8 @@ public class DiscordEcho
 
         for (VoiceChannel v : vcs) {
             if (voiceChannelSize(v) > large) {
-                if (voiceChannelSize(v) >= DiscordEcho.serverSettings.get(v.getGuild().getId()).autoJoinSettings.get(v.getId())) {
+                ServerSettings settings = serverSettings.get(v.getGuild().getId());
+                if (voiceChannelSize(v) >= settings.autoJoinSettings.get(v.getId())) {
                     biggest = v;
                     large = voiceChannelSize(v);
                 }
@@ -132,7 +144,7 @@ public class DiscordEcho
         
         AudioReceiveListener ah = (AudioReceiveListener) guild.getAudioManager().getReceiveHandler();
         if (ah == null) {
-            DiscordEcho.sendMessage(tc, "I wasn't recording!");
+            sendMessage(tc, "I wasn't recording!");
             return;
         }
 
@@ -145,7 +157,6 @@ public class DiscordEcho
                 dest = new File("recordings/" + getPJSaltString() + ".mp3");
 
             byte[] voiceData;
-            ah.canReceive = false;
 
             if (time > 0 && time <= ah.PCM_MINS * 60 * 2) {
                 voiceData = ah.getUncompVoice(time);
@@ -165,7 +176,8 @@ public class DiscordEcho
             if (dest.length() / 1024 / 1024 < 8) {
                 final TextChannel channel = tc;
                 tc.sendFile(dest, null).queue(null, (Throwable) -> {
-                    channel.sendMessage("I don't have permissions to send files here!").queue();
+                    sendMessage(guild.getTextChannelById(serverSettings.get(guild.getId()).defaultTextChannel),
+                            "I don't have permissions to send files in " + channel.getName() + "!");
                 });
 
                 new Thread(() -> {
@@ -177,7 +189,7 @@ public class DiscordEcho
                 }).start();
 
             } else {
-                DiscordEcho.sendMessage(tc, "http://com.DiscordEcho.DiscordEcho.com/" + dest.getName());
+                sendMessage(tc, "http://DiscordEcho.com/" + dest.getName());
 
                 new Thread(() -> {
                     try { sleep(1000 * 60 * 60); } catch (Exception ex) {}    //1 hour life for files stored on web server
@@ -192,9 +204,9 @@ public class DiscordEcho
             ex.printStackTrace();
 
             if (tc != null)
-                DiscordEcho.sendMessage(tc, "Unknown error sending file");
+                sendMessage(tc, "Unknown error sending file");
             else
-                DiscordEcho.sendMessage(guild.getTextChannelById(serverSettings.get(guild.getId()).defaultTextChannel), "Unknown error sending file");
+                sendMessage(guild.getTextChannelById(serverSettings.get(guild.getId()).defaultTextChannel), "Unknown error sending file");
 
         }
     }
@@ -242,6 +254,17 @@ public class DiscordEcho
             salt.append(SALTCHARS.charAt(index));
         }
         String saltStr = salt.toString();
+        
+        //check for a collision on the 1/2e23 chance that it matches another salt string (lul)
+        File dir = new File("/var/www/html/");
+        if (!dir.exists())
+            dir = new File("recordings/");
+        
+        for (File f : dir.listFiles()) {
+            if (f.getName().equals(saltStr))
+                saltStr = getPJSaltString();
+        }
+        
         return saltStr;
     }
 
@@ -286,18 +309,28 @@ public class DiscordEcho
 
     public static void sendMessage(TextChannel tc, String message) {
         tc.sendMessage(message).queue(null, (Throwable) -> {
-            tc.getGuild().getPublicChannel().sendMessage("I don't have permissions to send messages there!").queue();
+            tc.getGuild().getPublicChannel().sendMessage("\u200BI don't have permissions to send messages in " + tc.getName() + "!").queue();
         });
     }
 
     public static void joinVoiceChannel(VoiceChannel vc, boolean warning) {
         System.out.format("Joining '%s' voice channel in %s\n", vc.getName(), vc.getGuild().getName());
 
+        if (vc == vc.getGuild().getAfkChannel()) {
+            if (warning) {
+                TextChannel tc = vc.getGuild().getTextChannelById(serverSettings.get(vc.getGuild().getId()).defaultTextChannel);
+                sendMessage(tc, "I don't join afk channels!");
+            }
+        }
+
+
         try {
             vc.getGuild().getAudioManager().openAudioConnection(vc);
         } catch (Exception e) {
-            if (warning)
-                sendMessage(vc.getGuild().getPublicChannel(), "I don't have permission to join that voice channel!");
+            if (warning) {
+                TextChannel tc = vc.getGuild().getTextChannelById(serverSettings.get(vc.getGuild().getId()).defaultTextChannel);
+                sendMessage(tc, "I don't have permission to join " + vc.getName() + "!");
+            }
         }
 
         DiscordEcho.alert(vc);
@@ -306,7 +339,7 @@ public class DiscordEcho
 
     }
     public static void leaveVoiceChannel(VoiceChannel vc) {
-        System.out.format("Leaving '%s' voice channel in %s\n", vc.getGuild(), vc.getGuild().getName());
+        System.out.format("Leaving '%s' voice channel in %s\n", vc.getName(), vc.getGuild().getName());
 
         vc.getGuild().getAudioManager().closeAudioConnection();
         DiscordEcho.killAudioHandlers(vc.getGuild());

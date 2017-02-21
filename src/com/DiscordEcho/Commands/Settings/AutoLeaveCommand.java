@@ -17,7 +17,8 @@ public class AutoLeaveCommand implements Command {
     @Override
     public void action(String[] args, GuildMessageReceivedEvent e) {
         if (args.length != 2) {
-            DiscordEcho.sendMessage(e.getChannel(), DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix + usage());
+            String prefix = DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix;
+            DiscordEcho.sendMessage(e.getChannel(), usage(prefix));
             return;
         }
 
@@ -28,7 +29,8 @@ public class AutoLeaveCommand implements Command {
         } catch (Exception ex) {
 
             if (!args[1].equals("off")) {
-                DiscordEcho.sendMessage(e.getChannel(), DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix + usage());
+                String prefix = DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix;
+                DiscordEcho.sendMessage(e.getChannel(), usage(prefix));
                 return;
 
             } else {
@@ -70,8 +72,8 @@ public class AutoLeaveCommand implements Command {
     }
 
     @Override
-    public String usage() {
-        return "autojoin [Voice Channel name | 'all'] [number | 'off']";
+    public String usage(String prefix) {
+        return prefix + "autojoin [Voice Channel name | 'all'] [number | 'off']";
     }
 
     @Override

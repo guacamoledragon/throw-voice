@@ -8,7 +8,7 @@ import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 
 
 public class AutoJoinCommand implements Command {
-
+    
     @Override
     public Boolean called(String[] args, GuildMessageReceivedEvent e){
         return true;
@@ -17,7 +17,8 @@ public class AutoJoinCommand implements Command {
     @Override
     public void action(String[] args, GuildMessageReceivedEvent e) {
         if (args.length != 2) {
-            DiscordEcho.sendMessage(e.getChannel(), DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix + usage());
+            String prefix = DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix;
+            DiscordEcho.sendMessage(e.getChannel(), usage(prefix));
             return;
         }
 
@@ -27,13 +28,17 @@ public class AutoJoinCommand implements Command {
 
             if (num == 0)
                 num = Integer.MAX_VALUE;
-            else if (num < 0)
-                DiscordEcho.sendMessage(e.getChannel(), DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix + usage());
+            else if (num < 0) {
+                String prefix = DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix;
+                DiscordEcho.sendMessage(e.getChannel(), usage(prefix));
+                return;
+            }
 
         } catch (Exception ex) {
 
             if (!args[1].equals("off")) {
-                DiscordEcho.sendMessage(e.getChannel(), DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix + usage());
+                String prefix = DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix;
+                DiscordEcho.sendMessage(e.getChannel(), usage(prefix));
                 return;
 
             } else {
@@ -76,8 +81,8 @@ public class AutoJoinCommand implements Command {
     }
 
     @Override
-    public String usage() {
-        return "autojoin [Voice Channel name | 'all'] [number | 'off']";
+    public String usage(String prefix) {
+        return prefix + "autojoin [Voice Channel name | 'all'] [number | 'off']";
     }
 
     @Override

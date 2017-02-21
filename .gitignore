@@ -2,8 +2,8 @@
 /.idea/
 /testing/
 /recordings/
-secret
-shark_secret
+token
+shark_token
 settings.json
 *.wav
 *.mp3

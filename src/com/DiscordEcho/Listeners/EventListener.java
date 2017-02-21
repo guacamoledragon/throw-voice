@@ -1,10 +1,12 @@
 package com.DiscordEcho.Listeners;
 
+import com.DiscordEcho.Commands.Command;
 import com.DiscordEcho.DiscordEcho;
 import com.DiscordEcho.Commands.CommandHandler;
 import com.DiscordEcho.Configuration.ServerSettings;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.VoiceChannel;
@@ -18,10 +20,12 @@ import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
+import java.awt.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.HashMap;
 
 import static java.lang.Thread.sleep;
@@ -46,7 +50,7 @@ public class EventListener extends ListenerAdapter {
 
     @Override
     public void onGuildVoiceJoin(GuildVoiceJoinEvent e) {
-        if(e.getMember().getUser().isBot())
+        if(e.getMember() == null || e.getMember().getUser() == null || e.getMember().getUser().isBot())
             return;
 
         VoiceChannel biggestChannel = DiscordEcho.biggestChannel(e.getGuild().getVoiceChannels());
@@ -55,8 +59,9 @@ public class EventListener extends ListenerAdapter {
 
             int newSize = DiscordEcho.voiceChannelSize(e.getChannelJoined());
             int botSize = DiscordEcho.voiceChannelSize(e.getGuild().getAudioManager().getConnectedChannel());
-            int min = DiscordEcho.serverSettings.get(e.getGuild().getId()).autoJoinSettings.get(e.getChannelJoined().getId());
-
+            ServerSettings settings  = DiscordEcho.serverSettings.get(e.getGuild().getId());
+            int min = settings.autoJoinSettings.get(e.getChannelJoined().getId());
+            
             if (newSize >= min && botSize < newSize) {  //check for tie with old server
                 if (DiscordEcho.serverSettings.get(e.getGuild().getId()).autoSave)
                     DiscordEcho.writeToFile(e.getGuild());  //write data from voice channel it is leaving
@@ -73,7 +78,7 @@ public class EventListener extends ListenerAdapter {
 
     @Override
     public void onGuildVoiceLeave(GuildVoiceLeaveEvent e) {
-        if(e.getMember().getUser().isBot())
+        if(e.getMember() == null || e.getMember().getUser() == null || e.getMember().getUser().isBot())
             return;
 
         int min = DiscordEcho.serverSettings.get(e.getGuild().getId()).autoLeaveSettings.get(e.getChannelLeft().getId());
@@ -95,7 +100,7 @@ public class EventListener extends ListenerAdapter {
 
     @Override
     public void onGuildVoiceMove (GuildVoiceMoveEvent e) {
-        if(e.getMember().getUser().isBot())
+        if(e.getMember() == null || e.getMember().getUser() == null || e.getMember().getUser().isBot())
             return;
 
         //Check if bot needs to join newly joined channel
@@ -105,7 +110,8 @@ public class EventListener extends ListenerAdapter {
 
             int newSize = DiscordEcho.voiceChannelSize(e.getChannelJoined());
             int botSize = DiscordEcho.voiceChannelSize(e.getGuild().getAudioManager().getConnectedChannel());
-            int min = DiscordEcho.serverSettings.get(e.getGuild().getId()).autoJoinSettings.get(e.getChannelJoined().getId());
+            ServerSettings settings  = DiscordEcho.serverSettings.get(e.getGuild().getId());
+            int min = settings.autoJoinSettings.get(e.getChannelJoined().getId());
 
             if (newSize >= min && botSize < newSize) {  //check for tie with old server
                 if (DiscordEcho.serverSettings.get(e.getGuild().getId()).autoSave)
@@ -140,34 +146,81 @@ public class EventListener extends ListenerAdapter {
 
     @Override
     public void onGuildMessageReceived(GuildMessageReceivedEvent e){
-        if(e.getMember().getUser().isBot())
+        if(e.getMember() == null || e.getMember().getUser() == null || e.getMember().getUser().isBot())
             return;
 
         String prefix = DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix;
-        if (e.getMessage().getContent().startsWith(prefix) && !e.getMessage().getAuthor().isBot()) {
-            System.out.println("--- " + e.getAuthor().getName() + ": " + e.getMessage().getContent());
+        if (e.getMessage().getContent().startsWith(prefix)) {
             CommandHandler.handleCommand(CommandHandler.parser.parse(e.getMessage().getContent().toLowerCase(), e));
         }
     }
 
     @Override
     public void onPrivateMessageReceived(PrivateMessageReceivedEvent e) {
-        if (e.getMessage().getContent().equals("!alerts off")) {
-            for (Guild g : e.getJDA().getGuilds()) {
-                if (g.getMember(e.getAuthor()) != null) {
-                    DiscordEcho.serverSettings.get(g.getId()).alertBlackList.add(e.getAuthor().getId());
+        if(e.getAuthor() == null || e.getAuthor().isBot())
+            return;
+
+        if (e.getMessage().getContent().startsWith("!alerts")) {
+            if (e.getMessage().getContent().endsWith("off")) {
+                for (Guild g : e.getJDA().getGuilds()) {
+                    if (g.getMember(e.getAuthor()) != null) {
+                        DiscordEcho.serverSettings.get(g.getId()).alertBlackList.add(e.getAuthor().getId());
+                    }
+                }
+                e.getChannel().sendMessage("Alerts now off, message `!alerts on` to re-enable at any time").queue();
+                DiscordEcho.writeSettingsJson();
+
+            }
+
+            else if (e.getMessage().getContent().endsWith("on")) {
+                for (Guild g : e.getJDA().getGuilds()) {
+                    if (g.getMember(e.getAuthor()) != null) {
+                        DiscordEcho.serverSettings.get(g.getId()).alertBlackList.remove(e.getAuthor().getId());
+                    }
+                }
+                e.getChannel().sendMessage("Alerts now on, message `!alerts off` to disable at any time").queue();
+                DiscordEcho.writeSettingsJson();
+            }
+            else {
+                e.getChannel().sendMessage("!alerts [on | off]").queue();
+            }
+
+        } else if (e.getMessage().getContent().startsWith("!help")) {
+
+            EmbedBuilder embed = new EmbedBuilder();
+            embed.setAuthor("Discord Echo", "http://DiscordEcho.com/", e.getJDA().getSelfUser().getAvatarUrl());
+            embed.setColor(Color.RED);
+            embed.setTitle("Currently in beta, being actively developed and tested. Expect bugs.");
+            embed.setDescription("Join my guild for updates - https://discord.gg/JWNFSZJ");
+            embed.setThumbnail("http://www.freeiconspng.com/uploads/information-icon-5.png");
+            embed.setFooter("Replace brackets [] with item specified. Vertical bar | means 'or', either side of bar is valid choice.", "http://www.niceme.me");
+            embed.addBlankField(false);
+
+            Object[] cmds = CommandHandler.commands.keySet().toArray();
+            Arrays.sort(cmds);
+            for (Object command : cmds) {
+                if (command == "help") continue;
+                embed.addField(CommandHandler.commands.get(command).usage("!"), CommandHandler.commands.get(command).descripition(), true);
+            }
+
+            e.getChannel().sendMessage(embed.build()).queue();
+
+        } else {
+
+            Object[] cmds = CommandHandler.commands.keySet().toArray();
+            for (Object command : cmds) {
+                if (command.equals("help") || command.equals("alerts")) continue;
+
+                System.out.println(command);
+                System.out.println(e.getMessage().getContent().substring(1));
+
+                if (e.getMessage().getContent().substring(1).startsWith(command.toString())) {
+                    e.getChannel().sendMessage("Command is unsupported in DM's!").queue();
+                    return;
                 }
             }
-            e.getChannel().sendMessage("Alerts now off, message `!alerts on` to re-enable at any time").queue();
-            DiscordEcho.writeSettingsJson();
-        } else if (e.getMessage().getContent().equals("!alerts on")) {
-            for (Guild g : e.getJDA().getGuilds()) {
-                if (g.getMember(e.getAuthor()) != null) {
-                    DiscordEcho.serverSettings.get(g.getId()).alertBlackList.remove(e.getAuthor().getId());
-                }
-            }
-            e.getChannel().sendMessage("Alerts now on, message `!alerts off` to disable at any time").queue();
-            DiscordEcho.writeSettingsJson();
+
+            e.getChannel().sendMessage("Unknown command, send `!help` for more info").queue();
         }
     }
 
@@ -181,7 +234,7 @@ public class EventListener extends ListenerAdapter {
 
             @Override
             public String getUrl() {
-                return "http://www.DicordEcho.com";
+                return "http://DicordEcho.com";
             }
 
             @Override

@@ -15,7 +15,8 @@ public class AutoSaveCommand implements Command {
     @Override
     public void action(String[] args, GuildMessageReceivedEvent e) {
         if (args.length != 0) {
-            DiscordEcho.sendMessage(e.getChannel(), DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix + usage());
+            String prefix = DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix;
+            DiscordEcho.sendMessage(e.getChannel(), usage(prefix));
             return;
         }
 
@@ -30,8 +31,8 @@ public class AutoSaveCommand implements Command {
     }
 
     @Override
-    public String usage() {
-        return "autosave";
+    public String usage(String prefix) {
+        return prefix + "autosave";
     }
 
     @Override

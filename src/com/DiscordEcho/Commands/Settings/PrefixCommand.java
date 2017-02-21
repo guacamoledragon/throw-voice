@@ -5,7 +5,7 @@ import com.DiscordEcho.DiscordEcho;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 
 
-public class SymbolCommand implements Command {
+public class PrefixCommand implements Command {
 
     @Override
     public Boolean called(String[] args, GuildMessageReceivedEvent e){
@@ -15,7 +15,8 @@ public class SymbolCommand implements Command {
     @Override
     public void action(String[] args, GuildMessageReceivedEvent e) {
         if (args[0].length() != 1 || args.length != 1) {
-            DiscordEcho.sendMessage(e.getChannel(), DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix + usage());
+            String prefix = DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix;
+            DiscordEcho.sendMessage(e.getChannel(), usage(prefix));
             return;
         }
 
@@ -26,8 +27,8 @@ public class SymbolCommand implements Command {
     }
 
     @Override
-    public String usage() {
-        return "symbol [character]";
+    public String usage(String prefix) {
+        return prefix + "prefix [character]";
     }
 
     @Override

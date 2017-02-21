@@ -15,7 +15,8 @@ public class SaveCommand implements Command {
     @Override
     public void action(String[] args, GuildMessageReceivedEvent e) {
         if (args.length > 1) {
-            DiscordEcho.sendMessage(e.getChannel(), DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix + usage());
+            String prefix = DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix;
+            DiscordEcho.sendMessage(e.getChannel(), usage(prefix));
             return;
         }
 
@@ -37,8 +38,8 @@ public class SaveCommand implements Command {
     }
 
     @Override
-    public String usage() {
-        return "save | save [text channel output]";
+    public String usage(String prefix) {
+        return prefix + "save | " + prefix + "save [text channel output]";
     }
 
     @Override

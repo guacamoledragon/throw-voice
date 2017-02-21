@@ -15,7 +15,8 @@ public class VolumeCommand implements Command {
     @Override
     public void action(String[] args, GuildMessageReceivedEvent e) {
         if (args.length != 1) {
-            DiscordEcho.sendMessage(e.getChannel(), DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix + usage());
+            String prefix = DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix;
+            DiscordEcho.sendMessage(e.getChannel(), usage(prefix));
             return;
         }
 
@@ -30,19 +31,21 @@ public class VolumeCommand implements Command {
                 DiscordEcho.sendMessage(e.getChannel(), "Volume set to " + num + "% for next recording!");
 
             } else {
-                DiscordEcho.sendMessage(e.getChannel(), DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix + usage());
+                String prefix = DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix;
+                DiscordEcho.sendMessage(e.getChannel(), usage(prefix));
                 return;
             }
 
         } catch (Exception ex) {
-            DiscordEcho.sendMessage(e.getChannel(), DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix + usage());
+            String prefix = DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix;
+            DiscordEcho.sendMessage(e.getChannel(), usage(prefix));
             return;
         }
     }
 
     @Override
-    public String usage() {
-        return "volume [1-100]";
+    public String usage(String prefix) {
+        return prefix + "volume [1-100]";
     }
 
     @Override

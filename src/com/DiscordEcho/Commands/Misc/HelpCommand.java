@@ -19,10 +19,14 @@ public class HelpCommand implements Command {
 
     @Override
     public void action(String[] args, GuildMessageReceivedEvent e) {
-        String prefix = DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix;
+        if (args.length != 0) {
+            String prefix = DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix;
+            DiscordEcho.sendMessage(e.getChannel(), usage(prefix));
+            return;
+        }
 
         EmbedBuilder embed = new EmbedBuilder();
-        embed.setAuthor("Discord Echo", "http://www.com.DiscordEcho.DiscordEcho.com", e.getJDA().getSelfUser().getAvatarUrl());
+        embed.setAuthor("Discord Echo", "http://DiscordEcho.com/", e.getJDA().getSelfUser().getAvatarUrl());
         embed.setColor(Color.RED);
         embed.setTitle("Currently in beta, being actively developed and tested. Expect bugs.");
         embed.setDescription("Join my guild for updates - https://discord.gg/JWNFSZJ");
@@ -34,7 +38,7 @@ public class HelpCommand implements Command {
         Arrays.sort(cmds);
         for (Object command : cmds) {
             if (command == "help") continue;
-            embed.addField(prefix + CommandHandler.commands.get(command).usage(), CommandHandler.commands.get(command).descripition(), true);
+            embed.addField(CommandHandler.commands.get(command).usage(DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix), CommandHandler.commands.get(command).descripition(), true);
         }
 
         DiscordEcho.sendMessage(e.getChannel(), "Check your DM's!");
@@ -43,8 +47,8 @@ public class HelpCommand implements Command {
     }
 
     @Override
-    public String usage() {
-        return "help";
+    public String usage(String prefix) {
+        return prefix + "help";
     }
 
     @Override
