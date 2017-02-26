@@ -150,7 +150,8 @@ public class EventListener extends ListenerAdapter {
             return;
 
         String prefix = DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix;
-        if (e.getMessage().getContent().startsWith(prefix)) {
+        //force help to always work with "!" prefix
+        if (e.getMessage().getContent().startsWith(prefix) || e.getMessage().getContent().startsWith("!help")) {
             CommandHandler.handleCommand(CommandHandler.parser.parse(e.getMessage().getContent().toLowerCase(), e));
         }
     }
@@ -185,6 +186,7 @@ public class EventListener extends ListenerAdapter {
                 e.getChannel().sendMessage("!alerts [on | off]").queue();
             }
 
+        /* removed because prefix and aliases are dependent on guild, which cannot be assumed without a message sent from guild
         } else if (e.getMessage().getContent().startsWith("!help")) {
 
             EmbedBuilder embed = new EmbedBuilder();
@@ -204,23 +206,9 @@ public class EventListener extends ListenerAdapter {
             }
 
             e.getChannel().sendMessage(embed.build()).queue();
-
+        */
         } else {
-
-            Object[] cmds = CommandHandler.commands.keySet().toArray();
-            for (Object command : cmds) {
-                if (command.equals("help") || command.equals("alerts")) continue;
-
-                System.out.println(command);
-                System.out.println(e.getMessage().getContent().substring(1));
-
-                if (e.getMessage().getContent().substring(1).startsWith(command.toString())) {
-                    e.getChannel().sendMessage("Command is unsupported in DM's!").queue();
-                    return;
-                }
-            }
-
-            e.getChannel().sendMessage("Unknown command, send `!help` for more info").queue();
+            e.getChannel().sendMessage("DM commands unsupported, send `!help` in your guild chat for more info.").queue();
         }
     }
 
