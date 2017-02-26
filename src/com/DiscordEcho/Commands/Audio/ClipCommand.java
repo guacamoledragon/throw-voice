@@ -24,8 +24,13 @@ public class ClipCommand implements Command {
             return;
         }
 
+        //cut off # in channel name if they included it
+        if (args.length == 2 && args[1].startsWith("#")) {
+            args[1] = args[1].substring(1);
+        }
+
         if (args.length == 2 && e.getGuild().getTextChannelsByName(args[1], true).size() == 0) {
-            DiscordEcho.sendMessage(e.getChannel(), "Cannot find specified voice channel");
+            DiscordEcho.sendMessage(e.getChannel(), "Cannot find specified text channel");
             return;
         }
 

@@ -27,8 +27,14 @@ public class SaveLocationCommand implements Command {
             DiscordEcho.writeSettingsJson();
 
         } else if (args.length == 1) {
+
+            //cut off # in channel name if they included it
+            if (args[0].startsWith("#")) {
+                args[0] = args[0].substring(1);
+            }
+            
             if(e.getGuild().getTextChannelsByName(args[0], true).size() == 0) {
-                DiscordEcho.sendMessage(e.getChannel(), "Cannot find specified voice channel");
+                DiscordEcho.sendMessage(e.getChannel(), "Cannot find specified text channel");
                 return;
             }
             String id = e.getGuild().getTextChannelsByName(args[0], true).get(0).getId();
