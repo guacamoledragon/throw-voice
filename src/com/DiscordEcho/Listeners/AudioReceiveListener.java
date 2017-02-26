@@ -4,16 +4,22 @@ import com.DiscordEcho.DiscordEcho;
 import net.dv8tion.jda.core.audio.AudioReceiveHandler;
 import net.dv8tion.jda.core.audio.CombinedAudio;
 import net.dv8tion.jda.core.audio.UserAudio;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.VoiceChannel;
 
 import java.util.Arrays;
+
+import static com.DiscordEcho.DiscordEcho.serverSettings;
 
 public class AudioReceiveListener implements AudioReceiveHandler
 {
     public static final double STARTING_MB = 0.5;
     public static final int CAP_MB = 16;
     public static final double PCM_MINS = 2;
+    public double AFK_LIMIT = 2;
     public boolean canReceive = true;
     public double volume = 1.0;
+    private VoiceChannel voiceChannel;
 
     public byte[] uncompVoiceData = new byte[(int) (3840 * 50 * 60 * PCM_MINS)]; //3840bytes/array * 50arrays/sec * 60sec = 1 mins
     public int uncompIndex = 0;
@@ -23,8 +29,11 @@ public class AudioReceiveListener implements AudioReceiveHandler
 
     public boolean overwriting = false;
 
-    public AudioReceiveListener(double volume) {
+    private int afkTimer;
+
+    public AudioReceiveListener(double volume, VoiceChannel voiceChannel) {
         this.volume = volume;
+        this.voiceChannel = voiceChannel;
     }
 
     @Override
@@ -42,6 +51,19 @@ public class AudioReceiveListener implements AudioReceiveHandler
     @Override
     public void handleCombinedAudio(CombinedAudio combinedAudio)
     {
+        if (combinedAudio.getUsers().size() == 0) afkTimer++;
+        else afkTimer = 0;
+
+        if (afkTimer >= 50 * 60 * AFK_LIMIT) {   //20ms * 50 * 60 seconds * 2 mins = 2 mins
+            System.out.format("AFK detected, leaving '%s' voice channel in %s\n", voiceChannel.getName(), voiceChannel.getGuild().getName());
+            TextChannel defaultTC = voiceChannel.getGuild().getTextChannelById(serverSettings.get(voiceChannel.getGuild().getId()).defaultTextChannel);
+            DiscordEcho.sendMessage(defaultTC, "No audio for 2 minutes, leaving from AFK detection...");
+            
+            voiceChannel.getGuild().getAudioManager().closeAudioConnection();
+            DiscordEcho.killAudioHandlers(voiceChannel.getGuild());
+            return;
+        }
+
         if (uncompIndex == uncompVoiceData.length / 2 || uncompIndex == uncompVoiceData.length) {
             new Thread(() -> {
 
@@ -112,7 +134,7 @@ public class AudioReceiveListener implements AudioReceiveHandler
 
                 if (!overwriting) {
                     overwriting = true;
-                    System.out.println("Hit compressed storage cap on a server");
+                    System.out.format("Hit compressed storage cap in %s on %s", voiceChannel.getName(), voiceChannel.getGuild().getName());
                 }
             }
 
@@ -123,7 +145,7 @@ public class AudioReceiveListener implements AudioReceiveHandler
 
 
     public void wipeMemory() {
-        System.out.println("Wiped recording data");
+        System.out.format("Wiped recording data in %s on %s", voiceChannel.getName(), voiceChannel.getGuild().getName());
         uncompIndex = 0;
         compIndex = 0;
 
