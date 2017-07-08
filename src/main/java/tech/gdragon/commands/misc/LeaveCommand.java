@@ -1,50 +1,50 @@
 package tech.gdragon.commands.misc;
 
-import tech.gdragon.commands.Command;
-import tech.gdragon.DiscordEcho;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
+import tech.gdragon.DiscordEcho;
+import tech.gdragon.commands.Command;
 
 
 public class LeaveCommand implements Command {
 
-    @Override
-    public Boolean called(String[] args, GuildMessageReceivedEvent e){
-        return true;
+  @Override
+  public Boolean called(String[] args, GuildMessageReceivedEvent e) {
+    return true;
+  }
+
+  @Override
+  public void action(String[] args, GuildMessageReceivedEvent e) {
+    if (args.length != 0) {
+      String prefix = DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix;
+      DiscordEcho.sendMessage(e.getChannel(), usage(prefix));
+      return;
     }
 
-    @Override
-    public void action(String[] args, GuildMessageReceivedEvent e) {
-        if (args.length != 0) {
-            String prefix = DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix;
-            DiscordEcho.sendMessage(e.getChannel(), usage(prefix));
-            return;
-        }
-
-        if (!e.getGuild().getAudioManager().isConnected()) {
-            DiscordEcho.sendMessage(e.getChannel(), "I am not in a channel!");
-            return;
-        }
-
-        //write out previous channel's audio if autoSave is on
-        if (DiscordEcho.serverSettings.get(e.getGuild().getId()).autoSave)
-            DiscordEcho.writeToFile(e.getGuild());
-
-        DiscordEcho.leaveVoiceChannel(e.getGuild().getAudioManager().getConnectedChannel());
-
+    if (!e.getGuild().getAudioManager().isConnected()) {
+      DiscordEcho.sendMessage(e.getChannel(), "I am not in a channel!");
+      return;
     }
 
-    @Override
-    public String usage(String prefix) {
-        return prefix + "leave";
-    }
+    //write out previous channel's audio if autoSave is on
+    if (DiscordEcho.serverSettings.get(e.getGuild().getId()).autoSave)
+      DiscordEcho.writeToFile(e.getGuild());
 
-    @Override
-    public String descripition() {
-        return "Force the bot to leave it's current channel";
-    }
+    DiscordEcho.leaveVoiceChannel(e.getGuild().getAudioManager().getConnectedChannel());
 
-    @Override
-    public void executed(boolean success, GuildMessageReceivedEvent e){
-        return;
-    }
+  }
+
+  @Override
+  public String usage(String prefix) {
+    return prefix + "leave";
+  }
+
+  @Override
+  public String descripition() {
+    return "Force the bot to leave it's current channel";
+  }
+
+  @Override
+  public void executed(boolean success, GuildMessageReceivedEvent e) {
+    return;
+  }
 }
