@@ -102,7 +102,7 @@ public class DiscordBot {
   }
 
 
-  public static final long PERMISSIONS = Permission.getRaw(Permission.MESSAGE_READ, Permission.MESSAGE_WRITE, Permission.VOICE_CONNECT, Permission.VOICE_USE_VAD, Permission.VOICE_SPEAK);
+  public static final long PERMISSIONS = Permission.getRaw(Permission.MESSAGE_READ, Permission.MESSAGE_WRITE, Permission.VOICE_CONNECT, Permission.VOICE_USE_VAD, Permission.VOICE_SPEAK, Permission.MESSAGE_ATTACH_FILES);
 
   //UTILITY FUNCTIONS
 
@@ -293,7 +293,7 @@ public class DiscordBot {
 
   //encode the passed array of PCM (uncompressed) audio to mp3 audio data
   public static byte[] encodePcmToMp3(byte[] pcm) {
-    LameEncoder encoder = new LameEncoder(new AudioFormat(48000.0f, 16, 2, true, true), 128, LameEncoder.CHANNEL_MODE_STEREO, LameEncoder.QUALITY_HIGHEST, false);
+    LameEncoder encoder = new LameEncoder(new AudioFormat(48000.0f, 16, 2, true, true), 128, LameEncoder.CHANNEL_MODE_AUTO, LameEncoder.QUALITY_HIGHEST, false);
     ByteArrayOutputStream mp3 = new ByteArrayOutputStream();
     byte[] buffer = new byte[encoder.getPCMBufferSize()];
 

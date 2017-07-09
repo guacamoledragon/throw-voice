@@ -33,7 +33,7 @@ public class HelpCommand implements Command {
     embed.setTitle("Currently in beta, being actively developed and tested. Expect bugs.");
     embed.setDescription("Join my guild for updates - https://discord.gg/JWNFSZJ");
     embed.setThumbnail("http://www.freeiconspng.com/uploads/information-icon-5.png");
-    embed.setFooter("Replace brackets [] with item specified. Vertical bar | means 'or', either side of bar is valid choice.", "http://DiscordEcho.com/");
+    embed.setFooter("Replace brackets [] with item specified. Vertical bar | means 'or', either side of bar is valid choice.", null);
     embed.addBlankField(false);
 
     Object[] cmds = CommandHandler.commands.keySet().toArray();
