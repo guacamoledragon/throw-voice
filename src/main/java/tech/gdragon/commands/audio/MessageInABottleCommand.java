@@ -2,7 +2,7 @@ package tech.gdragon.commands.audio;
 
 import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
-import tech.gdragon.DiscordEcho;
+import tech.gdragon.DiscordBot;
 import tech.gdragon.commands.Command;
 import tech.gdragon.commands.CommandHandler;
 
@@ -19,13 +19,13 @@ public class MessageInABottleCommand implements Command {
   @Override
   public void action(String[] args, GuildMessageReceivedEvent e) {
     if (args.length < 2) {
-      String prefix = DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix;
-      DiscordEcho.sendMessage(e.getChannel(), usage(prefix));
+      String prefix = DiscordBot.serverSettings.get(e.getGuild().getId()).prefix;
+      DiscordBot.sendMessage(e.getChannel(), usage(prefix));
       return;
     }
 
     if (e.getGuild().getAudioManager().getConnectedChannel() == null) {
-      DiscordEcho.sendMessage(e.getChannel(), "I wasn't recording!");
+      DiscordBot.sendMessage(e.getChannel(), "I wasn't recording!");
       return;
     }
 
@@ -33,12 +33,12 @@ public class MessageInABottleCommand implements Command {
     try {
       time = Integer.parseInt(args[0]);
       if (time <= 0) {
-        DiscordEcho.sendMessage(e.getChannel(), "Time must be greater than 0");
+        DiscordBot.sendMessage(e.getChannel(), "Time must be greater than 0");
         return;
       }
     } catch (Exception ex) {
-      String prefix = DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix;
-      DiscordEcho.sendMessage(e.getChannel(), usage(prefix));
+      String prefix = DiscordBot.serverSettings.get(e.getGuild().getId()).prefix;
+      DiscordBot.sendMessage(e.getChannel(), usage(prefix));
       return;
     }
 
@@ -49,7 +49,7 @@ public class MessageInABottleCommand implements Command {
     name = name.substring(0, name.length() - 1);
 
     if (e.getGuild().getVoiceChannelsByName(name, true).size() == 0) {
-      DiscordEcho.sendMessage(e.getChannel(), "Cannot find voice channel '" + name + "'.");
+      DiscordBot.sendMessage(e.getChannel(), "Cannot find voice channel '" + name + "'.");
       return;
     }
 
@@ -59,7 +59,7 @@ public class MessageInABottleCommand implements Command {
     try {
       e.getGuild().getAudioManager().openAudioConnection(newVC);
     } catch (Exception ex) {
-      DiscordEcho.sendMessage(e.getChannel(), "I don't have permission to join " + newVC.getName() + "!");
+      DiscordBot.sendMessage(e.getChannel(), "I don't have permission to join " + newVC.getName() + "!");
       return;
     }
 
@@ -74,7 +74,7 @@ public class MessageInABottleCommand implements Command {
       try {
         e.getGuild().getAudioManager().openAudioConnection(originalVC);
       } catch (Exception ex) {
-        DiscordEcho.sendMessage(e.getChannel(), "I don't have permission to join " + originalVC.getName() + "!");
+        DiscordBot.sendMessage(e.getChannel(), "I don't have permission to join " + originalVC.getName() + "!");
         return;
       }
 

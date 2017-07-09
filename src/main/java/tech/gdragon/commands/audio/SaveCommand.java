@@ -1,7 +1,7 @@
 package tech.gdragon.commands.audio;
 
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
-import tech.gdragon.DiscordEcho;
+import tech.gdragon.DiscordBot;
 import tech.gdragon.commands.Command;
 
 
@@ -15,18 +15,18 @@ public class SaveCommand implements Command {
   @Override
   public void action(String[] args, GuildMessageReceivedEvent e) {
     if (args.length > 1) {
-      String prefix = DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix;
-      DiscordEcho.sendMessage(e.getChannel(), usage(prefix));
+      String prefix = DiscordBot.serverSettings.get(e.getGuild().getId()).prefix;
+      DiscordBot.sendMessage(e.getChannel(), usage(prefix));
       return;
     }
 
     if (e.getGuild().getAudioManager().getConnectedChannel() == null) {
-      DiscordEcho.sendMessage(e.getChannel(), "I wasn't recording!");
+      DiscordBot.sendMessage(e.getChannel(), "I wasn't recording!");
       return;
     }
 
     if (args.length == 0)
-      DiscordEcho.writeToFile(e.getGuild(), e.getChannel());
+      DiscordBot.writeToFile(e.getGuild(), e.getChannel());
 
     else if (args.length == 1) {
 
@@ -36,10 +36,10 @@ public class SaveCommand implements Command {
       }
 
       if (e.getGuild().getTextChannelsByName(args[0], true).size() == 0) {
-        DiscordEcho.sendMessage(e.getChannel(), "Cannot find specified text channel");
+        DiscordBot.sendMessage(e.getChannel(), "Cannot find specified text channel");
         return;
       }
-      DiscordEcho.writeToFile(e.getGuild(), e.getGuild().getTextChannelsByName(args[0], true).get(0));
+      DiscordBot.writeToFile(e.getGuild(), e.getGuild().getTextChannelsByName(args[0], true).get(0));
     }
   }
 

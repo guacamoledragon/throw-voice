@@ -2,10 +2,7 @@ package tech.gdragon;
 
 import com.google.gson.Gson;
 import de.sciss.jump3r.lowlevel.LameEncoder;
-import net.dv8tion.jda.core.AccountType;
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.JDABuilder;
+import net.dv8tion.jda.core.*;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -36,11 +33,9 @@ import tech.gdragon.listeners.EventListener;
 import javax.security.auth.login.LoginException;
 import javax.sound.sampled.AudioFormat;
 import java.awt.*;
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.time.OffsetDateTime;
 import java.util.HashMap;
@@ -49,20 +44,20 @@ import java.util.Random;
 
 import static java.lang.Thread.sleep;
 
-public class DiscordEcho {
+public class DiscordBot {
   //contains the id of every guild that we are connected to and their corresponding ServerSettings object
   public static HashMap<String, ServerSettings> serverSettings = new HashMap<>();
 
   public static void main(String[] args) {
     try {
       //read the bot's token from a file name "token" in the main directory
-      FileReader fr = new FileReader("shark_token");
-      BufferedReader br = new BufferedReader(fr);
-      String token = br.readLine();
+//      FileReader fr = new FileReader("shark_token");
+//      BufferedReader br = new BufferedReader(fr);
+//      String token = br.readLine();
 
       //create bot instance
       JDA api = new JDABuilder(AccountType.BOT)
-          .setToken(token)
+          .setToken("")
           .addEventListener(new EventListener())
           .buildBlocking();
     } catch (LoginException e) {
@@ -233,7 +228,7 @@ public class DiscordEcho {
   public static void writeSettingsJson() {
     try {
       Gson gson = new Gson();
-      String json = gson.toJson(DiscordEcho.serverSettings);
+      String json = gson.toJson(DiscordBot.serverSettings);
 
       FileWriter fw = new FileWriter("settings.json");
       fw.write(json);
@@ -367,10 +362,10 @@ public class DiscordEcho {
     }
 
     //send alert to correct users in the voice channel
-    DiscordEcho.alert(vc);
+    DiscordBot.alert(vc);
 
     //initalize the audio reciever listener
-    double volume = DiscordEcho.serverSettings.get(vc.getGuild().getId()).volume;
+    double volume = DiscordBot.serverSettings.get(vc.getGuild().getId()).volume;
     vc.getGuild().getAudioManager().setReceivingHandler(new AudioReceiveListener(volume, vc));
 
   }
@@ -380,6 +375,6 @@ public class DiscordEcho {
     System.out.format("Leaving '%s' voice channel in %s\n", vc.getName(), vc.getGuild().getName());
 
     vc.getGuild().getAudioManager().closeAudioConnection();
-    DiscordEcho.killAudioHandlers(vc.getGuild());
+    DiscordBot.killAudioHandlers(vc.getGuild());
   }
 }

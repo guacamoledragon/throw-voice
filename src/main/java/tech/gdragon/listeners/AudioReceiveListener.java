@@ -5,11 +5,11 @@ import net.dv8tion.jda.core.audio.CombinedAudio;
 import net.dv8tion.jda.core.audio.UserAudio;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.VoiceChannel;
-import tech.gdragon.DiscordEcho;
+import tech.gdragon.DiscordBot;
 
 import java.util.Arrays;
 
-import static tech.gdragon.DiscordEcho.serverSettings;
+import static tech.gdragon.DiscordBot.serverSettings;
 
 public class AudioReceiveListener implements AudioReceiveHandler {
   public static final double STARTING_MB = 0.5;
@@ -56,10 +56,10 @@ public class AudioReceiveListener implements AudioReceiveHandler {
     if (afkTimer >= 50 * 60 * AFK_LIMIT) {   //20ms * 50 * 60 seconds * 2 mins = 2 mins
       System.out.format("AFK detected, leaving '%s' voice channel in %s\n", voiceChannel.getName(), voiceChannel.getGuild().getName());
       TextChannel defaultTC = voiceChannel.getGuild().getTextChannelById(serverSettings.get(voiceChannel.getGuild().getId()).defaultTextChannel);
-      DiscordEcho.sendMessage(defaultTC, "No audio for 2 minutes, leaving from AFK detection...");
+      DiscordBot.sendMessage(defaultTC, "No audio for 2 minutes, leaving from AFK detection...");
 
       voiceChannel.getGuild().getAudioManager().closeAudioConnection();
-      DiscordEcho.killAudioHandlers(voiceChannel.getGuild());
+      DiscordBot.killAudioHandlers(voiceChannel.getGuild());
       return;
     }
 
@@ -67,9 +67,9 @@ public class AudioReceiveListener implements AudioReceiveHandler {
       new Thread(() -> {
 
         if (uncompIndex < uncompVoiceData.length / 2)  //first half
-          addCompVoiceData(DiscordEcho.encodePcmToMp3(Arrays.copyOfRange(uncompVoiceData, 0, uncompVoiceData.length / 2)));
+          addCompVoiceData(DiscordBot.encodePcmToMp3(Arrays.copyOfRange(uncompVoiceData, 0, uncompVoiceData.length / 2)));
         else
-          addCompVoiceData(DiscordEcho.encodePcmToMp3(Arrays.copyOfRange(uncompVoiceData, uncompVoiceData.length / 2, uncompVoiceData.length)));
+          addCompVoiceData(DiscordBot.encodePcmToMp3(Arrays.copyOfRange(uncompVoiceData, uncompVoiceData.length / 2, uncompVoiceData.length)));
 
       }).start();
 
@@ -94,7 +94,7 @@ public class AudioReceiveListener implements AudioReceiveHandler {
       remaining[i] = uncompVoiceData[start + i];
     }
 
-    addCompVoiceData(DiscordEcho.encodePcmToMp3(remaining));
+    addCompVoiceData(DiscordBot.encodePcmToMp3(remaining));
 
     byte[] orderedVoiceData;
     if (overwriting) {

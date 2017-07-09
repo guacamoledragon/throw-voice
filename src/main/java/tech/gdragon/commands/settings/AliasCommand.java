@@ -1,7 +1,7 @@
 package tech.gdragon.commands.settings;
 
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
-import tech.gdragon.DiscordEcho;
+import tech.gdragon.DiscordBot;
 import tech.gdragon.commands.Command;
 import tech.gdragon.commands.CommandHandler;
 
@@ -16,24 +16,24 @@ public class AliasCommand implements Command {
   @Override
   public void action(String[] args, GuildMessageReceivedEvent e) {
     if (args.length != 2) {
-      String prefix = DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix;
-      DiscordEcho.sendMessage(e.getChannel(), usage(prefix));
+      String prefix = DiscordBot.serverSettings.get(e.getGuild().getId()).prefix;
+      DiscordBot.sendMessage(e.getChannel(), usage(prefix));
       return;
     }
 
     if (!CommandHandler.commands.containsKey(args[0].toLowerCase())) {
-      DiscordEcho.sendMessage(e.getChannel(), "Command '" + args[0].toLowerCase() + "' not found.");
+      DiscordBot.sendMessage(e.getChannel(), "Command '" + args[0].toLowerCase() + "' not found.");
       return;
     }
 
     if (CommandHandler.commands.containsValue(args[1].toLowerCase())) {
-      DiscordEcho.sendMessage(e.getChannel(), "Alias '" + args[1].toLowerCase() + "' already exists.");
+      DiscordBot.sendMessage(e.getChannel(), "Alias '" + args[1].toLowerCase() + "' already exists.");
       return;
     }
 
-    DiscordEcho.serverSettings.get(e.getGuild().getId()).aliases.put(args[1].toLowerCase(), args[0].toLowerCase());
-    DiscordEcho.writeSettingsJson();
-    DiscordEcho.sendMessage(e.getChannel(), "New alias '" + args[1].toLowerCase() + "' set for the command '" + args[0].toLowerCase() + "'.");
+    DiscordBot.serverSettings.get(e.getGuild().getId()).aliases.put(args[1].toLowerCase(), args[0].toLowerCase());
+    DiscordBot.writeSettingsJson();
+    DiscordBot.sendMessage(e.getChannel(), "New alias '" + args[1].toLowerCase() + "' set for the command '" + args[0].toLowerCase() + "'.");
 
   }
 

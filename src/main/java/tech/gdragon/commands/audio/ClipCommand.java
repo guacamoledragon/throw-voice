@@ -1,7 +1,7 @@
 package tech.gdragon.commands.audio;
 
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
-import tech.gdragon.DiscordEcho;
+import tech.gdragon.DiscordBot;
 import tech.gdragon.commands.Command;
 
 
@@ -15,12 +15,12 @@ public class ClipCommand implements Command {
   @Override
   public void action(String[] args, GuildMessageReceivedEvent e) {
     if (args.length != 1 && args.length != 2) {
-      DiscordEcho.sendMessage(e.getChannel(), DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix + usage(DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix));
+      DiscordBot.sendMessage(e.getChannel(), DiscordBot.serverSettings.get(e.getGuild().getId()).prefix + usage(DiscordBot.serverSettings.get(e.getGuild().getId()).prefix));
       return;
     }
 
     if (e.getGuild().getAudioManager().getConnectedChannel() == null) {
-      DiscordEcho.sendMessage(e.getChannel(), "I wasn't recording!");
+      DiscordBot.sendMessage(e.getChannel(), "I wasn't recording!");
       return;
     }
 
@@ -30,7 +30,7 @@ public class ClipCommand implements Command {
     }
 
     if (args.length == 2 && e.getGuild().getTextChannelsByName(args[1], true).size() == 0) {
-      DiscordEcho.sendMessage(e.getChannel(), "Cannot find specified text channel");
+      DiscordBot.sendMessage(e.getChannel(), "Cannot find specified text channel");
       return;
     }
 
@@ -38,20 +38,20 @@ public class ClipCommand implements Command {
     try {
       time = Integer.parseInt(args[0]);
     } catch (Exception ex) {
-      String prefix = DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix;
-      DiscordEcho.sendMessage(e.getChannel(), usage(prefix));
+      String prefix = DiscordBot.serverSettings.get(e.getGuild().getId()).prefix;
+      DiscordBot.sendMessage(e.getChannel(), usage(prefix));
       return;
     }
 
     if (time <= 0) {
-      DiscordEcho.sendMessage(e.getChannel(), "Time must be greater than 0");
+      DiscordBot.sendMessage(e.getChannel(), "Time must be greater than 0");
       return;
     }
 
     if (args.length == 2) {
-      DiscordEcho.writeToFile(e.getGuild(), time, e.getGuild().getTextChannelsByName(args[1], true).get(0));
+      DiscordBot.writeToFile(e.getGuild(), time, e.getGuild().getTextChannelsByName(args[1], true).get(0));
     } else {
-      DiscordEcho.writeToFile(e.getGuild(), time, e.getChannel());
+      DiscordBot.writeToFile(e.getGuild(), time, e.getChannel());
     }
 
   }

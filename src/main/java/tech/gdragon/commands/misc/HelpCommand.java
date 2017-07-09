@@ -2,7 +2,7 @@ package tech.gdragon.commands.misc;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
-import tech.gdragon.DiscordEcho;
+import tech.gdragon.DiscordBot;
 import tech.gdragon.commands.Command;
 import tech.gdragon.commands.CommandHandler;
 
@@ -22,8 +22,8 @@ public class HelpCommand implements Command {
   @Override
   public void action(String[] args, GuildMessageReceivedEvent e) {
     if (args.length != 0) {
-      String prefix = DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix;
-      DiscordEcho.sendMessage(e.getChannel(), usage(prefix));
+      String prefix = DiscordBot.serverSettings.get(e.getGuild().getId()).prefix;
+      DiscordBot.sendMessage(e.getChannel(), usage(prefix));
       return;
     }
 
@@ -42,10 +42,10 @@ public class HelpCommand implements Command {
       if (command == "help") continue;
 
       Command cmd = CommandHandler.commands.get(command);
-      String prefix = DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix;
+      String prefix = DiscordBot.serverSettings.get(e.getGuild().getId()).prefix;
 
       ArrayList<String> aliases = new ArrayList<>();
-      for (Map.Entry<String, String> entry : DiscordEcho.serverSettings.get(e.getGuild().getId()).aliases.entrySet()) {
+      for (Map.Entry<String, String> entry : DiscordBot.serverSettings.get(e.getGuild().getId()).aliases.entrySet()) {
         if (entry.getValue().equals(command))
           aliases.add(entry.getKey());
       }
@@ -65,7 +65,7 @@ public class HelpCommand implements Command {
       }
     }
 
-    DiscordEcho.sendMessage(e.getChannel(), "Check your DM's!");
+    DiscordBot.sendMessage(e.getChannel(), "Check your DM's!");
 
     e.getAuthor().openPrivateChannel().queue(privateChannel -> privateChannel.sendMessage(embed.build()).queue());
   }

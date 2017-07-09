@@ -1,7 +1,7 @@
 package tech.gdragon.commands.misc;
 
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
-import tech.gdragon.DiscordEcho;
+import tech.gdragon.DiscordBot;
 import tech.gdragon.commands.Command;
 
 
@@ -22,20 +22,20 @@ public class JoinCommand implements Command {
 
     if (e.getGuild().getAudioManager().getConnectedChannel() != null &&
       e.getGuild().getAudioManager().getConnectedChannel().getMembers().contains(e.getMember())) {
-      DiscordEcho.sendMessage(e.getChannel(), "I am already in your channel!");
+      DiscordBot.sendMessage(e.getChannel(), "I am already in your channel!");
       return;
     }
 
     if (e.getMember().getVoiceState().getChannel() == null) {
-      DiscordEcho.sendMessage(e.getChannel(), "You need to be in a voice channel to use this command!");
+      DiscordBot.sendMessage(e.getChannel(), "You need to be in a voice channel to use this command!");
       return;
     }
 
     //write out previous channel's audio if autoSave is on
-    if (e.getGuild().getAudioManager().isConnected() && DiscordEcho.serverSettings.get(e.getGuild().getId()).autoSave)
-      DiscordEcho.writeToFile(e.getGuild());
+    if (e.getGuild().getAudioManager().isConnected() && DiscordBot.serverSettings.get(e.getGuild().getId()).autoSave)
+      DiscordBot.writeToFile(e.getGuild());
 
-    DiscordEcho.joinVoiceChannel(e.getMember().getVoiceState().getChannel(), true);
+    DiscordBot.joinVoiceChannel(e.getMember().getVoiceState().getChannel(), true);
   }
 
   @Override

@@ -1,7 +1,7 @@
 package tech.gdragon.commands.settings;
 
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
-import tech.gdragon.DiscordEcho;
+import tech.gdragon.DiscordBot;
 import tech.gdragon.commands.Command;
 
 
@@ -15,16 +15,16 @@ public class SaveLocationCommand implements Command {
   @Override
   public void action(String[] args, GuildMessageReceivedEvent e) {
     if (args.length > 1) {
-      String prefix = DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix;
-      DiscordEcho.sendMessage(e.getChannel(), usage(prefix));
+      String prefix = DiscordBot.serverSettings.get(e.getGuild().getId()).prefix;
+      DiscordBot.sendMessage(e.getChannel(), usage(prefix));
       return;
     }
 
     if (args.length == 0) {
       String id = e.getChannel().getId();
-      DiscordEcho.serverSettings.get(e.getGuild().getId()).defaultTextChannel = id;
-      DiscordEcho.sendMessage(e.getChannel(), "Now defaulting to the " + e.getChannel().getName() + " text channel");
-      DiscordEcho.writeSettingsJson();
+      DiscordBot.serverSettings.get(e.getGuild().getId()).defaultTextChannel = id;
+      DiscordBot.sendMessage(e.getChannel(), "Now defaulting to the " + e.getChannel().getName() + " text channel");
+      DiscordBot.writeSettingsJson();
 
     } else if (args.length == 1) {
 
@@ -34,13 +34,13 @@ public class SaveLocationCommand implements Command {
       }
 
       if (e.getGuild().getTextChannelsByName(args[0], true).size() == 0) {
-        DiscordEcho.sendMessage(e.getChannel(), "Cannot find specified text channel");
+        DiscordBot.sendMessage(e.getChannel(), "Cannot find specified text channel");
         return;
       }
       String id = e.getGuild().getTextChannelsByName(args[0], true).get(0).getId();
-      DiscordEcho.serverSettings.get(e.getGuild().getId()).defaultTextChannel = id;
-      DiscordEcho.sendMessage(e.getChannel(), "Now defaulting to the " + e.getGuild().getTextChannelById(id).getName() + " text channel");
-      DiscordEcho.writeSettingsJson();
+      DiscordBot.serverSettings.get(e.getGuild().getId()).defaultTextChannel = id;
+      DiscordBot.sendMessage(e.getChannel(), "Now defaulting to the " + e.getGuild().getTextChannelById(id).getName() + " text channel");
+      DiscordBot.writeSettingsJson();
 
     }
   }

@@ -61,7 +61,7 @@
         <configuration>
           <appName>${artifactId}</appName>
           <processTypes>
-            <web>java $JAVA_OPTS -cp target/classes:target/dependency/* tech.gdragon.DiscordEcho</web>
+            <web>java $JAVA_OPTS -cp target/classes:target/dependency/* tech.gdragon.DiscordBot</web>
           </processTypes>
         </configuration>
       </plugin>

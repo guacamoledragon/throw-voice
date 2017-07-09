@@ -1,7 +1,7 @@
 package tech.gdragon.commands.settings;
 
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
-import tech.gdragon.DiscordEcho;
+import tech.gdragon.DiscordBot;
 import tech.gdragon.commands.Command;
 
 
@@ -15,19 +15,19 @@ public class RemoveAliasCommand implements Command {
   @Override
   public void action(String[] args, GuildMessageReceivedEvent e) {
     if (args.length != 1) {
-      String prefix = DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix;
-      DiscordEcho.sendMessage(e.getChannel(), usage(prefix));
+      String prefix = DiscordBot.serverSettings.get(e.getGuild().getId()).prefix;
+      DiscordBot.sendMessage(e.getChannel(), usage(prefix));
       return;
     }
 
-    if (!DiscordEcho.serverSettings.get(e.getGuild().getId()).aliases.containsKey(args[0].toLowerCase())) {
-      DiscordEcho.sendMessage(e.getChannel(), "Alias '" + args[0].toLowerCase() + "' does not exist.");
+    if (!DiscordBot.serverSettings.get(e.getGuild().getId()).aliases.containsKey(args[0].toLowerCase())) {
+      DiscordBot.sendMessage(e.getChannel(), "Alias '" + args[0].toLowerCase() + "' does not exist.");
       return;
     }
 
-    DiscordEcho.serverSettings.get(e.getGuild().getId()).aliases.remove(args[0].toLowerCase());
-    DiscordEcho.writeSettingsJson();
-    DiscordEcho.sendMessage(e.getChannel(), "Alias '" + args[0].toLowerCase() + "' has been removed.");
+    DiscordBot.serverSettings.get(e.getGuild().getId()).aliases.remove(args[0].toLowerCase());
+    DiscordBot.writeSettingsJson();
+    DiscordBot.sendMessage(e.getChannel(), "Alias '" + args[0].toLowerCase() + "' has been removed.");
 
   }
 

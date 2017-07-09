@@ -2,7 +2,7 @@ package tech.gdragon.commands.settings;
 
 import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
-import tech.gdragon.DiscordEcho;
+import tech.gdragon.DiscordBot;
 import tech.gdragon.commands.Command;
 import tech.gdragon.configuration.ServerSettings;
 
@@ -17,8 +17,8 @@ public class AutoLeaveCommand implements Command {
   @Override
   public void action(String[] args, GuildMessageReceivedEvent e) {
     if (args.length < 2) {
-      String prefix = DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix;
-      DiscordEcho.sendMessage(e.getChannel(), usage(prefix));
+      String prefix = DiscordBot.serverSettings.get(e.getGuild().getId()).prefix;
+      DiscordBot.sendMessage(e.getChannel(), usage(prefix));
       return;
     }
 
@@ -27,28 +27,28 @@ public class AutoLeaveCommand implements Command {
       num = Integer.parseInt(args[args.length - 1]);
 
       if (num <= 0) {
-        DiscordEcho.sendMessage(e.getChannel(), "Number must be greater than 0!");
+        DiscordBot.sendMessage(e.getChannel(), "Number must be greater than 0!");
         return;
       }
     } catch (Exception ex) {
-      String prefix = DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix;
-      DiscordEcho.sendMessage(e.getChannel(), usage(prefix));
+      String prefix = DiscordBot.serverSettings.get(e.getGuild().getId()).prefix;
+      DiscordBot.sendMessage(e.getChannel(), usage(prefix));
       return;
     }
 
-    ServerSettings settings = DiscordEcho.serverSettings.get(e.getGuild().getId());
+    ServerSettings settings = DiscordBot.serverSettings.get(e.getGuild().getId());
 
     if (args[0].toLowerCase().equals("all") && args.length == 2) {
 
       for (VoiceChannel vc : e.getGuild().getVoiceChannels()) {
         settings.autoLeaveSettings.put(vc.getId(), new Integer(num));
       }
-      DiscordEcho.writeSettingsJson();
+      DiscordBot.writeSettingsJson();
 
       if (num != -1) {
-        DiscordEcho.sendMessage(e.getChannel(), "Will now automatically leave any voice channel with " + num + " people");
+        DiscordBot.sendMessage(e.getChannel(), "Will now automatically leave any voice channel with " + num + " people");
       } else {
-        DiscordEcho.sendMessage(e.getChannel(), "Will no longer automatically leave any channel");
+        DiscordBot.sendMessage(e.getChannel(), "Will no longer automatically leave any channel");
       }
 
 
@@ -60,17 +60,17 @@ public class AutoLeaveCommand implements Command {
       name = new StringBuilder(name.substring(0, name.length() - 1));
 
       if (e.getGuild().getVoiceChannelsByName(name.toString(), true).size() == 0) {
-        DiscordEcho.sendMessage(e.getChannel(), "Cannot find voice channel '" + name + "'.");
+        DiscordBot.sendMessage(e.getChannel(), "Cannot find voice channel '" + name + "'.");
         return;
       }
 
       settings.autoLeaveSettings.put(e.getGuild().getVoiceChannelsByName(name.toString(), true).get(0).getId(), num);
-      DiscordEcho.writeSettingsJson();
+      DiscordBot.writeSettingsJson();
 
       if (num != -1) {
-        DiscordEcho.sendMessage(e.getChannel(), "Will now automatically leave '" + name + "' when there are " + num + " people");
+        DiscordBot.sendMessage(e.getChannel(), "Will now automatically leave '" + name + "' when there are " + num + " people");
       } else {
-        DiscordEcho.sendMessage(e.getChannel(), "Will no longer automatically leave '" + name + "'.");
+        DiscordBot.sendMessage(e.getChannel(), "Will no longer automatically leave '" + name + "'.");
       }
 
     }

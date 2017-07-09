@@ -1,7 +1,7 @@
 package tech.gdragon.commands.misc;
 
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
-import tech.gdragon.DiscordEcho;
+import tech.gdragon.DiscordBot;
 import tech.gdragon.commands.Command;
 
 
@@ -15,21 +15,21 @@ public class LeaveCommand implements Command {
   @Override
   public void action(String[] args, GuildMessageReceivedEvent e) {
     if (args.length != 0) {
-      String prefix = DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix;
-      DiscordEcho.sendMessage(e.getChannel(), usage(prefix));
+      String prefix = DiscordBot.serverSettings.get(e.getGuild().getId()).prefix;
+      DiscordBot.sendMessage(e.getChannel(), usage(prefix));
       return;
     }
 
     if (!e.getGuild().getAudioManager().isConnected()) {
-      DiscordEcho.sendMessage(e.getChannel(), "I am not in a channel!");
+      DiscordBot.sendMessage(e.getChannel(), "I am not in a channel!");
       return;
     }
 
     //write out previous channel's audio if autoSave is on
-    if (DiscordEcho.serverSettings.get(e.getGuild().getId()).autoSave)
-      DiscordEcho.writeToFile(e.getGuild());
+    if (DiscordBot.serverSettings.get(e.getGuild().getId()).autoSave)
+      DiscordBot.writeToFile(e.getGuild());
 
-    DiscordEcho.leaveVoiceChannel(e.getGuild().getAudioManager().getConnectedChannel());
+    DiscordBot.leaveVoiceChannel(e.getGuild().getAudioManager().getConnectedChannel());
 
   }
 
