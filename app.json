@@ -2,6 +2,11 @@
   "name": "Discord Bot: Throw Voice",
   "description": "A Discord bot used for recording a channel's audio.",
   "repository": "https://github.com/guacamoledragon/throw-voice",
+  "buildpacks": [
+    {
+      "url": "heroku/java"
+    }
+  ],
   "env": {
     "BOT_TOKEN": {
       "description": "Discord App Bot User's Token."
