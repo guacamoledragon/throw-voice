@@ -48,7 +48,7 @@ public class DiscordBot {
   //contains the id of every guild that we are connected to and their corresponding ServerSettings object
   public static HashMap<String, ServerSettings> serverSettings = new HashMap<>();
 
-  public static void main(String[] args) {
+  public DiscordBot(String token) {
     try {
       //read the bot's token from a file name "token" in the main directory
 //      FileReader fr = new FileReader("shark_token");
@@ -57,7 +57,7 @@ public class DiscordBot {
 
       //create bot instance
       JDA api = new JDABuilder(AccountType.BOT)
-          .setToken("")
+          .setToken(token)
           .addEventListener(new EventListener())
           .buildBlocking();
     } catch (LoginException e) {
@@ -99,9 +99,10 @@ public class DiscordBot {
     CommandHandler.commands.put("autosave", new AutoSaveCommand());
     CommandHandler.commands.put("savelocation", new SaveLocationCommand());
     CommandHandler.commands.put("alerts", new AlertsCommand());
-
   }
 
+
+  public static final long PERMISSIONS = Permission.getRaw(Permission.MESSAGE_READ, Permission.MESSAGE_WRITE, Permission.VOICE_CONNECT, Permission.VOICE_USE_VAD, Permission.VOICE_SPEAK);
 
   //UTILITY FUNCTIONS
 

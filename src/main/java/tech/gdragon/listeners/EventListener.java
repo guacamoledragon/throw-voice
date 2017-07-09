@@ -19,14 +19,22 @@ import tech.gdragon.commands.CommandHandler;
 import tech.gdragon.configuration.ServerSettings;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Type;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static java.lang.Thread.sleep;
 
 
 public class EventListener extends ListenerAdapter {
 
+  private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
   @Override
   public void onGuildJoin(GuildJoinEvent e) {
@@ -253,24 +261,24 @@ public class EventListener extends ListenerAdapter {
       }
     }
 
-    File dir = new File("/var/www/html/");
-    if (!dir.exists())
-      dir = new File("recordings/");
+    try {
+      Path dir = Paths.get("/var/www/html/");
+      if (Files.notExists(dir))
+        dir = Files.createDirectories(Paths.get("recordings/"));
 
-    for (File f : dir.listFiles()) {
-      if (f.getName().substring(f.getName().lastIndexOf('.'), f.getName().length()).equals(".mp3")) {
-        new Thread(() -> {
-
+      Files
+        .list(dir)
+        .filter(path -> Files.isRegularFile(path) && path.toString().toLowerCase().endsWith(".mp3"))
+        .forEach(path -> {
           try {
-            sleep(1000 * 60 * 30);
-          } catch (Exception ex) {
+            Files.delete(path);
+            logger.info("Deleting file " + path + "...");
+          } catch (IOException e1) {
+            logger.error("Could not delete: " + path, e1);
           }
-
-          f.delete();
-          System.out.println("\tDeleting file " + f.getName() + "...");
-
-        }).start();
-      }
+        });
+    } catch (IOException e1) {
+      logger.error("Error preparing to read recordings", e1);
     }
 
     //check for servers to join
