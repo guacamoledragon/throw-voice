@@ -28,10 +28,10 @@ public class HelpCommand implements Command {
     }
 
     EmbedBuilder embed = new EmbedBuilder();
-    embed.setAuthor("Discord Echo", "http://DiscordEcho.com/", e.getJDA().getSelfUser().getAvatarUrl());
+    embed.setAuthor("Throw Voice", "https://github.com/guacamoledragon/throw-voice", "https://cdn.rawgit.com/guacamoledragon/throw-voice/b8f9c99a/logo.svg");
     embed.setColor(Color.RED);
     embed.setTitle("Currently in beta, being actively developed and tested. Expect bugs.");
-    embed.setDescription("Join my guild for updates - https://discord.gg/JWNFSZJ");
+    embed.setDescription("Throw Voice was created from Discord Echo, join their guild for updates - https://discord.gg/JWNFSZJ");
     embed.setThumbnail("http://www.freeiconspng.com/uploads/information-icon-5.png");
     embed.setFooter("Replace brackets [] with item specified. Vertical bar | means 'or', either side of bar is valid choice.", null);
     embed.addBlankField(false);

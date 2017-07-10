@@ -25,6 +25,8 @@
 | `!saveLocation \| !saveLocation [text channel name]`          | Sets the text channel of message or the text channel specified as the default location to send files                                           |
 | `!volume [1-100]`                                             | Sets the percentage volume to record at, from 1-100%                                                                                           |
 
+_Replace brackets [] with item specified. Vertical bar | means 'or', either side of bar is valid choice._
+
 ## Deployment
 
 The main motivation for forking the project was to allow any Discord Guild owner to be able to host
