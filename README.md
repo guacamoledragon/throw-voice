@@ -30,35 +30,42 @@
 The main motivation for forking the project was to allow any Discord Guild owner to be able to host
 their own instance of this bot. In order to be able to do that, a bit of configuration is necessary.
 
-- First, you'll need to create an App Bot User, do so by creating a
-[Discord Application](https://discordapp.com/developers/application). You'll need to have both the
+- Create a [Discord Application](https://discordapp.com/developers/application). You'll need to have both the
 **Client ID** and App Bot User's **Token** available to configure the bot.
  
-- Next, download the [latest release](https://github.com/guacamoledragon/throw-voice/releases) of
+- Download the [latest release](https://github.com/guacamoledragon/throw-voice/releases) of
 the bot, you're looking for `throw-voice-<version>.jar`.
 
-- Install Java 8, the JRE is plenty.
+- Install Java 8
 
-- Before running the bot, you'll need to set a few environment variables:
+- Set the following environment variables:
   - `PORT`: Port on which the bot will run it's HTTP server on, strictly speaking not necessary,
   but it's convenient.
   - `CLIENT_ID`: Your Discord App Client ID
   - `BOT_TOKEN`: Your Discord App's App Bot User Token (what a mouthfull!)
 
-- Finally, after all these are set, start the bot by running:
+- Start the bot by running:
   - `java -jar throw-voice-<version>.jar`
+
+- Navigate to `http://localhost:<PORT>` to add the bot to your Guild. 
 
 Done!
 
-You can then navigate to `http://localhost:<PORT>`, which will redirect you to your bot's permission
-page, where you can link it to your Guild.
+_Note: If you're deploying on your own VPS, then you'll need a bit more setup as you may be using NGINX or Apache._
 
 ### Deployment with Heroku Button
 
-If you wish to deploy an instance of this bot on Heroku, all you need to is click on the Heroku Button below:
+You can deploy on Heroku by clicking on the button below and entering the `CLIENT_ID` and `BOT_TOKEN`.
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
- 
+
+If using the Hobby tier on Heroku, one big caveat is that the Heroku Dyno will sleep after 30 minutes
+of inactivity. This will also make your bot go to sleep and will not respond to any of your commands.
+To make waking up a bit easier, I've added an endpoint `/ping` that should respond with `pong` when the
+Dyno wakes up.
+
+Simply, visit `https://<heroku-app-name>.herokuapp.com/ping` to wake the bot before you start issuing
+commands.
 
 ## Attributions
 
