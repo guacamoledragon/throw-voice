@@ -1,6 +1,6 @@
 {
   "name": "Discord Bot: Throw Voice",
-  "description": "A Discord bot used for recording a channel's audio.",
+  "description": "A Discord bot used for voice channel recording.",
   "repository": "https://github.com/guacamoledragon/throw-voice",
   "buildpacks": [
     {
@@ -15,7 +15,7 @@
       "description": "Discord App's Client ID."
     }
   },
-  "logo": "https://discordapp.com/assets/e05ead6e6ebc08df9291738d0aa6986d.png",
+  "logo": "https://github.com/guacamoledragon/throw-voice/blob/master/logo.svg",
   "keywords": [
     "discord",
     "bot",
