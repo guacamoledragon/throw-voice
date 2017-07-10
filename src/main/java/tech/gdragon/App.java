@@ -20,10 +20,19 @@ public final class App extends NanoHTTPD {
 
   @Override
   public Response serve(IHTTPSession session) {
-    // 36703232
-    String botUrl = "https://discordapp.com/oauth2/authorize?client_id=" + this.clientId + "&scope=bot&permissions=" + DiscordBot.PERMISSIONS;
-    Response response = newFixedLengthResponse(Response.Status.REDIRECT, NanoHTTPD.MIME_HTML, "");
-    response.addHeader("Location", botUrl);
+    String uri = session.getUri();
+
+    logger.debug(uri);
+
+    Response response;
+    if(uri.toLowerCase().contains("ping")) {
+      response = newFixedLengthResponse("pong");
+    } else {
+      String botUrl = "https://discordapp.com/oauth2/authorize?client_id=" + this.clientId + "&scope=bot&permissions=" + DiscordBot.PERMISSIONS;
+      response = newFixedLengthResponse(Response.Status.REDIRECT, NanoHTTPD.MIME_HTML, "");
+      response.addHeader("Location", botUrl);
+    }
+
     return response;
   }
 

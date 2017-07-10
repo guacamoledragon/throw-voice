@@ -25,6 +25,41 @@
 | `!saveLocation \| !saveLocation [text channel name]`          | Sets the text channel of message or the text channel specified as the default location to send files                                           |
 | `!volume [1-100]`                                             | Sets the percentage volume to record at, from 1-100%                                                                                           |
 
+## Deployment
+
+The main motivation for forking the project was to allow any Discord Guild owner to be able to host
+their own instance of this bot. In order to be able to do that, a bit of configuration is necessary.
+
+- First, you'll need to create an App Bot User, do so by creating a
+[Discord Application](https://discordapp.com/developers/application). You'll need to have both the
+**Client ID** and App Bot User's **Token** available to configure the bot.
+ 
+- Next, download the [latest release](https://github.com/guacamoledragon/throw-voice/releases) of
+the bot, you're looking for `throw-voice-<version>.jar`.
+
+- Install Java 8, the JRE is plenty.
+
+- Before running the bot, you'll need to set a few environment variables:
+  - `PORT`: Port on which the bot will run it's HTTP server on, strictly speaking not necessary,
+  but it's convenient.
+  - `CLIENT_ID`: Your Discord App Client ID
+  - `BOT_TOKEN`: Your Discord App's App Bot User Token (what a mouthfull!)
+
+- Finally, after all these are set, start the bot by running:
+  - `java -jar throw-voice-<version>.jar`
+
+Done!
+
+You can then navigate to `http://localhost:<PORT>`, which will redirect you to your bot's permission
+page, where you can link it to your Guild.
+
+### Deployment with Heroku Button
+
+If you wish to deploy an instance of this bot on Heroku, all you need to is click on the Heroku Button below:
+
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
+ 
+
 ## Attributions
 
 - Japanese Dragon icon made by [Freepik](http://www.freepik.com) from [www.flaticon.com](http://www.flaticon.com) is licensed by [CC 3.0 BY](http://creativecommons.org/licenses/by/3.0/)
