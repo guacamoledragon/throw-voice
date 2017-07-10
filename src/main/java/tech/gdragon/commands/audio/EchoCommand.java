@@ -1,7 +1,7 @@
 package tech.gdragon.commands.audio;
 
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
-import tech.gdragon.DiscordEcho;
+import tech.gdragon.DiscordBot;
 import tech.gdragon.commands.Command;
 import tech.gdragon.listeners.AudioReceiveListener;
 import tech.gdragon.listeners.AudioSendListener;
@@ -17,13 +17,13 @@ public class EchoCommand implements Command {
   @Override
   public void action(String[] args, GuildMessageReceivedEvent e) {
     if (args.length != 1) {
-      String prefix = DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix;
-      DiscordEcho.sendMessage(e.getChannel(), usage(prefix));
+      String prefix = DiscordBot.serverSettings.get(e.getGuild().getId()).prefix;
+      DiscordBot.sendMessage(e.getChannel(), usage(prefix));
       return;
     }
 
     if (e.getGuild().getAudioManager().getConnectedChannel() == null) {
-      DiscordEcho.sendMessage(e.getChannel(), "I wasn't recording!");
+      DiscordBot.sendMessage(e.getChannel(), "I wasn't recording!");
       return;
     }
 
@@ -31,12 +31,12 @@ public class EchoCommand implements Command {
     try {
       time = Integer.parseInt(args[0]);
       if (time <= 0) {
-        DiscordEcho.sendMessage(e.getChannel(), "Time must be greater than 0");
+        DiscordBot.sendMessage(e.getChannel(), "Time must be greater than 0");
         return;
       }
     } catch (Exception ex) {
-      String prefix = DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix;
-      DiscordEcho.sendMessage(e.getChannel(), usage(prefix));
+      String prefix = DiscordBot.serverSettings.get(e.getGuild().getId()).prefix;
+      DiscordBot.sendMessage(e.getChannel(), usage(prefix));
       return;
     }
 
@@ -44,7 +44,7 @@ public class EchoCommand implements Command {
     AudioReceiveListener ah = (AudioReceiveListener) e.getGuild().getAudioManager().getReceiveHandler();
     byte[] voiceData;
     if (ah == null || (voiceData = ah.getUncompVoice(time)) == null) {
-      DiscordEcho.sendMessage(e.getChannel(), "I wasn't recording!");
+      DiscordBot.sendMessage(e.getChannel(), "I wasn't recording!");
       return;
     }
 

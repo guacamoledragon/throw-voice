@@ -1,7 +1,7 @@
 package tech.gdragon.commands.settings;
 
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
-import tech.gdragon.DiscordEcho;
+import tech.gdragon.DiscordBot;
 import tech.gdragon.commands.Command;
 
 
@@ -15,15 +15,15 @@ public class PrefixCommand implements Command {
   @Override
   public void action(String[] args, GuildMessageReceivedEvent e) {
     if (args[0].length() != 1 || args.length != 1) {
-      String prefix = DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix;
-      DiscordEcho.sendMessage(e.getChannel(), usage(prefix));
+      String prefix = DiscordBot.serverSettings.get(e.getGuild().getId()).prefix;
+      DiscordBot.sendMessage(e.getChannel(), usage(prefix));
       return;
     }
 
-    DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix = args[0];
-    DiscordEcho.writeSettingsJson();
+    DiscordBot.serverSettings.get(e.getGuild().getId()).prefix = args[0];
+    DiscordBot.writeSettingsJson();
 
-    DiscordEcho.sendMessage(e.getChannel(), "Command prefix now set to " + args[0]);
+    DiscordBot.sendMessage(e.getChannel(), "Command prefix now set to " + args[0]);
   }
 
   @Override
