@@ -15,7 +15,7 @@
       "description": "Discord App's Client ID."
     }
   },
-  "logo": "https://github.com/guacamoledragon/throw-voice/blob/master/logo.svg",
+  "logo": "https://cdn.rawgit.com/guacamoledragon/throw-voice/b8f9c99a/logo.svg",
   "keywords": [
     "discord",
     "bot",
