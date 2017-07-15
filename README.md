@@ -44,7 +44,7 @@ the bot, you're looking for `throw-voice-<version>.jar`.
   - `PORT`: Port on which the bot will run it's HTTP server on, strictly speaking not necessary,
   but it's convenient.
   - `CLIENT_ID`: Your Discord App Client ID
-  - `BOT_TOKEN`: Your Discord App's App Bot User Token (what a mouthfull!)
+  - `BOT_TOKEN`: Your Discord App's App Bot User Token (what a mouthful!)
 
 - Start the bot by running:
   - `java -jar throw-voice-<version>.jar`
