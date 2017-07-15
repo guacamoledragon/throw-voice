@@ -9,7 +9,7 @@
 
 # Supported tags and respective `Dockerfile` links
 
-- [`1.0-beta.1`, `latest` (*Dockerfile*)]()
+- [`1.0-beta.1`, `latest` (*Dockerfile*)](https://github.com/guacamoledragon/throw-voice/blob/f8e89617e0f71ca2d3b9a83426429f361163b429/Dockerfile)
 
 # How to use this image
 
