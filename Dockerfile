@@ -1,4 +1,4 @@
-FROM openjdk:8
+FROM openjdk:8-jre-alpine
 MAINTAINER Jose V. Trigueros <jose@gdragon.tech>
 
 ADD target/lib /usr/share/throw-voice/lib
