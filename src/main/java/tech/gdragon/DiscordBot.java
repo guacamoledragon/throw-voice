@@ -1,6 +1,7 @@
 package tech.gdragon;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import de.sciss.jump3r.lowlevel.LameEncoder;
 import net.dv8tion.jda.core.*;
 import net.dv8tion.jda.core.entities.Guild;
@@ -16,15 +17,7 @@ import tech.gdragon.commands.audio.SaveCommand;
 import tech.gdragon.commands.misc.HelpCommand;
 import tech.gdragon.commands.misc.JoinCommand;
 import tech.gdragon.commands.misc.LeaveCommand;
-import tech.gdragon.commands.settings.AlertsCommand;
-import tech.gdragon.commands.settings.AliasCommand;
-import tech.gdragon.commands.settings.AutoJoinCommand;
-import tech.gdragon.commands.settings.AutoLeaveCommand;
-import tech.gdragon.commands.settings.AutoSaveCommand;
-import tech.gdragon.commands.settings.PrefixCommand;
-import tech.gdragon.commands.settings.RemoveAliasCommand;
-import tech.gdragon.commands.settings.SaveLocationCommand;
-import tech.gdragon.commands.settings.VolumeCommand;
+import tech.gdragon.commands.settings.*;
 import tech.gdragon.configuration.ServerSettings;
 import tech.gdragon.listeners.AudioReceiveListener;
 import tech.gdragon.listeners.AudioSendListener;
@@ -228,7 +221,7 @@ public class DiscordBot {
   //write the current state of all server settings to the settings.json file
   public static void writeSettingsJson() {
     try {
-      Gson gson = new Gson();
+      Gson gson = new GsonBuilder().setPrettyPrinting().create();
       String json = gson.toJson(DiscordBot.serverSettings);
 
       FileWriter fw = new FileWriter("settings.json");
