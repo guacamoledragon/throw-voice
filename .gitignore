@@ -20,3 +20,4 @@ buildNumber.properties
 
 .env
 settings.json
+settings.db
