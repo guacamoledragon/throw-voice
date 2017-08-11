@@ -4,6 +4,7 @@ import org.jetbrains.exposed.dao.IntIdTable
 import org.jetbrains.exposed.dao.LongIdTable
 import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.Table
+import java.math.BigDecimal
 
 object Tables {
   object Guilds : LongIdTable() {
@@ -16,8 +17,9 @@ object Tables {
     val autoSave = bool("autoSave")
     val prefix = text("prefix").default("!")
     val defaultTextChannel = reference("defaultTextChannel", Channels)
-    val volume = decimal("volume", 3, 2)
+    val volume = decimal("volume", 3, 2).default(BigDecimal.valueOf(0.8))
     val channels = reference("channels", Channels)
+    val alertsBlackList = reference("alertsBlackList", Users)
   }
 
   object Aliases : IntIdTable() {
@@ -29,6 +31,10 @@ object Tables {
     val name = text("name")
     val autojoin = integer("autojoin").nullable()
     val autoleave = integer("autojoin").nullable()
+  }
+
+  object Users : IntIdTable() {
+    val name = text("name")
   }
 
   object SettingsAliases : Table() {
@@ -49,5 +55,5 @@ object Tables {
     }
   }
 
-  val allTables = arrayOf(Guilds, Settings, Aliases, SettingsAliases, SettingsChannels)
+  val allTables = arrayOf(Aliases, Channels, Guilds, Settings, SettingsAliases, SettingsChannels)
 }
