@@ -55,5 +55,14 @@ object Tables {
     }
   }
 
-  val allTables = arrayOf(Aliases, Channels, Guilds, Settings, SettingsAliases, SettingsChannels)
+  object SettingsUsers : Table() {
+    val settings = reference("settings", Settings, ReferenceOption.CASCADE)
+    val user = reference("user", Users, ReferenceOption.CASCADE)
+
+    init {
+      index(true, settings, user)
+    }
+  }
+
+  val allTables = arrayOf(Aliases, Channels, Guilds, Settings, Users, SettingsAliases, SettingsChannels, SettingsUsers)
 }
