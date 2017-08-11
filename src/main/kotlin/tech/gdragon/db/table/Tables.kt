@@ -8,17 +8,27 @@ import org.jetbrains.exposed.sql.Table
 object Tables {
   object Guilds : LongIdTable() {
     //  override val id = long("id").primaryKey().entityId()
-    val name = varchar("name", 128)
+    val name = text("name")
     val settings = reference("settings", Settings)
   }
 
   object Settings : IntIdTable() {
     val autoSave = bool("autoSave")
+    val prefix = text("prefix").default("!")
+    val defaultTextChannel = reference("defaultTextChannel", Channels)
+    val volume = decimal("volume", 3, 2)
+    val channels = reference("channels", Channels)
   }
 
   object Aliases : IntIdTable() {
-    val name = varchar("name", 128)
-    val alias = varchar("alias", 128)
+    val name = text("name")
+    val alias = text("alias")
+  }
+
+  object Channels : IntIdTable() {
+    val name = text("name")
+    val autojoin = integer("autojoin").nullable()
+    val autoleave = integer("autojoin").nullable()
   }
 
   object SettingsAliases : Table() {
@@ -30,5 +40,14 @@ object Tables {
     }
   }
 
-  val allTables = arrayOf(Guilds, Settings, Aliases, SettingsAliases)
+  object SettingsChannels : Table() {
+    val settings = reference("settings", Settings, ReferenceOption.CASCADE)
+    val channel = reference("channel", Channels, ReferenceOption.CASCADE)
+
+    init {
+      index(true, settings, channel)
+    }
+  }
+
+  val allTables = arrayOf(Guilds, Settings, Aliases, SettingsAliases, SettingsChannels)
 }
