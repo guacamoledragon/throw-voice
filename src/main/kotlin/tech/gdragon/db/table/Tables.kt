@@ -24,13 +24,13 @@ object Tables {
     val alias = text("alias")
   }
 
-  object Channels : IntIdTable() {
+  object Channels : LongIdTable() {
     val name = text("name")
     val autoJoin = integer("autoJoin").nullable()
-    val autoLeave = integer("autoLeave").nullable()
+    val autoLeave = integer("autoLeave").default(1)
   }
 
-  object Users : IntIdTable() {
+  object Users : LongIdTable() {
     val name = text("name")
   }
 

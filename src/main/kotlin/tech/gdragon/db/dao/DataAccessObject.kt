@@ -26,8 +26,8 @@ class Alias(id: EntityID<Int>) : IntEntity(id) {
   var alias by Aliases.alias
 }
 
-class Channel(id: EntityID<Int>) : IntEntity(id) {
-  companion object : IntEntityClass<Channel>(Channels)
+class Channel(id: EntityID<Long>) : LongEntity(id) {
+  companion object : LongEntityClass<Channel>(Channels)
 
   var name by Channels.name
   var autoJoin by Channels.autoJoin
@@ -54,8 +54,8 @@ class Settings(id: EntityID<Int>) : IntEntity(id) {
   var aliases by Alias via SettingsAliases
 }
 
-class User(id: EntityID<Int>) : IntEntity(id) {
-  companion object : IntEntityClass<User>(Users)
+class User(id: EntityID<Long>) : LongEntity(id) {
+  companion object : LongEntityClass<User>(Users)
 
   var name by Users.name
 }
