@@ -1,9 +1,6 @@
 package tech.gdragon
 
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.SizedCollection
-import org.jetbrains.exposed.sql.Slf4jSqlLogger
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.db.dao.Alias
@@ -18,28 +15,19 @@ fun main(args: Array<String>) {
 
 
   transaction {
-    logger.addLogger(Slf4jSqlLogger)
-
     SchemaUtils.drop(*Tables.allTables)
     SchemaUtils.create(*Tables.allTables)
 
 //    val guild = Guild[333055724198559745L]
 
-    val alias = Alias.new {
-      name = "info"
-      alias = "help"
-    }
-
-    val guild = Guild.new() {
+    val guild = Guild.new {
       name = "Guacamole Dragon"
-      settings = Settings.new {
-        autoSave = false
-      }
+      settings = Settings.new {}
     }
 
-    guild.settings.aliases = SizedCollection(listOf(alias))
+    guild.settings.aliases = SizedCollection(Alias.createDefaultAliases())
 
-    println(guild.settings.autoSave)
+//    println(guild.settings.autoSave)
     guild.settings.aliases.forEach { println("${it.name} -> ${it.alias}") }
   }
 }

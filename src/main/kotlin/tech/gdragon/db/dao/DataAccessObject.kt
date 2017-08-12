@@ -4,12 +4,23 @@ import org.jetbrains.exposed.dao.*
 import tech.gdragon.db.table.Tables.Aliases
 import tech.gdragon.db.table.Tables.Channels
 import tech.gdragon.db.table.Tables.Guilds
-import tech.gdragon.db.table.Tables.Users
 import tech.gdragon.db.table.Tables.SettingsAliases
+import tech.gdragon.db.table.Tables.SettingsChannels
+import tech.gdragon.db.table.Tables.SettingsUsers
+import tech.gdragon.db.table.Tables.Users
 import tech.gdragon.db.table.Tables.Settings as SettingsTable
 
 class Alias(id: EntityID<Int>) : IntEntity(id) {
-  companion object : IntEntityClass<Alias>(Aliases)
+  companion object : IntEntityClass<Alias>(Aliases) {
+    private val aliases = listOf("info" to "help", "record" to "join", "stop" to "leave", "symbol" to "prefix")
+
+    fun createDefaultAliases() = aliases.map { (name, alias) ->
+      Alias.new {
+        this.name = name
+        this.alias = alias
+      }
+    }
+  }
 
   var name by Aliases.name
   var alias by Aliases.alias
@@ -19,8 +30,8 @@ class Channel(id: EntityID<Int>) : IntEntity(id) {
   companion object : IntEntityClass<Channel>(Channels)
 
   var name by Channels.name
-  var autojoin by Channels.autojoin
-  var autoleave by Channels.autoleave
+  var autoJoin by Channels.autoJoin
+  var autoLeave by Channels.autoLeave
 }
 
 class Guild(id: EntityID<Long>) : LongEntity(id) {
@@ -38,8 +49,8 @@ class Settings(id: EntityID<Int>) : IntEntity(id) {
   var prefix by SettingsTable.prefix
   var volume by SettingsTable.volume
 
-  var alertBlacklist by User via Users
-  var channels by Channel via Channelsa,
+  var alertBlacklist by User via SettingsUsers
+  var channels by Channel via SettingsChannels
   var aliases by Alias via SettingsAliases
 }
 

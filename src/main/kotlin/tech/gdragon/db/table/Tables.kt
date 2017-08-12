@@ -8,18 +8,15 @@ import java.math.BigDecimal
 
 object Tables {
   object Guilds : LongIdTable() {
-    //  override val id = long("id").primaryKey().entityId()
     val name = text("name")
     val settings = reference("settings", Settings)
   }
 
   object Settings : IntIdTable() {
-    val autoSave = bool("autoSave")
+    val autoSave = bool("autoSave").default(false)
     val prefix = text("prefix").default("!")
-    val defaultTextChannel = reference("defaultTextChannel", Channels)
+    val defaultTextChannel = reference("defaultTextChannel", Channels).nullable()
     val volume = decimal("volume", 3, 2).default(BigDecimal.valueOf(0.8))
-    val channels = reference("channels", Channels)
-    val alertsBlackList = reference("alertsBlackList", Users)
   }
 
   object Aliases : IntIdTable() {
@@ -29,8 +26,8 @@ object Tables {
 
   object Channels : IntIdTable() {
     val name = text("name")
-    val autojoin = integer("autojoin").nullable()
-    val autoleave = integer("autojoin").nullable()
+    val autoJoin = integer("autoJoin").nullable()
+    val autoLeave = integer("autoLeave").nullable()
   }
 
   object Users : IntIdTable() {
