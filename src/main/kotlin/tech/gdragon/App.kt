@@ -10,11 +10,7 @@ import tech.gdragon.db.table.Tables
 import java.sql.Connection
 
 fun main(args: Array<String>) {
-  Database.connect("jdbc:sqlite:settings.db", driver = "org.sqlite.JDBC")
-  TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_READ_UNCOMMITTED
-
-
-  transaction {
+  val guild: SizedIterable<Alias> = transaction {
     SchemaUtils.drop(*Tables.allTables)
     SchemaUtils.create(*Tables.allTables)
 
@@ -29,5 +25,9 @@ fun main(args: Array<String>) {
 
 //    println(guild.settings.autoSave)
     guild.settings.aliases.forEach { println("${it.name} -> ${it.alias}") }
+
+    return@transaction guild.settings.aliases
   }
+
+  guild.forEach { println("${it.name} -> ${it.alias}") }
 }

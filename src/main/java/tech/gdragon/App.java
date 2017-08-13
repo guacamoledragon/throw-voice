@@ -4,6 +4,8 @@ package tech.gdragon;
 import fi.iki.elonen.NanoHTTPD;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tech.gdragon.db.Shim;
+import tech.gdragon.db.dao.Guild;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -43,6 +45,19 @@ public final class App extends NanoHTTPD {
    * Starts a simple HTTP Service, whose only response is to redirect to the bot's page.
    */
   public static void main(String[] args) {
+    // Connect to database
+    Shim.INSTANCE.initializeDatabase("settings.db");
+
+    Shim.INSTANCE.transaction(() -> {
+      Guild guild = Guild.Companion.findById(1L);
+      assert guild != null;
+      guild.getSettings().getAliases().forEach(alias -> {
+        System.out.println(alias.getName() + "->" + alias.getAlias());
+      });
+
+      return null;
+    });
+
     String token = System.getenv("BOT_TOKEN");
     String port = System.getenv("PORT");
     String clientId = System.getenv("CLIENT_ID");
