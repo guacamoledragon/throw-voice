@@ -30,6 +30,7 @@ public final class App extends NanoHTTPD {
     if(uri.toLowerCase().contains("ping")) {
       response = newFixedLengthResponse("pong");
     } else {
+      // TODO We don't gotta hand jam this, api.asBot().getInviteUrl(...)
       String botUrl = "https://discordapp.com/oauth2/authorize?client_id=" + this.clientId + "&scope=bot&permissions=" + DiscordBot.PERMISSIONS;
       response = newFixedLengthResponse(Response.Status.REDIRECT, NanoHTTPD.MIME_HTML, "");
       response.addHeader("Location", botUrl);
