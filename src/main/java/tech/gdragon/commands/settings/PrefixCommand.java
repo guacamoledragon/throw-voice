@@ -6,12 +6,6 @@ import tech.gdragon.commands.Command;
 
 
 public class PrefixCommand implements Command {
-
-  @Override
-  public Boolean called(String[] args, GuildMessageReceivedEvent e) {
-    return true;
-  }
-
   @Override
   public void action(String[] args, GuildMessageReceivedEvent e) {
     if (args[0].length() != 1 || args.length != 1) {
@@ -32,12 +26,7 @@ public class PrefixCommand implements Command {
   }
 
   @Override
-  public String descripition() {
+  public String description() {
     return "Sets the prefix for each command to avoid conflict with other bots (Default is '!')";
-  }
-
-  @Override
-  public void executed(boolean success, GuildMessageReceivedEvent e) {
-    return;
   }
 }

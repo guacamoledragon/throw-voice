@@ -8,11 +8,6 @@ import tech.gdragon.commands.Command;
 public class JoinCommand implements Command {
 
   @Override
-  public Boolean called(String[] args, GuildMessageReceivedEvent e) {
-    return true;
-  }
-
-  @Override
   public void action(String[] args, GuildMessageReceivedEvent e) {
     if (args.length != 0) {
 
@@ -44,12 +39,7 @@ public class JoinCommand implements Command {
   }
 
   @Override
-  public String descripition() {
+  public String description() {
     return "Force the bot to join and record your current channel";
-  }
-
-  @Override
-  public void executed(boolean success, GuildMessageReceivedEvent e) {
-    return;
   }
 }

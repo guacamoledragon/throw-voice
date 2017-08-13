@@ -12,11 +12,6 @@ import static java.lang.Thread.sleep;
 public class MessageInABottleCommand implements Command {
 
   @Override
-  public Boolean called(String[] args, GuildMessageReceivedEvent e) {
-    return true;
-  }
-
-  @Override
   public void action(String[] args, GuildMessageReceivedEvent e) {
     if (args.length < 2) {
       String prefix = DiscordBot.serverSettings.get(e.getGuild().getId()).prefix;
@@ -87,12 +82,7 @@ public class MessageInABottleCommand implements Command {
   }
 
   @Override
-  public String descripition() {
+  public String description() {
     return "Echos back the input number of seconds of the recording into the voice channel specified and then rejoins original channel (max 120 seconds)";
-  }
-
-  @Override
-  public void executed(boolean success, GuildMessageReceivedEvent e) {
-    return;
   }
 }

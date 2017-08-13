@@ -10,11 +10,6 @@ import tech.gdragon.configuration.ServerSettings;
 public class AutoJoinCommand implements Command {
 
   @Override
-  public Boolean called(String[] args, GuildMessageReceivedEvent e) {
-    return true;
-  }
-
-  @Override
   public void action(String[] args, GuildMessageReceivedEvent e) {
     if (args.length < 2) {
       String prefix = DiscordBot.serverSettings.get(e.getGuild().getId()).prefix;
@@ -92,12 +87,7 @@ public class AutoJoinCommand implements Command {
   }
 
   @Override
-  public String descripition() {
+  public String description() {
     return "Sets the number of players for the bot to auto-join a voice channel, or disables auto-joining. All will apply number to all voice channels.";
-  }
-
-  @Override
-  public void executed(boolean success, GuildMessageReceivedEvent e) {
-    return;
   }
 }

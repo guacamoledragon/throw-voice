@@ -206,7 +206,7 @@ public class EventListener extends ListenerAdapter {
             Arrays.sort(cmds);
             for (Object command : cmds) {
                 if (command == "help") continue;
-                embed.addField(CommandHandler.commands.get(command).usage("!"), CommandHandler.commands.get(command).descripition(), true);
+                embed.addField(CommandHandler.commands.get(command).usage("!"), CommandHandler.commands.get(command).description(), true);
             }
 
             e.getChannel().sendMessage(embed.build()).queue();

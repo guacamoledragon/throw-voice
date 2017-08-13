@@ -8,12 +8,6 @@ import tech.gdragon.listeners.AudioSendListener;
 
 
 public class EchoCommand implements Command {
-
-  @Override
-  public Boolean called(String[] args, GuildMessageReceivedEvent e) {
-    return true;
-  }
-
   @Override
   public void action(String[] args, GuildMessageReceivedEvent e) {
     if (args.length != 1) {
@@ -59,12 +53,7 @@ public class EchoCommand implements Command {
   }
 
   @Override
-  public String descripition() {
+  public String description() {
     return "Echos back the input number of seconds of the recording into the voice channel (max 120 seconds)";
-  }
-
-  @Override
-  public void executed(boolean success, GuildMessageReceivedEvent e) {
-    return;
   }
 }

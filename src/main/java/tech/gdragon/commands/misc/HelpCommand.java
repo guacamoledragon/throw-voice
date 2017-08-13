@@ -15,11 +15,6 @@ import java.util.Map;
 public class HelpCommand implements Command {
 
   @Override
-  public Boolean called(String[] args, GuildMessageReceivedEvent e) {
-    return true;
-  }
-
-  @Override
   public void action(String[] args, GuildMessageReceivedEvent e) {
     if (args.length != 0) {
       String prefix = DiscordBot.serverSettings.get(e.getGuild().getId()).prefix;
@@ -51,7 +46,7 @@ public class HelpCommand implements Command {
       }
 
       if (aliases.size() == 0)
-        embed.addField(cmd.usage(prefix), cmd.descripition(), true);
+        embed.addField(cmd.usage(prefix), cmd.description(), true);
       else {
         String descripition = "";
         descripition += "Aliases: ";
@@ -60,7 +55,7 @@ public class HelpCommand implements Command {
 
         //remove extra comma
         descripition = descripition.substring(0, descripition.lastIndexOf(','));
-        descripition += ". " + cmd.descripition();
+        descripition += ". " + cmd.description();
         embed.addField(cmd.usage(prefix), descripition, true);
       }
     }
@@ -76,12 +71,7 @@ public class HelpCommand implements Command {
   }
 
   @Override
-  public String descripition() {
+  public String description() {
     return "Shows all commands and their usages";
-  }
-
-  @Override
-  public void executed(boolean success, GuildMessageReceivedEvent e) {
-    return;
   }
 }

@@ -6,12 +6,6 @@ import tech.gdragon.commands.Command;
 
 
 public class AutoSaveCommand implements Command {
-
-  @Override
-  public Boolean called(String[] args, GuildMessageReceivedEvent e) {
-    return true;
-  }
-
   @Override
   public void action(String[] args, GuildMessageReceivedEvent e) {
     if (args.length != 0) {
@@ -36,12 +30,7 @@ public class AutoSaveCommand implements Command {
   }
 
   @Override
-  public String descripition() {
+  public String description() {
     return "Toggles the option to automatically save and send all files at the end of each session - not just saved or clipped files";
-  }
-
-  @Override
-  public void executed(boolean success, GuildMessageReceivedEvent e) {
-    return;
   }
 }

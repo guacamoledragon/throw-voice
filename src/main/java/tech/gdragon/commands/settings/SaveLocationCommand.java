@@ -8,11 +8,6 @@ import tech.gdragon.commands.Command;
 public class SaveLocationCommand implements Command {
 
   @Override
-  public Boolean called(String[] args, GuildMessageReceivedEvent e) {
-    return true;
-  }
-
-  @Override
   public void action(String[] args, GuildMessageReceivedEvent e) {
     if (args.length > 1) {
       String prefix = DiscordBot.serverSettings.get(e.getGuild().getId()).prefix;
@@ -51,12 +46,7 @@ public class SaveLocationCommand implements Command {
   }
 
   @Override
-  public String descripition() {
+  public String description() {
     return "Sets the text channel of message or the text channel specified as the default location to send files";
-  }
-
-  @Override
-  public void executed(boolean success, GuildMessageReceivedEvent e) {
-    return;
   }
 }

@@ -8,11 +8,6 @@ import tech.gdragon.commands.Command;
 public class RemoveAliasCommand implements Command {
 
   @Override
-  public Boolean called(String[] args, GuildMessageReceivedEvent e) {
-    return true;
-  }
-
-  @Override
   public void action(String[] args, GuildMessageReceivedEvent e) {
     if (args.length != 1) {
       String prefix = DiscordBot.serverSettings.get(e.getGuild().getId()).prefix;
@@ -37,12 +32,7 @@ public class RemoveAliasCommand implements Command {
   }
 
   @Override
-  public String descripition() {
+  public String description() {
     return "Removes an alias from a command.";
-  }
-
-  @Override
-  public void executed(boolean success, GuildMessageReceivedEvent e) {
-    return;
   }
 }

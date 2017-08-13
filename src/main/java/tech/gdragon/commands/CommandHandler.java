@@ -21,15 +21,7 @@ public class CommandHandler {
         invoke = cmd.invoke;
       }
 
-      Boolean safe = commands.get(invoke).called(cmd.args, cmd.e);
-
-      if (safe) {
-        commands.get(invoke).action(cmd.args, cmd.e);
-        commands.get(invoke).executed(safe, cmd.e);
-
-      } else {
-        commands.get(invoke).executed(safe, cmd.e);
-      }
+      commands.get(invoke).action(cmd.args, cmd.e);
     }
   }
 }

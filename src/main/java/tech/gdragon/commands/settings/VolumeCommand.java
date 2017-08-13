@@ -6,12 +6,6 @@ import tech.gdragon.commands.Command;
 
 
 public class VolumeCommand implements Command {
-
-  @Override
-  public Boolean called(String[] args, GuildMessageReceivedEvent e) {
-    return true;
-  }
-
   @Override
   public void action(String[] args, GuildMessageReceivedEvent e) {
     if (args.length != 1) {
@@ -49,12 +43,7 @@ public class VolumeCommand implements Command {
   }
 
   @Override
-  public String descripition() {
+  public String description() {
     return "Sets the percentage volume to record at, from 1-100%";
-  }
-
-  @Override
-  public void executed(boolean success, GuildMessageReceivedEvent e) {
-    return;
   }
 }

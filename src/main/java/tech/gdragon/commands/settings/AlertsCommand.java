@@ -6,12 +6,6 @@ import tech.gdragon.commands.Command;
 
 
 public class AlertsCommand implements Command {
-
-  @Override
-  public Boolean called(String[] args, GuildMessageReceivedEvent e) {
-    return true;
-  }
-
   @Override
   public void action(String[] args, GuildMessageReceivedEvent e) {
     if (args.length != 1) {
@@ -53,12 +47,8 @@ public class AlertsCommand implements Command {
   }
 
   @Override
-  public String descripition() {
+  public String description() {
     return "Turns on/off direct message alerts for when you are being recorded in a voice channel "
       + "(on by default)";
-  }
-
-  @Override
-  public void executed(boolean success, GuildMessageReceivedEvent e) {
   }
 }

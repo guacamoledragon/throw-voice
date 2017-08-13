@@ -8,12 +8,6 @@ import tech.gdragon.configuration.ServerSettings;
 
 
 public class AutoLeaveCommand implements Command {
-
-  @Override
-  public Boolean called(String[] args, GuildMessageReceivedEvent e) {
-    return true;
-  }
-
   @Override
   public void action(String[] args, GuildMessageReceivedEvent e) {
     if (args.length < 2) {
@@ -82,12 +76,7 @@ public class AutoLeaveCommand implements Command {
   }
 
   @Override
-  public String descripition() {
+  public String description() {
     return "Sets the number of players for the bot to auto-leave a voice channel, or disables auto-leaving.  All will apply number to all voice channels.";
-  }
-
-  @Override
-  public void executed(boolean success, GuildMessageReceivedEvent e) {
-    return;
   }
 }

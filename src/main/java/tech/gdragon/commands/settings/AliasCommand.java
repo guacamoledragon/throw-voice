@@ -9,11 +9,6 @@ import tech.gdragon.commands.CommandHandler;
 public class AliasCommand implements Command {
 
   @Override
-  public Boolean called(String[] args, GuildMessageReceivedEvent e) {
-    return true;
-  }
-
-  @Override
   public void action(String[] args, GuildMessageReceivedEvent e) {
     if (args.length != 2) {
       String prefix = DiscordBot.serverSettings.get(e.getGuild().getId()).prefix;
@@ -43,12 +38,7 @@ public class AliasCommand implements Command {
   }
 
   @Override
-  public String descripition() {
+  public String description() {
     return "Creates an alias, or alternate name, to a command for customization.";
-  }
-
-  @Override
-  public void executed(boolean success, GuildMessageReceivedEvent e) {
-    return;
   }
 }
