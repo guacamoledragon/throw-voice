@@ -48,7 +48,7 @@ public final class App extends NanoHTTPD {
     // Connect to database
     Shim.INSTANCE.initializeDatabase("settings.db");
 
-    Shim.INSTANCE.transaction(() -> {
+    Shim.INSTANCE.xaction(() -> {
       Guild guild = Guild.Companion.findById(1L);
       assert guild != null;
       guild.getSettings().getAliases().forEach(alias -> {

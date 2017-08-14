@@ -1,13 +1,13 @@
 package tech.gdragon
 
-import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.transactions.TransactionManager
+import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.SizedCollection
+import org.jetbrains.exposed.sql.SizedIterable
 import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.db.dao.Alias
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.dao.Settings
 import tech.gdragon.db.table.Tables
-import java.sql.Connection
 
 fun main(args: Array<String>) {
   val guild: SizedIterable<Alias> = transaction {
