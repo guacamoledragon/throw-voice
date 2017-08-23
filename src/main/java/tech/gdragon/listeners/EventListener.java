@@ -151,7 +151,16 @@ public class EventListener extends ListenerAdapter {
     if (e.getMember() == null || e.getMember().getUser() == null || e.getMember().getUser().isBot())
       return;
 
-    String prefix = DiscordBot.serverSettings.get(e.getGuild().getId()).prefix;
+    String guildId = e.getGuild().getId();
+
+    // HACK: Create settings for a guild that needs to be accessed. This is a problem when restarting bot.
+    if(!DiscordBot.serverSettings.containsKey(guildId)) {
+      DiscordBot.serverSettings.put(e.getGuild().getId(), new ServerSettings(e.getGuild()));
+      DiscordBot.writeSettingsJson();
+      System.out.format("Joined new server '%s', connected to %s guilds\n", e.getGuild().getName(), e.getJDA().getGuilds().size());
+    }
+
+    String prefix = DiscordBot.serverSettings.get(guildId).prefix;
     //force help to always work with "!" prefix
     if (e.getMessage().getContent().startsWith(prefix) || e.getMessage().getContent().startsWith("!help")) {
       CommandHandler.handleCommand(CommandHandler.parser.parse(e.getMessage().getContent().toLowerCase(), e));
