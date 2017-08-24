@@ -272,8 +272,10 @@ public class EventListener extends ListenerAdapter {
 
     try {
       Path dir = Paths.get("/var/www/html/");
-      if (Files.notExists(dir))
+      if (Files.notExists(dir)) {
         dir = Files.createDirectories(Paths.get("recordings/"));
+        logger.info("Creating: " + dir.toString());
+      }
 
       Files
         .list(dir)
