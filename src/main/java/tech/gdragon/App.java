@@ -6,6 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public final class App extends NanoHTTPD {
 
@@ -45,6 +47,14 @@ public final class App extends NanoHTTPD {
     String clientId = System.getenv("CLIENT_ID");
 
     App app = new App(Integer.parseInt(port), clientId);
+
+    // HACK: Create directory here cause for some reason it doesn't get created otherwise
+    try {
+      Files.createDirectories(Paths.get("recordings/"));
+    } catch (IOException e) {
+      logger.error("Could not create recordings directory", e);
+    }
+
     new DiscordBot(token);
 
     try {

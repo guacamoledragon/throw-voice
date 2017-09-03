@@ -282,9 +282,13 @@ public class DiscordBot {
       dir = new File("recordings/");
     }
 
-    for (File f : dir.listFiles()) {
-      if (f.getName().equals(saltStr)) {
-        saltStr = getPJSaltString();
+    File[] fileList = dir.listFiles();
+
+    if( fileList != null) {
+      for (File f : fileList) {
+        if (f.getName().equals(saltStr)) {
+          saltStr = getPJSaltString();
+        }
       }
     }
 

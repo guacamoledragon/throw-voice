@@ -27,7 +27,7 @@
     <dependency>
       <groupId>net.dv8tion</groupId>
       <artifactId>JDA</artifactId>
-      <version>3.1.1_220</version>
+      <version>3.3.0_260</version>
     </dependency>
     <dependency>
       <groupId>org.nanohttpd</groupId>

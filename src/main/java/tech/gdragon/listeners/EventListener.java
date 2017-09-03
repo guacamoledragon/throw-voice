@@ -151,7 +151,16 @@ public class EventListener extends ListenerAdapter {
     if (e.getMember() == null || e.getMember().getUser() == null || e.getMember().getUser().isBot())
       return;
 
-    String prefix = DiscordBot.serverSettings.get(e.getGuild().getId()).prefix;
+    String guildId = e.getGuild().getId();
+
+    // HACK: Create settings for a guild that needs to be accessed. This is a problem when restarting bot.
+    if(!DiscordBot.serverSettings.containsKey(guildId)) {
+      DiscordBot.serverSettings.put(e.getGuild().getId(), new ServerSettings(e.getGuild()));
+      DiscordBot.writeSettingsJson();
+      System.out.format("Joined new server '%s', connected to %s guilds\n", e.getGuild().getName(), e.getJDA().getGuilds().size());
+    }
+
+    String prefix = DiscordBot.serverSettings.get(guildId).prefix;
     //force help to always work with "!" prefix
     if (e.getMessage().getContent().startsWith(prefix) || e.getMessage().getContent().startsWith("!help")) {
       CommandHandler.handleCommand(CommandHandler.parser.parse(e.getMessage().getContent().toLowerCase(), e));
@@ -213,22 +222,7 @@ public class EventListener extends ListenerAdapter {
 
   @Override
   public void onReady(ReadyEvent e) {
-    e.getJDA().getPresence().setGame(new Game() {
-      @Override
-      public String getName() {
-        return "!help | DicordEcho.com";
-      }
-
-      @Override
-      public String getUrl() {
-        return "http://DicordEcho.com";
-      }
-
-      @Override
-      public GameType getType() {
-        return GameType.DEFAULT;
-      }
-    });
+    e.getJDA().getPresence().setGame(new Game("!help | DicordEcho.com", "http://DicordEcho.com", Game.GameType.DEFAULT) {});
 
     try {
       System.out.format("ONLINE: Connected to %s guilds!\n", e.getJDA().getGuilds().size(), e.getJDA().getVoiceChannels().size());
@@ -263,8 +257,10 @@ public class EventListener extends ListenerAdapter {
 
     try {
       Path dir = Paths.get("/var/www/html/");
-      if (Files.notExists(dir))
+      if (Files.notExists(dir)) {
         dir = Files.createDirectories(Paths.get("recordings/"));
+        logger.info("Creating: " + dir.toString());
+      }
 
       Files
         .list(dir)
