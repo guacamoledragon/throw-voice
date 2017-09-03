@@ -222,22 +222,7 @@ public class EventListener extends ListenerAdapter {
 
   @Override
   public void onReady(ReadyEvent e) {
-    e.getJDA().getPresence().setGame(new Game() {
-      @Override
-      public String getName() {
-        return "!help | DicordEcho.com";
-      }
-
-      @Override
-      public String getUrl() {
-        return "http://DicordEcho.com";
-      }
-
-      @Override
-      public GameType getType() {
-        return GameType.DEFAULT;
-      }
-    });
+    e.getJDA().getPresence().setGame(new Game("!help | DicordEcho.com", "http://DicordEcho.com", Game.GameType.DEFAULT) {});
 
     try {
       System.out.format("ONLINE: Connected to %s guilds!\n", e.getJDA().getGuilds().size(), e.getJDA().getVoiceChannels().size());
