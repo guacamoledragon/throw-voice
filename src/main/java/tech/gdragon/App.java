@@ -48,16 +48,6 @@ public final class App extends NanoHTTPD {
     // Connect to database
     Shim.INSTANCE.initializeDatabase("settings.db");
 
-    Shim.INSTANCE.xaction(() -> {
-      Guild guild = Guild.Companion.findById(1L);
-      assert guild != null;
-      guild.getSettings().getAliases().forEach(alias -> {
-        System.out.println(alias.getName() + "->" + alias.getAlias());
-      });
-
-      return null;
-    });
-
     String token = System.getenv("BOT_TOKEN");
     String port = System.getenv("PORT");
     String clientId = System.getenv("CLIENT_ID");

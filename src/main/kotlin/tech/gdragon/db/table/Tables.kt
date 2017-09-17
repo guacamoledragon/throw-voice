@@ -22,6 +22,7 @@ object Tables {
   object Aliases : IntIdTable() {
     val name = text("name")
     val alias = text("alias")
+    val settings = reference("settings", Settings)
   }
 
   object Channels : LongIdTable() {
@@ -32,15 +33,6 @@ object Tables {
 
   object Users : LongIdTable() {
     val name = text("name")
-  }
-
-  object SettingsAliases : Table() {
-    val settings = reference("settings", Settings, ReferenceOption.CASCADE)
-    val alias = reference("alias", Aliases, ReferenceOption.CASCADE)
-
-    init {
-      index(true, settings, alias)
-    }
   }
 
   object SettingsChannels : Table() {
@@ -61,5 +53,5 @@ object Tables {
     }
   }
 
-  val allTables = arrayOf(Aliases, Channels, Guilds, Settings, Users, SettingsAliases, SettingsChannels, SettingsUsers)
+  val allTables = arrayOf(Aliases, Channels, Guilds, Settings, Users, SettingsChannels, SettingsUsers)
 }
