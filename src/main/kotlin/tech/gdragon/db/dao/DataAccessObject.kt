@@ -1,12 +1,9 @@
 package tech.gdragon.db.dao
 
 import org.jetbrains.exposed.dao.*
-import org.jetbrains.exposed.sql.alias
 import tech.gdragon.db.table.Tables.Aliases
 import tech.gdragon.db.table.Tables.Channels
 import tech.gdragon.db.table.Tables.Guilds
-import tech.gdragon.db.table.Tables.SettingsChannels
-import tech.gdragon.db.table.Tables.SettingsUsers
 import tech.gdragon.db.table.Tables.Users
 import tech.gdragon.db.table.Tables.Settings as SettingsTable
 
@@ -28,12 +25,14 @@ class Alias(id: EntityID<Int>) : IntEntity(id) {
   var settings by Settings referencedOn Aliases.settings
 }
 
-class Channel(id: EntityID<Long>) : LongEntity(id) {
-  companion object : LongEntityClass<Channel>(Channels)
+class Channel(id: EntityID<Int>) : IntEntity(id) {
+  companion object : IntEntityClass<Channel>(Channels)
 
   var name by Channels.name
+  var discordId by Channels.discordId
   var autoJoin by Channels.autoJoin
   var autoLeave by Channels.autoLeave
+  var settings by Settings referencedOn Channels.settings
 }
 
 class Guild(id: EntityID<Long>) : LongEntity(id) {
@@ -51,13 +50,15 @@ class Settings(id: EntityID<Int>) : IntEntity(id) {
   var prefix by SettingsTable.prefix
   var volume by SettingsTable.volume
 
-  var alertBlacklist by User via SettingsUsers
-  var channels by Channel via SettingsChannels
+  val alertBlacklist by User referrersOn Users.settings
+  val channels by Channel referrersOn Channels.settings
   val aliases by Alias referrersOn Aliases.settings
 }
 
-class User(id: EntityID<Long>) : LongEntity(id) {
-  companion object : LongEntityClass<User>(Users)
+class User(id: EntityID<Int>) : IntEntity(id) {
+  companion object : IntEntityClass<User>(Users)
 
   var name by Users.name
+  var discordId by Users.discordId
+  var settings by Settings referencedOn Users.settings
 }

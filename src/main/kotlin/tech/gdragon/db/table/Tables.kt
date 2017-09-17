@@ -2,8 +2,6 @@ package tech.gdragon.db.table
 
 import org.jetbrains.exposed.dao.IntIdTable
 import org.jetbrains.exposed.dao.LongIdTable
-import org.jetbrains.exposed.sql.ReferenceOption
-import org.jetbrains.exposed.sql.Table
 import java.math.BigDecimal
 
 object Tables {
@@ -25,33 +23,19 @@ object Tables {
     val settings = reference("settings", Settings)
   }
 
-  object Channels : LongIdTable() {
+  object Channels : IntIdTable() {
     val name = text("name")
+    val discordId = long("discordId")
     val autoJoin = integer("autoJoin").nullable()
     val autoLeave = integer("autoLeave").default(1)
+    val settings = reference("settings", Settings)
   }
 
-  object Users : LongIdTable() {
+  object Users : IntIdTable() {
     val name = text("name")
+    val discordId = long("discordId")
+    val settings = reference("settings", Settings)
   }
 
-  object SettingsChannels : Table() {
-    val settings = reference("settings", Settings, ReferenceOption.CASCADE)
-    val channel = reference("channel", Channels, ReferenceOption.CASCADE)
-
-    init {
-      index(true, settings, channel)
-    }
-  }
-
-  object SettingsUsers : Table() {
-    val settings = reference("settings", Settings, ReferenceOption.CASCADE)
-    val user = reference("user", Users, ReferenceOption.CASCADE)
-
-    init {
-      index(true, settings, user)
-    }
-  }
-
-  val allTables = arrayOf(Aliases, Channels, Guilds, Settings, Users, SettingsChannels, SettingsUsers)
+  val allTables = arrayOf(Aliases, Channels, Guilds, Settings, Users)
 }

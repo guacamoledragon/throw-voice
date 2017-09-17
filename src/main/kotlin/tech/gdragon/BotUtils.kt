@@ -14,7 +14,7 @@ object BotUtils {
       voiceChannels.maxBy { voiceChannel ->
         val guild = Guild.findById(voiceChannel.guild.idLong)
         val settings = guild?.settings
-        val channel = settings?.channels?.findLast { it.id.value == voiceChannel.idLong }
+        val channel = settings?.channels?.findLast { it.discordId == voiceChannel.idLong }
 
         val channelSize = voiceChannelSize(voiceChannel)
 
