@@ -3,49 +3,33 @@ package tech.gdragon
 import net.dv8tion.jda.core.entities.VoiceChannel
 import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.db.dao.Guild
+import net.dv8tion.jda.core.entities.Guild as DiscordGuild
 
 object BotUtils {
   /**
    * Find biggest voice chanel that surpasses the Guild's autoJoin minimum
    */
   @JvmStatic
-  fun biggestChannel(voiceChannels: List<VoiceChannel>): VoiceChannel {
+  fun biggestChannel(guild: DiscordGuild): VoiceChannel? {
+    val voiceChannels = guild.voiceChannels
+
     return transaction {
-      voiceChannels.maxBy { voiceChannel ->
-        val guild = Guild.findById(voiceChannel.guild.idLong)
-        val settings = guild?.settings
-        val channel = settings?.channels?.findLast { it.discordId == voiceChannel.idLong }
+      val settings = Guild.findById(guild.idLong)?.settings
 
-        val channelSize = voiceChannelSize(voiceChannel)
-
-        channel?.autoJoin?.let {
-          if (it <= channelSize)
-            channelSize
-          else
-            0
-        } ?: 0
-      }
-    }!!
-/*    return voiceChannels
-      .filter { voiceChannel ->
-        transaction {
-          Channel
-            .find {
-              (Tables.Channels.id eq voiceChannel.idLong).and(Tables.Guilds.id eq voiceChannel.guild.idLong)
-            }
-            .all { channel ->
-              channel.autoJoin?.let { it >= voiceChannelSize(voiceChannel) } ?: false
-            }
+      voiceChannels
+        .filter { voiceChannel ->
+          val channel = settings?.channels?.find { it.discordId == voiceChannel.idLong }
+          val channelSize = voiceChannelSize(voiceChannel)
+          channel?.autoJoin?.let { it <= channelSize } ?: false
         }
-      }
-      .maxBy { voiceChannelSize(it) }!!*/
+        .maxBy(BotUtils::voiceChannelSize)
+    }
   }
 
   /**
    * Returns the effective size of the voice channel, excluding bots.
    */
-  @JvmStatic
-  fun voiceChannelSize(voiceChannel: VoiceChannel?): Int {
+  private fun voiceChannelSize(voiceChannel: VoiceChannel?): Int {
     return voiceChannel?.members?.count { !it.user.isBot } ?: 0
   }
 

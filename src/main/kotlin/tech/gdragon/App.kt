@@ -1,16 +1,22 @@
 package tech.gdragon
 
+import net.dv8tion.jda.core.AccountType
+import net.dv8tion.jda.core.JDABuilder
+import net.dv8tion.jda.core.events.guild.voice.GuildVoiceJoinEvent
+import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent
+import net.dv8tion.jda.core.hooks.ListenerAdapter
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
+import tech.gdragon.db.Shim
 import tech.gdragon.db.dao.Alias
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.dao.Settings
 import tech.gdragon.db.table.Tables
 import java.sql.Connection
 
-fun main(args: Array<String>) {
+fun basicTest() {
   val database = "settings.db"
   Database.connect("jdbc:sqlite:$database", driver = "org.sqlite.JDBC")
   TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_READ_UNCOMMITTED
@@ -35,4 +41,28 @@ fun main(args: Array<String>) {
   }
 
   aliases.forEach { println("${it.name} -> ${it.alias}") }
+}
+
+fun testBiggestChannel() {
+  Shim.initializeDatabase("settings.db")
+  JDABuilder(AccountType.BOT)
+    .setToken(System.getenv("TOKEN"))
+    .addEventListener(object: ListenerAdapter() {
+      override fun onGuildVoiceJoin(event: GuildVoiceJoinEvent) {
+        println("event.guild = ${event.guild}")
+        println("Joined ${event.channelJoined}")
+        println("Largest channel: ${BotUtils.biggestChannel(event.guild)}")
+        super.onGuildVoiceJoin(event)
+      }
+
+      override fun onGuildVoiceLeave(event: GuildVoiceLeaveEvent) {
+        println("Leaving ${event.channelLeft}")
+        super.onGuildVoiceLeave(event)
+      }
+    })
+    .buildBlocking()
+}
+
+fun main(args: Array<String>) {
+  testBiggestChannel()
 }

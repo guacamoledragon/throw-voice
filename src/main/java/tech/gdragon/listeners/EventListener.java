@@ -51,7 +51,9 @@ public class EventListener extends ListenerAdapter {
     if (e.getMember() == null || e.getMember().getUser() == null || e.getMember().getUser().isBot())
       return;
 
+    System.out.println("e.getChannelJoined() = " + e.getChannelJoined());
     VoiceChannel biggestChannel = DiscordBot.biggestChannel(e.getGuild().getVoiceChannels());
+    System.out.println("biggestChannel = " + biggestChannel);
 
     if (e.getGuild().getAudioManager().isConnected()) {
 
