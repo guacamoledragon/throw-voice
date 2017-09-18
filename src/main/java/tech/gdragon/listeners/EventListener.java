@@ -16,6 +16,7 @@ import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tech.gdragon.BotUtils;
 import tech.gdragon.DiscordBot;
 import tech.gdragon.commands.CommandHandler;
 import tech.gdragon.configuration.ServerSettings;
@@ -51,14 +52,12 @@ public class EventListener extends ListenerAdapter {
     if (e.getMember() == null || e.getMember().getUser() == null || e.getMember().getUser().isBot())
       return;
 
-    System.out.println("e.getChannelJoined() = " + e.getChannelJoined());
-    VoiceChannel biggestChannel = DiscordBot.biggestChannel(e.getGuild().getVoiceChannels());
-    System.out.println("biggestChannel = " + biggestChannel);
+    VoiceChannel biggestChannel = BotUtils.biggestChannel(e.getGuild());
 
     if (e.getGuild().getAudioManager().isConnected()) {
 
-      int newSize = DiscordBot.voiceChannelSize(e.getChannelJoined());
-      int botSize = DiscordBot.voiceChannelSize(e.getGuild().getAudioManager().getConnectedChannel());
+      int newSize = BotUtils.voiceChannelSize(e.getChannelJoined());
+      int botSize = BotUtils.voiceChannelSize(e.getGuild().getAudioManager().getConnectedChannel());
       ServerSettings settings = DiscordBot.serverSettings.get(e.getGuild().getId());
       int min = settings.autoJoinSettings.get(e.getChannelJoined().getId());
 
@@ -82,7 +81,7 @@ public class EventListener extends ListenerAdapter {
       return;
 
     int min = DiscordBot.serverSettings.get(e.getGuild().getId()).autoLeaveSettings.get(e.getChannelLeft().getId());
-    int size = DiscordBot.voiceChannelSize(e.getChannelLeft());
+    int size = BotUtils.voiceChannelSize(e.getChannelLeft());
 
     if (size <= min && e.getGuild().getAudioManager().getConnectedChannel() == e.getChannelLeft()) {
 
@@ -91,7 +90,7 @@ public class EventListener extends ListenerAdapter {
 
       DiscordBot.leaveVoiceChannel(e.getGuild().getAudioManager().getConnectedChannel());
 
-      VoiceChannel biggest = DiscordBot.biggestChannel(e.getGuild().getVoiceChannels());
+      VoiceChannel biggest = BotUtils.biggestChannel(e.getGuild());
       if (biggest != null) {
         DiscordBot.joinVoiceChannel(biggest, false);
       }
@@ -104,12 +103,12 @@ public class EventListener extends ListenerAdapter {
       return;
 
     //Check if bot needs to join newly joined channel
-    VoiceChannel biggestChannel = DiscordBot.biggestChannel(e.getGuild().getVoiceChannels());
+    VoiceChannel biggestChannel = BotUtils.biggestChannel(e.getGuild());
 
     if (e.getGuild().getAudioManager().isConnected()) {
 
-      int newSize = DiscordBot.voiceChannelSize(e.getChannelJoined());
-      int botSize = DiscordBot.voiceChannelSize(e.getGuild().getAudioManager().getConnectedChannel());
+      int newSize = BotUtils.voiceChannelSize(e.getChannelJoined());
+      int botSize = BotUtils.voiceChannelSize(e.getGuild().getAudioManager().getConnectedChannel());
       ServerSettings settings = DiscordBot.serverSettings.get(e.getGuild().getId());
       int min = settings.autoJoinSettings.get(e.getChannelJoined().getId());
 
@@ -128,7 +127,7 @@ public class EventListener extends ListenerAdapter {
 
     //Check if bot needs to leave old channel
     int min = DiscordBot.serverSettings.get(e.getGuild().getId()).autoLeaveSettings.get(e.getChannelLeft().getId());
-    int size = DiscordBot.voiceChannelSize(e.getChannelLeft());
+    int size = BotUtils.voiceChannelSize(e.getChannelLeft());
 
     if (size <= min && e.getGuild().getAudioManager().getConnectedChannel() == e.getChannelLeft()) {
 
@@ -137,7 +136,7 @@ public class EventListener extends ListenerAdapter {
 
       DiscordBot.leaveVoiceChannel(e.getGuild().getAudioManager().getConnectedChannel());
 
-      VoiceChannel biggest = DiscordBot.biggestChannel(e.getGuild().getVoiceChannels());
+      VoiceChannel biggest = BotUtils.biggestChannel(e.getGuild());
       if (biggest != null) {
         DiscordBot.joinVoiceChannel(e.getChannelJoined(), false);
       }
@@ -277,9 +276,9 @@ public class EventListener extends ListenerAdapter {
 
     //check for servers to join
     for (Guild g : e.getJDA().getGuilds()) {
-      VoiceChannel biggest = DiscordBot.biggestChannel(g.getVoiceChannels());
+      VoiceChannel biggest = BotUtils.biggestChannel(g);
       if (biggest != null) {
-        DiscordBot.joinVoiceChannel(DiscordBot.biggestChannel(g.getVoiceChannels()), false);
+        DiscordBot.joinVoiceChannel(BotUtils.biggestChannel(g), false);
       }
     }
   }

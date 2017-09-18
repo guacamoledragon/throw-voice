@@ -97,43 +97,6 @@ public class DiscordBot {
 
   public static final long PERMISSIONS = Permission.getRaw(Permission.MESSAGE_READ, Permission.MESSAGE_WRITE, Permission.VOICE_CONNECT, Permission.VOICE_USE_VAD, Permission.VOICE_SPEAK, Permission.MESSAGE_ATTACH_FILES);
 
-  //UTILITY FUNCTIONS
-
-  //find the biggest voice channel that surpases the server's autojoin minimum
-  public static VoiceChannel biggestChannel(List<VoiceChannel> vcs) {
-    int large = 0;
-    VoiceChannel biggest = null;
-
-    for (VoiceChannel v : vcs) {
-      //does current interation beat old biggest?
-      if (voiceChannelSize(v) > large) {
-        ServerSettings settings = serverSettings.get(v.getGuild().getId());
-
-        //we only want servers that beat the autojoin minimum (so we don't have to check later)
-        if (voiceChannelSize(v) >= settings.autoJoinSettings.get(v.getId())) {
-          biggest = v;
-          large = voiceChannelSize(v);
-        }
-      }
-    }
-    return biggest;
-  }
-
-  //returns the effective size of the voice channel (bots don't count)
-  public static int voiceChannelSize(VoiceChannel vc) {
-    if (vc == null) {
-      return 0;
-    }
-
-    int i = 0;
-    for (Member m : vc.getMembers()) {
-      if (!m.getUser().isBot()) {
-        i++;
-      }
-    }
-    return i;
-  }
-
   public static void writeToFile(Guild guild) {
     writeToFile(guild, -1, null);
   }

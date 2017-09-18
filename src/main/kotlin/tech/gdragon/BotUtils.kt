@@ -29,7 +29,8 @@ object BotUtils {
   /**
    * Returns the effective size of the voice channel, excluding bots.
    */
-  private fun voiceChannelSize(voiceChannel: VoiceChannel?): Int {
+  @JvmStatic
+  fun voiceChannelSize(voiceChannel: VoiceChannel?): Int {
     return voiceChannel?.members?.count { !it.user.isBot } ?: 0
   }
 
