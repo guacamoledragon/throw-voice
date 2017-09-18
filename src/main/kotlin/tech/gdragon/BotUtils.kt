@@ -1,11 +1,42 @@
 package tech.gdragon
 
+import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.entities.VoiceChannel
 import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.db.dao.Guild
+import java.awt.Color
+import java.time.OffsetDateTime
 import net.dv8tion.jda.core.entities.Guild as DiscordGuild
 
 object BotUtils {
+  /**
+   * Send a DM to anyone in the voiceChannel unless they are in the blacklist
+   */
+  @JvmStatic
+  fun alert(voiceChannel: VoiceChannel?) {
+    transaction {
+      val guild = Guild.findById(voiceChannel?.guild?.idLong ?: 0)
+      val blackList = guild?.settings?.alertBlacklist
+      val message = EmbedBuilder()
+        .setAuthor("pawa", "https://github.com/guacamoledragon/throw-voice", voiceChannel?.jda?.selfUser?.avatarUrl)
+        .setColor(Color.RED)
+        .setTitle("Your audio is now being recorded in ${voiceChannel?.name} on ${voiceChannel?.guild?.name}.")
+        .setDescription("Disable this alert with `${guild?.settings?.prefix}alerts off`")
+        .setThumbnail("http://www.freeiconspng.com/uploads/alert-icon-png-red-alert-round-icon-clip-art-3.png")
+        .setTimestamp(OffsetDateTime.now())
+        .build()
+
+      voiceChannel?.members
+        ?.map { it.user }
+        ?.filter { user -> !user.isBot && blackList?.find { it.discordId == user.idLong } == null}
+        ?.forEach { user ->
+          user.openPrivateChannel().queue { channel ->
+              channel.sendMessage(message).queue()
+          }
+        }
+    }
+  }
+
   /**
    * Find biggest voice chanel that surpasses the Guild's autoJoin minimum
    */

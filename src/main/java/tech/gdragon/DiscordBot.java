@@ -97,6 +97,8 @@ public class DiscordBot {
 
   public static final long PERMISSIONS = Permission.getRaw(Permission.MESSAGE_READ, Permission.MESSAGE_WRITE, Permission.VOICE_CONNECT, Permission.VOICE_USE_VAD, Permission.VOICE_SPEAK, Permission.MESSAGE_ATTACH_FILES);
 
+  //UTILITY FUNCTIONS
+
   public static void writeToFile(Guild guild) {
     writeToFile(guild, -1, null);
   }

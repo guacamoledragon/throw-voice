@@ -63,6 +63,21 @@ fun testBiggestChannel() {
     .buildBlocking()
 }
 
+fun testAlerts() {
+  Shim.initializeDatabase("settings.db")
+  JDABuilder(AccountType.BOT)
+    .setToken(System.getenv("TOKEN"))
+    .addEventListener(object: ListenerAdapter() {
+      override fun onGuildVoiceJoin(event: GuildVoiceJoinEvent?) {
+        println("Sending alerts to users that joined ${event?.channelJoined}.")
+        BotUtils.alert(event?.channelJoined)
+        super.onGuildVoiceJoin(event)
+      }
+    })
+    .buildBlocking()
+}
+
 fun main(args: Array<String>) {
-  testBiggestChannel()
+  testAlerts()
+//  println(listOf<Int>().filter { it > 0 })
 }
