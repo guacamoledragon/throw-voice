@@ -56,7 +56,15 @@ class Settings(id: EntityID<Int>) : IntEntity(id) {
 }
 
 class User(id: EntityID<Int>) : IntEntity(id) {
-  companion object : IntEntityClass<User>(Users)
+  companion object : IntEntityClass<User>(Users) {
+    @JvmStatic fun create(id: Long, name: String, settings: Settings): User {
+      return User.new {
+        this.discordId = id
+        this.name = name
+        this.settings = settings
+      }
+    }
+  }
 
   var name by Users.name
   var discordId by Users.discordId

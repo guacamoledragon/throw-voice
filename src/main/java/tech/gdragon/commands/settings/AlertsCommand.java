@@ -1,44 +1,53 @@
 package tech.gdragon.commands.settings;
 
+import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
+import org.jetbrains.exposed.sql.SizedIterable;
 import tech.gdragon.DiscordBot;
 import tech.gdragon.commands.Command;
+import tech.gdragon.db.Shim;
+import tech.gdragon.db.dao.Guild;
+import tech.gdragon.db.dao.User;
+import tech.gdragon.db.table.Tables;
 
 
 public class AlertsCommand implements Command {
   @Override
   public void action(String[] args, GuildMessageReceivedEvent e) {
+    long guildId = e.getGuild().getIdLong();
+    String prefix = Shim.INSTANCE.xaction(() -> Guild.Companion.findById(guildId).getSettings().getPrefix());
+    TextChannel channel = e.getChannel();
+    String message = usage(prefix);
+
     if (args.length != 1) {
-      String prefix = DiscordBot.serverSettings.get(e.getGuild().getId()).prefix;
-      DiscordBot.sendMessage(e.getChannel(), usage(prefix));
+      DiscordBot.sendMessage(channel, message);
       return;
     }
 
-    String prefix = DiscordBot.serverSettings.get(e.getGuild().getId()).prefix;
+    net.dv8tion.jda.core.entities.User author = e.getAuthor();
 
-    if (args[0].equals("off")) {
-      DiscordBot
-        .serverSettings.get(e.getGuild().getId())
-        .alertBlackList.add(e.getAuthor().getId());
+    switch (args[0]) {
+      case "off":
+        Shim.INSTANCE.xaction(() -> {
+          Guild guild = Guild.Companion.findById(guildId);
+          return User.Companion.create(author.getIdLong(), author.getName(), guild.getSettings());
+        });
 
-      e.getChannel()
-        .sendMessage("Alerts now off, message `" + prefix + "alerts on` to re-enable at any time")
-        .queue();
-      DiscordBot.writeSettingsJson();
+        message = "Alerts now off, message `" + prefix + "alerts on` to re-enable at any time";
+        break;
+      case "on":
+        Shim.INSTANCE.xaction(() -> {
+          SizedIterable<User> user = User.Companion.find(sql -> sql.eq(Tables.Users.INSTANCE.getDiscordId(), author.getIdLong()));
+          user.forEach(User::delete);
 
-    } else if (args[0].equals("on")) {
-      DiscordBot
-        .serverSettings.get(e.getGuild().getId())
-        .alertBlackList.remove(e.getAuthor().getId());
+          return null;
+        });
 
-      e.getChannel()
-        .sendMessage("Alerts now on, message `" + prefix + "alerts off` to disable at any time")
-        .queue();
-
-      DiscordBot.writeSettingsJson();
-    } else {
-      DiscordBot.sendMessage(e.getChannel(), usage(prefix));
+        message = "Alerts now on, message `" + prefix + "alerts off` to disable at any time";
+        break;
     }
+
+    DiscordBot.sendMessage(channel, message);
   }
 
   @Override

@@ -18,7 +18,7 @@ object BotUtils {
       val guild = Guild.findById(voiceChannel?.guild?.idLong ?: 0)
       val blackList = guild?.settings?.alertBlacklist
       val message = EmbedBuilder()
-        .setAuthor("pawa", "https://github.com/guacamoledragon/throw-voice", voiceChannel?.jda?.selfUser?.avatarUrl)
+        .setAuthor("pawabot", "https://github.com/guacamoledragon/throw-voice", voiceChannel?.jda?.selfUser?.avatarUrl)
         .setColor(Color.RED)
         .setTitle("Your audio is now being recorded in ${voiceChannel?.name} on ${voiceChannel?.guild?.name}.")
         .setDescription("Disable this alert with `${guild?.settings?.prefix}alerts off`")
