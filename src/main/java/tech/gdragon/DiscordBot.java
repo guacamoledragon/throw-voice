@@ -198,31 +198,6 @@ public class DiscordBot {
     }
   }
 
-  //sends alert DM to anyone in the given voicechannel who isn't on the blacklist
-  public static void alert(VoiceChannel vc) {
-    for (Member m : vc.getMembers()) {
-      //ignore bots
-      if (m.getUser().isBot()) continue;
-
-      //check the guild's blacklist and ignore the user if they are on it
-      if (!serverSettings.get(vc.getGuild().getId()).alertBlackList.contains(m.getUser().getId())) {
-
-        //make an embeded alert message to warn the user
-        EmbedBuilder embed = new EmbedBuilder();
-        embed.setAuthor("Discord Echo", "https://devpost.com/software/discord-recorder", vc.getJDA().getSelfUser().getAvatarUrl());
-        embed.setColor(Color.RED);
-        embed.setTitle("Your audio is now being recorded in '" + vc.getName() + "' on '" + vc.getGuild().getName() + "'");
-        embed.setDescription("Disable this alert with `!alerts off`");
-        embed.setThumbnail("http://www.freeiconspng.com/uploads/alert-icon-png-red-alert-round-icon-clip-art-3.png");
-        embed.setTimestamp(OffsetDateTime.now());
-
-        //open private channel with the user and send the embeded message
-        m.getUser().openPrivateChannel().queue(privateChannel -> privateChannel.sendMessage(embed.build()).queue());
-
-      }
-    }
-  }
-
   //generate a random string of 13 length with a namespace of around 2e23
   public static String getPJSaltString() {
     String SALTCHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890";
@@ -325,7 +300,7 @@ public class DiscordBot {
     }
 
     //send alert to correct users in the voice channel
-    DiscordBot.alert(vc);
+    BotUtils.alert(vc);
 
     //initalize the audio reciever listener
     double volume = DiscordBot.serverSettings.get(vc.getGuild().getId()).volume;
