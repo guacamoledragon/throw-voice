@@ -1,14 +1,18 @@
 package tech.gdragon
 
 import net.dv8tion.jda.core.EmbedBuilder
+import net.dv8tion.jda.core.entities.TextChannel
 import net.dv8tion.jda.core.entities.VoiceChannel
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.slf4j.LoggerFactory
 import tech.gdragon.db.dao.Guild
 import java.awt.Color
 import java.time.OffsetDateTime
 import net.dv8tion.jda.core.entities.Guild as DiscordGuild
 
 object BotUtils {
+  private val logger = LoggerFactory.getLogger(BotUtils.javaClass)
+
   /**
    * Send a DM to anyone in the voiceChannel unless they are in the blacklist
    */
@@ -28,10 +32,10 @@ object BotUtils {
 
       voiceChannel?.members
         ?.map { it.user }
-        ?.filter { user -> !user.isBot && blackList?.find { it.discordId == user.idLong } == null}
+        ?.filter { user -> !user.isBot && blackList?.find { it.discordId == user.idLong } == null }
         ?.forEach { user ->
           user.openPrivateChannel().queue { channel ->
-              channel.sendMessage(message).queue()
+            channel.sendMessage(message).queue()
           }
         }
     }
@@ -55,6 +59,19 @@ object BotUtils {
         }
         .maxBy(BotUtils::voiceChannelSize)
     }
+  }
+
+  /**
+   * General message sending utility with error logging
+   */
+  @JvmStatic
+  fun sendMessage(textChannel: TextChannel, msg: String) {
+    textChannel
+      .sendMessage("\u200B$msg")
+      .queue(
+        { m -> logger.debug("Successful Message: ${m.content}") },
+        { t -> logger.error("Error Sending: $msg on ${textChannel.name}", t) }
+      )
   }
 
   /**
