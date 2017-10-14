@@ -1,7 +1,6 @@
 package tech.gdragon.commands.settings
 
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
-import org.jetbrains.exposed.sql.exposedLogger
 import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.BotUtils
 import tech.gdragon.commands.Command
@@ -33,14 +32,13 @@ class AliasCommand : Command {
       } else {
         transaction {
           Guild.findById(event.guild.idLong)?.settings?.let {
-            val newAlias = Alias.new {
+            Alias.new {
               name = command
               this.alias = alias
               settings = it
             }
 
             BotUtils.sendMessage(channel, "New alias '$alias' set for command '$command'.")
-            exposedLogger.debug("Created $newAlias")
           }
         }
       }
