@@ -7,7 +7,7 @@
 
   <properties>
     <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
-    <kotlin.version>1.1.4-3</kotlin.version>
+    <kotlin.version>1.1.51</kotlin.version>
     <main.class>tech.gdragon.App</main.class>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
