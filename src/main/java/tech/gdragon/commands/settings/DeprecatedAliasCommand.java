@@ -5,8 +5,8 @@ import tech.gdragon.DiscordBot;
 import tech.gdragon.commands.Command;
 import tech.gdragon.commands.CommandHandler;
 
-
-public class AliasCommand implements Command {
+@Deprecated
+public class DeprecatedAliasCommand implements Command {
 
   @Override
   public void action(String[] args, GuildMessageReceivedEvent e) {

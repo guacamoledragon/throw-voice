@@ -3,9 +3,11 @@ package tech.gdragon;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import de.sciss.jump3r.lowlevel.LameEncoder;
-import net.dv8tion.jda.core.*;
+import net.dv8tion.jda.core.AccountType;
+import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.JDABuilder;
+import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
@@ -25,14 +27,11 @@ import tech.gdragon.listeners.EventListener;
 
 import javax.security.auth.login.LoginException;
 import javax.sound.sampled.AudioFormat;
-import java.awt.*;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
-import java.time.OffsetDateTime;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Random;
 
 import static java.lang.Thread.sleep;
@@ -86,7 +85,7 @@ public class DiscordBot {
     CommandHandler.commands.put("autoleave", new AutoLeaveCommand());
 
     CommandHandler.commands.put("prefix", new PrefixCommand());
-    CommandHandler.commands.put("alias", new AliasCommand());
+    CommandHandler.commands.put("alias", new DeprecatedAliasCommand());
     CommandHandler.commands.put("removealias", new RemoveAliasCommand());
     CommandHandler.commands.put("volume", new VolumeCommand());
     CommandHandler.commands.put("autosave", new AutoSaveCommand());
