@@ -27,7 +27,7 @@ public class HelpCommand implements Command {
     embed.setColor(Color.decode("#596800"));
     embed.setTitle("Currently in beta, being actively developed and tested. Expect bugs.");
     embed.setDescription("Throw Voice was created from Discord Echo, join their guild for updates - https://discord.gg/JWNFSZJ");
-    embed.setThumbnail("http://www.freeiconspng.com/uploads/information-icon-5.png");
+    embed.setThumbnail("https://images.discordapp.net/avatars/338897906524225538/ac9772725ec137d234978aa0df3f0a38.png");
     embed.setFooter("Replace brackets [] with item specified. Vertical bar | means 'or', either side of bar is valid choice.", null);
     embed.addBlankField(false);
 
