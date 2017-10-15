@@ -23,8 +23,8 @@ public class HelpCommand implements Command {
     }
 
     EmbedBuilder embed = new EmbedBuilder();
-    embed.setAuthor("Throw Voice", "https://github.com/guacamoledragon/throw-voice", e.getJDA().getSelfUser().getAvatarUrl());
-    embed.setColor(Color.RED);
+    embed.setAuthor("pawa", "http://pawabot.site", e.getJDA().getSelfUser().getAvatarUrl());
+    embed.setColor(Color.decode("#596800"));
     embed.setTitle("Currently in beta, being actively developed and tested. Expect bugs.");
     embed.setDescription("Throw Voice was created from Discord Echo, join their guild for updates - https://discord.gg/JWNFSZJ");
     embed.setThumbnail("http://www.freeiconspng.com/uploads/information-icon-5.png");
