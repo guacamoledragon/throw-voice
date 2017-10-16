@@ -85,12 +85,16 @@ public class DiscordBot {
     CommandHandler.commands.put("autoleave", new AutoLeaveCommand());
 
     CommandHandler.commands.put("prefix", new PrefixCommand());
-    CommandHandler.commands.put("alias", new DeprecatedAliasCommand());
+    CommandHandler.commands.put("alias", new AliasCommand());
     CommandHandler.commands.put("removealias", new RemoveAliasCommand());
     CommandHandler.commands.put("volume", new VolumeCommand());
     CommandHandler.commands.put("autosave", new AutoSaveCommand());
     CommandHandler.commands.put("savelocation", new SaveLocationCommand());
     CommandHandler.commands.put("alerts", new AlertsCommand());
+
+    // New Commands
+    CommandHandler.commands.put("aj", new AutoJoin());
+    CommandHandler.commands.put("al", new Alias());
   }
 
 

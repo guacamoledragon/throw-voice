@@ -8,7 +8,7 @@ import tech.gdragon.commands.CommandHandler
 import tech.gdragon.db.dao.Alias
 import tech.gdragon.db.dao.Guild
 
-class AliasCommand : Command {
+class Alias : Command {
   override fun action(args: Array<String>, event: GuildMessageReceivedEvent) {
     // Argument count must be two
     require(args.size == 2) {
