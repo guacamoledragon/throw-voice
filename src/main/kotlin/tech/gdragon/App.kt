@@ -11,6 +11,7 @@ import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.db.Shim
 import tech.gdragon.db.dao.Alias
+import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.dao.Settings
 import tech.gdragon.db.table.Tables
@@ -33,6 +34,12 @@ fun basicTest() {
     }
 
     Alias.createDefaultAliases(guild.settings)
+
+    val channel = Channel.new {
+      name = "bot-testing"
+      discordId = 346340766039146506L
+      settings = guild.settings
+    }
 
     println(guild.settings.autoSave)
     guild.settings.aliases.forEach { println("${it.name} -> ${it.alias}") }
@@ -78,6 +85,6 @@ fun testAlerts() {
 }
 
 fun main(args: Array<String>) {
-  testAlerts()
-//  println(listOf<Int>().filter { it > 0 })
+//  testAlerts()
+  basicTest()
 }
