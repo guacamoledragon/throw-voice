@@ -11,7 +11,7 @@ class Alias(id: EntityID<Int>) : IntEntity(id) {
   companion object : IntEntityClass<Alias>(Aliases) {
     private val aliases = listOf("info" to "help", "record" to "join", "stop" to "leave", "symbol" to "prefix")
 
-    fun createDefaultAliases(settings: Settings) = aliases.map { (name, alias) ->
+    fun createDefaultAliases(settings: Settings) = aliases.map { (alias, name) ->
       Alias.new {
         this.name = name
         this.alias = alias

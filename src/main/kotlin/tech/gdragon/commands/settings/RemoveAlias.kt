@@ -19,7 +19,7 @@ class RemoveAlias : Command {
       val alias = args.first().toLowerCase()
 
       guild?.settings?.let {
-        it.aliases.find { it.name == alias }?.delete()
+        it.aliases.find { it.alias == alias }?.delete()
         BotUtils.sendMessage(event.channel, "Alias '$alias' has been removed.")
       }
     }

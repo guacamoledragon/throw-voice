@@ -28,7 +28,7 @@ fun basicTest() {
 
 //    val guild = Guild[333055724198559745L]
 
-    val guild = Guild.new {
+    val guild = Guild.new(333055724198559745L) {
       name = "Guacamole Dragon"
       settings = Settings.new {}
     }

@@ -33,8 +33,8 @@ class Alias : Command {
         transaction {
           Guild.findById(event.guild.idLong)?.settings?.let {
             Alias.new {
-              name = alias
-              this.alias = command
+              name = command
+              this.alias = alias
               settings = it
             }
 
