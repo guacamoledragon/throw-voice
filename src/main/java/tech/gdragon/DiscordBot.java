@@ -11,6 +11,7 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
+import tech.gdragon.commands.Command;
 import tech.gdragon.commands.CommandHandler;
 import tech.gdragon.commands.audio.ClipCommand;
 import tech.gdragon.commands.audio.EchoCommand;
@@ -95,6 +96,7 @@ public class DiscordBot {
     // New Commands
     CommandHandler.commands.put("aj", new AutoJoin());
     CommandHandler.commands.put("al", new Alias());
+    CommandHandler.commands.put("vl", new Volume());
   }
 
 
