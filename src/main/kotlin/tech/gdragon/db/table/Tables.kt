@@ -13,7 +13,7 @@ object Tables {
   object Settings : IntIdTable() {
     val autoSave = bool("autoSave").default(false)
     val prefix = text("prefix").default("!")
-    val defaultTextChannel = reference("defaultTextChannel", Channels).nullable()
+    val defaultTextChannel = long("defaultTextChannel").nullable()
     val volume = decimal("volume", 3, 2).default(BigDecimal.valueOf(0.8))
   }
 
