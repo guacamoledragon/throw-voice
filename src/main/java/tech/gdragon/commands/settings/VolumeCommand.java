@@ -4,7 +4,7 @@ import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import tech.gdragon.DiscordBot;
 import tech.gdragon.commands.Command;
 
-
+@Deprecated
 public class VolumeCommand implements Command {
   @Override
   public void action(String[] args, GuildMessageReceivedEvent e) {
