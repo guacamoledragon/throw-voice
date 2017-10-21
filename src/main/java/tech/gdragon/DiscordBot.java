@@ -18,6 +18,7 @@ import tech.gdragon.commands.audio.EchoCommand;
 import tech.gdragon.commands.audio.MessageInABottleCommand;
 import tech.gdragon.commands.audio.SaveCommand;
 import tech.gdragon.commands.misc.HelpCommand;
+import tech.gdragon.commands.misc.Join;
 import tech.gdragon.commands.misc.JoinCommand;
 import tech.gdragon.commands.misc.LeaveCommand;
 import tech.gdragon.commands.settings.*;
@@ -102,6 +103,7 @@ public class DiscordBot {
     CommandHandler.commands.put("pr", new Prefix());
     CommandHandler.commands.put("as", new AutoSave());
     CommandHandler.commands.put("sl", new SaveLocation());
+    CommandHandler.commands.put("jn", new Join());
   }
 
 

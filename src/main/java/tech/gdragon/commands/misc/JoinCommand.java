@@ -4,7 +4,7 @@ import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import tech.gdragon.DiscordBot;
 import tech.gdragon.commands.Command;
 
-
+@Deprecated
 public class JoinCommand implements Command {
 
   @Override
