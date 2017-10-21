@@ -6,7 +6,7 @@ import tech.gdragon.DiscordBot;
 import tech.gdragon.commands.Command;
 import tech.gdragon.configuration.ServerSettings;
 
-
+@Deprecated
 public class AutoLeaveCommand implements Command {
   @Override
   public void action(String[] args, GuildMessageReceivedEvent e) {

@@ -94,7 +94,8 @@ public class DiscordBot {
     CommandHandler.commands.put("alerts", new AlertsCommand());
 
     // New Commands
-    CommandHandler.commands.put("aj", new AutoJoin());
+    CommandHandler.commands.put("ao", new AutoJoin());
+    CommandHandler.commands.put("ae", new AutoLeave());
     CommandHandler.commands.put("al", new Alias());
     CommandHandler.commands.put("vl", new Volume());
     CommandHandler.commands.put("rm", new RemoveAlias());
