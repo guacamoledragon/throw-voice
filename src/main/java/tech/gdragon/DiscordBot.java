@@ -101,6 +101,7 @@ public class DiscordBot {
     CommandHandler.commands.put("rm", new RemoveAlias());
     CommandHandler.commands.put("pr", new Prefix());
     CommandHandler.commands.put("as", new AutoSave());
+    CommandHandler.commands.put("sl", new SaveLocation());
   }
 
 
