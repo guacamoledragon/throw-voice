@@ -99,6 +99,7 @@ public class DiscordBot {
     CommandHandler.commands.put("vl", new Volume());
     CommandHandler.commands.put("rm", new RemoveAlias());
     CommandHandler.commands.put("pr", new Prefix());
+    CommandHandler.commands.put("as", new AutoSave());
   }
 
 
