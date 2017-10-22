@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 
-
+@Deprecated
 public class HelpCommand implements Command {
 
   @Override

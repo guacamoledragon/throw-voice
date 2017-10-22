@@ -89,9 +89,9 @@ public class DiscordBot {
     CommandHandler.commands.put("volume", new VolumeCommand());
     CommandHandler.commands.put("autosave", new AutoSaveCommand());
     CommandHandler.commands.put("savelocation", new SaveLocationCommand());
-    CommandHandler.commands.put("alerts", new AlertsCommand());
 
     // New Commands
+    CommandHandler.commands.put("alerts", new AlertsCommand());
     CommandHandler.commands.put("ao", new AutoJoin());
     CommandHandler.commands.put("ae", new AutoLeave());
     CommandHandler.commands.put("al", new Alias());
@@ -102,6 +102,7 @@ public class DiscordBot {
     CommandHandler.commands.put("sl", new SaveLocation());
     CommandHandler.commands.put("jn", new Join());
     CommandHandler.commands.put("le", new Leave());
+    CommandHandler.commands.put("hp", new Help());
   }
 
 
