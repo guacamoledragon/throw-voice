@@ -40,7 +40,7 @@ class SaveLocation : Command {
     }
   }
 
-  override fun usage(prefix: String): String = "${prefix}saveLocation [text channel name]"
+  override fun usage(prefix: String): String = "${prefix}saveLocation | ${prefix}saveLocation [text channel name]"
 
   override fun description(): String = "Sets the text channel of message or the text channel specified as the default location to send files."
 }
