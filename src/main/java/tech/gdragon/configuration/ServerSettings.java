@@ -6,6 +6,7 @@ import net.dv8tion.jda.core.entities.VoiceChannel;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+@Deprecated
 public class ServerSettings {
 
   public HashMap<String, Integer> autoJoinSettings;
