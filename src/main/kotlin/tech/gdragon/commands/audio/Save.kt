@@ -9,37 +9,36 @@ import tech.gdragon.db.dao.Guild
 
 class Save : Command {
   override fun action(args: Array<String>, event: GuildMessageReceivedEvent) {
-    transaction {
-      val guild = Guild.findById(event.guild.idLong)
-      val prefix = guild?.settings?.prefix ?: "!"
-
-      require(args.size in 0..1) {
+    require(args.size in 0..1) {
+      transaction {
+        val guild = Guild.findById(event.guild.idLong)
+        val prefix = guild?.settings?.prefix ?: "!"
         BotUtils.sendMessage(event.channel, usage(prefix))
       }
+    }
 
-      val message =
-        if (event.guild.audioManager.connectedChannel == null) {
-          "I wasn't recording!"
+    val message =
+      if (event.guild.audioManager.connectedChannel == null) {
+        "I wasn't recording!"
+      } else {
+        if (args.isEmpty()) {
+          DiscordBot.writeToFile(event.guild, event.channel)
+          ""
         } else {
-          if (args.isEmpty()) {
-            DiscordBot.writeToFile(event.guild, event.channel)
-            ""
-          } else {
-            val channelName = if(args.first().startsWith("#")) args.first().substring(1) else args.first()
-            val channels = event.guild.getTextChannelsByName(channelName, true)
+          val channelName = if (args.first().startsWith("#")) args.first().substring(1) else args.first()
+          val channels = event.guild.getTextChannelsByName(channelName, true)
 
-            if (channels.isEmpty()) {
-              "Cannot find $channelName."
-            } else {
-              channels.forEach { DiscordBot.writeToFile(event.guild, it) }
-              ""
-            }
+          if (channels.isEmpty()) {
+            "Cannot find $channelName."
+          } else {
+            channels.forEach { DiscordBot.writeToFile(event.guild, it) }
+            ""
           }
         }
+      }
 
-      if (message.isNotBlank())
-        BotUtils.sendMessage(event.channel, message)
-    }
+    if (message.isNotBlank())
+      BotUtils.sendMessage(event.channel, message)
   }
 
   override fun usage(prefix: String): String = "${prefix}save | ${prefix}save [text channel output]"
