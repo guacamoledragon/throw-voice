@@ -5,6 +5,8 @@ import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import tech.gdragon.DiscordBot;
 import tech.gdragon.commands.Command;
 import tech.gdragon.commands.CommandHandler;
+import tech.gdragon.db.Shim;
+import tech.gdragon.db.dao.Guild;
 
 import static java.lang.Thread.sleep;
 
@@ -13,8 +15,13 @@ public class MessageInABottleCommand implements Command {
 
   @Override
   public void action(String[] args, GuildMessageReceivedEvent e) {
+    String prefix =
+      Shim.INSTANCE.xaction(() -> {
+        Guild guild = Guild.Companion.findById(e.getGuild().getIdLong());
+        return guild != null ? guild.getSettings().getPrefix() : "!";
+      });
     if (args.length < 2) {
-      String prefix = DiscordBot.serverSettings.get(e.getGuild().getId()).prefix;
+//      String prefix = DiscordBot.serverSettings.get(e.getGuild().getId()).prefix;
       DiscordBot.sendMessage(e.getChannel(), usage(prefix));
       return;
     }
@@ -32,7 +39,7 @@ public class MessageInABottleCommand implements Command {
         return;
       }
     } catch (Exception ex) {
-      String prefix = DiscordBot.serverSettings.get(e.getGuild().getId()).prefix;
+//      String prefix = DiscordBot.serverSettings.get(e.getGuild().getId()).prefix;
       DiscordBot.sendMessage(e.getChannel(), usage(prefix));
       return;
     }
