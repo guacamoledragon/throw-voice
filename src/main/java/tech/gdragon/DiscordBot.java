@@ -13,10 +13,7 @@ import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import tech.gdragon.commands.Command;
 import tech.gdragon.commands.CommandHandler;
-import tech.gdragon.commands.audio.ClipCommand;
-import tech.gdragon.commands.audio.EchoCommand;
-import tech.gdragon.commands.audio.MessageInABottleCommand;
-import tech.gdragon.commands.audio.SaveCommand;
+import tech.gdragon.commands.audio.*;
 import tech.gdragon.commands.misc.*;
 import tech.gdragon.commands.settings.*;
 import tech.gdragon.configuration.ServerSettings;
@@ -103,6 +100,7 @@ public class DiscordBot {
     CommandHandler.commands.put("jn", new Join());
     CommandHandler.commands.put("le", new Leave());
     CommandHandler.commands.put("hp", new Help());
+    CommandHandler.commands.put("se", new Save());
   }
 
 
