@@ -20,6 +20,7 @@ import tech.gdragon.BotUtils;
 import tech.gdragon.DiscordBot;
 import tech.gdragon.commands.CommandHandler;
 import tech.gdragon.configuration.ServerSettings;
+import tech.gdragon.db.Shim;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -148,19 +149,24 @@ public class EventListener extends ListenerAdapter {
     if (e.getMember() == null || e.getMember().getUser() == null || e.getMember().getUser().isBot())
       return;
 
-    String guildId = e.getGuild().getId();
+    long guildId = e.getGuild().getIdLong();
 
-    // HACK: Create settings for a guild that needs to be accessed. This is a problem when restarting bot.
-    if(!DiscordBot.serverSettings.containsKey(guildId)) {
-      DiscordBot.serverSettings.put(e.getGuild().getId(), new ServerSettings(e.getGuild()));
-      DiscordBot.writeSettingsJson();
-      System.out.format("Joined new server '%s', connected to %s guilds\n", e.getGuild().getName(), e.getJDA().getGuilds().size());
-    }
+//    String prefix = DiscordBot.serverSettings.get(guildId).prefix;
+    String prefix = Shim.INSTANCE.xaction(() -> {
+      tech.gdragon.db.dao.Guild guild = tech.gdragon.db.dao.Guild.Companion.findById(guildId);
 
-    String prefix = DiscordBot.serverSettings.get(guildId).prefix;
+      // HACK: Create settings for a guild that needs to be accessed. This is a problem when restarting bot.
+      // TODO: On bot initialization, I should be able to check which Guilds the bot is connected to and purge/add respectively
+      if (guild == null) {
+        guild = Shim.INSTANCE.createGuild(guildId, e.getGuild().getName());
+      }
+
+      return guild.getSettings().getPrefix();
+    });
+
     //force help to always work with "!" prefix
     if (e.getMessage().getContent().startsWith(prefix) || e.getMessage().getContent().startsWith("!help")) {
-      CommandHandler.handleCommand(CommandHandler.parser.parse(e.getMessage().getContent().toLowerCase(), e));
+      CommandHandler.handleCommand(e, CommandHandler.parser.parse(e.getMessage().getContent().toLowerCase(), e));
     }
   }
 

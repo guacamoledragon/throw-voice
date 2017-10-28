@@ -4,6 +4,9 @@ import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
+import tech.gdragon.db.dao.Alias
+import tech.gdragon.db.dao.Guild
+import tech.gdragon.db.dao.Settings
 import tech.gdragon.db.table.Tables
 import java.sql.Connection
 
@@ -26,6 +29,16 @@ object Shim {
   fun <T> xaction(ctx: () -> T): T {
     return transaction {
         return@transaction ctx()
+    }
+  }
+
+  fun createGuild(id: Long, name: String): Guild {
+    val settings = Settings.new {}
+    Alias.createDefaultAliases(settings)
+
+    return Guild.new(id) {
+      this.name = name
+      this.settings = settings
     }
   }
 }
