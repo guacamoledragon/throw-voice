@@ -9,8 +9,9 @@ public class CommandHandler {
   public static final CommandParser parser = new CommandParser();
   public static HashMap<String, Command> commands = new HashMap<>();
 
+  @Deprecated
   public static void handleCommand(CommandParser.CommandContainer cmd) {
-    ServerSettings settings = DiscordBot.serverSettings.get(cmd.e.getGuild().getId());
+    ServerSettings settings = DiscordBot.serverSettings.get(cmd.event.getGuild().getId());
 
     if (commands.containsKey(cmd.invoke.toLowerCase()) || settings.aliases.containsKey(cmd.invoke.toLowerCase())) {
 
@@ -21,7 +22,7 @@ public class CommandHandler {
         invoke = cmd.invoke;
       }
 
-      commands.get(invoke).action(cmd.args, cmd.e);
+      commands.get(invoke).action(cmd.args, cmd.event);
     }
   }
 }
