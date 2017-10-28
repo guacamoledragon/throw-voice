@@ -145,11 +145,11 @@ public class EventListener extends ListenerAdapter {
   }
 
   @Override
-  public void onGuildMessageReceived(GuildMessageReceivedEvent e) {
-    if (e.getMember() == null || e.getMember().getUser() == null || e.getMember().getUser().isBot())
+  public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
+    if (event.getMember() == null || event.getMember().getUser() == null || event.getMember().getUser().isBot())
       return;
 
-    long guildId = e.getGuild().getIdLong();
+    long guildId = event.getGuild().getIdLong();
 
 //    String prefix = DiscordBot.serverSettings.get(guildId).prefix;
     String prefix = Shim.INSTANCE.xaction(() -> {
@@ -158,15 +158,15 @@ public class EventListener extends ListenerAdapter {
       // HACK: Create settings for a guild that needs to be accessed. This is a problem when restarting bot.
       // TODO: On bot initialization, I should be able to check which Guilds the bot is connected to and purge/add respectively
       if (guild == null) {
-        guild = Shim.INSTANCE.createGuild(guildId, e.getGuild().getName());
+        guild = Shim.INSTANCE.createGuild(guildId, event.getGuild().getName());
       }
 
       return guild.getSettings().getPrefix();
     });
 
     //force help to always work with "!" prefix
-    if (e.getMessage().getContent().startsWith(prefix) || e.getMessage().getContent().startsWith("!help")) {
-      CommandHandler.handleCommand(e, CommandHandler.parser.parse(e.getMessage().getContent().toLowerCase(), e));
+    if (event.getMessage().getContent().startsWith(prefix) || event.getMessage().getContent().startsWith("!help")) {
+      CommandHandler.handleCommand(event, CommandHandler.parser.parse(event.getMessage().getContent().toLowerCase(), event));
     }
   }
 
