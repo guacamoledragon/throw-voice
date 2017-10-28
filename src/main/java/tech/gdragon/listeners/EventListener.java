@@ -35,10 +35,17 @@ public class EventListener extends ListenerAdapter {
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
   @Override
-  public void onGuildJoin(GuildJoinEvent e) {
-    DiscordBot.serverSettings.put(e.getGuild().getId(), new ServerSettings(e.getGuild()));
-    DiscordBot.writeSettingsJson();
-    System.out.format("Joined new server '%s', connected to %s guilds\n", e.getGuild().getName(), e.getJDA().getGuilds().size());
+  public void onGuildJoin(GuildJoinEvent event) {
+    Shim.INSTANCE.xaction(() -> {
+      long id = event.getGuild().getIdLong();
+      String name = event.getGuild().getName();
+
+      Shim.INSTANCE.createGuild(id, name);
+
+      logger.info("Joined new server '{}', connected to {} guilds\n", event.getGuild().getName(), event.getJDA().getGuilds().size());
+
+      return null;
+    });
   }
 
   @Override
@@ -166,6 +173,7 @@ public class EventListener extends ListenerAdapter {
 
     //force help to always work with "!" prefix
     if (event.getMessage().getContent().startsWith(prefix) || event.getMessage().getContent().startsWith("!help")) {
+      // TODO: handle any CommandHandler exceptions here
       CommandHandler.handleCommand(event, CommandHandler.parser.parse(event.getMessage().getContent().toLowerCase(), event));
     }
   }

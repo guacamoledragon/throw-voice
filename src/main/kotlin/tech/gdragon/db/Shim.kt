@@ -28,17 +28,23 @@ object Shim {
    */
   fun <T> xaction(ctx: () -> T): T {
     return transaction {
-        return@transaction ctx()
+      return@transaction ctx()
     }
   }
 
   fun createGuild(id: Long, name: String): Guild {
-    val settings = Settings.new {}
-    Alias.createDefaultAliases(settings)
+    val guild = Guild.findById(id)
 
-    return Guild.new(id) {
-      this.name = name
-      this.settings = settings
+    return if (guild != null) {
+      guild
+    } else {
+      val settings = Settings.new {}
+      Alias.createDefaultAliases(settings)
+
+      Guild.new(id) {
+        this.name = name
+        this.settings = settings
+      }
     }
   }
 }

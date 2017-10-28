@@ -96,6 +96,6 @@ fun testAlerts() {
 
 fun main(args: Array<String>) {
 //  testAlerts()
-  basicTest()
-//  dropAllTables()
+//  basicTest()
+  dropAllTables()
 }
