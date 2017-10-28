@@ -17,6 +17,16 @@ import tech.gdragon.db.dao.Settings
 import tech.gdragon.db.table.Tables
 import java.sql.Connection
 
+fun dropAllTables() {
+  val database = "settings.db"
+  Database.connect("jdbc:sqlite:$database", driver = "org.sqlite.JDBC")
+  TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_READ_UNCOMMITTED
+
+  transaction {
+    SchemaUtils.drop(*Tables.allTables)
+  }
+}
+
 fun basicTest() {
   val database = "settings.db"
   Database.connect("jdbc:sqlite:$database", driver = "org.sqlite.JDBC")
@@ -87,4 +97,5 @@ fun testAlerts() {
 fun main(args: Array<String>) {
 //  testAlerts()
   basicTest()
+//  dropAllTables()
 }
