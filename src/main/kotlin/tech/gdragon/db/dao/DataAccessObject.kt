@@ -1,6 +1,7 @@
 package tech.gdragon.db.dao
 
 import org.jetbrains.exposed.dao.*
+import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.db.table.Tables.Aliases
 import tech.gdragon.db.table.Tables.Channels
 import tech.gdragon.db.table.Tables.Guilds
@@ -36,19 +37,42 @@ class Channel(id: EntityID<Int>) : IntEntity(id) {
 }
 
 class Guild(id: EntityID<Long>) : LongEntity(id) {
-  companion object : LongEntityClass<Guild>(Guilds)
+  companion object : LongEntityClass<Guild>(Guilds) {
+
+    @JvmStatic
+    fun findOrCreate(id: Long, name: String): Guild = transaction {
+      val guild = Guild.findById(id)
+
+      return@transaction if (guild != null) {
+        guild
+      } else {
+        val settings = Settings.new {
+          this.guild = Guild.new(id) {
+            this.name = name
+          }
+        }
+
+        commit()
+
+        Alias.createDefaultAliases(settings)
+
+        settings.guild
+      }
+    }
+  }
 
   var name by Guilds.name
-  var settings by Settings referencedOn Guilds.settings
+  val settings by Settings backReferencedOn SettingsTable.guild
 }
 
-class Settings(id: EntityID<Int>) : IntEntity(id) {
-  companion object : IntEntityClass<Settings>(SettingsTable)
+class Settings(id: EntityID<Long>) : LongEntity(id) {
+  companion object : LongEntityClass<Settings>(SettingsTable)
 
   var autoSave by SettingsTable.autoSave
   var defaultTextChannel by SettingsTable.defaultTextChannel
   var prefix by SettingsTable.prefix
   var volume by SettingsTable.volume
+  var guild by Guild referencedOn SettingsTable.guild
 
   val alertBlacklist by User referrersOn Users.settings
   val channels by Channel referrersOn Channels.settings
@@ -57,7 +81,8 @@ class Settings(id: EntityID<Int>) : IntEntity(id) {
 
 class User(id: EntityID<Int>) : IntEntity(id) {
   companion object : IntEntityClass<User>(Users) {
-    @JvmStatic fun create(id: Long, name: String, settings: Settings): User {
+    @JvmStatic
+    fun create(id: Long, name: String, settings: Settings): User {
       return User.new {
         this.discordId = id
         this.name = name
