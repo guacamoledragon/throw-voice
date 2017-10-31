@@ -40,7 +40,7 @@ public class EventListener extends ListenerAdapter {
       long id = event.getGuild().getIdLong();
       String name = event.getGuild().getName();
 
-      Shim.INSTANCE.createGuild(id, name);
+      tech.gdragon.db.dao.Guild.findOrCreate(id, name);
 
       logger.info("Joined new server '{}', connected to {} guilds\n", event.getGuild().getName(), event.getJDA().getGuilds().size());
 
@@ -49,10 +49,22 @@ public class EventListener extends ListenerAdapter {
   }
 
   @Override
-  public void onGuildLeave(GuildLeaveEvent e) {
-    DiscordBot.serverSettings.remove(e.getGuild().getId());
+  public void onGuildLeave(GuildLeaveEvent event) {
+    Shim.INSTANCE.xaction(() -> {
+      long id = event.getGuild().getIdLong();
+
+      tech.gdragon.db.dao.Guild guild = tech.gdragon.db.dao.Guild.Companion.findById(id);
+
+      if (guild != null)
+        guild.delete(); // TODO must do cascading delete
+
+      logger.info("Left server '{}', connected to {} guilds\n", event.getGuild().getName(), event.getJDA().getGuilds().size());
+
+      return null;
+    });
+    /*DiscordBot.serverSettings.remove(e.getGuild().getId());
     DiscordBot.writeSettingsJson();
-    System.out.format("Left server '%s', connected to %s guilds\n", e.getGuild().getName(), e.getJDA().getGuilds().size());
+    System.out.format("Left server '%s', connected to %s guilds\n", e.getGuild().getName(), e.getJDA().getGuilds().size());*/
   }
 
   @Override
@@ -165,7 +177,7 @@ public class EventListener extends ListenerAdapter {
       // HACK: Create settings for a guild that needs to be accessed. This is a problem when restarting bot.
       // TODO: On bot initialization, I should be able to check which Guilds the bot is connected to and purge/add respectively
       if (guild == null) {
-        guild = Shim.INSTANCE.createGuild(guildId, event.getGuild().getName());
+        guild = tech.gdragon.db.dao.Guild.findOrCreate(guildId, event.getGuild().getName());
       }
 
       return guild.getSettings().getPrefix();
