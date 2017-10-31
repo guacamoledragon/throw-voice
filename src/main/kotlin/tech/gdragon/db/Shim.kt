@@ -31,20 +31,4 @@ object Shim {
       return@transaction ctx()
     }
   }
-
-  fun createGuild(id: Long, name: String): Guild {
-    val guild = Guild.findById(id)
-
-    return if (guild != null) {
-      guild
-    } else {
-      val settings = Settings.new {}
-      Alias.createDefaultAliases(settings)
-
-      Guild.new(id) {
-        this.name = name
-        this.settings = settings
-      }
-    }
-  }
 }
