@@ -17,7 +17,7 @@ class AutoJoin : Command {
   private fun updateChannelAutoJoin(guildId: Long, channelId: Long, autoJoin: Int?) {
     Channel
       .find {
-        (Channels.settings eq Guild.findById(guildId)?.settings?.id) and (Channels.discordId eq channelId)
+        (Channels.settings eq Guild.findById(guildId)?.settings?.id) and (Channels.id eq channelId)
       }
       .forEach { it.autoJoin = autoJoin }
   }

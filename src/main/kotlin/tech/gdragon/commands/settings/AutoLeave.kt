@@ -16,7 +16,7 @@ class AutoLeave : Command {
   private fun updateChannelAutoLeave(guildId: Long, channelId: Long, autoLeave: Int) {
     Channel
       .find {
-        (Tables.Channels.settings eq Guild.findById(guildId)?.settings?.id) and (Tables.Channels.discordId eq channelId)
+        (Tables.Channels.settings eq Guild.findById(guildId)?.settings?.id) and (Tables.Channels.id eq channelId)
       }
       .forEach { it.autoLeave = autoLeave }
   }

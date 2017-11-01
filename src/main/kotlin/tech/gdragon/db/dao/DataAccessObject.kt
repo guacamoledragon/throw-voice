@@ -26,11 +26,10 @@ class Alias(id: EntityID<Int>) : IntEntity(id) {
   var settings by Settings referencedOn Aliases.settings
 }
 
-class Channel(id: EntityID<Int>) : IntEntity(id) {
-  companion object : IntEntityClass<Channel>(Channels)
+class Channel(id: EntityID<Long>) : LongEntity(id) {
+  companion object : LongEntityClass<Channel>(Channels)
 
   var name by Channels.name
-  var discordId by Channels.discordId
   var autoJoin by Channels.autoJoin
   var autoLeave by Channels.autoLeave
   var settings by Settings referencedOn Channels.settings

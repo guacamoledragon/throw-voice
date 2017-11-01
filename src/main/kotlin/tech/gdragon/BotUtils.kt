@@ -5,7 +5,9 @@ import net.dv8tion.jda.core.entities.TextChannel
 import net.dv8tion.jda.core.entities.VoiceChannel
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
+import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
+import tech.gdragon.db.table.Tables
 import java.awt.Color
 import java.time.OffsetDateTime
 import net.dv8tion.jda.core.entities.Guild as DiscordGuild
@@ -53,7 +55,7 @@ object BotUtils {
 
       voiceChannels
         .filter { voiceChannel ->
-          val channel = settings?.channels?.find { it.discordId == voiceChannel.idLong }
+          val channel = settings?.channels?.find { it.id.value == voiceChannel.idLong }
           val channelSize = voiceChannelSize(voiceChannel)
           channel?.autoJoin?.let { it <= channelSize } ?: false
         }
@@ -80,15 +82,5 @@ object BotUtils {
   @JvmStatic
   fun voiceChannelSize(voiceChannel: VoiceChannel?): Int {
     return voiceChannel?.members?.count { !it.user.isBot } ?: 0
-  }
-
-  @JvmStatic
-  fun testQuery(): Unit {
-    transaction {
-      /*val things = Guild.find { Tables.Settings.id eq 1L and (Tables.Guilds.id eq 1L) }
-      things.forEach { println(it.name) }*/
-//      val guild = Guild.find { (Tables.Guilds.id eq 1L) and (Tables.SettingsChannels.settings?.eq(1L)) }
-//      println(guild.first().name)
-    }
   }
 }
