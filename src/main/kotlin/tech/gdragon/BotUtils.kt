@@ -5,9 +5,7 @@ import net.dv8tion.jda.core.entities.TextChannel
 import net.dv8tion.jda.core.entities.VoiceChannel
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
-import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
-import tech.gdragon.db.table.Tables
 import java.awt.Color
 import java.time.OffsetDateTime
 import net.dv8tion.jda.core.entities.Guild as DiscordGuild
@@ -34,7 +32,7 @@ object BotUtils {
 
       voiceChannel?.members
         ?.map { it.user }
-        ?.filter { user -> !user.isBot && blackList?.find { it.discordId == user.idLong } == null }
+        ?.filter { user -> !user.isBot && blackList?.find { it.id.value == user.idLong } == null }
         ?.forEach { user ->
           user.openPrivateChannel().queue { channel ->
             channel.sendMessage(message).queue()

@@ -31,14 +31,9 @@ object Tables {
     val settings = reference("settings", Settings, ReferenceOption.CASCADE)
   }
 
-  object Users : IntIdTable() {
+  object Users : LongIdTable() {
     val name = text("name")
-    val discordId = long("discordId").uniqueIndex()
     val settings = reference("settings", Settings, ReferenceOption.CASCADE).uniqueIndex()
-
-    init {
-      uniqueIndex(discordId, settings)
-    }
   }
 
   val allTables = arrayOf(Aliases, Channels, Guilds, Settings, Users)

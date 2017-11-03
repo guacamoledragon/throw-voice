@@ -78,12 +78,11 @@ class Settings(id: EntityID<Long>) : LongEntity(id) {
   val aliases by Alias referrersOn Aliases.settings
 }
 
-class User(id: EntityID<Int>) : IntEntity(id) {
-  companion object : IntEntityClass<User>(Users) {
+class User(id: EntityID<Long>) : LongEntity(id) {
+  companion object : LongEntityClass<User>(Users) {
     @JvmStatic
     fun create(id: Long, name: String, settings: Settings): User {
-      return User.new {
-        this.discordId = id
+      return User.new(id) {
         this.name = name
         this.settings = settings
       }
@@ -91,6 +90,5 @@ class User(id: EntityID<Int>) : IntEntity(id) {
   }
 
   var name by Users.name
-  var discordId by Users.discordId
   var settings by Settings referencedOn Users.settings
 }
