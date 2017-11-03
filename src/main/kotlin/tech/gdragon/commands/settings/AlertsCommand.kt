@@ -21,13 +21,12 @@ class AlertsCommand : Command {
       val author = event.author
 
       transaction {
-        val userList = User.find { Users.discordId eq author.idLong }
+        val userList = User.find { Users.id eq author.idLong }
         when (args[0]) {
           "off" -> {
             val guild = Guild.findById(guildId)
             if (userList.empty()) {
-              User.new {
-                discordId = author.idLong
+              User.new(author.idLong) {
                 name = author.name
                 settings = guild!!.settings
               }

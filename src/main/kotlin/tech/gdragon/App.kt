@@ -42,9 +42,8 @@ fun basicTest() {
   val guild = Guild.findOrCreate(333055724198559745L, "Guacamole Dragon")
 
   transaction {
-    Channel.new {
+    Channel.new(346340766039146506L) {
       name = "bot-testing"
-      discordId = 346340766039146506L
       settings = guild.settings
     }
   }

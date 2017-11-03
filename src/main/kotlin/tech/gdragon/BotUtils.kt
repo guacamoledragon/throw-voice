@@ -32,7 +32,7 @@ object BotUtils {
 
       voiceChannel?.members
         ?.map { it.user }
-        ?.filter { user -> !user.isBot && blackList?.find { it.discordId == user.idLong } == null }
+        ?.filter { user -> !user.isBot && blackList?.find { it.id.value == user.idLong } == null }
         ?.forEach { user ->
           user.openPrivateChannel().queue { channel ->
             channel.sendMessage(message).queue()
@@ -53,7 +53,7 @@ object BotUtils {
 
       voiceChannels
         .filter { voiceChannel ->
-          val channel = settings?.channels?.find { it.discordId == voiceChannel.idLong }
+          val channel = settings?.channels?.find { it.id.value == voiceChannel.idLong }
           val channelSize = voiceChannelSize(voiceChannel)
           channel?.autoJoin?.let { it <= channelSize } ?: false
         }
@@ -80,15 +80,5 @@ object BotUtils {
   @JvmStatic
   fun voiceChannelSize(voiceChannel: VoiceChannel?): Int {
     return voiceChannel?.members?.count { !it.user.isBot } ?: 0
-  }
-
-  @JvmStatic
-  fun testQuery(): Unit {
-    transaction {
-      /*val things = Guild.find { Tables.Settings.id eq 1L and (Tables.Guilds.id eq 1L) }
-      things.forEach { println(it.name) }*/
-//      val guild = Guild.find { (Tables.Guilds.id eq 1L) and (Tables.SettingsChannels.settings?.eq(1L)) }
-//      println(guild.first().name)
-    }
   }
 }
