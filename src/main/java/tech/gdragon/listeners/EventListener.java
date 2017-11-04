@@ -24,6 +24,7 @@ import tech.gdragon.configuration.ServerSettings;
 import tech.gdragon.db.Shim;
 import tech.gdragon.db.dao.Channel;
 import tech.gdragon.db.dao.Settings;
+import tech.gdragon.db.dao.User;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -258,20 +259,26 @@ public class EventListener extends ListenerAdapter {
       if (e.getMessage().getContent().endsWith("off")) {
         for (Guild g : e.getJDA().getGuilds()) {
           if (g.getMember(e.getAuthor()) != null) {
-            DiscordBot.serverSettings.get(g.getId()).alertBlackList.add(e.getAuthor().getId());
+            Shim.INSTANCE.xaction(() -> {
+              Settings settings = tech.gdragon.db.dao.Guild.Companion.findById(g.getIdLong()).getSettings();
+              return User.findOrCreate(e.getAuthor().getIdLong(), e.getAuthor().getName(), settings);
+            });
           }
         }
         e.getChannel().sendMessage("Alerts now off, message `!alerts on` to re-enable at any time").queue();
-        DiscordBot.writeSettingsJson();
 
       } else if (e.getMessage().getContent().endsWith("on")) {
         for (Guild g : e.getJDA().getGuilds()) {
           if (g.getMember(e.getAuthor()) != null) {
-            DiscordBot.serverSettings.get(g.getId()).alertBlackList.remove(e.getAuthor().getId());
+            Shim.INSTANCE.xaction(() -> {
+              Settings settings = tech.gdragon.db.dao.Guild.Companion.findById(g.getIdLong()).getSettings();
+              User user = User.findOrCreate(e.getAuthor().getIdLong(), e.getAuthor().getName(), settings);
+              user.delete();
+              return user;
+            });
           }
         }
         e.getChannel().sendMessage("Alerts now on, message `!alerts off` to disable at any time").queue();
-        DiscordBot.writeSettingsJson();
       } else {
         e.getChannel().sendMessage("!alerts [on | off]").queue();
       }
