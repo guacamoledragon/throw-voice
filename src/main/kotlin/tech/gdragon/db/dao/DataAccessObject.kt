@@ -1,6 +1,7 @@
 package tech.gdragon.db.dao
 
 import org.jetbrains.exposed.dao.*
+import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.db.table.Tables.Aliases
 import tech.gdragon.db.table.Tables.Channels
@@ -81,10 +82,18 @@ class Settings(id: EntityID<Long>) : LongEntity(id) {
 class User(id: EntityID<Long>) : LongEntity(id) {
   companion object : LongEntityClass<User>(Users) {
     @JvmStatic
-    fun create(id: Long, name: String, settings: Settings): User {
-      return User.new(id) {
-        this.name = name
-        this.settings = settings
+    fun findOrCreate(id: Long, name: String, settings: Settings): User = transaction {
+      val users = User.find {
+        (Users.id eq id) and (Users.settings eq settings.id)
+      }
+
+      if (users.empty()) {
+        User.new(id) {
+          this.name = name
+          this.settings = settings
+        }
+      } else {
+        users.first()
       }
     }
   }

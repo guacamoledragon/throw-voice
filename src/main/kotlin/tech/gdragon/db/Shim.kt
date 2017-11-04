@@ -15,7 +15,7 @@ import java.sql.Connection
  */
 object Shim {
   fun initializeDatabase(database: String) {
-    Database.connect("jdbc:sqlite:${database}", driver = "org.sqlite.JDBC")
+    Database.connect("jdbc:sqlite:$database", driver = "org.sqlite.JDBC")
     TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_READ_UNCOMMITTED
 
     transaction {
