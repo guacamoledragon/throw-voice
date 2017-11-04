@@ -195,6 +195,7 @@ public class DiscordBot {
   }
 
   //write the current state of all server settings to the settings.json file
+  @Deprecated
   public static void writeSettingsJson() {
     try {
       Gson gson = new GsonBuilder().setPrettyPrinting().create();
