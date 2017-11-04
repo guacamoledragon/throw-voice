@@ -118,12 +118,27 @@ public class EventListener extends ListenerAdapter {
     if (e.getMember() == null || e.getMember().getUser() == null || e.getMember().getUser().isBot())
       return;
 
-    int min = DiscordBot.serverSettings.get(e.getGuild().getId()).autoLeaveSettings.get(e.getChannelLeft().getId());
+    int min = Shim.INSTANCE.xaction(() -> {
+      Settings settings = tech.gdragon.db.dao.Guild.Companion.findById(e.getGuild().getIdLong()).getSettings();
+
+      for (Channel channel : settings.getChannels()) {
+        if (channel.getId().getValue() == e.getChannelLeft().getIdLong()) {
+          return channel.getAutoLeave();
+        }
+      }
+
+      return Integer.MAX_VALUE;
+    });
+
     int size = BotUtils.voiceChannelSize(e.getChannelLeft());
 
     if (size <= min && e.getGuild().getAudioManager().getConnectedChannel() == e.getChannelLeft()) {
+      boolean autoSave = Shim.INSTANCE.xaction(() -> {
+        Settings settings = tech.gdragon.db.dao.Guild.Companion.findById(e.getGuild().getIdLong()).getSettings();
+        return settings.getAutoSave();
+      });
 
-      if (DiscordBot.serverSettings.get(e.getGuild().getId()).autoSave)
+      if (autoSave)
         DiscordBot.writeToFile(e.getGuild());  //write data from voice channel it is leaving
 
       DiscordBot.leaveVoiceChannel(e.getGuild().getAudioManager().getConnectedChannel());
