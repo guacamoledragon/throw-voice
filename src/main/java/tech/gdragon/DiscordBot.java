@@ -34,6 +34,7 @@ import static java.lang.Thread.sleep;
 
 public class DiscordBot {
   //contains the id of every guild that we are connected to and their corresponding ServerSettings object
+  @Deprecated
   public static HashMap<String, ServerSettings> serverSettings = new HashMap<>();
   // TODO: DiscordBot should probably not hold a reference to serverSettings
 
