@@ -34,7 +34,7 @@ class AlertsCommand : Command {
             message = "Alerts now off, message `${prefix}alerts on` to re-enable at any time"
           }
           "on" -> {
-            userList.forEach(Consumer<User> { it.delete() })
+            userList.forEach{ it.delete() }
             message = "Alerts now on, message `${prefix}alerts off` to disable at any time"
           }
         }
