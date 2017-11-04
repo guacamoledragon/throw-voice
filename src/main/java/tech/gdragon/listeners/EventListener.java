@@ -78,15 +78,13 @@ public class EventListener extends ListenerAdapter {
     AudioManager audioManager = e.getGuild().getAudioManager();
 
     if (audioManager.isConnected()) {
-      logger.debug("onGuildVoiceJoin: AudioManager is connected!");
-
       int newSize = BotUtils.voiceChannelSize(e.getChannelJoined());
       int botSize = BotUtils.voiceChannelSize(audioManager.getConnectedChannel());
-      Integer min = Shim.INSTANCE.xaction(() -> {
+      int min = Shim.INSTANCE.xaction(() -> {
         Settings settings = tech.gdragon.db.dao.Guild.Companion.findById(e.getGuild().getIdLong()).getSettings();
 
         for (Channel channel : settings.getChannels()) {
-          if(channel.getId().getValue() == e.getChannelJoined().getIdLong()) {
+          if (channel.getId().getValue() == e.getChannelJoined().getIdLong()) {
             return channel.getAutoJoin();
           }
         }
@@ -142,39 +140,65 @@ public class EventListener extends ListenerAdapter {
     if (e.getMember() == null || e.getMember().getUser() == null || e.getMember().getUser().isBot())
       return;
 
-    //Check if bot needs to join newly joined channel
-    VoiceChannel biggestChannel = BotUtils.biggestChannel(e.getGuild());
+    AudioManager audioManager = e.getGuild().getAudioManager();
 
-    if (e.getGuild().getAudioManager().isConnected()) {
-
+    if (audioManager.isConnected()) {
       int newSize = BotUtils.voiceChannelSize(e.getChannelJoined());
-      int botSize = BotUtils.voiceChannelSize(e.getGuild().getAudioManager().getConnectedChannel());
-      ServerSettings settings = DiscordBot.serverSettings.get(e.getGuild().getId());
-      int min = settings.autoJoinSettings.get(e.getChannelJoined().getId());
+      int botSize = BotUtils.voiceChannelSize(audioManager.getConnectedChannel());
+      int min = Shim.INSTANCE.xaction(() -> {
+        Settings settings = tech.gdragon.db.dao.Guild.Companion.findById(e.getGuild().getIdLong()).getSettings();
+
+        for (Channel channel : settings.getChannels()) {
+          if (channel.getId().getValue() == e.getChannelJoined().getIdLong()) {
+            return channel.getAutoJoin();
+          }
+        }
+
+        return Integer.MAX_VALUE;
+      });
 
       if (newSize >= min && botSize < newSize) {  //check for tie with old server
-        if (DiscordBot.serverSettings.get(e.getGuild().getId()).autoSave)
+        boolean autoSave = Shim.INSTANCE.xaction(() -> {
+          Settings settings = tech.gdragon.db.dao.Guild.Companion.findById(e.getGuild().getIdLong()).getSettings();
+          return settings.getAutoSave();
+        });
+
+        if (autoSave)
           DiscordBot.writeToFile(e.getGuild());  //write data from voice channel it is leaving
 
         DiscordBot.joinVoiceChannel(e.getChannelJoined(), false);
       }
 
     } else {
+      VoiceChannel biggestChannel = BotUtils.biggestChannel(e.getGuild());
       if (biggestChannel != null) {
         DiscordBot.joinVoiceChannel(biggestChannel, false);
       }
     }
 
     //Check if bot needs to leave old channel
-    int min = DiscordBot.serverSettings.get(e.getGuild().getId()).autoLeaveSettings.get(e.getChannelLeft().getId());
+    int min = Shim.INSTANCE.xaction(() -> {
+      Settings settings = tech.gdragon.db.dao.Guild.Companion.findById(e.getGuild().getIdLong()).getSettings();
+
+      for (Channel channel : settings.getChannels()) {
+        if (channel.getId().getValue() == e.getChannelJoined().getIdLong()) {
+          return channel.getAutoLeave();
+        }
+      }
+
+      return 0;
+    });
     int size = BotUtils.voiceChannelSize(e.getChannelLeft());
 
-    if (size <= min && e.getGuild().getAudioManager().getConnectedChannel() == e.getChannelLeft()) {
-
-      if (DiscordBot.serverSettings.get(e.getGuild().getId()).autoSave)
+    if (audioManager.isConnected() && size <= min && audioManager.getConnectedChannel() == e.getChannelLeft()) {
+      boolean autoSave = Shim.INSTANCE.xaction(() -> {
+        Settings settings = tech.gdragon.db.dao.Guild.Companion.findById(e.getGuild().getIdLong()).getSettings();
+        return settings.getAutoSave();
+      });
+      if (autoSave)
         DiscordBot.writeToFile(e.getGuild());  //write data from voice channel it is leaving
 
-      DiscordBot.leaveVoiceChannel(e.getGuild().getAudioManager().getConnectedChannel());
+      DiscordBot.leaveVoiceChannel(audioManager.getConnectedChannel());
 
       VoiceChannel biggest = BotUtils.biggestChannel(e.getGuild());
       if (biggest != null) {
