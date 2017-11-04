@@ -1,7 +1,5 @@
 package tech.gdragon.listeners;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.VoiceChannel;
@@ -20,18 +18,15 @@ import org.slf4j.LoggerFactory;
 import tech.gdragon.BotUtils;
 import tech.gdragon.DiscordBot;
 import tech.gdragon.commands.CommandHandler;
-import tech.gdragon.configuration.ServerSettings;
 import tech.gdragon.db.Shim;
 import tech.gdragon.db.dao.Channel;
 import tech.gdragon.db.dao.Settings;
 import tech.gdragon.db.dao.User;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
 
 
 public class EventListener extends ListenerAdapter {
@@ -311,37 +306,17 @@ public class EventListener extends ListenerAdapter {
 
   @Override
   public void onReady(ReadyEvent e) {
-    e.getJDA().getPresence().setGame(new Game("!help | http://pawabot.site", "http://pawabot.site", Game.GameType.DEFAULT) {});
+    e
+      .getJDA()
+      .getPresence()
+      .setGame(new Game("!help | http://pawabot.site", "http://pawabot.site", Game.GameType.DEFAULT) {
+      });
 
-    try {
-      System.out.format("ONLINE: Connected to %s guilds!\n", e.getJDA().getGuilds().size(), e.getJDA().getVoiceChannels().size());
+    logger.info("ONLINE: Connected to {} guilds!", e.getJDA().getGuilds().size());
 
-      Gson gson = new Gson();
-
-//      FileReader fileReader = new FileReader("settings.json");
-//      BufferedReader buffered = new BufferedReader(fileReader);
-
-      Type type = new TypeToken<HashMap<String, ServerSettings>>() {
-      }.getType();
-
-      DiscordBot.serverSettings = gson.fromJson("{}", type);
-
-      if (DiscordBot.serverSettings == null)
-        DiscordBot.serverSettings = new HashMap<>();
-
-//      buffered.close();
-//      fileReader.close();
-
-    } catch (Exception ex) {
-      ex.printStackTrace();
-    }
-
-
-    for (Guild g : e.getJDA().getGuilds()) {    //validate settings files
-      if (!DiscordBot.serverSettings.containsKey(g.getId())) {
-        DiscordBot.serverSettings.put(g.getId(), new ServerSettings(g));
-        DiscordBot.writeSettingsJson();
-      }
+    // Add guild if not present
+    for (Guild g : e.getJDA().getGuilds()) {
+      tech.gdragon.db.dao.Guild.findOrCreate(g.getIdLong(), g.getName());
     }
 
     try {
