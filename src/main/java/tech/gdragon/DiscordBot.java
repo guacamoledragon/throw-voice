@@ -11,12 +11,16 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import tech.gdragon.commands.Command;
 import tech.gdragon.commands.CommandHandler;
 import tech.gdragon.commands.audio.*;
 import tech.gdragon.commands.misc.*;
 import tech.gdragon.commands.settings.*;
 import tech.gdragon.configuration.ServerSettings;
+import tech.gdragon.db.Shim;
+import tech.gdragon.db.dao.Settings;
 import tech.gdragon.listeners.AudioReceiveListener;
 import tech.gdragon.listeners.AudioSendListener;
 import tech.gdragon.listeners.EventListener;
@@ -33,6 +37,8 @@ import java.util.Random;
 import static java.lang.Thread.sleep;
 
 public class DiscordBot {
+  private static Logger logger = LoggerFactory.getLogger(DiscordBot.class);
+
   //contains the id of every guild that we are connected to and their corresponding ServerSettings object
   @Deprecated
   public static HashMap<String, ServerSettings> serverSettings = new HashMap<>();
@@ -119,13 +125,18 @@ public class DiscordBot {
   }
 
   public static void writeToFile(Guild guild, int time, TextChannel tc) {
+    Long defaultChannelId = Shim.INSTANCE.xaction(() -> {
+      Settings settings = tech.gdragon.db.dao.Guild.Companion.findById(guild.getIdLong()).getSettings();
+      return settings.getDefaultTextChannel();
+    });
+
     if (tc == null) {
-      tc = guild.getTextChannelById(serverSettings.get(guild.getId()).defaultTextChannel);
+      tc = guild.getTextChannelById(defaultChannelId);
     }
 
     AudioReceiveListener ah = (AudioReceiveListener) guild.getAudioManager().getReceiveHandler();
     if (ah == null) {
-      sendMessage(tc, "I wasn't recording!");
+      BotUtils.sendMessage(tc, "I wasn't recording!");
       return;
     }
 
@@ -155,26 +166,34 @@ public class DiscordBot {
       System.out.format("Saving audio file '%s' from %s on %s of size %f MB\n",
         dest.getName(), guild.getAudioManager().getConnectedChannel().getName(), guild.getName(), (double) dest.length() / 1024 / 1024);
 
+      // TODO: This checks the size of the file and does something else if the file is bigger than what Discord allows, this doesn't work.
       if (dest.length() / 1024 / 1024 < 8) {
         final TextChannel channel = tc;
         tc.sendFile(dest, null).queue(null, (Throwable) -> {
-          sendMessage(guild.getTextChannelById(serverSettings.get(guild.getId()).defaultTextChannel),
+          BotUtils.sendMessage(guild.getTextChannelById(defaultChannelId),
             "I don't have permissions to send files in " + channel.getName() + "!");
         });
 
         new Thread(() -> {
           try {
-            sleep(1000 * 20);
-          } catch (Exception ex) {
-          }    //20 second life for files set to discord (no need to save)
+            sleep(1000 * 20); //20 second life for files sent to discord (no need to save)
+          } catch (InterruptedException e) {
+            logger.error("Failed during sleep", e);
+          }
 
-          dest.delete();
-          System.out.println("\tDeleting file " + dest.getName() + "...");
+          boolean isDeleteSuccess = dest.delete();
+
+          logger.info("Deleting file " + dest.getName() + "...");
+
+          if (isDeleteSuccess)
+            logger.info("Successfully deleted file {}. ", dest.getName());
+          else
+            logger.error("Could not delete file {}.", dest.getName());
 
         }).start();
 
-      } else {
-        sendMessage(tc, "http://DiscordEcho.com/" + dest.getName());
+      } /*else {
+        BotUtils.sendMessage(tc, "http://DiscordEcho.com/" + dest.getName());
 
         new Thread(() -> {
           try {
@@ -186,11 +205,11 @@ public class DiscordBot {
           System.out.println("\tDeleting file " + dest.getName() + "...");
 
         }).start();
-      }
+      }*/
 
-    } catch (Exception ex) {
-      ex.printStackTrace();
-      sendMessage(tc, "Unknown error sending file");
+    } catch (Exception e) {
+      logger.error("Unknown error sending file", e);
+      BotUtils.sendMessage(tc, "Unknown error sending file");
     }
   }
 
