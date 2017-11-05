@@ -282,6 +282,7 @@ public class DiscordBot {
   }
 
   //general purpose function that sends a message to the given text channel and handles errors
+  @Deprecated
   public static void sendMessage(TextChannel tc, String message) {
     tc.sendMessage("\u200B" + message).queue(null, (Throwable) -> {
       tc.getGuild().getPublicChannel().sendMessage("\u200BI don't have permissions to send messages in " + tc.getName() + "!").queue();
