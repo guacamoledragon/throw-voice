@@ -65,10 +65,10 @@ object BotUtils {
    * General message sending utility with error logging
    */
   @JvmStatic
-  fun sendMessage(textChannel: TextChannel, msg: String) {
+  fun sendMessage(textChannel: TextChannel?, msg: String) {
     textChannel
-      .sendMessage("\u200B$msg")
-      .queue(
+      ?.sendMessage("\u200B$msg")
+      ?.queue(
         { m -> logger.debug("Successful Message: ${m.content}") },
         { t -> logger.error("Error Sending: $msg on ${textChannel.name}", t) }
       )
