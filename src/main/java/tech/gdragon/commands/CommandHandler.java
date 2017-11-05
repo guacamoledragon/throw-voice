@@ -9,7 +9,6 @@ import tech.gdragon.db.dao.Guild;
 import tech.gdragon.db.dao.Settings;
 
 import java.util.HashMap;
-import java.util.Iterator;
 
 public class CommandHandler {
   public static final CommandParser parser = new CommandParser();
