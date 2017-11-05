@@ -5,11 +5,12 @@ import net.dv8tion.jda.core.audio.CombinedAudio;
 import net.dv8tion.jda.core.audio.UserAudio;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.VoiceChannel;
+import tech.gdragon.BotUtils;
 import tech.gdragon.DiscordBot;
+import tech.gdragon.db.Shim;
+import tech.gdragon.db.dao.Settings;
 
 import java.util.Arrays;
-
-import static tech.gdragon.DiscordBot.serverSettings;
 
 public class AudioReceiveListener implements AudioReceiveHandler {
   public static final double STARTING_MB = 0.5;
@@ -55,8 +56,15 @@ public class AudioReceiveListener implements AudioReceiveHandler {
 
     if (afkTimer >= 50 * 60 * AFK_LIMIT) {   //20ms * 50 * 60 seconds * 2 mins = 2 mins
       System.out.format("AFK detected, leaving '%s' voice channel in %s\n", voiceChannel.getName(), voiceChannel.getGuild().getName());
-      TextChannel defaultTC = voiceChannel.getGuild().getTextChannelById(serverSettings.get(voiceChannel.getGuild().getId()).defaultTextChannel);
-      DiscordBot.sendMessage(defaultTC, "No audio for 2 minutes, leaving from AFK detection...");
+      Long defaultChannelId = Shim.INSTANCE.xaction(() -> {
+        Settings settings = tech.gdragon.db.dao.Guild.Companion.findById(voiceChannel.getGuild().getIdLong()).getSettings();
+        return settings.getDefaultTextChannel();
+      });
+
+      if (defaultChannelId != null) {
+        TextChannel defaultTC = voiceChannel.getGuild().getTextChannelById(defaultChannelId);
+        BotUtils.sendMessage(defaultTC, "No audio for 2 minutes, leaving from AFK detection...");
+      }
 
       voiceChannel.getGuild().getAudioManager().closeAudioConnection();
       DiscordBot.killAudioHandlers(voiceChannel.getGuild());
