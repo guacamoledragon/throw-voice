@@ -9,7 +9,7 @@ import tech.gdragon.db.dao.User
 import tech.gdragon.db.table.Tables.Users
 import java.util.function.Consumer
 
-class AlertsCommand : Command {
+class Alerts : Command {
   override fun action(args: Array<String>, event: GuildMessageReceivedEvent) {
     val guildId = event.guild.idLong
     val prefix = transaction { Guild.findById(guildId)!!.settings.prefix }

@@ -13,7 +13,6 @@ import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import tech.gdragon.commands.Command;
 import tech.gdragon.commands.CommandHandler;
 import tech.gdragon.commands.audio.*;
 import tech.gdragon.commands.misc.*;
@@ -56,6 +55,28 @@ public class DiscordBot {
           .setToken(token)
           .addEventListener(new EventListener())
           .buildBlocking();
+
+      // Register misc commands
+      CommandHandler.commands.put("help", new Help());
+      CommandHandler.commands.put("join", new Join());
+      CommandHandler.commands.put("leave", new Leave());
+
+      // Register audio commands
+      CommandHandler.commands.put("clip", new ClipCommand());
+      CommandHandler.commands.put("echo", new EchoCommand());
+      CommandHandler.commands.put("miab", new MessageInABottleCommand());
+      CommandHandler.commands.put("save", new Save());
+
+      // Register settings commands
+      CommandHandler.commands.put("alias", new Alias());
+      CommandHandler.commands.put("alerts", new Alerts());
+      CommandHandler.commands.put("autojoin", new AutoJoin());
+      CommandHandler.commands.put("autoleave", new AutoLeave());
+      CommandHandler.commands.put("autosave", new AutoSave());
+      CommandHandler.commands.put("prefix", new Prefix());
+      CommandHandler.commands.put("removealias", new RemoveAlias());
+      CommandHandler.commands.put("savelocation", new SaveLocation());
+      CommandHandler.commands.put("volume", new Volume());
     } catch (LoginException e) {
       //If anything goes wrong in terms of authentication, this is the exception that will represent it
       e.printStackTrace();
@@ -73,44 +94,7 @@ public class DiscordBot {
     } catch (Exception e) {
       e.printStackTrace();
     }
-
-    //register commands and their aliases
-    CommandHandler.commands.put("help", new HelpCommand());
-
-    CommandHandler.commands.put("join", new JoinCommand());
-    CommandHandler.commands.put("leave", new LeaveCommand());
-
-    CommandHandler.commands.put("save", new SaveCommand());
-    CommandHandler.commands.put("clip", new ClipCommand());
-    CommandHandler.commands.put("echo", new EchoCommand());
-    CommandHandler.commands.put("miab", new MessageInABottleCommand());
-
-    CommandHandler.commands.put("autojoin", new AutoJoinCommand());
-    CommandHandler.commands.put("autoleave", new AutoLeaveCommand());
-
-    CommandHandler.commands.put("prefix", new PrefixCommand());
-    CommandHandler.commands.put("alias", new AliasCommand());
-    CommandHandler.commands.put("removealias", new RemoveAliasCommand());
-    CommandHandler.commands.put("volume", new VolumeCommand());
-    CommandHandler.commands.put("autosave", new AutoSaveCommand());
-    CommandHandler.commands.put("savelocation", new SaveLocationCommand());
-
-    // New Commands
-    CommandHandler.commands.put("alerts", new AlertsCommand());
-    CommandHandler.commands.put("ao", new AutoJoin());
-    CommandHandler.commands.put("ae", new AutoLeave());
-    CommandHandler.commands.put("al", new Alias());
-    CommandHandler.commands.put("vl", new Volume());
-    CommandHandler.commands.put("rm", new RemoveAlias());
-    CommandHandler.commands.put("pr", new Prefix());
-    CommandHandler.commands.put("as", new AutoSave());
-    CommandHandler.commands.put("sl", new SaveLocation());
-    CommandHandler.commands.put("jn", new Join());
-    CommandHandler.commands.put("le", new Leave());
-    CommandHandler.commands.put("hp", new Help());
-    CommandHandler.commands.put("se", new Save());
   }
-
 
   public static final long PERMISSIONS = Permission.getRaw(Permission.MESSAGE_READ, Permission.MESSAGE_WRITE, Permission.VOICE_CONNECT, Permission.VOICE_USE_VAD, Permission.VOICE_SPEAK, Permission.MESSAGE_ATTACH_FILES);
 
