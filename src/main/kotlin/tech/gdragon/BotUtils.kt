@@ -115,4 +115,16 @@ object BotUtils {
       }
     }
   }
+
+  @JvmStatic
+  fun leaveVoiceChannel(voiceChannel: VoiceChannel?) {
+    logger.info("Leaving '{}' voice channel in {}", voiceChannel?.name, voiceChannel?.guild?.name)
+
+    voiceChannel
+      ?.guild
+      ?.audioManager
+      ?.closeAudioConnection()
+
+    DiscordBot.killAudioHandlers(voiceChannel?.guild)
+  }
 }
