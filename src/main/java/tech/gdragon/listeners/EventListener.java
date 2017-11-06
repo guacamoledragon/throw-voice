@@ -345,7 +345,7 @@ public class EventListener extends ListenerAdapter {
     for (Guild g : e.getJDA().getGuilds()) {
       VoiceChannel biggest = BotUtils.biggestChannel(g);
       if (biggest != null) {
-        DiscordBot.joinVoiceChannel(BotUtils.biggestChannel(g), false);
+        BotUtils.joinVoiceChannel(BotUtils.biggestChannel(g), false);
       }
     }
   }
