@@ -3,12 +3,15 @@ package tech.gdragon
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.entities.TextChannel
 import net.dv8tion.jda.core.entities.VoiceChannel
+import net.dv8tion.jda.core.exceptions.InsufficientPermissionException
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
 import tech.gdragon.db.dao.Guild
+import tech.gdragon.listeners.AudioReceiveListener
 import java.awt.Color
 import java.time.OffsetDateTime
 import net.dv8tion.jda.core.entities.Guild as DiscordGuild
+
 
 object BotUtils {
   private val logger = LoggerFactory.getLogger(BotUtils.javaClass)
@@ -80,5 +83,36 @@ object BotUtils {
   @JvmStatic
   fun voiceChannelSize(voiceChannel: VoiceChannel?): Int {
     return voiceChannel?.members?.count { !it.user.isBot } ?: 0
+  }
+
+  @JvmStatic
+  fun joinVoiceChannel(voiceChannel: VoiceChannel?, warning: Boolean): Unit {
+    logger.info("Joining '{}' voice channel in {}.", voiceChannel?.name, voiceChannel?.guild?.name)
+
+    if (voiceChannel == voiceChannel?.guild?.afkChannel) {
+      if (warning) {
+        transaction {
+          val settings = Guild.findById(voiceChannel?.guild?.idLong ?: 0L)?.settings
+          val channel = voiceChannel?.guild?.getTextChannelById(settings?.defaultTextChannel ?: 0L)
+          sendMessage(channel, "I don't join afk channels!")
+        }
+      }
+    }
+
+    try {
+      voiceChannel?.guild?.audioManager?.openAudioConnection(voiceChannel)
+      alert(voiceChannel)
+      transaction {
+        val volume = Guild.findById(voiceChannel?.guild?.idLong ?: 0L)?.settings?.volume?.toDouble() ?: 0.8
+        voiceChannel?.guild?.audioManager?.setReceivingHandler(AudioReceiveListener(volume, voiceChannel))
+      }
+    } catch (e: InsufficientPermissionException) {
+      logger.error("Not enough permissions to join ${voiceChannel?.name}", e)
+      transaction {
+        val settings = Guild.findById(voiceChannel?.guild?.idLong ?: 0L)?.settings
+        val channel = voiceChannel?.guild?.getTextChannelById(settings?.defaultTextChannel ?: 0L)
+        sendMessage(channel, "I don't have permission to join ${voiceChannel?.name}!")
+      }
+    }
   }
 }
