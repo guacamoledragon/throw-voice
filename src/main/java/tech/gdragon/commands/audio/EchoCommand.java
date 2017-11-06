@@ -2,7 +2,6 @@ package tech.gdragon.commands.audio;
 
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import tech.gdragon.BotUtils;
-import tech.gdragon.DiscordBot;
 import tech.gdragon.commands.Command;
 import tech.gdragon.db.Shim;
 import tech.gdragon.db.dao.Guild;

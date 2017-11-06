@@ -5,7 +5,6 @@ import fi.iki.elonen.NanoHTTPD;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tech.gdragon.db.Shim;
-import tech.gdragon.db.dao.Guild;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -29,7 +28,7 @@ public final class App extends NanoHTTPD {
     logger.debug(uri);
 
     Response response;
-    if(uri.toLowerCase().contains("ping")) {
+    if (uri.toLowerCase().contains("ping")) {
       response = newFixedLengthResponse("pong");
     } else {
       // TODO We don't gotta hand jam this, api.asBot().getInviteUrl(...)

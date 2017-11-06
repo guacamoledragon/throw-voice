@@ -1,7 +1,5 @@
 package tech.gdragon;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import de.sciss.jump3r.lowlevel.LameEncoder;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
@@ -9,15 +7,18 @@ import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tech.gdragon.commands.CommandHandler;
-import tech.gdragon.commands.audio.*;
-import tech.gdragon.commands.misc.*;
+import tech.gdragon.commands.audio.ClipCommand;
+import tech.gdragon.commands.audio.EchoCommand;
+import tech.gdragon.commands.audio.MessageInABottleCommand;
+import tech.gdragon.commands.audio.Save;
+import tech.gdragon.commands.misc.Help;
+import tech.gdragon.commands.misc.Join;
+import tech.gdragon.commands.misc.Leave;
 import tech.gdragon.commands.settings.*;
-import tech.gdragon.configuration.ServerSettings;
 import tech.gdragon.db.Shim;
 import tech.gdragon.db.dao.Settings;
 import tech.gdragon.listeners.AudioReceiveListener;
@@ -29,8 +30,6 @@ import javax.sound.sampled.AudioFormat;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.util.HashMap;
 import java.util.Random;
 
 import static java.lang.Thread.sleep;
@@ -38,23 +37,13 @@ import static java.lang.Thread.sleep;
 public class DiscordBot {
   private static Logger logger = LoggerFactory.getLogger(DiscordBot.class);
 
-  //contains the id of every guild that we are connected to and their corresponding ServerSettings object
-  @Deprecated
-  public static HashMap<String, ServerSettings> serverSettings = new HashMap<>();
-  // TODO: DiscordBot should probably not hold a reference to serverSettings
-
   public DiscordBot(String token) {
     try {
-      //read the bot's token from a file name "token" in the main directory
-//      FileReader fr = new FileReader("shark_token");
-//      BufferedReader br = new BufferedReader(fr);
-//      String token = br.readLine();
-
       //create bot instance
       JDA api = new JDABuilder(AccountType.BOT)
-          .setToken(token)
-          .addEventListener(new EventListener())
-          .buildBlocking();
+        .setToken(token)
+        .addEventListener(new EventListener())
+        .buildBlocking();
 
       // Register misc commands
       CommandHandler.commands.put("help", new Help());
@@ -197,22 +186,6 @@ public class DiscordBot {
     }
   }
 
-  //write the current state of all server settings to the settings.json file
-  @Deprecated
-  public static void writeSettingsJson() {
-    try {
-      Gson gson = new GsonBuilder().setPrettyPrinting().create();
-      String json = gson.toJson(DiscordBot.serverSettings);
-
-      FileWriter fw = new FileWriter("settings.json");
-      fw.write(json);
-      fw.flush();
-      fw.close();
-
-    } catch (Exception ex) {
-    }
-  }
-
   //generate a random string of 13 length with a namespace of around 2e23
   public static String getPJSaltString() {
     String SALTCHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890";
@@ -232,7 +205,7 @@ public class DiscordBot {
 
     File[] fileList = dir.listFiles();
 
-    if( fileList != null) {
+    if (fileList != null) {
       for (File f : fileList) {
         if (f.getName().equals(saltStr)) {
           saltStr = getPJSaltString();
@@ -282,57 +255,5 @@ public class DiscordBot {
 
     System.out.println("Destroyed audio handlers for " + g.getName());
     System.gc();
-  }
-
-  //general purpose function that sends a message to the given text channel and handles errors
-  @Deprecated
-  public static void sendMessage(TextChannel tc, String message) {
-    tc.sendMessage("\u200B" + message).queue(null, (Throwable) -> {
-      tc.getGuild().getPublicChannel().sendMessage("\u200BI don't have permissions to send messages in " + tc.getName() + "!").queue();
-    });
-  }
-
-  // TODO: move joinVoiceChannel to BotUtils
-  //general purpose function for joining voice channels while warning and handling errors
-  @Deprecated
-  public static void joinVoiceChannel(VoiceChannel vc, boolean warning) {
-    System.out.format("Joining '%s' voice channel in %s\n", vc.getName(), vc.getGuild().getName());
-
-    //don't join afk channels
-    if (vc == vc.getGuild().getAfkChannel()) {
-      if (warning) {
-        TextChannel tc = vc.getGuild().getTextChannelById(serverSettings.get(vc.getGuild().getId()).defaultTextChannel);
-        sendMessage(tc, "I don't join afk channels!");
-      }
-    }
-
-    //attempt to join channel and warn if permission is not available
-    try {
-      vc.getGuild().getAudioManager().openAudioConnection(vc);
-    } catch (Exception e) {
-      if (warning) {
-        TextChannel tc = vc.getGuild().getTextChannelById(serverSettings.get(vc.getGuild().getId()).defaultTextChannel);
-        sendMessage(tc, "I don't have permission to join " + vc.getName() + "!");
-        return;
-      }
-    }
-
-    //send alert to correct users in the voice channel
-    BotUtils.alert(vc);
-
-    //initalize the audio reciever listener
-    double volume = DiscordBot.serverSettings.get(vc.getGuild().getId()).volume;
-    vc.getGuild().getAudioManager().setReceivingHandler(new AudioReceiveListener(volume, vc));
-
-  }
-
-  // TODO: move leaveVoiceChannel to BotUtils
-  //general purpose function for leaving voice channels
-  @Deprecated
-  public static void leaveVoiceChannel(VoiceChannel vc) {
-    System.out.format("Leaving '%s' voice channel in %s\n", vc.getName(), vc.getGuild().getName());
-
-    vc.getGuild().getAudioManager().closeAudioConnection();
-    DiscordBot.killAudioHandlers(vc.getGuild());
   }
 }
