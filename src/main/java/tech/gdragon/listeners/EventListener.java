@@ -97,14 +97,14 @@ public class EventListener extends ListenerAdapter {
         if (autoSave)
           DiscordBot.writeToFile(e.getGuild());  //write data from voice channel it is leaving
 
-        DiscordBot.joinVoiceChannel(e.getChannelJoined(), false);
+        BotUtils.joinVoiceChannel(e.getChannelJoined(), false);
       }
 
     } else {
       VoiceChannel biggestChannel = BotUtils.biggestChannel(e.getGuild());
 
       if (biggestChannel != null) {
-        DiscordBot.joinVoiceChannel(e.getChannelJoined(), false);
+        BotUtils.joinVoiceChannel(e.getChannelJoined(), false);
       }
     }
   }
@@ -137,11 +137,11 @@ public class EventListener extends ListenerAdapter {
       if (autoSave)
         DiscordBot.writeToFile(e.getGuild());  //write data from voice channel it is leaving
 
-      DiscordBot.leaveVoiceChannel(e.getGuild().getAudioManager().getConnectedChannel());
+      BotUtils.leaveVoiceChannel(e.getGuild().getAudioManager().getConnectedChannel());
 
       VoiceChannel biggest = BotUtils.biggestChannel(e.getGuild());
       if (biggest != null) {
-        DiscordBot.joinVoiceChannel(biggest, false);
+        BotUtils.joinVoiceChannel(biggest, false);
       }
     }
   }
@@ -177,13 +177,13 @@ public class EventListener extends ListenerAdapter {
         if (autoSave)
           DiscordBot.writeToFile(e.getGuild());  //write data from voice channel it is leaving
 
-        DiscordBot.joinVoiceChannel(e.getChannelJoined(), false);
+        BotUtils.joinVoiceChannel(e.getChannelJoined(), false);
       }
 
     } else {
       VoiceChannel biggestChannel = BotUtils.biggestChannel(e.getGuild());
       if (biggestChannel != null) {
-        DiscordBot.joinVoiceChannel(biggestChannel, false);
+        BotUtils.joinVoiceChannel(biggestChannel, false);
       }
     }
 
@@ -209,11 +209,11 @@ public class EventListener extends ListenerAdapter {
       if (autoSave)
         DiscordBot.writeToFile(e.getGuild());  //write data from voice channel it is leaving
 
-      DiscordBot.leaveVoiceChannel(audioManager.getConnectedChannel());
+      BotUtils.leaveVoiceChannel(audioManager.getConnectedChannel());
 
       VoiceChannel biggest = BotUtils.biggestChannel(e.getGuild());
       if (biggest != null) {
-        DiscordBot.joinVoiceChannel(e.getChannelJoined(), false);
+        BotUtils.joinVoiceChannel(e.getChannelJoined(), false);
       }
     }
   }
