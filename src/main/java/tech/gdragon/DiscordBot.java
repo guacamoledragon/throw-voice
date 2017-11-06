@@ -310,6 +310,7 @@ public class DiscordBot {
 
   // TODO: move joinVoiceChannel to BotUtils
   //general purpose function for joining voice channels while warning and handling errors
+  @Deprecated
   public static void joinVoiceChannel(VoiceChannel vc, boolean warning) {
     System.out.format("Joining '%s' voice channel in %s\n", vc.getName(), vc.getGuild().getName());
 
