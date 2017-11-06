@@ -29,7 +29,7 @@
     <dependency>
       <groupId>net.dv8tion</groupId>
       <artifactId>JDA</artifactId>
-      <version>3.3.0_260</version>
+      <version>3.3.1_303</version>
     </dependency>
     <dependency>
       <groupId>org.jetbrains.exposed</groupId>
