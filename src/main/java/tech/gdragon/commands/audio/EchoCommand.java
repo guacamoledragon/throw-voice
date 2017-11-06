@@ -1,6 +1,7 @@
 package tech.gdragon.commands.audio;
 
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
+import tech.gdragon.BotUtils;
 import tech.gdragon.DiscordBot;
 import tech.gdragon.commands.Command;
 import tech.gdragon.db.Shim;
@@ -19,12 +20,12 @@ public class EchoCommand implements Command {
       });
     if (args.length != 1) {
 //      String prefix = DiscordBot.serverSettings.get(e.getGuild().getId()).prefix;
-      DiscordBot.sendMessage(e.getChannel(), usage(prefix));
+      BotUtils.sendMessage(e.getChannel(), usage(prefix));
       return;
     }
 
     if (e.getGuild().getAudioManager().getConnectedChannel() == null) {
-      DiscordBot.sendMessage(e.getChannel(), "I wasn't recording!");
+      BotUtils.sendMessage(e.getChannel(), "I wasn't recording!");
       return;
     }
 
@@ -32,12 +33,12 @@ public class EchoCommand implements Command {
     try {
       time = Integer.parseInt(args[0]);
       if (time <= 0) {
-        DiscordBot.sendMessage(e.getChannel(), "Time must be greater than 0");
+        BotUtils.sendMessage(e.getChannel(), "Time must be greater than 0");
         return;
       }
     } catch (Exception ex) {
 //      String prefix = DiscordBot.serverSettings.get(e.getGuild().getId()).prefix;
-      DiscordBot.sendMessage(e.getChannel(), usage(prefix));
+      BotUtils.sendMessage(e.getChannel(), usage(prefix));
       return;
     }
 
@@ -45,7 +46,7 @@ public class EchoCommand implements Command {
     AudioReceiveListener ah = (AudioReceiveListener) e.getGuild().getAudioManager().getReceiveHandler();
     byte[] voiceData;
     if (ah == null || (voiceData = ah.getUncompVoice(time)) == null) {
-      DiscordBot.sendMessage(e.getChannel(), "I wasn't recording!");
+      BotUtils.sendMessage(e.getChannel(), "I wasn't recording!");
       return;
     }
 
