@@ -344,6 +344,7 @@ public class DiscordBot {
 
   // TODO: move leaveVoiceChannel to BotUtils
   //general purpose function for leaving voice channels
+  @Deprecated
   public static void leaveVoiceChannel(VoiceChannel vc) {
     System.out.format("Leaving '%s' voice channel in %s\n", vc.getName(), vc.getGuild().getName());
 
