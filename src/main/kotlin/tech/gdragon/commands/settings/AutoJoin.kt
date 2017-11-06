@@ -5,7 +5,6 @@ import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.BotUtils
-import tech.gdragon.DiscordBot
 import tech.gdragon.commands.Command
 import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
@@ -83,7 +82,7 @@ class AutoJoin : Command {
           e.message
         } ?: usage(prefix)
 
-      DiscordBot.sendMessage(event.channel, message)
+      BotUtils.sendMessage(event.channel, message)
     }
   }
 

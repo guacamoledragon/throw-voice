@@ -25,7 +25,7 @@ class Leave : Command {
           }
 
           val voiceChannel = event.guild.audioManager.connectedChannel
-          DiscordBot.leaveVoiceChannel(voiceChannel)
+          BotUtils.leaveVoiceChannel(voiceChannel)
           "Leaving ${voiceChannel.name}"
         } else {
           "I am not in a channel!"

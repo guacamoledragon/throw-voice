@@ -36,7 +36,7 @@ class Join : Command {
             }
 
             // TODO: port the joinVoiceChannel method
-            DiscordBot.joinVoiceChannel(voiceChannel, true)
+            BotUtils.joinVoiceChannel(voiceChannel, true)
             "Joining ${voiceChannel.name}."
           }
         }
