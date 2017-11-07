@@ -1,29 +1,30 @@
 package tech.gdragon.commands.audio;
 
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
-import tech.gdragon.DiscordBot;
+import tech.gdragon.BotUtils;
 import tech.gdragon.commands.Command;
+import tech.gdragon.db.Shim;
+import tech.gdragon.db.dao.Guild;
 import tech.gdragon.listeners.AudioReceiveListener;
 import tech.gdragon.listeners.AudioSendListener;
 
 
 public class EchoCommand implements Command {
-
-  @Override
-  public Boolean called(String[] args, GuildMessageReceivedEvent e) {
-    return true;
-  }
-
   @Override
   public void action(String[] args, GuildMessageReceivedEvent e) {
+    String prefix =
+      Shim.INSTANCE.xaction(() -> {
+        Guild guild = Guild.Companion.findById(e.getGuild().getIdLong());
+        return guild != null ? guild.getSettings().getPrefix() : "!";
+      });
     if (args.length != 1) {
-      String prefix = DiscordBot.serverSettings.get(e.getGuild().getId()).prefix;
-      DiscordBot.sendMessage(e.getChannel(), usage(prefix));
+//      String prefix = DiscordBot.serverSettings.get(e.getGuild().getId()).prefix;
+      BotUtils.sendMessage(e.getChannel(), usage(prefix));
       return;
     }
 
     if (e.getGuild().getAudioManager().getConnectedChannel() == null) {
-      DiscordBot.sendMessage(e.getChannel(), "I wasn't recording!");
+      BotUtils.sendMessage(e.getChannel(), "I wasn't recording!");
       return;
     }
 
@@ -31,12 +32,12 @@ public class EchoCommand implements Command {
     try {
       time = Integer.parseInt(args[0]);
       if (time <= 0) {
-        DiscordBot.sendMessage(e.getChannel(), "Time must be greater than 0");
+        BotUtils.sendMessage(e.getChannel(), "Time must be greater than 0");
         return;
       }
     } catch (Exception ex) {
-      String prefix = DiscordBot.serverSettings.get(e.getGuild().getId()).prefix;
-      DiscordBot.sendMessage(e.getChannel(), usage(prefix));
+//      String prefix = DiscordBot.serverSettings.get(e.getGuild().getId()).prefix;
+      BotUtils.sendMessage(e.getChannel(), usage(prefix));
       return;
     }
 
@@ -44,7 +45,7 @@ public class EchoCommand implements Command {
     AudioReceiveListener ah = (AudioReceiveListener) e.getGuild().getAudioManager().getReceiveHandler();
     byte[] voiceData;
     if (ah == null || (voiceData = ah.getUncompVoice(time)) == null) {
-      DiscordBot.sendMessage(e.getChannel(), "I wasn't recording!");
+      BotUtils.sendMessage(e.getChannel(), "I wasn't recording!");
       return;
     }
 
@@ -59,12 +60,7 @@ public class EchoCommand implements Command {
   }
 
   @Override
-  public String descripition() {
+  public String description() {
     return "Echos back the input number of seconds of the recording into the voice channel (max 120 seconds)";
-  }
-
-  @Override
-  public void executed(boolean success, GuildMessageReceivedEvent e) {
-    return;
   }
 }

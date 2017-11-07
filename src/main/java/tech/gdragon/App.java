@@ -4,6 +4,7 @@ package tech.gdragon;
 import fi.iki.elonen.NanoHTTPD;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tech.gdragon.db.Shim;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -27,9 +28,10 @@ public final class App extends NanoHTTPD {
     logger.debug(uri);
 
     Response response;
-    if(uri.toLowerCase().contains("ping")) {
+    if (uri.toLowerCase().contains("ping")) {
       response = newFixedLengthResponse("pong");
     } else {
+      // TODO We don't gotta hand jam this, api.asBot().getInviteUrl(...)
       String botUrl = "https://discordapp.com/oauth2/authorize?client_id=" + this.clientId + "&scope=bot&permissions=" + DiscordBot.PERMISSIONS;
       response = newFixedLengthResponse(Response.Status.REDIRECT, NanoHTTPD.MIME_HTML, "");
       response.addHeader("Location", botUrl);
@@ -42,6 +44,9 @@ public final class App extends NanoHTTPD {
    * Starts a simple HTTP Service, whose only response is to redirect to the bot's page.
    */
   public static void main(String[] args) {
+    // Connect to database
+    Shim.INSTANCE.initializeDatabase("settings.db");
+
     String token = System.getenv("BOT_TOKEN");
     String port = System.getenv("PORT");
     String clientId = System.getenv("CLIENT_ID");

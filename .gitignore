@@ -18,5 +18,7 @@ buildNumber.properties
 .idea/*
 !.idea/runConfigurations/
 
-.env
+.env*
 settings.json
+settings.db
+
