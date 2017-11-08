@@ -1,0 +1,15 @@
+.idea/
+.git/
+docs/
+recordings/
+target/
+
+*.iml
+*.db
+*.json
+
+Dockerfile
+Procfile
+dependency-reduced-pom.xml
+.travis.yml
+.env*
