@@ -222,15 +222,6 @@
                   <mainClass>${main.class}</mainClass>
                 </transformer>
               </transformers>
-              <minimizeJar>true</minimizeJar>
-              <filters>
-                <filter>
-                  <artifact>commons-logging:commons-logging</artifact>
-                  <includes>
-                    <include>**</include>
-                  </includes>
-                </filter>
-              </filters>
             </configuration>
             <executions>
               <execution>
