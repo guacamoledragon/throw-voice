@@ -225,7 +225,6 @@ public class EventListener extends ListenerAdapter {
 
     long guildId = event.getGuild().getIdLong();
 
-//    String prefix = DiscordBot.serverSettings.get(guildId).prefix;
     String prefix = Shim.INSTANCE.xaction(() -> {
       tech.gdragon.db.dao.Guild guild = tech.gdragon.db.dao.Guild.Companion.findById(guildId);
 
@@ -238,10 +237,12 @@ public class EventListener extends ListenerAdapter {
       return guild.getSettings().getPrefix();
     });
 
-    //force help to always work with "!" prefix
-    if (event.getMessage().getContent().startsWith(prefix) || event.getMessage().getContent().startsWith("!help")) {
+    String rawContent = event.getMessage().getContent();
+    if (rawContent.startsWith(prefix)) {
       // TODO: handle any CommandHandler exceptions here
-      CommandHandler.handleCommand(event, CommandHandler.parser.parse(event.getMessage().getContent().toLowerCase(), event));
+      CommandHandler.handleCommand(event, CommandHandler.parser.parse(rawContent.toLowerCase(), prefix));
+    } else if (rawContent.equals("!help")) { // force help to always work with "!" prefix
+      CommandHandler.handleCommand(event, CommandHandler.parser.parse(prefix + "help", prefix));
     }
   }
 
