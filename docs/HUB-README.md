@@ -9,7 +9,8 @@
 
 # Supported tags and respective `Dockerfile` links
 
-- [`1.0-beta.2, latest` (*Dockerfile*)](https://github.com/guacamoledragon/throw-voice/blob/f8e89617e0f71ca2d3b9a83426429f361163b429/Dockerfile)
+- [`1.0-beta.3, latest` (*Dockerfile*)](https://github.com/guacamoledragon/throw-voice/blob/5d5c9ae8f545c7afee4727cf110b7d330d0edee4/Dockerfile)
+- [`1.0-beta.2` (*Dockerfile*)](https://github.com/guacamoledragon/throw-voice/blob/f8e89617e0f71ca2d3b9a83426429f361163b429/Dockerfile)
 - [`1.0-beta.1` (*Dockerfile*)](https://github.com/guacamoledragon/throw-voice/blob/f8e89617e0f71ca2d3b9a83426429f361163b429/Dockerfile)
 
 # How to use this image
