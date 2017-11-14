@@ -7,6 +7,20 @@
 
 **Full Disclosure: This is a highly modified fork of [ajm1996/DiscordEcho](https://github.com/ajm1996/DiscordEcho).**
 
+
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+# Contents
+
+- [Commands](#commands)
+- [Deployment](#deployment)
+  - [Local (or VPS)](#local-or-vps)
+  - [Docker](#docker)
+  - [Heroku Button](#heroku-button)
+- [Attributions](#attributions)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 ## Commands
 
 |                            Command                            |                                                                  Description                                                                   |
@@ -29,7 +43,9 @@
 
 _Replace brackets [] with item specified. Vertical bar | means 'or', either side of bar is valid choice._
 
-## Deployment: Local (or VPS)
+## Deployment
+
+### Local (or VPS)
 
 The main motivation for forking the project was to allow any Discord Guild owner to be able to host
 their own instance of this bot. In order to be able to do that, a bit of configuration is necessary.
@@ -57,7 +73,7 @@ Done!
 
 _Note: If you're deploying on your own VPS, then you'll need a bit more setup as you may be using NGINX or Apache._
 
-## Deployment: Docker
+### Docker
 
 If Docker is your jam, then you can start the bot using:
 
@@ -67,7 +83,7 @@ Replace `CLIENT_ID` and `BOT_TOKEN` with your correct values. The port isn't fix
 
 See the [Docker Hub](https://hub.docker.com/r/gdragon/throw-voice/) registry for more details on the container.
 
-## Deployment: Heroku Button
+### Heroku Button
 
 You can deploy on Heroku by clicking on the button below and entering the `CLIENT_ID` and `BOT_TOKEN`.
 
