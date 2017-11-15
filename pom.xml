@@ -4,6 +4,10 @@
   <groupId>tech.gdragon</groupId>
   <artifactId>throw-voice</artifactId>
   <version>1.0-SNAPSHOT</version>
+  <scm>
+    <connection>scm:git:https://github.com/guacamoledragon/throw-voice.git</connection>
+    <url>https://github.com/guacamoledragon/throw-voice</url>
+  </scm>
 
   <properties>
     <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
@@ -167,6 +171,24 @@
         <configuration>
           <includeScope>compile</includeScope>
           <outputDirectory>${project.build.directory}/lib</outputDirectory>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>buildnumber-maven-plugin</artifactId>
+        <version>1.4</version>
+        <executions>
+          <execution>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>create-metadata</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <addOutputDirectoryToResources>true</addOutputDirectoryToResources>
+          <attach>true</attach>
+          <shortRevisionLength>7</shortRevisionLength>
         </configuration>
       </plugin>
       <!--
