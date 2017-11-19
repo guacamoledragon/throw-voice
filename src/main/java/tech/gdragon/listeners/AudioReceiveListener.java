@@ -5,6 +5,8 @@ import net.dv8tion.jda.core.audio.CombinedAudio;
 import net.dv8tion.jda.core.audio.UserAudio;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.VoiceChannel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import tech.gdragon.BotUtils;
 import tech.gdragon.DiscordBot;
 import tech.gdragon.db.Shim;
@@ -13,8 +15,10 @@ import tech.gdragon.db.dao.Settings;
 import java.util.Arrays;
 
 public class AudioReceiveListener implements AudioReceiveHandler {
+  private Logger logger = LoggerFactory.getLogger(this.getClass());
+
   public static final double STARTING_MB = 0.5;
-  public static final int CAP_MB = 16;
+  public static final int CAP_MB = 8;
   public static final double PCM_MINS = 2;
   private final double AFK_LIMIT = 2;
   public boolean canReceive = true;
@@ -141,10 +145,9 @@ public class AudioReceiveListener implements AudioReceiveHandler {
 
         if (!overwriting) {
           overwriting = true;
-          System.out.format("Hit compressed storage cap in %s on %s", voiceChannel.getName(), voiceChannel.getGuild().getName());
+          logger.info("Hit compressed storage cap in {} on {}.", voiceChannel.getName(), voiceChannel.getGuild().getName());
         }
       }
-
 
       compVoiceData[compIndex++] = b;
     }
