@@ -66,8 +66,9 @@ public class AudioReceiveListener implements AudioReceiveHandler {
         BotUtils.sendMessage(defaultTC, "No audio for 2 minutes, leaving from AFK detection...");
       }
 
-      voiceChannel.getGuild().getAudioManager().closeAudioConnection();
-      DiscordBot.killAudioHandlers(voiceChannel.getGuild());
+      // Can't close audio manager in the same thread in which the audio event is being handled: https://github.com/DV8FromTheWorld/JDA/issues/485#issuecomment-332559873
+      new Thread(() -> BotUtils.leaveVoiceChannel(voiceChannel)).start();
+
       return;
     }
 
