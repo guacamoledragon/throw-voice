@@ -111,13 +111,11 @@ public class DiscordBot {
     }
 
     File dest;
+//    File raw;
     try {
-
-      if (new File("/var/www/html/").exists()) {
-        dest = new File("/var/www/html/" + getPJSaltString() + ".mp3");
-      } else {
-        dest = new File("recordings/" + getPJSaltString() + ".mp3");
-      }
+      String outputFile = "recordings/" + getPJSaltString();
+      dest = new File(outputFile + ".mp3");
+//      raw = new File(outputFile + ".pcm");
 
       byte[] voiceData;
       byte[] rawVoiceData;
@@ -126,6 +124,9 @@ public class DiscordBot {
         rawVoiceData = receiveListener.getUncompVoice(time);
         voiceData = encodePcmToMp3(rawVoiceData);
 
+        /*FileOutputStream rfos = new FileOutputStream(raw);
+        rfos.write(rawVoiceData);
+        rfos.close();*/
       } else {
         rawVoiceData = receiveListener.getUncompVoice((int) AudioReceiveListener.PCM_MINS * 60);
         voiceData = encodePcmToMp3(rawVoiceData);
