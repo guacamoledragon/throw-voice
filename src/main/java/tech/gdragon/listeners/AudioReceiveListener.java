@@ -167,11 +167,12 @@ public class AudioReceiveListener implements AudioReceiveHandler {
   public byte[] getUncompVoice(int time) {
     canReceive = false;
 
-    if (time > PCM_MINS * 60 * 2) {     //2 mins
+    if (time > PCM_MINS * 60 * 2) {
       time = (int) (PCM_MINS * 60 * 2);
     }
+
     int requestSize = 3840 * 50 * time;
-    byte[] voiceData = new byte[requestSize];
+    byte[] voiceData = new byte[(requestSize < uncompIndex) ? requestSize : uncompIndex];
 
     for (int i = 0; i < voiceData.length; i++) {
       if (uncompIndex + i < voiceData.length) {
