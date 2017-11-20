@@ -1,10 +1,7 @@
 package tech.gdragon;
 
 import de.sciss.jump3r.lowlevel.LameEncoder;
-import net.dv8tion.jda.core.AccountType;
-import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.JDABuilder;
-import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.*;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
@@ -123,26 +120,31 @@ public class DiscordBot {
       }
 
       byte[] voiceData;
+      byte[] rawVoiceData;
 
-      if (time > 0 && time <= ah.PCM_MINS * 60 * 2) {
-        voiceData = ah.getUncompVoice(time);
-        voiceData = encodePcmToMp3(voiceData);
+      if (time > 0 && time <= AudioReceiveListener.PCM_MINS * 60 * 2) {
+        rawVoiceData = receiveListener.getUncompVoice(time);
+        voiceData = encodePcmToMp3(rawVoiceData);
 
       } else {
-        voiceData = ah.getVoiceData();
+        rawVoiceData = receiveListener.getUncompVoice((int) AudioReceiveListener.PCM_MINS * 60);
+        voiceData = encodePcmToMp3(rawVoiceData);
       }
 
       FileOutputStream fos = new FileOutputStream(dest);
       fos.write(voiceData);
       fos.close();
 
-      System.out.format("Saving audio file '%s' from %s on %s of size %f MB\n",
-        dest.getName(), guild.getAudioManager().getConnectedChannel().getName(), guild.getName(), (double) dest.length() / 1024 / 1024);
+      double recordingSize = (double) dest.length() / 1024 / 1024;
+      logger.info("Saving audio file '{}' from {} on {} of size {} MB.",
+        dest.getName(), guild.getAudioManager().getConnectedChannel().getName(), guild.getName(), recordingSize);
 
       // TODO: This checks the size of the file and does something else if the file is bigger than what Discord allows, this doesn't work.
       if (dest.length() / 1024 / 1024 < 8) {
         final TextChannel channel = textChannel;
-        textChannel.sendFile(dest, null).queue(null, (Throwable) -> {
+        MessageBuilder message = new MessageBuilder();
+        message.append("Unfortunately, current recordings are limited to the previous " + AudioReceiveListener.PCM_MINS + " minutes. Fixing this limit in upcoming releases.");
+        textChannel.sendFile(dest, dest.getName(), message.build()).queue(null, (Throwable) -> {
           BotUtils.sendMessage(guild.getTextChannelById(defaultChannelId),
             "I don't have permissions to send files in " + channel.getName() + "!");
         });
