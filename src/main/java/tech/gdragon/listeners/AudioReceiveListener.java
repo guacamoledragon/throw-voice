@@ -5,6 +5,8 @@ import net.dv8tion.jda.core.audio.CombinedAudio;
 import net.dv8tion.jda.core.audio.UserAudio;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.VoiceChannel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import tech.gdragon.BotUtils;
 import tech.gdragon.DiscordBot;
 import tech.gdragon.db.Shim;
@@ -13,9 +15,11 @@ import tech.gdragon.db.dao.Settings;
 import java.util.Arrays;
 
 public class AudioReceiveListener implements AudioReceiveHandler {
+  private Logger logger = LoggerFactory.getLogger(this.getClass());
+
   public static final double STARTING_MB = 0.5;
-  public static final int CAP_MB = 16;
-  public static final double PCM_MINS = 2;
+  public static final int CAP_MB = 8;
+  public static final double PCM_MINS = 8;
   private final double AFK_LIMIT = 2;
   public boolean canReceive = true;
   public double volume = 1.0;
@@ -66,8 +70,9 @@ public class AudioReceiveListener implements AudioReceiveHandler {
         BotUtils.sendMessage(defaultTC, "No audio for 2 minutes, leaving from AFK detection...");
       }
 
-      voiceChannel.getGuild().getAudioManager().closeAudioConnection();
-      DiscordBot.killAudioHandlers(voiceChannel.getGuild());
+      // Can't close audio manager in the same thread in which the audio event is being handled: https://github.com/DV8FromTheWorld/JDA/issues/485#issuecomment-332559873
+      new Thread(() -> BotUtils.leaveVoiceChannel(voiceChannel)).start();
+
       return;
     }
 
@@ -140,10 +145,9 @@ public class AudioReceiveListener implements AudioReceiveHandler {
 
         if (!overwriting) {
           overwriting = true;
-          System.out.format("Hit compressed storage cap in %s on %s", voiceChannel.getName(), voiceChannel.getGuild().getName());
+          logger.info("Hit compressed storage cap in {} on {}.", voiceChannel.getName(), voiceChannel.getGuild().getName());
         }
       }
-
 
       compVoiceData[compIndex++] = b;
     }
@@ -151,7 +155,7 @@ public class AudioReceiveListener implements AudioReceiveHandler {
 
 
   public void wipeMemory() {
-    System.out.format("Wiped recording data in %s on %s", voiceChannel.getName(), voiceChannel.getGuild().getName());
+    logger.info("Wiped recording data in {} on {}", voiceChannel.getName(), voiceChannel.getGuild().getName());
     uncompIndex = 0;
     compIndex = 0;
 
@@ -163,11 +167,12 @@ public class AudioReceiveListener implements AudioReceiveHandler {
   public byte[] getUncompVoice(int time) {
     canReceive = false;
 
-    if (time > PCM_MINS * 60 * 2) {     //2 mins
+    if (time > PCM_MINS * 60 * 2) {
       time = (int) (PCM_MINS * 60 * 2);
     }
+
     int requestSize = 3840 * 50 * time;
-    byte[] voiceData = new byte[requestSize];
+    byte[] voiceData = new byte[(requestSize < uncompIndex) ? requestSize : uncompIndex];
 
     for (int i = 0; i < voiceData.length; i++) {
       if (uncompIndex + i < voiceData.length) {

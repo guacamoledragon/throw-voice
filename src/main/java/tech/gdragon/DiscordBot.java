@@ -1,10 +1,7 @@
 package tech.gdragon;
 
 import de.sciss.jump3r.lowlevel.LameEncoder;
-import net.dv8tion.jda.core.AccountType;
-import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.JDABuilder;
-import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.*;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
@@ -97,52 +94,58 @@ public class DiscordBot {
     writeToFile(guild, -1, tc);
   }
 
-  public static void writeToFile(Guild guild, int time, TextChannel tc) {
+  public static void writeToFile(Guild guild, int time, TextChannel textChannel) {
     Long defaultChannelId = Shim.INSTANCE.xaction(() -> {
       Settings settings = tech.gdragon.db.dao.Guild.Companion.findById(guild.getIdLong()).getSettings();
       return settings.getDefaultTextChannel();
     });
 
-    if (tc == null) {
-      tc = guild.getTextChannelById(defaultChannelId);
+    if (textChannel == null) {
+      textChannel = guild.getTextChannelById(defaultChannelId);
     }
 
-    AudioReceiveListener ah = (AudioReceiveListener) guild.getAudioManager().getReceiveHandler();
-    if (ah == null) {
-      BotUtils.sendMessage(tc, "I wasn't recording!");
+    AudioReceiveListener receiveListener = (AudioReceiveListener) guild.getAudioManager().getReceiveHandler();
+    if (receiveListener == null) {
+      BotUtils.sendMessage(textChannel, "I wasn't recording!");
       return;
     }
 
     File dest;
+//    File raw;
     try {
-
-      if (new File("/var/www/html/").exists()) {
-        dest = new File("/var/www/html/" + getPJSaltString() + ".mp3");
-      } else {
-        dest = new File("recordings/" + getPJSaltString() + ".mp3");
-      }
+      String outputFile = "recordings/" + getPJSaltString();
+      dest = new File(outputFile + ".mp3");
+//      raw = new File(outputFile + ".pcm");
 
       byte[] voiceData;
+      byte[] rawVoiceData;
 
-      if (time > 0 && time <= ah.PCM_MINS * 60 * 2) {
-        voiceData = ah.getUncompVoice(time);
-        voiceData = encodePcmToMp3(voiceData);
+      if (time > 0 && time <= AudioReceiveListener.PCM_MINS * 60 * 2) {
+        rawVoiceData = receiveListener.getUncompVoice(time);
+        voiceData = encodePcmToMp3(rawVoiceData);
 
+        /*FileOutputStream rfos = new FileOutputStream(raw);
+        rfos.write(rawVoiceData);
+        rfos.close();*/
       } else {
-        voiceData = ah.getVoiceData();
+        rawVoiceData = receiveListener.getUncompVoice((int) AudioReceiveListener.PCM_MINS * 60);
+        voiceData = encodePcmToMp3(rawVoiceData);
       }
 
       FileOutputStream fos = new FileOutputStream(dest);
       fos.write(voiceData);
       fos.close();
 
-      System.out.format("Saving audio file '%s' from %s on %s of size %f MB\n",
-        dest.getName(), guild.getAudioManager().getConnectedChannel().getName(), guild.getName(), (double) dest.length() / 1024 / 1024);
+      double recordingSize = (double) dest.length() / 1024 / 1024;
+      logger.info("Saving audio file '{}' from {} on {} of size {} MB.",
+        dest.getName(), guild.getAudioManager().getConnectedChannel().getName(), guild.getName(), recordingSize);
 
       // TODO: This checks the size of the file and does something else if the file is bigger than what Discord allows, this doesn't work.
       if (dest.length() / 1024 / 1024 < 8) {
-        final TextChannel channel = tc;
-        tc.sendFile(dest, null).queue(null, (Throwable) -> {
+        final TextChannel channel = textChannel;
+        MessageBuilder message = new MessageBuilder();
+        message.append("Unfortunately, current recordings are limited to the previous " + AudioReceiveListener.PCM_MINS + " minutes. Fixing this limit in upcoming releases.");
+        textChannel.sendFile(dest, dest.getName(), message.build()).queue(null, (Throwable) -> {
           BotUtils.sendMessage(guild.getTextChannelById(defaultChannelId),
             "I don't have permissions to send files in " + channel.getName() + "!");
         });
@@ -165,8 +168,9 @@ public class DiscordBot {
 
         }).start();
 
-      } /*else {
-        BotUtils.sendMessage(tc, "http://DiscordEcho.com/" + dest.getName());
+      } else {
+        BotUtils.sendMessage(textChannel, "Could not upload to Discord, file too large: " + recordingSize + "MB.");
+        /*BotUtils.sendMessage(textChannel, "http://DiscordEcho.com/" + dest.getName());
 
         new Thread(() -> {
           try {
@@ -177,12 +181,12 @@ public class DiscordBot {
           dest.delete();
           System.out.println("\tDeleting file " + dest.getName() + "...");
 
-        }).start();
-      }*/
+        }).start();*/
+      }
 
     } catch (Exception e) {
       logger.error("Unknown error sending file", e);
-      BotUtils.sendMessage(tc, "Unknown error sending file");
+      BotUtils.sendMessage(textChannel, "Unknown error sending file");
     }
   }
 
