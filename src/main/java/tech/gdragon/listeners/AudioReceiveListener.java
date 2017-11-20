@@ -19,7 +19,7 @@ public class AudioReceiveListener implements AudioReceiveHandler {
 
   public static final double STARTING_MB = 0.5;
   public static final int CAP_MB = 8;
-  public static final double PCM_MINS = 2;
+  public static final double PCM_MINS = 8;
   private final double AFK_LIMIT = 2;
   public boolean canReceive = true;
   public double volume = 1.0;
@@ -155,7 +155,7 @@ public class AudioReceiveListener implements AudioReceiveHandler {
 
 
   public void wipeMemory() {
-    System.out.format("Wiped recording data in %s on %s", voiceChannel.getName(), voiceChannel.getGuild().getName());
+    logger.info("Wiped recording data in {} on {}", voiceChannel.getName(), voiceChannel.getGuild().getName());
     uncompIndex = 0;
     compIndex = 0;
 
