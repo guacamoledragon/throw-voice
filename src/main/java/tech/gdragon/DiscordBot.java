@@ -97,19 +97,19 @@ public class DiscordBot {
     writeToFile(guild, -1, tc);
   }
 
-  public static void writeToFile(Guild guild, int time, TextChannel tc) {
+  public static void writeToFile(Guild guild, int time, TextChannel textChannel) {
     Long defaultChannelId = Shim.INSTANCE.xaction(() -> {
       Settings settings = tech.gdragon.db.dao.Guild.Companion.findById(guild.getIdLong()).getSettings();
       return settings.getDefaultTextChannel();
     });
 
-    if (tc == null) {
-      tc = guild.getTextChannelById(defaultChannelId);
+    if (textChannel == null) {
+      textChannel = guild.getTextChannelById(defaultChannelId);
     }
 
-    AudioReceiveListener ah = (AudioReceiveListener) guild.getAudioManager().getReceiveHandler();
-    if (ah == null) {
-      BotUtils.sendMessage(tc, "I wasn't recording!");
+    AudioReceiveListener receiveListener = (AudioReceiveListener) guild.getAudioManager().getReceiveHandler();
+    if (receiveListener == null) {
+      BotUtils.sendMessage(textChannel, "I wasn't recording!");
       return;
     }
 
@@ -141,8 +141,8 @@ public class DiscordBot {
 
       // TODO: This checks the size of the file and does something else if the file is bigger than what Discord allows, this doesn't work.
       if (dest.length() / 1024 / 1024 < 8) {
-        final TextChannel channel = tc;
-        tc.sendFile(dest, null).queue(null, (Throwable) -> {
+        final TextChannel channel = textChannel;
+        textChannel.sendFile(dest, null).queue(null, (Throwable) -> {
           BotUtils.sendMessage(guild.getTextChannelById(defaultChannelId),
             "I don't have permissions to send files in " + channel.getName() + "!");
         });
@@ -165,8 +165,9 @@ public class DiscordBot {
 
         }).start();
 
-      } /*else {
-        BotUtils.sendMessage(tc, "http://DiscordEcho.com/" + dest.getName());
+      } else {
+        BotUtils.sendMessage(textChannel, "Could not upload to Discord, file too large: " + recordingSize + "MB.");
+        /*BotUtils.sendMessage(textChannel, "http://DiscordEcho.com/" + dest.getName());
 
         new Thread(() -> {
           try {
@@ -177,12 +178,12 @@ public class DiscordBot {
           dest.delete();
           System.out.println("\tDeleting file " + dest.getName() + "...");
 
-        }).start();
-      }*/
+        }).start();*/
+      }
 
     } catch (Exception e) {
       logger.error("Unknown error sending file", e);
-      BotUtils.sendMessage(tc, "Unknown error sending file");
+      BotUtils.sendMessage(textChannel, "Unknown error sending file");
     }
   }
 
