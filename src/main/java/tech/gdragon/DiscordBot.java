@@ -111,11 +111,9 @@ public class DiscordBot {
     }
 
     File dest;
-//    File raw;
     try {
       String outputFile = "recordings/" + getPJSaltString();
       dest = new File(outputFile + ".mp3");
-//      raw = new File(outputFile + ".pcm");
 
       byte[] voiceData;
       byte[] rawVoiceData;
@@ -123,10 +121,6 @@ public class DiscordBot {
       if (time > 0 && time <= AudioReceiveListener.PCM_MINS * 60 * 2) {
         rawVoiceData = receiveListener.getUncompVoice(time);
         voiceData = encodePcmToMp3(rawVoiceData);
-
-        /*FileOutputStream rfos = new FileOutputStream(raw);
-        rfos.write(rawVoiceData);
-        rfos.close();*/
       } else {
         rawVoiceData = receiveListener.getUncompVoice((int) AudioReceiveListener.PCM_MINS * 60);
         voiceData = encodePcmToMp3(rawVoiceData);
@@ -221,6 +215,7 @@ public class DiscordBot {
   }
 
   //encode the passed array of PCM (uncompressed) audio to mp3 audio data
+  @Deprecated
   public static byte[] encodePcmToMp3(byte[] pcm) {
     LameEncoder encoder = new LameEncoder(new AudioFormat(48000.0f, 16, 2, true, true), 128, LameEncoder.CHANNEL_MODE_AUTO, LameEncoder.QUALITY_HIGHEST, false);
     ByteArrayOutputStream mp3 = new ByteArrayOutputStream();
