@@ -64,9 +64,10 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
       }?.let {
         val textChannel = voiceChannel.guild.getTextChannelById(it)
         BotUtils.sendMessage(textChannel, "No audio for 2 minutes, leaving from AFK detection...")
-        thread(start = true) {
-          BotUtils.leaveVoiceChannel(voiceChannel)
-        }
+      }
+
+      thread(start = true) {
+        BotUtils.leaveVoiceChannel(voiceChannel)
       }
     }
 
