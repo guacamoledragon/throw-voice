@@ -2,17 +2,17 @@ package tech.gdragon
 
 import de.sciss.jump3r.lowlevel.LameEncoder
 import net.dv8tion.jda.core.EmbedBuilder
+import net.dv8tion.jda.core.audio.AudioReceiveHandler
 import net.dv8tion.jda.core.entities.TextChannel
 import net.dv8tion.jda.core.entities.VoiceChannel
 import net.dv8tion.jda.core.exceptions.InsufficientPermissionException
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
 import tech.gdragon.db.dao.Guild
-import tech.gdragon.listeners.AudioReceiveListener
+import tech.gdragon.listener.CombinedAudioRecorderHandler
 import java.awt.Color
 import java.io.ByteArrayOutputStream
 import java.time.OffsetDateTime
-import javax.sound.sampled.AudioFormat
 import net.dv8tion.jda.core.entities.Guild as DiscordGuild
 
 
@@ -89,7 +89,7 @@ object BotUtils {
   }
 
   @JvmStatic
-  fun joinVoiceChannel(voiceChannel: VoiceChannel?, warning: Boolean): Unit {
+  fun joinVoiceChannel(voiceChannel: VoiceChannel?, warning: Boolean) {
     logger.info("Joining '{}' voice channel in {}.", voiceChannel?.name, voiceChannel?.guild?.name)
 
     if (voiceChannel == voiceChannel?.guild?.afkChannel) {
@@ -103,11 +103,12 @@ object BotUtils {
     }
 
     try {
-      voiceChannel?.guild?.audioManager?.openAudioConnection(voiceChannel)
+      val audioManager = voiceChannel?.guild?.audioManager
+      audioManager?.openAudioConnection(voiceChannel)
       alert(voiceChannel)
       transaction {
         val volume = Guild.findById(voiceChannel?.guild?.idLong ?: 0L)?.settings?.volume?.toDouble() ?: 0.8
-        voiceChannel?.guild?.audioManager?.setReceivingHandler(AudioReceiveListener(volume, voiceChannel))
+        audioManager?.setReceivingHandler(CombinedAudioRecorderHandler(volume, voiceChannel))
       }
     } catch (e: InsufficientPermissionException) {
       logger.error("Not enough permissions to join ${voiceChannel?.name}", e)
@@ -134,11 +135,11 @@ object BotUtils {
   /**
    * Encodes PCM into Mp3, could probably make this a parallel function since we can write to different parts of the buffer
    */
+  @JvmStatic
   fun encodePcmToMp3(pcm: ByteArray): ByteArray {
-    val pcmAudioFormat = AudioFormat(48000.0f, 16, 2, true, true)
     LameEncoder.BITRATE_AUTO
-    val encoder = LameEncoder(pcmAudioFormat, 128, LameEncoder.CHANNEL_MODE_AUTO, LameEncoder.QUALITY_HIGHEST, false)
-    val mp3 = ByteArrayOutputStream()
+    val encoder = LameEncoder(AudioReceiveHandler.OUTPUT_FORMAT, 128, LameEncoder.CHANNEL_MODE_AUTO, LameEncoder.QUALITY_HIGHEST, false)
+    val mp3OutputStream = ByteArrayOutputStream()
     val buffer = ByteArray(encoder.pcmBufferSize)
 
     var bytesToTransfer = Math.min(buffer.size, pcm.size)
@@ -151,12 +152,15 @@ object BotUtils {
       currentPcmPosition += bytesToTransfer
       bytesToTransfer = Math.min(buffer.size, pcm.size - currentPcmPosition)
 
-      mp3.write(buffer, 0, bytesWritten)
-
+      mp3OutputStream.write(buffer, 0, bytesWritten)
 
       bytesWritten = encoder.encodeBuffer(pcm, currentPcmPosition, bytesToTransfer, buffer)
     } while (0 < bytesWritten)
 
-    return mp3.toByteArray()
+    val mp3 = mp3OutputStream.toByteArray()
+    mp3OutputStream.reset()
+    mp3OutputStream.close()
+
+    return mp3
   }
 }
