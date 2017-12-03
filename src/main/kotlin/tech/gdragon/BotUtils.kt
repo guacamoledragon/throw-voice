@@ -139,6 +139,7 @@ object BotUtils {
   fun encodePcmToMp3(pcm: ByteArray): ByteArray {
     LameEncoder.BITRATE_AUTO
     val encoder = LameEncoder(AudioReceiveHandler.OUTPUT_FORMAT, 128, LameEncoder.CHANNEL_MODE_AUTO, LameEncoder.QUALITY_HIGHEST, false)
+
     val mp3OutputStream = ByteArrayOutputStream()
     val buffer = ByteArray(encoder.pcmBufferSize)
 

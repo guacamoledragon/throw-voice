@@ -16,15 +16,16 @@ import java.io.RandomAccessFile
 import java.nio.ByteBuffer
 import java.nio.channels.Channels
 import java.nio.channels.FileChannel
+import java.util.*
 import kotlin.concurrent.thread
 
-class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceChannel) : AudioReceiveHandler {
+class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceChannel, val uuid: UUID = UUID.randomUUID()) : AudioReceiveHandler {
   companion object {
     private const val BYTE_SAMPLE_SIZE = 3840 // Size of one 20 ms sample
     private const val AFK_LIMIT = (2 * 60 * 1000) / 20 // 2 mins in ms over 20ms increments
   }
 
-  val pcmChannel: FileChannel? = RandomAccessFile("recordings/${voiceChannel.guild.name}_${voiceChannel.name}.pcm", "rw").channel
+  val pcmChannel: FileChannel? = RandomAccessFile("recordings/$uuid.pcm", "rw").channel
   private val logger = LoggerFactory.getLogger(this.javaClass)
 
   var canReceive = true
