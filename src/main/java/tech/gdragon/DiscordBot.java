@@ -28,7 +28,6 @@ import javax.sound.sampled.AudioFormat;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.Random;
 
 import static java.lang.Thread.sleep;
@@ -112,6 +111,8 @@ public class DiscordBot {
       BotUtils.sendMessage(textChannel, "I wasn't recording!");
       return;
     }
+
+    killAudioHandlers(guild);
 
     File dest;
     try {
@@ -253,14 +254,7 @@ public class DiscordBot {
 //    AudioReceiveListener ah = (AudioReceiveListener) g.getAudioManager().getReceiveHandler();
 
     if (ah != null) {
-      ah.setCanReceive(false);
-//      ah.canReceive() = false;
-//      ah.compVoiceData = null;
-      try {
-        ah.getPcmChannel().close();
-      } catch (IOException e) {
-        logger.error("Could not close channel", e);
-      }
+      ah.disconnect();
       g.getAudioManager().setReceivingHandler(null);
     }
 
@@ -272,6 +266,5 @@ public class DiscordBot {
     }
 
     System.out.println("Destroyed audio handlers for " + g.getName());
-//    System.gc();
   }
 }
