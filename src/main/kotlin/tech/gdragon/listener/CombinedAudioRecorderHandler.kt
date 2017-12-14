@@ -1,7 +1,10 @@
 package tech.gdragon.listener
 
+import de.sciss.jump3r.lowlevel.LameEncoder
 import io.reactivex.Observable
 import io.reactivex.Single
+import io.reactivex.disposables.Disposable
+import io.reactivex.subjects.PublishSubject
 import net.dv8tion.jda.core.audio.AudioReceiveHandler
 import net.dv8tion.jda.core.audio.CombinedAudio
 import net.dv8tion.jda.core.audio.UserAudio
@@ -17,6 +20,7 @@ import java.nio.ByteBuffer
 import java.nio.channels.Channels
 import java.nio.channels.FileChannel
 import java.util.*
+import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
 
 class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceChannel, val uuid: UUID = UUID.randomUUID()) : AudioReceiveHandler {
@@ -28,20 +32,53 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
   val pcmChannel: FileChannel? = RandomAccessFile("recordings/$uuid.pcm", "rw").channel
   private val logger = LoggerFactory.getLogger(this.javaClass)
 
+  val subject = PublishSubject.create<CombinedAudio>()
+  private var subscription: Disposable? = null
+
   var canReceive = true
   private var afkCounter = 0
+
+  init {
+    val encoder = LameEncoder(AudioReceiveHandler.OUTPUT_FORMAT, 128, LameEncoder.CHANNEL_MODE_AUTO, LameEncoder.QUALITY_HIGHEST, false)
+
+    subscription = subject
+      .map { it.getAudioData(volume) }
+      .buffer(200, TimeUnit.MILLISECONDS, 8)
+      .flatMap({ bytesArray ->
+        val baos = ByteArrayOutputStream()
+
+        bytesArray.forEach {
+          val buffer = ByteArray(it.size)
+          val bytesEncoded = encoder.encodeBuffer(it, 0, it.size, buffer)
+          println("bytesEncoded = ${bytesEncoded}")
+          baos.write(buffer, 0, bytesEncoded)
+        }
+
+        Observable.fromArray(baos.toByteArray())
+      })
+      .collectInto(pcmChannel, { channel, bytes ->
+        val inputByteChannel = Channels.newChannel(ByteArrayInputStream(bytes))
+
+        channel?.apply {
+          val size = transferFrom(inputByteChannel, position(), bytes.size.toLong())
+          position(position() + size)
+        }
+      })
+      .subscribe()
+  }
 
   override fun canReceiveUser(): Boolean = false
 
   override fun handleCombinedAudio(combinedAudio: CombinedAudio) {
     if (!isAfk(combinedAudio.users.size)) {
-      val audioData = combinedAudio.getAudioData(volume)
+      subject.onNext(combinedAudio)
+      /*val audioData = combinedAudio.getAudioData(volume)
       val inputByteChannel = Channels.newChannel(ByteArrayInputStream(audioData))
 
       pcmChannel?.apply {
         val size = transferFrom(inputByteChannel, position(), audioData.size.toLong())
         position(position() + size)
-      }
+      }*/
     }
   }
 
@@ -68,6 +105,7 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
       }
 
       thread(start = true) {
+        disconnect()
         BotUtils.leaveVoiceChannel(voiceChannel)
       }
     }
@@ -96,5 +134,12 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
       baos.write(bytes)
       baos
     }
+  }
+
+  fun disconnect() {
+    canReceive = false
+    subject.onComplete()
+    subscription?.dispose()
+    pcmChannel?.close()
   }
 }
