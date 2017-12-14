@@ -72,13 +72,6 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
   override fun handleCombinedAudio(combinedAudio: CombinedAudio) {
     if (!isAfk(combinedAudio.users.size)) {
       subject.onNext(combinedAudio)
-      /*val audioData = combinedAudio.getAudioData(volume)
-      val inputByteChannel = Channels.newChannel(ByteArrayInputStream(audioData))
-
-      pcmChannel?.apply {
-        val size = transferFrom(inputByteChannel, position(), audioData.size.toLong())
-        position(position() + size)
-      }*/
     }
   }
 
@@ -105,35 +98,11 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
       }
 
       thread(start = true) {
-        disconnect()
         BotUtils.leaveVoiceChannel(voiceChannel)
       }
     }
 
     return isAfk
-  }
-
-  fun getVoiceData(): Single<ByteArrayOutputStream>? {
-    canReceive = false
-    return Observable.create<ByteBuffer> { emitter ->
-      val buffer = ByteBuffer.allocate(BYTE_SAMPLE_SIZE)
-
-      pcmChannel?.let {
-        while (it.read(buffer) > 0) {
-          emitter.onNext(buffer.asReadOnlyBuffer().flip())
-          buffer.clear()
-        }
-        canReceive = true
-        emitter.onComplete()
-      }
-    }.map {
-      val bytes = ByteArray(it.capacity())
-      it.get(bytes)
-      bytes
-    }.reduce(ByteArrayOutputStream(BYTE_SAMPLE_SIZE)) { baos, bytes ->
-      baos.write(bytes)
-      baos
-    }
   }
 
   fun disconnect() {
