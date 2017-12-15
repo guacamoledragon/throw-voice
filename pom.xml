@@ -21,6 +21,11 @@
 
   <dependencies>
     <dependency>
+      <groupId>com.squareup</groupId>
+      <artifactId>tape</artifactId>
+      <version>1.2.3</version>
+    </dependency>
+    <dependency>
       <groupId>de.sciss</groupId>
       <artifactId>jump3r</artifactId>
       <version>1.0.4</version>
@@ -33,7 +38,7 @@
     <dependency>
       <groupId>org.jetbrains.exposed</groupId>
       <artifactId>exposed</artifactId>
-      <version>0.8.7</version>
+      <version>0.9.1</version>
     </dependency>
     <dependency>
       <groupId>org.jetbrains.kotlin</groupId>
