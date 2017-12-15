@@ -50,11 +50,11 @@ public class ClipCommand implements Command {
       return;
     }
 
-    if (args.length == 2) {
+    /*if (args.length == 2) {
       DiscordBot.writeToFile(e.getGuild(), time, e.getGuild().getTextChannelsByName(args[1], true).get(0));
     } else {
       DiscordBot.writeToFile(e.getGuild(), time, e.getChannel());
-    }
+    }*/
 
   }
 

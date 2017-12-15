@@ -29,7 +29,8 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
     private const val AFK_LIMIT = (2 * 60 * 1000) / 20 // 2 mins in ms over 20ms increments
   }
 
-  val pcmChannel: FileChannel? = RandomAccessFile("recordings/$uuid.pcm", "rw").channel
+  val mp3Filename = "recordings/$uuid.mp3"
+  val pcmChannel: FileChannel? = RandomAccessFile(mp3Filename, "rw").channel
   private val logger = LoggerFactory.getLogger(this.javaClass)
 
   val subject = PublishSubject.create<CombinedAudio>()

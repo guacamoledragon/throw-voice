@@ -1,6 +1,7 @@
 package tech.gdragon.commands.misc
 
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
+import org.jetbrains.exposed.sql.exposedLogger
 import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.BotUtils
 import tech.gdragon.DiscordBot
@@ -21,7 +22,8 @@ class Leave : Command {
         if (event.guild.audioManager.isConnected) {
           guild?.settings?.let {
             if (it.autoSave)
-              DiscordBot.writeToFile(event.guild)
+//              DiscordBot.writeToFile(event.guild)
+              exposedLogger.debug("Autosave but hasn't been setup yet.")
           }
 
           val voiceChannel = event.guild.audioManager.connectedChannel

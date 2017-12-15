@@ -121,7 +121,7 @@ object BotUtils {
   }
 
   @JvmStatic
-  fun leaveVoiceChannel(voiceChannel: VoiceChannel?) {
+  fun leaveVoiceChannel(voiceChannel: VoiceChannel?): AudioReceiveHandler {
     logger.info("Leaving '{}' voice channel in {}", voiceChannel?.name, voiceChannel?.guild?.name)
 
     voiceChannel
@@ -129,7 +129,7 @@ object BotUtils {
       ?.audioManager
       ?.closeAudioConnection()
 
-    DiscordBot.killAudioHandlers(voiceChannel?.guild)
+    return DiscordBot.killAudioHandlers(voiceChannel?.guild)
   }
 
   /**

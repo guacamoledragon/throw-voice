@@ -29,9 +29,11 @@ class Join : Command {
 
             if(event.guild.audioManager.isConnected) {
               guild?.settings?.let {
-                if (it.autoSave)
+                if (it.autoSave) {
+                  val audioReceiveHandler = BotUtils.leaveVoiceChannel(connectedChannel)
                   // TODO: port the writeToFile method, should be some other utility
-                  DiscordBot.writeToFile(event.guild)
+                  DiscordBot.writeToFile(event.guild, event.channel, audioReceiveHandler)
+                }
               }
             }
 
