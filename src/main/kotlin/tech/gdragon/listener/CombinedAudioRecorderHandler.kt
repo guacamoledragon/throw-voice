@@ -2,9 +2,9 @@ package tech.gdragon.listener
 
 import de.sciss.jump3r.lowlevel.LameEncoder
 import io.reactivex.Observable
-import io.reactivex.Single
 import io.reactivex.disposables.Disposable
 import io.reactivex.subjects.PublishSubject
+import io.reactivex.subjects.Subject
 import net.dv8tion.jda.core.audio.AudioReceiveHandler
 import net.dv8tion.jda.core.audio.CombinedAudio
 import net.dv8tion.jda.core.audio.UserAudio
@@ -16,7 +16,6 @@ import tech.gdragon.db.dao.Guild
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.RandomAccessFile
-import java.nio.ByteBuffer
 import java.nio.channels.Channels
 import java.nio.channels.FileChannel
 import java.util.*
@@ -29,14 +28,15 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
     private const val AFK_LIMIT = (2 * 60 * 1000) / 20 // 2 mins in ms over 20ms increments
   }
 
-  val mp3Filename = "recordings/$uuid.mp3"
-  val pcmChannel: FileChannel? = RandomAccessFile(mp3Filename, "rw").channel
   private val logger = LoggerFactory.getLogger(this.javaClass)
 
-  val subject = PublishSubject.create<CombinedAudio>()
+  val mp3Filename = "recordings/$uuid.mp3"
+  val mp3Channel: FileChannel? = RandomAccessFile(mp3Filename, "rw").channel
+
+  private val subject: Subject<CombinedAudio> = PublishSubject.create()
   private var subscription: Disposable? = null
 
-  var canReceive = true
+  private var canReceive = true
   private var afkCounter = 0
 
   init {
@@ -51,13 +51,12 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
         bytesArray.forEach {
           val buffer = ByteArray(it.size)
           val bytesEncoded = encoder.encodeBuffer(it, 0, it.size, buffer)
-          println("bytesEncoded = ${bytesEncoded}")
           baos.write(buffer, 0, bytesEncoded)
         }
 
         Observable.fromArray(baos.toByteArray())
       })
-      .collectInto(pcmChannel, { channel, bytes ->
+      .collectInto(mp3Channel, { channel, bytes ->
         val inputByteChannel = Channels.newChannel(ByteArrayInputStream(bytes))
 
         channel?.apply {
@@ -65,6 +64,7 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
           position(position() + size)
         }
       })
+      .map { println("it.size() = ${it.size()}") }
       .subscribe()
   }
 
@@ -110,6 +110,6 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
     canReceive = false
     subject.onComplete()
     subscription?.dispose()
-    pcmChannel?.close()
+    mp3Channel?.close()
   }
 }

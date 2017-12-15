@@ -50,6 +50,7 @@ public class ClipCommand implements Command {
       return;
     }
 
+    // TODO: Fix this thing
     /*if (args.length == 2) {
       DiscordBot.writeToFile(e.getGuild(), time, e.getGuild().getTextChannelsByName(args[1], true).get(0));
     } else {

@@ -22,7 +22,7 @@ class Leave : Command {
         if (event.guild.audioManager.isConnected) {
           guild?.settings?.let {
             if (it.autoSave)
-//              DiscordBot.writeToFile(event.guild)
+//              DiscordBot.writeToFile(event.guild) // TODO: fix this thing
               exposedLogger.debug("Autosave but hasn't been setup yet.")
           }
 

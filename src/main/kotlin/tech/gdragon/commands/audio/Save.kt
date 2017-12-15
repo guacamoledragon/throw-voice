@@ -6,7 +6,6 @@ import tech.gdragon.BotUtils
 import tech.gdragon.DiscordBot
 import tech.gdragon.commands.Command
 import tech.gdragon.db.dao.Guild
-import tech.gdragon.listener.CombinedAudioRecorderHandler
 
 class Save : Command {
   override fun action(args: Array<String>, event: GuildMessageReceivedEvent) {
