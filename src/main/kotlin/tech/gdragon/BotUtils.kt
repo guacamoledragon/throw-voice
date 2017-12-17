@@ -1,6 +1,5 @@
 package tech.gdragon
 
-import de.sciss.jump3r.lowlevel.LameEncoder
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.audio.AudioReceiveHandler
 import net.dv8tion.jda.core.entities.TextChannel
@@ -11,10 +10,8 @@ import org.slf4j.LoggerFactory
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.listener.CombinedAudioRecorderHandler
 import java.awt.Color
-import java.io.ByteArrayOutputStream
 import java.time.OffsetDateTime
 import net.dv8tion.jda.core.entities.Guild as DiscordGuild
-
 
 object BotUtils {
   private val logger = LoggerFactory.getLogger(BotUtils.javaClass)
@@ -130,38 +127,5 @@ object BotUtils {
       ?.closeAudioConnection()
 
     return DiscordBot.killAudioHandlers(voiceChannel?.guild)
-  }
-
-  /**
-   * Encodes PCM into Mp3, could probably make this a parallel function since we can write to different parts of the buffer
-   */
-  @JvmStatic
-  fun encodePcmToMp3(pcm: ByteArray): ByteArray {
-    LameEncoder.BITRATE_AUTO
-    val encoder = LameEncoder(AudioReceiveHandler.OUTPUT_FORMAT, 128, LameEncoder.CHANNEL_MODE_AUTO, LameEncoder.QUALITY_HIGHEST, false)
-
-    val mp3OutputStream = ByteArrayOutputStream()
-    val buffer = ByteArray(encoder.pcmBufferSize)
-
-    var bytesToTransfer = Math.min(buffer.size, pcm.size)
-    var bytesWritten: Int
-    var currentPcmPosition = 0
-
-    bytesWritten = encoder.encodeBuffer(pcm, currentPcmPosition, bytesToTransfer, buffer)
-
-    do {
-      currentPcmPosition += bytesToTransfer
-      bytesToTransfer = Math.min(buffer.size, pcm.size - currentPcmPosition)
-
-      mp3OutputStream.write(buffer, 0, bytesWritten)
-
-      bytesWritten = encoder.encodeBuffer(pcm, currentPcmPosition, bytesToTransfer, buffer)
-    } while (0 < bytesWritten)
-
-    val mp3 = mp3OutputStream.toByteArray()
-    mp3OutputStream.reset()
-    mp3OutputStream.close()
-
-    return mp3
   }
 }
