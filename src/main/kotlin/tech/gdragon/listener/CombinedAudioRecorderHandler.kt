@@ -45,18 +45,6 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
     subscription = createRecording()
   }
 
-  override fun canReceiveUser(): Boolean = false
-
-  override fun handleCombinedAudio(combinedAudio: CombinedAudio) {
-    if (!isAfk(combinedAudio.users.size)) {
-      subject?.onNext(combinedAudio)
-    }
-  }
-
-  override fun handleUserAudio(userAudio: UserAudio?) = TODO("Not implemented.")
-
-  override fun canReceiveCombined(): Boolean = canReceive
-
   /**
    * Checks if everyone in voice chat is afk. Super malformed function as it has
    * side effects and triggers messages outside of the scope
@@ -132,4 +120,16 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
     subject?.onComplete()
     subscription?.dispose()
   }
+
+  override fun canReceiveUser(): Boolean = false
+
+  override fun canReceiveCombined(): Boolean = canReceive
+
+  override fun handleCombinedAudio(combinedAudio: CombinedAudio) {
+    if (!isAfk(combinedAudio.users.size)) {
+      subject?.onNext(combinedAudio)
+    }
+  }
+
+  override fun handleUserAudio(userAudio: UserAudio?) = TODO("Not implemented.")
 }
