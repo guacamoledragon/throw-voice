@@ -149,26 +149,4 @@ public class DiscordBot {
       BotUtils.sendMessage(textChannel, "Unknown error sending file");
     }
   }
-
-  //kill off the audio handlers and clear their memory for the given guild
-  public static AudioReceiveHandler killAudioHandlers(Guild g) {
-    CombinedAudioRecorderHandler ah = (CombinedAudioRecorderHandler) g.getAudioManager().getReceiveHandler();
-//    AudioReceiveListener ah = (AudioReceiveListener) g.getAudioManager().getReceiveHandler();
-
-    if (ah != null) {
-      ah.disconnect();
-      g.getAudioManager().setReceivingHandler(null);
-    }
-
-    AudioSendListener sh = (AudioSendListener) g.getAudioManager().getSendingHandler();
-    if (sh != null) {
-      sh.canProvide = false;
-      sh.voiceData = null;
-      g.getAudioManager().setSendingHandler(null);
-    }
-
-    System.out.println("Destroyed audio handlers for " + g.getName());
-
-    return ah;
-  }
 }
