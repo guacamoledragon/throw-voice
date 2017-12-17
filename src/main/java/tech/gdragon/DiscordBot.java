@@ -1,6 +1,5 @@
 package tech.gdragon;
 
-import de.sciss.jump3r.lowlevel.LameEncoder;
 import net.dv8tion.jda.core.*;
 import net.dv8tion.jda.core.audio.AudioReceiveHandler;
 import net.dv8tion.jda.core.entities.Guild;
@@ -25,10 +24,7 @@ import tech.gdragon.listeners.AudioSendListener;
 import tech.gdragon.listeners.EventListener;
 
 import javax.security.auth.login.LoginException;
-import javax.sound.sampled.AudioFormat;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.util.Random;
 
 import static java.lang.Thread.sleep;
 
@@ -145,18 +141,6 @@ public class DiscordBot {
 
       } else {
         BotUtils.sendMessage(channel, "Could not upload to Discord, file too large: " + recordingSize + "MB.");
-            /*BotUtils.sendMessage(textChannel, "http://DiscordEcho.com/" + dest.getName());
-
-            new Thread(() -> {
-              try {
-                sleep(1000 * 60 * 60);
-              } catch (Exception ex) {
-              }    //1 hour life for files stored on web server
-
-              dest.delete();
-              System.out.println("\tDeleting file " + dest.getName() + "...");
-
-            }).start();*/
       }
 
 
@@ -164,28 +148,6 @@ public class DiscordBot {
       logger.error("Unknown error sending file", e);
       BotUtils.sendMessage(textChannel, "Unknown error sending file");
     }
-  }
-
-  //encode the passed array of PCM (uncompressed) audio to mp3 audio data
-  @Deprecated
-  public static byte[] encodePcmToMp3(byte[] pcm) {
-    LameEncoder encoder = new LameEncoder(new AudioFormat(48000.0f, 16, 2, true, true), 128, LameEncoder.CHANNEL_MODE_AUTO, LameEncoder.QUALITY_HIGHEST, false);
-    ByteArrayOutputStream mp3 = new ByteArrayOutputStream();
-    byte[] buffer = new byte[encoder.getPCMBufferSize()];
-
-    int bytesToTransfer = Math.min(buffer.length, pcm.length);
-    int bytesWritten;
-    int currentPcmPosition = 0;
-    while (0 < (bytesWritten = encoder.encodeBuffer(pcm, currentPcmPosition, bytesToTransfer, buffer))) {
-      currentPcmPosition += bytesToTransfer;
-      bytesToTransfer = Math.min(buffer.length, pcm.length - currentPcmPosition);
-
-      mp3.write(buffer, 0, bytesWritten);
-    }
-
-    encoder.close();
-
-    return mp3.toByteArray();
   }
 
   //kill off the audio handlers and clear their memory for the given guild

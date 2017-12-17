@@ -1,5 +1,6 @@
 package tech.gdragon.listeners;
 
+import de.sciss.jump3r.lowlevel.LameEncoder;
 import net.dv8tion.jda.core.audio.AudioReceiveHandler;
 import net.dv8tion.jda.core.audio.CombinedAudio;
 import net.dv8tion.jda.core.audio.UserAudio;
@@ -8,10 +9,11 @@ import net.dv8tion.jda.core.entities.VoiceChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tech.gdragon.BotUtils;
-import tech.gdragon.DiscordBot;
 import tech.gdragon.db.Shim;
 import tech.gdragon.db.dao.Settings;
 
+import javax.sound.sampled.AudioFormat;
+import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 
 public class AudioReceiveListener implements AudioReceiveHandler {
@@ -38,6 +40,30 @@ public class AudioReceiveListener implements AudioReceiveHandler {
   public AudioReceiveListener(double volume, VoiceChannel voiceChannel) {
     this.volume = volume;
     this.voiceChannel = voiceChannel;
+  }
+
+  /**
+   * encode the passed array of PCM (uncompressed) audio to mp3 audio data
+   */
+  @Deprecated
+  private byte[] encodePcmToMp3(byte[] pcm) {
+    LameEncoder encoder = new LameEncoder(new AudioFormat(48000.0f, 16, 2, true, true), 128, LameEncoder.CHANNEL_MODE_AUTO, LameEncoder.QUALITY_HIGHEST, false);
+    ByteArrayOutputStream mp3 = new ByteArrayOutputStream();
+    byte[] buffer = new byte[encoder.getPCMBufferSize()];
+
+    int bytesToTransfer = Math.min(buffer.length, pcm.length);
+    int bytesWritten;
+    int currentPcmPosition = 0;
+    while (0 < (bytesWritten = encoder.encodeBuffer(pcm, currentPcmPosition, bytesToTransfer, buffer))) {
+      currentPcmPosition += bytesToTransfer;
+      bytesToTransfer = Math.min(buffer.length, pcm.length - currentPcmPosition);
+
+      mp3.write(buffer, 0, bytesWritten);
+    }
+
+    encoder.close();
+
+    return mp3.toByteArray();
   }
 
   @Override
@@ -80,9 +106,9 @@ public class AudioReceiveListener implements AudioReceiveHandler {
       new Thread(() -> {
 
         if (uncompIndex < uncompVoiceData.length / 2)  //first half
-          addCompVoiceData(DiscordBot.encodePcmToMp3(Arrays.copyOfRange(uncompVoiceData, 0, uncompVoiceData.length / 2)));
+          addCompVoiceData(encodePcmToMp3(Arrays.copyOfRange(uncompVoiceData, 0, uncompVoiceData.length / 2)));
         else
-          addCompVoiceData(DiscordBot.encodePcmToMp3(Arrays.copyOfRange(uncompVoiceData, uncompVoiceData.length / 2, uncompVoiceData.length)));
+          addCompVoiceData(encodePcmToMp3(Arrays.copyOfRange(uncompVoiceData, uncompVoiceData.length / 2, uncompVoiceData.length)));
 
       }).start();
 
@@ -107,7 +133,7 @@ public class AudioReceiveListener implements AudioReceiveHandler {
       remaining[i] = uncompVoiceData[start + i];
     }
 
-    addCompVoiceData(DiscordBot.encodePcmToMp3(remaining));
+    addCompVoiceData(encodePcmToMp3(remaining));
 
     byte[] orderedVoiceData;
     if (overwriting) {
