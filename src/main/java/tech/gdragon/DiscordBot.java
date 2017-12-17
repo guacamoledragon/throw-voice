@@ -166,36 +166,6 @@ public class DiscordBot {
     }
   }
 
-  //generate a random string of 13 length with a namespace of around 2e23
-  public static String getPJSaltString() {
-    String SALTCHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890";
-    StringBuilder salt = new StringBuilder();
-    Random rnd = new Random();
-    while (salt.length() < 13) {
-      int index = (int) (rnd.nextFloat() * SALTCHARS.length());
-      salt.append(SALTCHARS.charAt(index));
-    }
-    String saltStr = salt.toString();
-
-    //check for a collision on the 1/2e23 chance that it matches another salt string (lul)
-    File dir = new File("/var/www/html/");
-    if (!dir.exists()) {
-      dir = new File("recordings/");
-    }
-
-    File[] fileList = dir.listFiles();
-
-    if (fileList != null) {
-      for (File f : fileList) {
-        if (f.getName().equals(saltStr)) {
-          saltStr = getPJSaltString();
-        }
-      }
-    }
-
-    return saltStr;
-  }
-
   //encode the passed array of PCM (uncompressed) audio to mp3 audio data
   @Deprecated
   public static byte[] encodePcmToMp3(byte[] pcm) {
