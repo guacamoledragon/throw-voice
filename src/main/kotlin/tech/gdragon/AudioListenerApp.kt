@@ -90,8 +90,8 @@ private fun legacyHandler(audioSegments: List<CombinedAudio>) {
 }
 
 private fun handler(audioSegments: List<CombinedAudio>) {
-  val audioReceiveListener = CombinedAudioRecorderHandler(0.8, VoiceChannelImpl(1L, GuildImpl(null, 1L)).also { it.name = "alone-out" })
-  audioSegments.forEach(audioReceiveListener::handleCombinedAudio)
+//  val audioReceiveListener = CombinedAudioRecorderHandler(0.8, VoiceChannelImpl(1L, GuildImpl(null, 1L)).also { it.name = "alone-out" })
+//  audioSegments.forEach(audioReceiveListener::handleCombinedAudio)
 
 /*  audioReceiveListener
     .getVoiceData()
