@@ -24,7 +24,7 @@ import kotlin.concurrent.thread
 class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceChannel) : AudioReceiveHandler {
   companion object {
     private const val AFK_LIMIT = (2 * 60 * 1000) / 20      // 2 minutes in ms over 20ms increments
-    private const val MAX_RECORDING_SIZE =  1 * 1024 * 1024 // 8MB
+    private const val MAX_RECORDING_SIZE =  8 * 1024 * 1024 // 8MB
     private const val BUFFER_TIMEOUT = 200L                 // 200 milliseconds
     private const val BUFFER_MAX_COUNT = 8
   }
@@ -39,7 +39,7 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
   private var canReceive = true
   private var afkCounter = 0
 
-  var mp3Filename: String? = null
+  var filename: String? = null
 
   init {
     subscription = createRecording()
@@ -74,10 +74,10 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
   private fun createRecording(): Disposable? {
     subject = PublishSubject.create()
     uuid = UUID.randomUUID()
-    mp3Filename = "recordings/$uuid.mp3"
+    filename = "recordings/$uuid.mp3"
 
+    val queueFilename = "recordings/$uuid.queue"
     var recordingSize = 0
-
     val encoder = LameEncoder(AudioReceiveHandler.OUTPUT_FORMAT, 128, LameEncoder.CHANNEL_MODE_AUTO, LameEncoder.QUALITY_HIGHEST, false)
 
     return subject
@@ -94,7 +94,7 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
 
         Observable.fromArray(baos.toByteArray())
       })
-      ?.collectInto(QueueFile(File("recordings/$uuid.queue")), { queue, bytes ->
+      ?.collectInto(QueueFile(File(queueFilename)), { queue, bytes ->
 
         while (recordingSize + bytes.size > MAX_RECORDING_SIZE) {
           recordingSize -= queue.peek()?.size ?: 0
@@ -105,13 +105,19 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
         recordingSize += bytes.size
       })
       ?.subscribe({ queue ->
-        val outputStream = FileOutputStream(File(mp3Filename))
-        queue.forEach({ stream, _ -> stream.transferTo(outputStream) })
-        queue.close()
-        outputStream.close()
-        File("recordings/$uuid.queue").delete()
+        val file = File(filename)
 
-        println("queue.size() = ${queue.size()}")
+        FileOutputStream(file).use {
+          queue.forEach({ stream, _ ->
+            stream.transferTo(it)
+          })
+
+          queue.clear()
+          queue.close()
+        }
+
+        File(queueFilename).delete()
+        println("recording size = ${file.length().toDouble() / 1024 / 1024 }")
       })
   }
 

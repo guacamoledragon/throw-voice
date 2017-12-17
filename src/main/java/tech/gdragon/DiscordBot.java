@@ -103,7 +103,7 @@ public class DiscordBot {
       return;
     }
 
-    File dest = new File(receiveListener.getMp3Filename());
+    File dest = new File(receiveListener.getFilename());
     try {
       final TextChannel channel = textChannel;
 
