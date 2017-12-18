@@ -209,9 +209,11 @@ public class EventListener extends ListenerAdapter {
         Settings settings = tech.gdragon.db.dao.Guild.Companion.findById(e.getGuild().getIdLong()).getSettings();
         return settings.getAutoSave();
       });
-      // TODO: Fix this thing
-      /*if (autoSave)
-        DiscordBot.writeToFile(e.getGuild());  //write data from voice channel it is leaving*/
+
+      if (autoSave) {
+        CombinedAudioRecorderHandler receiveHandler = (CombinedAudioRecorderHandler) audioManager.getReceiveHandler();
+        /*TODO: receiveHandler.saveRecording(e.getChannelLeft(), ???);*/
+      }
 
       BotUtils.leaveVoiceChannel(audioManager.getConnectedChannel());
 
