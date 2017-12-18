@@ -22,6 +22,7 @@ import tech.gdragon.db.Shim;
 import tech.gdragon.db.dao.Channel;
 import tech.gdragon.db.dao.Settings;
 import tech.gdragon.db.dao.User;
+import tech.gdragon.listener.CombinedAudioRecorderHandler;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -174,8 +175,10 @@ public class EventListener extends ListenerAdapter {
           return settings.getAutoSave();
         });
 
-        /*if (autoSave)
-          DiscordBot.writeToFile(e.getGuild());  //write data from voice channel it is leaving*/
+        if (autoSave) {
+          CombinedAudioRecorderHandler receiveHandler = (CombinedAudioRecorderHandler) audioManager.getReceiveHandler();
+          /*TODO: receiveHandler.saveRecording(e.getChannelLeft(), ???);*/
+        }
 
         BotUtils.joinVoiceChannel(e.getChannelJoined(), false);
       }
