@@ -8,7 +8,6 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.listener.CombinedAudioRecorderHandler
-import tech.gdragon.listeners.AudioSendListener
 import java.awt.Color
 import java.time.OffsetDateTime
 import net.dv8tion.jda.core.entities.Guild as DiscordGuild
@@ -122,21 +121,14 @@ object BotUtils {
     val guild = voiceChannel?.guild
     val audioManager = guild?.audioManager
     val receiveHandler = audioManager?.receiveHandler as CombinedAudioRecorderHandler?
-    val sendHandler = audioManager?.sendingHandler as AudioSendListener?
 
     receiveHandler?.apply {
       disconnect()
     }
 
-    sendHandler?.apply {
-      canProvide = false
-      voiceData = null
-    }
-
     logger.info("Leaving '{}' voice channel in {}", voiceChannel?.name, guild?.name)
     audioManager?.apply {
       setReceivingHandler(null)
-      sendingHandler = null
       closeAudioConnection()
       logger.info("Destroyed audio handlers for {}", guild.name)
     }
