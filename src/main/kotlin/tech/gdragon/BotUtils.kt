@@ -1,7 +1,6 @@
 package tech.gdragon
 
 import net.dv8tion.jda.core.EmbedBuilder
-import net.dv8tion.jda.core.audio.AudioReceiveHandler
 import net.dv8tion.jda.core.entities.TextChannel
 import net.dv8tion.jda.core.entities.VoiceChannel
 import net.dv8tion.jda.core.exceptions.InsufficientPermissionException
@@ -119,29 +118,27 @@ object BotUtils {
   }
 
   @JvmStatic
-  fun leaveVoiceChannel(voiceChannel: VoiceChannel?): AudioReceiveHandler? {
+  fun leaveVoiceChannel(voiceChannel: VoiceChannel?) {
     val guild = voiceChannel?.guild
     val audioManager = guild?.audioManager
-    val receiveHandler = guild?.audioManager?.receiveHandler as CombinedAudioRecorderHandler
-    val sendHandler = guild.audioManager.sendingHandler as AudioSendListener
+    val receiveHandler = audioManager?.receiveHandler as CombinedAudioRecorderHandler?
+    val sendHandler = audioManager?.sendingHandler as AudioSendListener?
 
-    receiveHandler.apply {
+    receiveHandler?.apply {
       disconnect()
     }
 
-    sendHandler.apply {
+    sendHandler?.apply {
       canProvide = false
       voiceData = null
     }
 
-    logger.info("Leaving '{}' voice channel in {}", voiceChannel.name, guild.name)
+    logger.info("Leaving '{}' voice channel in {}", voiceChannel?.name, guild?.name)
     audioManager?.apply {
       setReceivingHandler(null)
       sendingHandler = null
       closeAudioConnection()
       logger.info("Destroyed audio handlers for {}", guild.name)
     }
-
-    return receiveHandler
   }
 }
