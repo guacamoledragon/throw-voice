@@ -2,16 +2,15 @@ package tech.gdragon.commands.audio;
 
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import tech.gdragon.BotUtils;
-import tech.gdragon.DiscordBot;
 import tech.gdragon.commands.Command;
-import tech.gdragon.db.Shim;
-import tech.gdragon.db.dao.Guild;
 
 
 public class ClipCommand implements Command {
   @Override
   public void action(String[] args, GuildMessageReceivedEvent e) {
-    String prefix =
+    BotUtils.sendMessage(e.getChannel(), "Clip has been deprecated, contact bot author if this functionality is desired.");
+
+    /*String prefix =
       Shim.INSTANCE.xaction(() -> {
         Guild guild = Guild.Companion.findById(e.getGuild().getIdLong());
         return guild != null ? guild.getSettings().getPrefix() : "!";
@@ -50,8 +49,7 @@ public class ClipCommand implements Command {
       return;
     }
 
-    // TODO: Fix this thing
-    /*if (args.length == 2) {
+    if (args.length == 2) {
       DiscordBot.writeToFile(e.getGuild(), time, e.getGuild().getTextChannelsByName(args[1], true).get(0));
     } else {
       DiscordBot.writeToFile(e.getGuild(), time, e.getChannel());
