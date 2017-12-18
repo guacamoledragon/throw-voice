@@ -3,9 +3,9 @@ package tech.gdragon.commands.misc
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
 import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.BotUtils
-import tech.gdragon.DiscordBot
 import tech.gdragon.commands.Command
 import tech.gdragon.db.dao.Guild
+import tech.gdragon.listener.CombinedAudioRecorderHandler
 
 class Join : Command {
   override fun action(args: Array<String>, event: GuildMessageReceivedEvent) {
@@ -30,14 +30,13 @@ class Join : Command {
             if(event.guild.audioManager.isConnected) {
               guild?.settings?.let {
                 if (it.autoSave) {
-                  val audioReceiveHandler = BotUtils.leaveVoiceChannel(connectedChannel)
-                  // TODO: port the writeToFile method, should be some other utility
-                  DiscordBot.writeToFile(event.guild, event.channel, audioReceiveHandler)
+                  val audioReceiveHandler = event.guild.audioManager.receiveHandler as CombinedAudioRecorderHandler
+                  audioReceiveHandler.saveRecording(connectedChannel, event.channel)
+                  BotUtils.leaveVoiceChannel(connectedChannel)
                 }
               }
             }
 
-            // TODO: port the joinVoiceChannel method
             BotUtils.joinVoiceChannel(voiceChannel, true)
             "Joining ${voiceChannel.name}."
           }

@@ -3,9 +3,9 @@ package tech.gdragon.commands.audio
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
 import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.BotUtils
-import tech.gdragon.DiscordBot
 import tech.gdragon.commands.Command
 import tech.gdragon.db.dao.Guild
+import tech.gdragon.listener.CombinedAudioRecorderHandler
 
 class Save : Command {
   override fun action(args: Array<String>, event: GuildMessageReceivedEvent) {
@@ -22,10 +22,10 @@ class Save : Command {
         "I wasn't recording!"
       } else {
         val voiceChannel = event.guild.audioManager.connectedChannel
-        val audioReceiveHandler = BotUtils.leaveVoiceChannel(voiceChannel)
+        val audioReceiveHandler = event.guild.audioManager.receiveHandler as CombinedAudioRecorderHandler
 
         if (args.isEmpty()) {
-          DiscordBot.writeToFile(event.guild, event.channel, audioReceiveHandler)
+          audioReceiveHandler.saveRecording(voiceChannel, event.channel)
           ""
         } else {
           val channelName = if (args.first().startsWith("#")) args.first().substring(1) else args.first()
@@ -34,7 +34,7 @@ class Save : Command {
           if (channels.isEmpty()) {
             "Cannot find $channelName."
           } else {
-            channels.forEach { DiscordBot.writeToFile(event.guild, it, audioReceiveHandler) }
+            channels.forEach { audioReceiveHandler.saveRecording(voiceChannel, it) }
             ""
           }
         }
