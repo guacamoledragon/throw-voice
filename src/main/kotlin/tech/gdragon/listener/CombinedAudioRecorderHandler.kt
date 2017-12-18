@@ -112,7 +112,7 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
         queue.add(bytes)
         recordingSize += bytes.size
       })
-      ?.subscribe()
+      ?.subscribe({_, e -> logger.error("Shit went bad", e)})
   }
 
   fun saveRecording(voiceChannel: VoiceChannel?, textChannel: TextChannel?) {
