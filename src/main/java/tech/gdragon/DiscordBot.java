@@ -1,12 +1,10 @@
 package tech.gdragon;
 
-import net.dv8tion.jda.core.*;
-import net.dv8tion.jda.core.audio.AudioReceiveHandler;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.AccountType;
+import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.JDABuilder;
+import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import tech.gdragon.commands.CommandHandler;
 import tech.gdragon.commands.audio.ClipCommand;
 import tech.gdragon.commands.audio.EchoCommand;
@@ -16,21 +14,11 @@ import tech.gdragon.commands.misc.Help;
 import tech.gdragon.commands.misc.Join;
 import tech.gdragon.commands.misc.Leave;
 import tech.gdragon.commands.settings.*;
-import tech.gdragon.db.Shim;
-import tech.gdragon.db.dao.Settings;
-import tech.gdragon.listener.CombinedAudioRecorderHandler;
-import tech.gdragon.listeners.AudioReceiveListener;
-import tech.gdragon.listeners.AudioSendListener;
 import tech.gdragon.listeners.EventListener;
 
 import javax.security.auth.login.LoginException;
-import java.io.File;
-
-import static java.lang.Thread.sleep;
 
 public class DiscordBot {
-  private static Logger logger = LoggerFactory.getLogger(DiscordBot.class);
-
   public DiscordBot(String token) {
     try {
       //create bot instance
@@ -80,73 +68,4 @@ public class DiscordBot {
   }
 
   public static final long PERMISSIONS = Permission.getRaw(Permission.MESSAGE_READ, Permission.MESSAGE_WRITE, Permission.VOICE_CONNECT, Permission.VOICE_USE_VAD, Permission.VOICE_SPEAK, Permission.MESSAGE_ATTACH_FILES);
-
-  //UTILITY FUNCTIONS
-
-  public static void writeToFile(Guild guild, TextChannel tc, AudioReceiveHandler ah) {
-    writeToFile(guild, -1, tc, ah);
-  }
-
-  public static void writeToFile(Guild guild, int time, TextChannel textChannel, AudioReceiveHandler ah) {
-    Long defaultChannelId = Shim.INSTANCE.xaction(() -> {
-      Settings settings = tech.gdragon.db.dao.Guild.Companion.findById(guild.getIdLong()).getSettings();
-      return settings.getDefaultTextChannel();
-    });
-
-    if (textChannel == null) {
-      textChannel = guild.getTextChannelById(defaultChannelId);
-    }
-
-    CombinedAudioRecorderHandler receiveListener = (CombinedAudioRecorderHandler) ah;
-    if (receiveListener == null) {
-      BotUtils.sendMessage(textChannel, "I wasn't recording!");
-      return;
-    }
-
-    File dest = new File(receiveListener.getFilename());
-    try {
-      final TextChannel channel = textChannel;
-
-      double recordingSize = (double) dest.length() / 1024 / 1024;
-      logger.info("Saving audio file '{}' from {} on {} of size {} MB.",
-        dest.getName(), receiveListener.getVoiceChannel().getName(), guild.getName(), recordingSize);
-
-      // TODO: This checks the size of the file and does something else if the file is bigger than what Discord allows, this doesn't work.
-      if (dest.length() / 1024 / 1024 < 8) {
-//            final TextChannel channel = textChannel;
-        MessageBuilder message = new MessageBuilder();
-        message.append("Unfortunately, current recordings are limited to the previous " + AudioReceiveListener.PCM_MINS + " minutes. Fixing this limit in upcoming releases.");
-        channel.sendFile(dest, dest.getName(), message.build()).queue(null, (Throwable) -> {
-          BotUtils.sendMessage(guild.getTextChannelById(defaultChannelId),
-            "I don't have permissions to send files in " + channel.getName() + "!");
-        });
-
-        new Thread(() -> {
-          try {
-            sleep(1000 * 20); //20 second life for files sent to discord (no need to save)
-          } catch (InterruptedException e) {
-            logger.error("Failed during sleep", e);
-          }
-
-          boolean isDeleteSuccess = dest.delete();
-
-          logger.info("Deleting file " + dest.getName() + "...");
-
-          if (isDeleteSuccess)
-            logger.info("Successfully deleted file {}. ", dest.getName());
-          else
-            logger.error("Could not delete file {}.", dest.getName());
-
-        }).start();
-
-      } else {
-        BotUtils.sendMessage(channel, "Could not upload to Discord, file too large: " + recordingSize + "MB.");
-      }
-
-
-    } catch (Exception e) {
-      logger.error("Unknown error sending file", e);
-      BotUtils.sendMessage(textChannel, "Unknown error sending file");
-    }
-  }
 }
