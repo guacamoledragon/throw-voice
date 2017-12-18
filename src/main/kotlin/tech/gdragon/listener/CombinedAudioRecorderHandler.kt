@@ -115,7 +115,7 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
       ?.subscribe()
   }
 
-  fun saveRecording(voiceChannel: VoiceChannel, textChannel: TextChannel) {
+  fun saveRecording(voiceChannel: VoiceChannel?, textChannel: TextChannel?) {
     canReceive = false
     subscription?.dispose()
 
@@ -136,24 +136,25 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
     val recordingSize = recording.length().toDouble() / 1024 / 1024
 
     logger.info("Saving audio file '{}' from {} on {} of size {} MB.",
-      recording.name, voiceChannel.name, voiceChannel.guild.name, recordingSize)
+      recording.name, voiceChannel?.name, voiceChannel?.guild?.name, recordingSize)
 
-    uploadRecording(recording, recordingSize, textChannel)
+    uploadRecording(recording, recordingSize, voiceChannel?.name, voiceChannel?.guild?.name, textChannel)
 
     // Resume recording
     subscription = createRecording()
   }
 
-  private fun uploadRecording(recording: File, recordingSize: Double, channel: TextChannel) {
+  private fun uploadRecording(recording: File, recordingSize: Double, voiceChannelName: String?, guildName: String?, channel: TextChannel?) {
     if (recording.length() < MAX_RECORDING_SIZE) {
 
       val message = MessageBuilder().also {
         it.append("Unfortunately, current recordings are limited to the last 8MB recorded. Increasing limit in upcoming releases.")
+        it.append("Recording for $voiceChannelName in $guildName.")
       }
 
       channel
-        .sendFile(recording, recording.name, message.build())
-        .queue(null, { BotUtils.sendMessage(channel, "I don't have permissions to send files in ${channel.name}!") })
+        ?.sendFile(recording, recording.name, message.build())
+        ?.queue(null, { BotUtils.sendMessage(channel, "I don't have permissions to send files in ${channel.name}!") })
 
       thread(start = true) {
         try {

@@ -56,15 +56,11 @@ public class EventListener extends ListenerAdapter {
       tech.gdragon.db.dao.Guild guild = tech.gdragon.db.dao.Guild.Companion.findById(id);
 
       if (guild != null)
-        guild.delete(); // TODO must do cascading delete
+        guild.delete();
 
       logger.info("Left server '{}', connected to {} guilds\n", event.getGuild().getName(), event.getJDA().getGuilds().size());
-
       return null;
     });
-    /*DiscordBot.serverSettings.remove(e.getGuild().getId());
-    DiscordBot.writeSettingsJson();
-    System.out.format("Left server '%s', connected to %s guilds\n", e.getGuild().getName(), e.getJDA().getGuilds().size());*/
   }
 
   @Override
@@ -95,8 +91,10 @@ public class EventListener extends ListenerAdapter {
           return settings.getAutoSave();
         });
 
-        /*if (autoSave)
-          DiscordBot.writeToFile(e.getGuild());  //write data from voice channel it is leaving*/
+        if (autoSave) {
+          CombinedAudioRecorderHandler receiveHandler = (CombinedAudioRecorderHandler) audioManager.getReceiveHandler();
+          receiveHandler.saveRecording(e.getChannelJoined(), e.getMember().getDefaultChannel());
+        }
 
         BotUtils.joinVoiceChannel(e.getChannelJoined(), false);
       }
@@ -129,16 +127,20 @@ public class EventListener extends ListenerAdapter {
 
     int size = BotUtils.voiceChannelSize(e.getChannelLeft());
 
-    if (size <= min && e.getGuild().getAudioManager().getConnectedChannel() == e.getChannelLeft()) {
+    AudioManager audioManager = e.getGuild().getAudioManager();
+
+    if (size <= min && audioManager.getConnectedChannel() == e.getChannelLeft()) {
       boolean autoSave = Shim.INSTANCE.xaction(() -> {
         Settings settings = tech.gdragon.db.dao.Guild.Companion.findById(e.getGuild().getIdLong()).getSettings();
         return settings.getAutoSave();
       });
 
-      /*if (autoSave)
-        DiscordBot.writeToFile(e.getGuild());  //write data from voice channel it is leaving*/
+      if (autoSave) {
+        CombinedAudioRecorderHandler receiveHandler = (CombinedAudioRecorderHandler) audioManager.getReceiveHandler();
+        receiveHandler.saveRecording(e.getChannelLeft(), e.getMember().getDefaultChannel());
+      }
 
-      BotUtils.leaveVoiceChannel(e.getGuild().getAudioManager().getConnectedChannel());
+      BotUtils.leaveVoiceChannel(audioManager.getConnectedChannel());
 
       VoiceChannel biggest = BotUtils.biggestChannel(e.getGuild());
       if (biggest != null) {
@@ -177,7 +179,7 @@ public class EventListener extends ListenerAdapter {
 
         if (autoSave) {
           CombinedAudioRecorderHandler receiveHandler = (CombinedAudioRecorderHandler) audioManager.getReceiveHandler();
-          /*TODO: receiveHandler.saveRecording(e.getChannelLeft(), ???);*/
+          receiveHandler.saveRecording(e.getChannelLeft(), e.getMember().getDefaultChannel());
         }
 
         BotUtils.joinVoiceChannel(e.getChannelJoined(), false);
@@ -212,7 +214,7 @@ public class EventListener extends ListenerAdapter {
 
       if (autoSave) {
         CombinedAudioRecorderHandler receiveHandler = (CombinedAudioRecorderHandler) audioManager.getReceiveHandler();
-        /*TODO: receiveHandler.saveRecording(e.getChannelLeft(), ???);*/
+        receiveHandler.saveRecording(e.getChannelLeft(), e.getMember().getDefaultChannel());
       }
 
       BotUtils.leaveVoiceChannel(audioManager.getConnectedChannel());
