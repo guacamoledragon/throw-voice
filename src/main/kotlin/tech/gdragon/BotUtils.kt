@@ -7,11 +7,10 @@ import net.dv8tion.jda.core.exceptions.InsufficientPermissionException
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
 import tech.gdragon.db.dao.Guild
-import tech.gdragon.listeners.AudioReceiveListener
+import tech.gdragon.listener.CombinedAudioRecorderHandler
 import java.awt.Color
 import java.time.OffsetDateTime
 import net.dv8tion.jda.core.entities.Guild as DiscordGuild
-
 
 object BotUtils {
   private val logger = LoggerFactory.getLogger(BotUtils.javaClass)
@@ -86,7 +85,7 @@ object BotUtils {
   }
 
   @JvmStatic
-  fun joinVoiceChannel(voiceChannel: VoiceChannel?, warning: Boolean): Unit {
+  fun joinVoiceChannel(voiceChannel: VoiceChannel?, warning: Boolean) {
     logger.info("Joining '{}' voice channel in {}.", voiceChannel?.name, voiceChannel?.guild?.name)
 
     if (voiceChannel == voiceChannel?.guild?.afkChannel) {
@@ -100,11 +99,12 @@ object BotUtils {
     }
 
     try {
-      voiceChannel?.guild?.audioManager?.openAudioConnection(voiceChannel)
+      val audioManager = voiceChannel?.guild?.audioManager
+      audioManager?.openAudioConnection(voiceChannel)
       alert(voiceChannel)
       transaction {
         val volume = Guild.findById(voiceChannel?.guild?.idLong ?: 0L)?.settings?.volume?.toDouble() ?: 0.8
-        voiceChannel?.guild?.audioManager?.setReceivingHandler(AudioReceiveListener(volume, voiceChannel))
+        audioManager?.setReceivingHandler(CombinedAudioRecorderHandler(volume, voiceChannel))
       }
     } catch (e: InsufficientPermissionException) {
       logger.error("Not enough permissions to join ${voiceChannel?.name}", e)
@@ -118,13 +118,19 @@ object BotUtils {
 
   @JvmStatic
   fun leaveVoiceChannel(voiceChannel: VoiceChannel?) {
-    logger.info("Leaving '{}' voice channel in {}", voiceChannel?.name, voiceChannel?.guild?.name)
+    val guild = voiceChannel?.guild
+    val audioManager = guild?.audioManager
+    val receiveHandler = audioManager?.receiveHandler as CombinedAudioRecorderHandler?
 
-    voiceChannel
-      ?.guild
-      ?.audioManager
-      ?.closeAudioConnection()
+    receiveHandler?.apply {
+      disconnect()
+    }
 
-    DiscordBot.killAudioHandlers(voiceChannel?.guild)
+    logger.info("Leaving '{}' voice channel in {}", voiceChannel?.name, guild?.name)
+    audioManager?.apply {
+      setReceivingHandler(null)
+      closeAudioConnection()
+      logger.info("Destroyed audio handlers for {}", guild.name)
+    }
   }
 }

@@ -22,6 +22,7 @@ import tech.gdragon.db.Shim;
 import tech.gdragon.db.dao.Channel;
 import tech.gdragon.db.dao.Settings;
 import tech.gdragon.db.dao.User;
+import tech.gdragon.listener.CombinedAudioRecorderHandler;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -55,33 +56,30 @@ public class EventListener extends ListenerAdapter {
       tech.gdragon.db.dao.Guild guild = tech.gdragon.db.dao.Guild.Companion.findById(id);
 
       if (guild != null)
-        guild.delete(); // TODO must do cascading delete
+        guild.delete();
 
       logger.info("Left server '{}', connected to {} guilds\n", event.getGuild().getName(), event.getJDA().getGuilds().size());
-
       return null;
     });
-    /*DiscordBot.serverSettings.remove(e.getGuild().getId());
-    DiscordBot.writeSettingsJson();
-    System.out.format("Left server '%s', connected to %s guilds\n", e.getGuild().getName(), e.getJDA().getGuilds().size());*/
   }
 
   @Override
-  public void onGuildVoiceJoin(GuildVoiceJoinEvent e) {
-    if (e.getMember() == null || e.getMember().getUser() == null || e.getMember().getUser().isBot())
+  public void onGuildVoiceJoin(GuildVoiceJoinEvent event) {
+    if (event.getMember() == null || event.getMember().getUser() == null || event.getMember().getUser().isBot())
       return;
 
-    AudioManager audioManager = e.getGuild().getAudioManager();
+    AudioManager audioManager = event.getGuild().getAudioManager();
 
     if (audioManager.isConnected()) {
-      int newSize = BotUtils.voiceChannelSize(e.getChannelJoined());
+      int newSize = BotUtils.voiceChannelSize(event.getChannelJoined());
       int botSize = BotUtils.voiceChannelSize(audioManager.getConnectedChannel());
       int min = Shim.INSTANCE.xaction(() -> {
-        Settings settings = tech.gdragon.db.dao.Guild.Companion.findById(e.getGuild().getIdLong()).getSettings();
+        Settings settings = tech.gdragon.db.dao.Guild.Companion.findById(event.getGuild().getIdLong()).getSettings();
 
         for (Channel channel : settings.getChannels()) {
-          if (channel.getId().getValue() == e.getChannelJoined().getIdLong()) {
-            return channel.getAutoJoin();
+          if (channel.getId().getValue() == event.getChannelJoined().getIdLong()) {
+            Integer autoJoin = channel.getAutoJoin();
+            return autoJoin == null ? Integer.MAX_VALUE : autoJoin;
           }
         }
 
@@ -90,35 +88,37 @@ public class EventListener extends ListenerAdapter {
 
       if (newSize >= min && botSize < newSize) {  //check for tie with old server
         boolean autoSave = Shim.INSTANCE.xaction(() -> {
-          Settings settings = tech.gdragon.db.dao.Guild.Companion.findById(e.getGuild().getIdLong()).getSettings();
+          Settings settings = tech.gdragon.db.dao.Guild.Companion.findById(event.getGuild().getIdLong()).getSettings();
           return settings.getAutoSave();
         });
 
-        if (autoSave)
-          DiscordBot.writeToFile(e.getGuild());  //write data from voice channel it is leaving
+        if (autoSave) {
+          CombinedAudioRecorderHandler receiveHandler = (CombinedAudioRecorderHandler) audioManager.getReceiveHandler();
+          receiveHandler.saveRecording(event.getChannelJoined(), event.getMember().getDefaultChannel());
+        }
 
-        BotUtils.joinVoiceChannel(e.getChannelJoined(), false);
+        BotUtils.joinVoiceChannel(event.getChannelJoined(), false);
       }
 
     } else {
-      VoiceChannel biggestChannel = BotUtils.biggestChannel(e.getGuild());
+      VoiceChannel biggestChannel = BotUtils.biggestChannel(event.getGuild());
 
       if (biggestChannel != null) {
-        BotUtils.joinVoiceChannel(e.getChannelJoined(), false);
+        BotUtils.joinVoiceChannel(event.getChannelJoined(), false);
       }
     }
   }
 
   @Override
-  public void onGuildVoiceLeave(GuildVoiceLeaveEvent e) {
-    if (e.getMember() == null || e.getMember().getUser() == null || e.getMember().getUser().isBot())
+  public void onGuildVoiceLeave(GuildVoiceLeaveEvent event) {
+    if (event.getMember() == null || event.getMember().getUser() == null || event.getMember().getUser().isBot())
       return;
 
     int min = Shim.INSTANCE.xaction(() -> {
-      Settings settings = tech.gdragon.db.dao.Guild.Companion.findById(e.getGuild().getIdLong()).getSettings();
+      Settings settings = tech.gdragon.db.dao.Guild.Companion.findById(event.getGuild().getIdLong()).getSettings();
 
       for (Channel channel : settings.getChannels()) {
-        if (channel.getId().getValue() == e.getChannelLeft().getIdLong()) {
+        if (channel.getId().getValue() == event.getChannelLeft().getIdLong()) {
           return channel.getAutoLeave();
         }
       }
@@ -126,20 +126,24 @@ public class EventListener extends ListenerAdapter {
       return Integer.MAX_VALUE;
     });
 
-    int size = BotUtils.voiceChannelSize(e.getChannelLeft());
+    int size = BotUtils.voiceChannelSize(event.getChannelLeft());
 
-    if (size <= min && e.getGuild().getAudioManager().getConnectedChannel() == e.getChannelLeft()) {
+    AudioManager audioManager = event.getGuild().getAudioManager();
+
+    if (size <= min && audioManager.getConnectedChannel() == event.getChannelLeft()) {
       boolean autoSave = Shim.INSTANCE.xaction(() -> {
-        Settings settings = tech.gdragon.db.dao.Guild.Companion.findById(e.getGuild().getIdLong()).getSettings();
+        Settings settings = tech.gdragon.db.dao.Guild.Companion.findById(event.getGuild().getIdLong()).getSettings();
         return settings.getAutoSave();
       });
 
-      if (autoSave)
-        DiscordBot.writeToFile(e.getGuild());  //write data from voice channel it is leaving
+      if (autoSave) {
+        CombinedAudioRecorderHandler receiveHandler = (CombinedAudioRecorderHandler) audioManager.getReceiveHandler();
+        receiveHandler.saveRecording(event.getChannelLeft(), event.getMember().getDefaultChannel());
+      }
 
-      BotUtils.leaveVoiceChannel(e.getGuild().getAudioManager().getConnectedChannel());
+      BotUtils.leaveVoiceChannel(audioManager.getConnectedChannel());
 
-      VoiceChannel biggest = BotUtils.biggestChannel(e.getGuild());
+      VoiceChannel biggest = BotUtils.biggestChannel(event.getGuild());
       if (biggest != null) {
         BotUtils.joinVoiceChannel(biggest, false);
       }
@@ -147,21 +151,23 @@ public class EventListener extends ListenerAdapter {
   }
 
   @Override
-  public void onGuildVoiceMove(GuildVoiceMoveEvent e) {
-    if (e.getMember() == null || e.getMember().getUser() == null || e.getMember().getUser().isBot())
+  public void onGuildVoiceMove(GuildVoiceMoveEvent event) {
+    if (event.getMember() == null || event.getMember().getUser() == null || event.getMember().getUser().isBot())
       return;
 
-    AudioManager audioManager = e.getGuild().getAudioManager();
+    AudioManager audioManager = event.getGuild().getAudioManager();
 
     if (audioManager.isConnected()) {
-      int newSize = BotUtils.voiceChannelSize(e.getChannelJoined());
+      int newSize = BotUtils.voiceChannelSize(event.getChannelJoined());
       int botSize = BotUtils.voiceChannelSize(audioManager.getConnectedChannel());
+
       int min = Shim.INSTANCE.xaction(() -> {
-        Settings settings = tech.gdragon.db.dao.Guild.Companion.findById(e.getGuild().getIdLong()).getSettings();
+        Settings settings = tech.gdragon.db.dao.Guild.Companion.findById(event.getGuild().getIdLong()).getSettings();
 
         for (Channel channel : settings.getChannels()) {
-          if (channel.getId().getValue() == e.getChannelJoined().getIdLong()) {
-            return channel.getAutoJoin();
+          if (channel.getId().getValue() == event.getChannelJoined().getIdLong()) {
+            Integer autoJoin = channel.getAutoJoin();
+            return autoJoin == null ? Integer.MAX_VALUE : autoJoin;
           }
         }
 
@@ -170,18 +176,20 @@ public class EventListener extends ListenerAdapter {
 
       if (newSize >= min && botSize < newSize) {  //check for tie with old server
         boolean autoSave = Shim.INSTANCE.xaction(() -> {
-          Settings settings = tech.gdragon.db.dao.Guild.Companion.findById(e.getGuild().getIdLong()).getSettings();
+          Settings settings = tech.gdragon.db.dao.Guild.Companion.findById(event.getGuild().getIdLong()).getSettings();
           return settings.getAutoSave();
         });
 
-        if (autoSave)
-          DiscordBot.writeToFile(e.getGuild());  //write data from voice channel it is leaving
+        if (autoSave) {
+          CombinedAudioRecorderHandler receiveHandler = (CombinedAudioRecorderHandler) audioManager.getReceiveHandler();
+          receiveHandler.saveRecording(event.getChannelLeft(), event.getMember().getDefaultChannel());
+        }
 
-        BotUtils.joinVoiceChannel(e.getChannelJoined(), false);
+        BotUtils.joinVoiceChannel(event.getChannelJoined(), false);
       }
 
     } else {
-      VoiceChannel biggestChannel = BotUtils.biggestChannel(e.getGuild());
+      VoiceChannel biggestChannel = BotUtils.biggestChannel(event.getGuild());
       if (biggestChannel != null) {
         BotUtils.joinVoiceChannel(biggestChannel, false);
       }
@@ -189,31 +197,34 @@ public class EventListener extends ListenerAdapter {
 
     //Check if bot needs to leave old channel
     int min = Shim.INSTANCE.xaction(() -> {
-      Settings settings = tech.gdragon.db.dao.Guild.Companion.findById(e.getGuild().getIdLong()).getSettings();
+      Settings settings = tech.gdragon.db.dao.Guild.Companion.findById(event.getGuild().getIdLong()).getSettings();
 
       for (Channel channel : settings.getChannels()) {
-        if (channel.getId().getValue() == e.getChannelJoined().getIdLong()) {
+        if (channel.getId().getValue() == event.getChannelJoined().getIdLong()) {
           return channel.getAutoLeave();
         }
       }
 
       return 0;
     });
-    int size = BotUtils.voiceChannelSize(e.getChannelLeft());
+    int size = BotUtils.voiceChannelSize(event.getChannelLeft());
 
-    if (audioManager.isConnected() && size <= min && audioManager.getConnectedChannel() == e.getChannelLeft()) {
+    if (audioManager.isConnected() && size <= min && audioManager.getConnectedChannel() == event.getChannelLeft()) {
       boolean autoSave = Shim.INSTANCE.xaction(() -> {
-        Settings settings = tech.gdragon.db.dao.Guild.Companion.findById(e.getGuild().getIdLong()).getSettings();
+        Settings settings = tech.gdragon.db.dao.Guild.Companion.findById(event.getGuild().getIdLong()).getSettings();
         return settings.getAutoSave();
       });
-      if (autoSave)
-        DiscordBot.writeToFile(e.getGuild());  //write data from voice channel it is leaving
+
+      if (autoSave) {
+        CombinedAudioRecorderHandler receiveHandler = (CombinedAudioRecorderHandler) audioManager.getReceiveHandler();
+        receiveHandler.saveRecording(event.getChannelLeft(), event.getMember().getDefaultChannel());
+      }
 
       BotUtils.leaveVoiceChannel(audioManager.getConnectedChannel());
 
-      VoiceChannel biggest = BotUtils.biggestChannel(e.getGuild());
+      VoiceChannel biggest = BotUtils.biggestChannel(event.getGuild());
       if (biggest != null) {
-        BotUtils.joinVoiceChannel(e.getChannelJoined(), false);
+        BotUtils.joinVoiceChannel(event.getChannelJoined(), false);
       }
     }
   }
@@ -247,43 +258,43 @@ public class EventListener extends ListenerAdapter {
   }
 
   @Override
-  public void onPrivateMessageReceived(PrivateMessageReceivedEvent e) {
-    if (e.getAuthor() == null || e.getAuthor().isBot())
+  public void onPrivateMessageReceived(PrivateMessageReceivedEvent event) {
+    if (event.getAuthor() == null || event.getAuthor().isBot())
       return;
 
-    if (e.getMessage().getContent().startsWith("!alerts")) {
-      if (e.getMessage().getContent().endsWith("off")) {
-        for (Guild g : e.getJDA().getGuilds()) {
-          if (g.getMember(e.getAuthor()) != null) {
+    if (event.getMessage().getContent().startsWith("!alerts")) {
+      if (event.getMessage().getContent().endsWith("off")) {
+        for (Guild g : event.getJDA().getGuilds()) {
+          if (g.getMember(event.getAuthor()) != null) {
             Shim.INSTANCE.xaction(() -> {
               Settings settings = tech.gdragon.db.dao.Guild.Companion.findById(g.getIdLong()).getSettings();
-              return User.findOrCreate(e.getAuthor().getIdLong(), e.getAuthor().getName(), settings);
+              return User.findOrCreate(event.getAuthor().getIdLong(), event.getAuthor().getName(), settings);
             });
           }
         }
-        e.getChannel().sendMessage("Alerts now off, message `!alerts on` to re-enable at any time").queue();
+        event.getChannel().sendMessage("Alerts now off, message `!alerts on` to re-enable at any time").queue();
 
-      } else if (e.getMessage().getContent().endsWith("on")) {
-        for (Guild g : e.getJDA().getGuilds()) {
-          if (g.getMember(e.getAuthor()) != null) {
+      } else if (event.getMessage().getContent().endsWith("on")) {
+        for (Guild g : event.getJDA().getGuilds()) {
+          if (g.getMember(event.getAuthor()) != null) {
             Shim.INSTANCE.xaction(() -> {
               Settings settings = tech.gdragon.db.dao.Guild.Companion.findById(g.getIdLong()).getSettings();
-              User user = User.findOrCreate(e.getAuthor().getIdLong(), e.getAuthor().getName(), settings);
+              User user = User.findOrCreate(event.getAuthor().getIdLong(), event.getAuthor().getName(), settings);
               user.delete();
               return user;
             });
           }
         }
-        e.getChannel().sendMessage("Alerts now on, message `!alerts off` to disable at any time").queue();
+        event.getChannel().sendMessage("Alerts now on, message `!alerts off` to disable at any time").queue();
       } else {
-        e.getChannel().sendMessage("!alerts [on | off]").queue();
+        event.getChannel().sendMessage("!alerts [on | off]").queue();
       }
 
         /* removed because prefix and aliases are dependent on guild, which cannot be assumed without a message sent from guild
-        } else if (e.getMessage().getContent().startsWith("!help")) {
+        } else if (event.getMessage().getContent().startsWith("!help")) {
 
             EmbedBuilder embed = new EmbedBuilder();
-            embed.setAuthor("Discord Echo", "http://DiscordEcho.com/", e.getJDA().getSelfUser().getAvatarUrl());
+            embed.setAuthor("Discord Echo", "http://DiscordEcho.com/", event.getJDA().getSelfUser().getAvatarUrl());
             embed.setColor(Color.RED);
             embed.setTitle("Currently in beta, being actively developed and tested. Expect bugs.");
             embed.setDescription("Join my guild for updates - https://discord.gg/JWNFSZJ");
@@ -298,25 +309,25 @@ public class EventListener extends ListenerAdapter {
                 embed.addField(CommandHandler.commands.get(command).usage("!"), CommandHandler.commands.get(command).description(), true);
             }
 
-            e.getChannel().sendMessage(embed.build()).queue();
+            event.getChannel().sendMessage(embed.build()).queue();
         */
     } else {
-      e.getChannel().sendMessage("DM commands unsupported, send `!help` in your guild chat for more info.").queue();
+      event.getChannel().sendMessage("DM commands unsupported, send `!help` in your guild chat for more info.").queue();
     }
   }
 
   @Override
-  public void onReady(ReadyEvent e) {
-    e
+  public void onReady(ReadyEvent event) {
+    event
       .getJDA()
       .getPresence()
       .setGame(new Game("!help | http://pawabot.site", "http://pawabot.site", Game.GameType.DEFAULT) {
       });
 
-    logger.info("ONLINE: Connected to {} guilds!", e.getJDA().getGuilds().size());
+    logger.info("ONLINE: Connected to {} guilds!", event.getJDA().getGuilds().size());
 
     // Add guild if not present
-    for (Guild g : e.getJDA().getGuilds()) {
+    for (Guild g : event.getJDA().getGuilds()) {
       tech.gdragon.db.dao.Guild.findOrCreate(g.getIdLong(), g.getName());
     }
 
@@ -343,7 +354,7 @@ public class EventListener extends ListenerAdapter {
     }
 
     //check for servers to join
-    for (Guild g : e.getJDA().getGuilds()) {
+    for (Guild g : event.getJDA().getGuilds()) {
       VoiceChannel biggest = BotUtils.biggestChannel(g);
       if (biggest != null) {
         BotUtils.joinVoiceChannel(BotUtils.biggestChannel(g), false);

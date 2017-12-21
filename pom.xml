@@ -11,7 +11,7 @@
 
   <properties>
     <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
-    <kotlin.version>1.1.51</kotlin.version>
+    <kotlin.version>1.2.10</kotlin.version>
     <main.class>tech.gdragon.App</main.class>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
@@ -20,6 +20,11 @@
   </properties>
 
   <dependencies>
+    <dependency>
+      <groupId>com.squareup</groupId>
+      <artifactId>tape</artifactId>
+      <version>1.2.3</version>
+    </dependency>
     <dependency>
       <groupId>de.sciss</groupId>
       <artifactId>jump3r</artifactId>
@@ -33,12 +38,17 @@
     <dependency>
       <groupId>org.jetbrains.exposed</groupId>
       <artifactId>exposed</artifactId>
-      <version>0.8.7</version>
+      <version>0.9.1</version>
     </dependency>
     <dependency>
       <groupId>org.jetbrains.kotlin</groupId>
       <artifactId>kotlin-stdlib</artifactId>
       <version>${kotlin.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.reactivex.rxjava2</groupId>
+      <artifactId>rxjava</artifactId>
+      <version>2.1.6</version>
     </dependency>
     <dependency>
       <groupId>org.nanohttpd</groupId>
@@ -116,7 +126,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.5.1</version>
+        <version>3.7.0</version>
         <executions>
           <!-- Replacing default-compile as it is treated specially by maven -->
           <execution>

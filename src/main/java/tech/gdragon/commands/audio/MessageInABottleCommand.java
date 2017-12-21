@@ -1,20 +1,16 @@
 package tech.gdragon.commands.audio;
 
-import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import tech.gdragon.BotUtils;
 import tech.gdragon.commands.Command;
-import tech.gdragon.commands.CommandHandler;
-import tech.gdragon.db.Shim;
-import tech.gdragon.db.dao.Guild;
-
-import static java.lang.Thread.sleep;
 
 
 public class MessageInABottleCommand implements Command {
 
   @Override
   public void action(String[] args, GuildMessageReceivedEvent e) {
+    BotUtils.sendMessage(e.getChannel(), "MessageInABottle has been deprecated, contact bot author if this functionality is desired.");
+    /*
     String prefix =
       Shim.INSTANCE.xaction(() -> {
         Guild guild = Guild.Companion.findById(e.getGuild().getIdLong());
@@ -81,6 +77,7 @@ public class MessageInABottleCommand implements Command {
       }
 
     }).start();
+    */
   }
 
   @Override
