@@ -112,7 +112,11 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
         queue.add(bytes)
         recordingSize += bytes.size
       })
-      ?.subscribe({_, e -> logger.error("Shit went bad", e)})
+      ?.subscribe({_, e ->
+        e?.let {
+          logger.error("An error occurred in the recording pipeline.", it)
+        }
+      })
   }
 
   fun saveRecording(voiceChannel: VoiceChannel?, textChannel: TextChannel?) {
