@@ -3,8 +3,8 @@
 - [ ] Verify that project builds
 - [ ] Merge work to `master` branch
 - [ ] Test build artifacts
-  - [ ] Docker
-  - [ ] standalone jar
+  - [ ] Docker: `build-docker.bat`
+  - [ ] standalone jar `mvn clean package; source .env; java -cp "throw-voice.jar:lib/*" tech.gdragon.App`
 - [ ] Update README.md
 - [ ] Create tag
 - [ ] Push tag to Github
