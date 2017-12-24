@@ -64,7 +64,7 @@ their own instance of this bot. In order to be able to do that, a bit of configu
 - Download the [latest release](https://github.com/guacamoledragon/throw-voice/releases) of
 the bot, you're looking for `throw-voice-<version>.jar`.
 
-- Install Java 8
+- Install Java 9
 
 - Set the following environment variables:
   - `PORT`: Port on which the bot will run it's HTTP server on, strictly speaking not necessary,
