@@ -148,7 +148,7 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
     subscription = createRecording()
   }
 
-  fun saveClip(seconds: Long) {
+  fun saveClip(seconds: Long, voiceChannel: String?, channel: TextChannel?) {
     canReceive = false
     val byteRate = BITRATE / 8
 
@@ -165,10 +165,12 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
       val recordingSize = recording.length().toDouble() / 1024 / 1024
 
       logger.info("Saving audio file '{}' from {} on {} of size {} MB.",
-          recording.name, "", "", recordingSize)
+          recording.name, voiceChannel, channel?.guild?.name, recordingSize)
 
-      uploadRecording(recording, recordingSize, "", "", null)
+      uploadRecording(recording, recordingSize, voiceChannel, channel?.guild?.name, channel)
     }
+
+    canReceive = true
   }
 
   private fun uploadRecording(recording: File, recordingSize: Double, voiceChannelName: String?, guildName: String?, channel: TextChannel?) {
@@ -195,7 +197,7 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
         logger.info("Deleting file {}...", recording.name)
 
         if (isDeleteSuccess)
-          logger.info("Successfully deleted file {}. ", recording.name)
+          logger.info("Successfully deleted file {}.", recording.name)
         else
           logger.error("Could not delete file {}.", recording.name)
       }
