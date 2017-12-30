@@ -27,9 +27,10 @@ import kotlin.concurrent.thread
 class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceChannel) : AudioReceiveHandler {
   companion object {
     private const val AFK_LIMIT = (2 * 60 * 1000) / 20      // 2 minutes in ms over 20ms increments
-    private const val MAX_RECORDING_SIZE = 8 * 1024 * 1024 // 8MB
+    private const val MAX_RECORDING_SIZE = 8 * 1024 * 1024  // 8MB
     private const val BUFFER_TIMEOUT = 200L                 // 200 milliseconds
     private const val BUFFER_MAX_COUNT = 8
+    private const val BITRATE = 128                         // 128 kpbs
   }
 
   private val logger = LoggerFactory.getLogger(this.javaClass)
@@ -43,8 +44,9 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
   private var canReceive = true
   private var afkCounter = 0
 
-  var filename: String? = null
+  private var filename: String? = null
   private var queueFilename: String? = null
+  private var recordingSize: Int = 0
 
   init {
     subscription = createRecording()
@@ -84,8 +86,7 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
     queueFile = QueueFile(File(queueFilename))
     canReceive = true
 
-    var recordingSize = 0
-    val encoder = LameEncoder(AudioReceiveHandler.OUTPUT_FORMAT, 128, LameEncoder.CHANNEL_MODE_AUTO, LameEncoder.QUALITY_HIGHEST, false)
+    val encoder = LameEncoder(AudioReceiveHandler.OUTPUT_FORMAT, BITRATE, LameEncoder.CHANNEL_MODE_AUTO, LameEncoder.QUALITY_HIGHEST, false)
 
 
     return subject
@@ -108,7 +109,6 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
           recordingSize -= queue.peek()?.size ?: 0
           queue.remove()
         }
-
         queue.add(bytes)
         recordingSize += bytes.size
       })
@@ -146,6 +146,29 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
 
     // Resume recording
     subscription = createRecording()
+  }
+
+  fun saveClip(seconds: Long) {
+    canReceive = false
+    val byteRate = BITRATE / 8
+
+    if (seconds >= (recordingSize / 1024) / byteRate) {
+      val recording = File("recordings/${UUID.randomUUID()}-clip.mp3")
+      FileOutputStream(recording).use {
+        queueFile?.apply {
+          forEach({ stream, _ ->
+            stream.transferTo(it)
+          })
+        }
+      }
+
+      val recordingSize = recording.length().toDouble() / 1024 / 1024
+
+      logger.info("Saving audio file '{}' from {} on {} of size {} MB.",
+          recording.name, "", "", recordingSize)
+
+      uploadRecording(recording, recordingSize, "", "", null)
+    }
   }
 
   private fun uploadRecording(recording: File, recordingSize: Double, voiceChannelName: String?, guildName: String?, channel: TextChannel?) {
