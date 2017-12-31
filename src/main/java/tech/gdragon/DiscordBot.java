@@ -6,7 +6,7 @@ import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import tech.gdragon.commands.CommandHandler;
-import tech.gdragon.commands.audio.ClipCommand;
+import tech.gdragon.commands.audio.Clip;
 import tech.gdragon.commands.audio.EchoCommand;
 import tech.gdragon.commands.audio.MessageInABottleCommand;
 import tech.gdragon.commands.audio.Save;
@@ -33,7 +33,7 @@ public class DiscordBot {
       CommandHandler.commands.put("leave", new Leave());
 
       // Register audio commands
-      CommandHandler.commands.put("clip", new ClipCommand());
+      CommandHandler.commands.put("clip", new Clip());
       CommandHandler.commands.put("echo", new EchoCommand());
       CommandHandler.commands.put("miab", new MessageInABottleCommand());
       CommandHandler.commands.put("save", new Save());

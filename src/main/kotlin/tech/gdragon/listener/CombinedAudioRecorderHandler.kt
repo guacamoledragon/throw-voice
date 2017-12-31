@@ -20,6 +20,9 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.lang.Thread.sleep
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.nio.file.StandardCopyOption
 import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
@@ -27,9 +30,11 @@ import kotlin.concurrent.thread
 class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceChannel) : AudioReceiveHandler {
   companion object {
     private const val AFK_LIMIT = (2 * 60 * 1000) / 20      // 2 minutes in ms over 20ms increments
-    private const val MAX_RECORDING_SIZE = 8 * 1024 * 1024 // 8MB
+    private const val MAX_RECORDING_SIZE = 8 * 1024 * 1024  // 8MB
     private const val BUFFER_TIMEOUT = 200L                 // 200 milliseconds
     private const val BUFFER_MAX_COUNT = 8
+    private const val BITRATE = 128                         // 128 kpbs
+    private const val BYTES_PER_SECOND = 16_000L            // 128 kbps == 16000 bytes per second
   }
 
   private val logger = LoggerFactory.getLogger(this.javaClass)
@@ -43,8 +48,9 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
   private var canReceive = true
   private var afkCounter = 0
 
-  var filename: String? = null
+  private var filename: String? = null
   private var queueFilename: String? = null
+  private var recordingSize: Int = 0
 
   init {
     subscription = createRecording()
@@ -84,8 +90,7 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
     queueFile = QueueFile(File(queueFilename))
     canReceive = true
 
-    var recordingSize = 0
-    val encoder = LameEncoder(AudioReceiveHandler.OUTPUT_FORMAT, 128, LameEncoder.CHANNEL_MODE_AUTO, LameEncoder.QUALITY_HIGHEST, false)
+    val encoder = LameEncoder(AudioReceiveHandler.OUTPUT_FORMAT, BITRATE, LameEncoder.CHANNEL_MODE_AUTO, LameEncoder.QUALITY_HIGHEST, false)
 
 
     return subject
@@ -108,7 +113,6 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
           recordingSize -= queue.peek()?.size ?: 0
           queue.remove()
         }
-
         queue.add(bytes)
         recordingSize += bytes.size
       })
@@ -137,15 +141,55 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
       }
     }
 
-    val recordingSize = recording.length().toDouble() / 1024 / 1024
+    val recordingSizeInMB = recording.length().toDouble() / 1024 / 1024
 
     logger.info("Saving audio file '{}' from {} on {} of size {} MB.",
-      recording.name, voiceChannel?.name, voiceChannel?.guild?.name, recordingSize)
+      recording.name, voiceChannel?.name, voiceChannel?.guild?.name, recordingSizeInMB)
+    logger.debug("Recording size in bytes: {}", recordingSize)
 
-    uploadRecording(recording, recordingSize, voiceChannel?.name, voiceChannel?.guild?.name, textChannel)
+    uploadRecording(recording, recordingSizeInMB, voiceChannel?.name, voiceChannel?.guild?.name, textChannel)
 
     // Resume recording
     subscription = createRecording()
+  }
+
+  fun saveClip(seconds: Long, voiceChannel: String?, channel: TextChannel?) {
+    // Stop recording so that we can copy Queue File
+    canReceive = false
+
+    val path = Paths.get(queueFilename)
+    val clipPath = Paths.get("recordings/clip-${UUID.randomUUID()}.queue")
+
+    // Copy the original Queue File so that we can resume receiving audio
+    Files.copy(path, clipPath, StandardCopyOption.REPLACE_EXISTING)
+    canReceive = true
+
+    val queueFile = QueueFile(clipPath.toFile())
+    val recording = File(clipPath.toString().replace("queue", "mp3"))
+    var clipRecordingSize = recordingSize.toLong()
+
+    // Reduce the queue size until it's just over the expected clip size
+    while(clipRecordingSize - queueFile.peek().size > BYTES_PER_SECOND * seconds) {
+      queueFile.remove()
+      clipRecordingSize -= queueFile.peek().size
+    }
+
+    FileOutputStream(recording).use {
+      queueFile.apply {
+        forEach({ stream, _ ->
+          stream.transferTo(it)
+        })
+
+        close()
+        Files.delete(clipPath)
+      }
+    }
+
+    val recordingSizeInMB = recording.length().toDouble() / 1024 / 1024
+    logger.info("Saving audio file '{}' from {} on {} of size {} MB.",
+      recording.name, voiceChannel, channel?.guild?.name, recordingSizeInMB)
+
+    uploadRecording(recording, recordingSizeInMB, voiceChannel, channel?.guild?.name, channel)
   }
 
   private fun uploadRecording(recording: File, recordingSize: Double, voiceChannelName: String?, guildName: String?, channel: TextChannel?) {
@@ -172,7 +216,7 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
         logger.info("Deleting file {}...", recording.name)
 
         if (isDeleteSuccess)
-          logger.info("Successfully deleted file {}. ", recording.name)
+          logger.info("Successfully deleted file {}.", recording.name)
         else
           logger.error("Could not delete file {}.", recording.name)
       }
