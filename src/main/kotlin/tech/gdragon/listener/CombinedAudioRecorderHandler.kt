@@ -138,12 +138,12 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
       }
     }
 
-    val recordingSize = recording.length().toDouble() / 1024 / 1024
+    val recordingSizeInMB = recording.length().toDouble() / 1024 / 1024
 
     logger.info("Saving audio file '{}' from {} on {} of size {} MB.",
-      recording.name, voiceChannel?.name, voiceChannel?.guild?.name, recordingSize)
+      recording.name, voiceChannel?.name, voiceChannel?.guild?.name, recordingSizeInMB)
 
-    uploadRecording(recording, recordingSize, voiceChannel?.name, voiceChannel?.guild?.name, textChannel)
+    uploadRecording(recording, recordingSizeInMB, voiceChannel?.name, voiceChannel?.guild?.name, textChannel)
 
     // Resume recording
     subscription = createRecording()
