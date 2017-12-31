@@ -31,6 +31,7 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
     private const val BUFFER_TIMEOUT = 200L                 // 200 milliseconds
     private const val BUFFER_MAX_COUNT = 8
     private const val BITRATE = 128                         // 128 kpbs
+    private const val BYTES_PER_SECOND = 16_000             // 128 kbps == 16000 bytes per second
   }
 
   private val logger = LoggerFactory.getLogger(this.javaClass)
