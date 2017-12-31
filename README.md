@@ -91,7 +91,7 @@ Replace `CLIENT_ID` and `BOT_TOKEN` with your correct values. The port isn't fix
 
 See the [Docker Hub](https://hub.docker.com/r/gdragon/throw-voice/) registry for more details on the container.
 
-### Heroku Button
+### Heroku Button _Currently not working, see #17_
 
 You can deploy on Heroku by clicking on the button below and entering the `CLIENT_ID` and `BOT_TOKEN`.
 
