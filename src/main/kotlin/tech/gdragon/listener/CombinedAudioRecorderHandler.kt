@@ -197,7 +197,7 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
 
       val message = MessageBuilder().also {
         it.append("Unfortunately, current recordings are limited to the last 8MB recorded. Increasing limit in upcoming releases.")
-        it.append("Recording for $voiceChannelName in $guildName.")
+        it.append("\nRecording for $voiceChannelName in $guildName.")
       }
 
       channel

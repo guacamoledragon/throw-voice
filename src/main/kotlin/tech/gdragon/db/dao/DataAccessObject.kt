@@ -2,6 +2,7 @@ package tech.gdragon.db.dao
 
 import org.jetbrains.exposed.dao.*
 import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.exposedLogger
 import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.db.table.Tables.Aliases
 import tech.gdragon.db.table.Tables.Channels
@@ -55,7 +56,7 @@ class Guild(id: EntityID<Long>) : LongEntity(id) {
         commit()
 
         Alias.createDefaultAliases(settings)
-
+        exposedLogger.info("Creating database entry for: ${settings.guild.name}")
         settings.guild
       }
     }
