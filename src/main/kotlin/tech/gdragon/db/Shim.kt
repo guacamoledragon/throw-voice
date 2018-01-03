@@ -15,7 +15,10 @@ import java.sql.Connection
  */
 object Shim {
   fun initializeDatabase(database: String) {
-    Database.connect("jdbc:sqlite:$database", driver = "org.sqlite.JDBC")
+    Database.connect("jdbc:sqlite:$database", driver = "org.sqlite.JDBC", setupConnection = {
+      val statement = it.createStatement()
+      statement.executeUpdate("PRAGMA foreign_keys = ON")
+    })
     TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_READ_UNCOMMITTED
 
     transaction {
