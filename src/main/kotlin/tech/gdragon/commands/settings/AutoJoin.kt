@@ -2,22 +2,19 @@ package tech.gdragon.commands.settings
 
 import mu.KotlinLogging
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
-import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.BotUtils
 import tech.gdragon.commands.Command
 import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
-import tech.gdragon.db.table.Tables.Channels
+import net.dv8tion.jda.core.entities.Channel as DiscordChannel
 
 class AutoJoin : Command {
   private val commandLogger = KotlinLogging.logger {}
 
-  private fun updateChannelAutoJoin(guildId: Long, channelId: Long, autoJoin: Int?) {
+  private fun updateChannelAutoJoin(channel: DiscordChannel, autoJoin: Int?) {
     Channel
-      .find {
-        (Channels.settings eq Guild.findById(guildId)?.settings?.id) and (Channels.id eq channelId)
-      }
+      .findOrCreate(channel.idLong, channel.name, channel.guild.idLong, channel.guild.name)
       .forEach { it.autoJoin = autoJoin }
   }
 
@@ -52,7 +49,7 @@ class AutoJoin : Command {
 
           if (channelName == "all") {
             val channels = event.guild.voiceChannels
-            channels.forEach { updateChannelAutoJoin(guildId, it.idLong, number) }
+            channels.forEach { updateChannelAutoJoin(it, number) }
 
             if (number != null) {
               "Will now automatically join any voice channel with $number or more people."
@@ -65,7 +62,7 @@ class AutoJoin : Command {
             if (channels.isEmpty()) {
               "Cannot find voice channel $channelName."
             } else {
-              channels.forEach { updateChannelAutoJoin(guildId, it.idLong, number) }
+              channels.forEach { updateChannelAutoJoin(it, number) }
 
               if (number != null) {
                 "Will now automatically join '$channelName' when there are $number or more people."
