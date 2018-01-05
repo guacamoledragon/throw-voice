@@ -23,7 +23,7 @@ class Help : Command {
       val embed = EmbedBuilder().apply {
         setAuthor("pawa", "http://pawabot.site", event.jda.selfUser.avatarUrl)
         setColor(Color.decode("#596800"))
-        setTitle("Currently in beta, being actively developed and tested. Expect bugs.")
+        setTitle("Currently in beta, being actively developed and tested. Expect bugs. All settings get cleared on every beta release")
         setDescription("**pawa** is an implementation of _throw-voice_, check out [GitHub](https://github.com/guacamoledragon/throw-voice) for updates!")
         setThumbnail(event.jda.selfUser.avatarUrl)
         setFooter("Replace brackets [] with item specified. Vertical bar | means 'or', either side of bar is valid choice.", null)
