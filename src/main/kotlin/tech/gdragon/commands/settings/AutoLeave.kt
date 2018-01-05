@@ -2,22 +2,19 @@ package tech.gdragon.commands.settings
 
 import mu.KotlinLogging
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
-import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.BotUtils
 import tech.gdragon.commands.Command
 import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
-import tech.gdragon.db.table.Tables
+import net.dv8tion.jda.core.entities.Channel as DiscordChannel
 
 class AutoLeave : Command {
   private val commandLogger = KotlinLogging.logger {}
 
-  private fun updateChannelAutoLeave(guildId: Long, channelId: Long, autoLeave: Int) {
+  private fun updateChannelAutoLeave(channel: DiscordChannel, autoLeave: Int) {
     Channel
-      .find {
-        (Tables.Channels.settings eq Guild.findById(guildId)?.settings?.id) and (Tables.Channels.id eq channelId)
-      }
+      .findOrCreate(channel.idLong, channel.name, channel.guild.idLong, channel.guild.name)
       .forEach { it.autoLeave = autoLeave }
   }
 
@@ -42,16 +39,16 @@ class AutoLeave : Command {
 
           if (channelName == "all") {
             val channels = event.guild.voiceChannels
-            channels.forEach { updateChannelAutoLeave(guildId, it.idLong, number) }
-            "Will now automatically leave any voice channel with $number or more people."
+            channels.forEach { updateChannelAutoLeave(it, number) }
+            "Will now automatically leave any voice channel with $number or less people."
           } else {
             val channels = event.guild.getVoiceChannelsByName(channelName, true)
 
             if (channels.isEmpty()) {
               "Cannot find voice channel $channelName."
             } else {
-              channels.forEach { updateChannelAutoLeave(guildId, it.idLong, number) }
-              "Will now automatically leave '$channelName' when there are $number or more people."
+              channels.forEach { updateChannelAutoLeave(it, number) }
+              "Will now automatically leave '$channelName' when there are $number or less people."
             }
           }
         } catch (e: NumberFormatException) {
@@ -68,5 +65,5 @@ class AutoLeave : Command {
 
   override fun usage(prefix: String): String = "${prefix}autoleave [Voice Channel name | 'all'] [number]"
 
-  override fun description(): String = "Sets the number of players for the bot to auto-leave a voice channel, or disables auto-leaving.  All will apply number to all voice channels."
+  override fun description(): String = "Sets the number of players for the bot to auto-leave a voice channel. All will apply number to all voice channels."
 }

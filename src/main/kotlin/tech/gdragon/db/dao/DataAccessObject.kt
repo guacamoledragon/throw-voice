@@ -29,7 +29,25 @@ class Alias(id: EntityID<Int>) : IntEntity(id) {
 }
 
 class Channel(id: EntityID<Long>) : LongEntity(id) {
-  companion object : LongEntityClass<Channel>(Channels)
+  companion object : LongEntityClass<Channel>(Channels) {
+    fun findOrCreate(id: Long, name: String, guildId: Long, guildName: String): Iterable<Channel> = transaction {
+      val guild = Guild.findOrCreate(guildId, guildName)
+      val channels = Channel.find { (Channels.settings eq guild.settings.id) and (Channels.id eq id) }
+
+      if (channels.empty()) {
+        val newChannel = Channel.new(id) {
+          this.name = name
+          this.settings = guild.settings
+        }
+
+        commit()
+
+        listOf(newChannel)
+      } else {
+        channels
+      }
+    }
+  }
 
   var name by Channels.name
   var autoJoin by Channels.autoJoin
