@@ -38,7 +38,7 @@
 | `!autojoin [Voice Channel name \| 'all'] [number \| 'off']`   | Sets the number of players for the bot to auto-join a voice channel, or disables auto-joining. 'all' will apply number to all voice channels.  |
 | `!autoleave [Voice Channel name \| 'all'] [number]`           | Sets the number of players for the bot to auto-leave a voice channel, or disables auto-leaving. 'all' will apply number to all voice channels. |
 | `!autosave`                                                   | Toggles the option to automatically save and send all files at the end of each session - not just saved or clipped files                       |
-| ~~`!clip [seconds] \| !clip [seconds] [text channel output]`~~| ~~Saves a clip of the specified length and outputs it in the current or specified text channel (max 120 seconds)~~                             |
+| `!clip [seconds] \| !clip [seconds] [text channel output]`    | Saves a clip of the specified length and outputs it in the current or specified text channel (max 120 seconds)                                 |
 | ~~`!echo [seconds]`~~                                         | ~~Echos back the input number of seconds of the recording into the voice channel (max 120 seconds)~~                                           |
 | `!join`                                                       | Aliases: `record`. Force the bot to join and record your current channel                                                                       |
 | `!leave`                                                      | Aliases: `stop`. Force the bot to leave it's current channel                                                                                   |
