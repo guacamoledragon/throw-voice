@@ -27,6 +27,7 @@ package org.slf4j.impl;
 import java.io.PrintStream;
 import java.util.Date;
 
+import com.rollbar.api.payload.data.Level;
 import org.slf4j.Logger;
 import org.slf4j.event.LoggingEvent;
 import org.slf4j.helpers.FormattingTuple;
@@ -207,6 +208,10 @@ public class RollbarLogger extends MarkerIgnoringBase {
 
   public static final String DEFAULT_LOG_LEVEL_KEY = RollbarLogger.SYSTEM_PREFIX + "defaultLogLevel";
 
+  public static final String ROLLBAR_ENVIRONMENT_KEY = RollbarLogger.SYSTEM_PREFIX + "environment";
+
+  public static final String ROLLBAR_ACCESS_TOKEN_KEY = RollbarLogger.SYSTEM_PREFIX + "accessToken";
+
   /**
    * Package access allows only {@link RollbarLoggerFactory} to instantiate
    * RollbarLogger instances.
@@ -293,7 +298,7 @@ public class RollbarLogger extends MarkerIgnoringBase {
     buf.append(message);
 
     write(buf, t);
-
+    upload(levelStr, buf, t);
   }
 
   protected String renderLevel(int level) {
@@ -310,6 +315,11 @@ public class RollbarLogger extends MarkerIgnoringBase {
         return "ERROR";
     }
     throw new IllegalStateException("Unrecognized level [" + level + "]");
+  }
+
+  void upload(String level, StringBuilder buf, Throwable t) {
+    Level rollbarLevel = Level.lookupByName(level.toLowerCase());
+    CONFIG_PARAMS.rollbar.log(t, buf.toString(), rollbarLevel);
   }
 
   void write(StringBuilder buf, Throwable t) {

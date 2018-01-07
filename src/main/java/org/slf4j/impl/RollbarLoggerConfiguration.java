@@ -1,5 +1,10 @@
 package org.slf4j.impl;
 
+import com.rollbar.notifier.Rollbar;
+import com.rollbar.notifier.config.Config;
+import org.slf4j.helpers.Util;
+import org.slf4j.impl.OutputChoice.OutputChoiceType;
+
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -10,8 +15,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Properties;
 
-import org.slf4j.helpers.Util;
-import org.slf4j.impl.OutputChoice.OutputChoiceType;
+import static com.rollbar.notifier.config.ConfigBuilder.withAccessToken;
 
 /**
  * This class holds configuration values for {@link RollbarLogger}. The
@@ -64,6 +68,13 @@ public class RollbarLoggerConfiguration {
   private static final String WARN_LEVELS_STRING_DEFAULT = "WARN";
   String warnLevelString = WARN_LEVELS_STRING_DEFAULT;
 
+  private static final String ROLLBAR_ENVIRONMENT_DEFAULT = "production";
+  String rollbarEnvironment = ROLLBAR_ENVIRONMENT_DEFAULT;
+
+  String rollbarAccessToken = null;
+
+  Rollbar rollbar;
+
   private final Properties properties = new Properties();
 
   void init() {
@@ -80,6 +91,8 @@ public class RollbarLoggerConfiguration {
     dateTimeFormatStr = getStringProperty(RollbarLogger.DATE_TIME_FORMAT_KEY, DATE_TIME_FORMAT_STR_DEFAULT);
     levelInBrackets = getBooleanProperty(RollbarLogger.LEVEL_IN_BRACKETS_KEY, LEVEL_IN_BRACKETS_DEFAULT);
     warnLevelString = getStringProperty(RollbarLogger.WARN_LEVEL_STRING_KEY, WARN_LEVELS_STRING_DEFAULT);
+    rollbarEnvironment = getStringProperty(RollbarLogger.ROLLBAR_ENVIRONMENT_KEY, ROLLBAR_ENVIRONMENT_DEFAULT);
+    rollbarAccessToken = getStringProperty(RollbarLogger.ROLLBAR_ACCESS_TOKEN_KEY);
 
     logFile = getStringProperty(RollbarLogger.LOG_FILE_KEY, logFile);
 
@@ -92,6 +105,15 @@ public class RollbarLoggerConfiguration {
       } catch (IllegalArgumentException e) {
         Util.report("Bad date format in " + CONFIGURATION_FILE + "; will output relative time", e);
       }
+    }
+
+    if (rollbarAccessToken != null) {
+      Config config = withAccessToken(rollbarAccessToken)
+        .environment(rollbarEnvironment)
+        .build();
+
+      rollbar = Rollbar.init(config);
+      Util.report("Rollbar logger initialized.");
     }
   }
 
