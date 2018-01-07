@@ -13,8 +13,8 @@
     <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
     <kotlin.version>1.2.10</kotlin.version>
     <main.class>tech.gdragon.App</main.class>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
+    <maven.compiler.source>1.9</maven.compiler.source>
+    <maven.compiler.target>1.9</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <slf4j.version>1.7.25</slf4j.version>
   </properties>
@@ -24,6 +24,11 @@
       <groupId>com.squareup</groupId>
       <artifactId>tape</artifactId>
       <version>1.2.3</version>
+    </dependency>
+    <dependency>
+      <groupId>com.rollbar</groupId>
+      <artifactId>rollbar-java</artifactId>
+      <version>1.0.0</version>
     </dependency>
     <dependency>
       <groupId>de.sciss</groupId>
@@ -61,11 +66,6 @@
       <version>${slf4j.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-simple</artifactId>
-      <version>${slf4j.version}</version>
-    </dependency>
-    <dependency>
       <groupId>io.github.microutils</groupId>
       <artifactId>kotlin-logging</artifactId>
       <version>1.4.6</version>
@@ -94,9 +94,6 @@
     <plugins>
       <plugin>
         <artifactId>kotlin-maven-plugin</artifactId>
-        <configuration>
-          <jvmTarget>1.8</jvmTarget>
-        </configuration>
         <groupId>org.jetbrains.kotlin</groupId>
         <version>${kotlin.version}</version>
         <executions>
@@ -111,7 +108,6 @@
                 <source>src/main/java</source>
                 <source>src/main/kotlin</source>
               </sourceDirs>
-              <jvmTarget>1.8</jvmTarget>
             </configuration>
           </execution>
           <execution>
