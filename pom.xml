@@ -198,7 +198,7 @@
             </goals>
           </execution>
           <execution>
-            <id>resources</id>
+            <id>test-resources</id>
             <phase>process-test-classes</phase>
             <goals>
               <goal>testResources</goal>
