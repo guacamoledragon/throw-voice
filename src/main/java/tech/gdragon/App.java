@@ -44,8 +44,6 @@ public final class App extends NanoHTTPD {
    * Starts a simple HTTP Service, whose only response is to redirect to the bot's page.
    */
   public static void main(String[] args) {
-    // Initialize rollbar
-    Shim.INSTANCE.initializeRollbar(System.getenv("ROLLBAR_TOKEN"), System.getenv("ROLLBAR_ENV"));
     // Connect to database
     Shim.INSTANCE.initializeDatabase("settings.db");
 
