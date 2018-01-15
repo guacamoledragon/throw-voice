@@ -72,8 +72,6 @@ public class RollbarLog4j2Appender extends AbstractAppender {
       layout = PatternLayout.createDefaultLayout();
     }
 
-    LOGGER.info("accessToken: {}\nenvironment: {}", accessToken, environment);
-
     ConfigBuilder config = withAccessToken(accessToken)
       .environment(environment);
 
@@ -106,15 +104,15 @@ public class RollbarLog4j2Appender extends AbstractAppender {
       return;
     }
 
+    final String formattedMessage = new String(getLayout().toByteArray(event));
     if (event.getThrown() != null) {
       if (event.getMessage().toString() != null) {
-        this.client.log(event.getThrown(), event.getMessage().getFormattedMessage(), rollbarLevel);
+        this.client.log(event.getThrown(), formattedMessage, rollbarLevel);
       } else {
         this.client.log(event.getThrown(), rollbarLevel);
       }
-
     } else {
-      this.client.log(event.getMessage().getFormattedMessage(), rollbarLevel);
+      this.client.log(formattedMessage, rollbarLevel);
     }
   }
 }

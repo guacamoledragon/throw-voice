@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+  <Properties>
+    <Property name="globalPattern">%d{YYYY-MM-dd'T'HH:mm:ssZ} [%level] [%t] %logger{36} - %msg%n</Property>
+  </Properties>
+  <Appenders>
+    <Console name="Console">
+      <PatternLayout pattern="${globalPattern}"/>
+    </Console>
+    <Rollbar name="Rollbar">
+      <accessToken>${env:ROLLBAR_TOKEN}</accessToken>
+      <environment>${env:ROLLBAR_ENV}</environment>
+      <PatternLayout pattern="${globalPattern}"/>
+    </Rollbar>
+  </Appenders>
+  <Loggers>
+    <Root level="info">
+      <AppenderRef ref="Console"/>
+      <AppenderRef ref="Rollbar"/>
+    </Root>
+  </Loggers>
+</Configuration>
