@@ -2,6 +2,8 @@
 <Configuration>
   <Properties>
     <Property name="globalPattern">%d{YYYY-MM-dd'T'HH:mm:ssZ} [%level] [%t] %logger{36} - %msg%n</Property>
+    <Property name="ROLLBAR_TOKEN"/>
+    <Property name="ROLLBAR_ENV"/>
   </Properties>
   <Appenders>
     <Console name="Console">

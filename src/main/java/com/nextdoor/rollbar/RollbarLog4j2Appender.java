@@ -19,16 +19,17 @@ import com.rollbar.api.payload.data.Level;
 import com.rollbar.api.payload.data.Server;
 import com.rollbar.notifier.Rollbar;
 import com.rollbar.notifier.config.ConfigBuilder;
+import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.Filter;
 import org.apache.logging.log4j.core.Layout;
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.appender.AbstractAppender;
+import org.apache.logging.log4j.core.appender.NullAppender;
 import org.apache.logging.log4j.core.config.plugins.Plugin;
 import org.apache.logging.log4j.core.config.plugins.PluginAttribute;
 import org.apache.logging.log4j.core.config.plugins.PluginElement;
 import org.apache.logging.log4j.core.config.plugins.PluginFactory;
 import org.apache.logging.log4j.core.layout.PatternLayout;
-import org.apache.logging.log4j.status.StatusLogger;
 
 import java.io.Serializable;
 import java.net.InetAddress;
@@ -47,43 +48,51 @@ public class RollbarLog4j2Appender extends AbstractAppender {
   }
 
   @PluginFactory
-  public static RollbarLog4j2Appender createAppender(@PluginAttribute("name") String name,
-                                                     @PluginElement("Layout") Layout<? extends Serializable> layout,
-                                                     @PluginElement("Filter") final Filter filter,
-                                                     @PluginAttribute("accessToken") String accessToken,
-                                                     @PluginAttribute("environment") String environment) {
+  public static Appender createAppender(@PluginAttribute("name") String name,
+                                        @PluginElement("Layout") Layout<? extends Serializable> layout,
+                                        @PluginElement("Filter") final Filter filter,
+                                        @PluginAttribute("accessToken") String accessToken,
+                                        @PluginAttribute("environment") String environment) {
+    boolean isNoopLogger = false;
+    Appender appender;
 
     if (name == null) {
       LOGGER.error("No name provided for RollbarLog4j2Appender");
       return null;
     }
 
+    appender = NullAppender.createAppender(name);
+
     if (accessToken == null || accessToken.isEmpty()) {
       LOGGER.error("'accessToken' must be set for RollbarLog4j2Appender");
-      return null;
+      isNoopLogger = true;
     }
 
     if (environment == null || environment.isEmpty()) {
-      LOGGER.error("'environment' must be set for RollbarLog4j2Appender");
-      return null;
+      LOGGER.warn("Defaulting 'environment' to 'production'");
+      environment = "production";
     }
 
     if (layout == null) {
       layout = PatternLayout.createDefaultLayout();
     }
 
-    ConfigBuilder config = withAccessToken(accessToken)
-      .environment(environment);
+    if (!isNoopLogger) {
+      ConfigBuilder config = withAccessToken(accessToken)
+        .environment(environment);
 
-    try {
-      String hostName = InetAddress.getLocalHost().getHostName();
-      config.server(new Server.Builder().host(hostName)::build);
-    } catch (UnknownHostException | IllegalArgumentException e) {
-      LOGGER.error("unable to get hostname", e);
+      try {
+        String hostName = InetAddress.getLocalHost().getHostName();
+        config.server(new Server.Builder().host(hostName)::build);
+      } catch (UnknownHostException | IllegalArgumentException e) {
+        LOGGER.error("unable to get hostname", e);
+      }
+
+      final Rollbar rollbar = Rollbar.init(config.build());
+      appender = new RollbarLog4j2Appender(name, filter, layout, false, rollbar);
     }
 
-    Rollbar rollbar = Rollbar.init(config.build());
-    return new RollbarLog4j2Appender(name, filter, layout, true, rollbar);
+    return appender;
   }
 
   public void append(LogEvent event) {
