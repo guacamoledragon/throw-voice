@@ -21,14 +21,14 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.squareup</groupId>
-      <artifactId>tape</artifactId>
-      <version>1.2.3</version>
-    </dependency>
-    <dependency>
       <groupId>com.rollbar</groupId>
       <artifactId>rollbar-java</artifactId>
       <version>1.0.0</version>
+    </dependency>
+    <dependency>
+      <groupId>com.squareup</groupId>
+      <artifactId>tape</artifactId>
+      <version>1.2.3</version>
     </dependency>
     <dependency>
       <groupId>de.sciss</groupId>
@@ -39,6 +39,16 @@
       <groupId>net.dv8tion</groupId>
       <artifactId>JDA</artifactId>
       <version>3.3.1_303</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
+      <version>2.10.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-slf4j-impl</artifactId>
+      <version>2.10.0</version>
     </dependency>
     <dependency>
       <groupId>org.jetbrains.exposed</groupId>
@@ -248,17 +258,17 @@
 
   <repositories>
     <repository>
-      <id>jcenter</id>
-      <name>jcenter-bintray</name>
-      <url>http://jcenter.bintray.com</url>
-    </repository>
-    <repository>
+      <id>bintray-kotlin-exposed</id>
+      <name>bintray</name>
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
-      <id>bintray-kotlin-exposed</id>
-      <name>bintray</name>
       <url>http://dl.bintray.com/kotlin/exposed</url>
+    </repository>
+    <repository>
+      <id>jcenter</id>
+      <name>jcenter-bintray</name>
+      <url>http://jcenter.bintray.com</url>
     </repository>
   </repositories>
 
