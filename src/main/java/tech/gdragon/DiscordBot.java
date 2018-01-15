@@ -4,7 +4,6 @@ import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import tech.gdragon.commands.CommandHandler;
 import tech.gdragon.commands.audio.Clip;
 import tech.gdragon.commands.audio.EchoCommand;
@@ -56,11 +55,6 @@ public class DiscordBot {
       // the waiting can be interrupted. This is the exception that would fire in that situation.
       //As a note: in this extremely simplified example this will never occur. In fact, this will never occur unless
       // you use buildBlocking in a thread that has the possibility of being interrupted (async thread usage and interrupts)
-      e.printStackTrace();
-    } catch (RateLimitedException e) {
-      //The login process is one which can be ratelimited. If you attempt to login in multiple times, in rapid succession
-      // (multiple times a second), you would hit the ratelimit, and would see this exception.
-      //As a note: It is highly unlikely that you will ever see the exception here due to how infrequent login is.
       e.printStackTrace();
     } catch (Exception e) {
       e.printStackTrace();

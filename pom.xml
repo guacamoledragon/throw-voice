@@ -38,7 +38,7 @@
     <dependency>
       <groupId>net.dv8tion</groupId>
       <artifactId>JDA</artifactId>
-      <version>3.3.1_303</version>
+      <version>3.5.0_327</version>
     </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>

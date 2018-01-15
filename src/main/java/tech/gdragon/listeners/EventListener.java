@@ -248,7 +248,7 @@ public class EventListener extends ListenerAdapter {
       return guild.getSettings().getPrefix();
     });
 
-    String rawContent = event.getMessage().getContent();
+    String rawContent = event.getMessage().getContentDisplay();
     if (rawContent.startsWith(prefix)) {
       // TODO: handle any CommandHandler exceptions here
       CommandHandler.handleCommand(event, CommandHandler.parser.parse(rawContent.toLowerCase(), prefix));
@@ -262,8 +262,10 @@ public class EventListener extends ListenerAdapter {
     if (event.getAuthor() == null || event.getAuthor().isBot())
       return;
 
-    if (event.getMessage().getContent().startsWith("!alerts")) {
-      if (event.getMessage().getContent().endsWith("off")) {
+    String message = event.getMessage().getContentDisplay();
+
+    if (message.startsWith("!alerts")) {
+      if (message.endsWith("off")) {
         for (Guild g : event.getJDA().getGuilds()) {
           if (g.getMember(event.getAuthor()) != null) {
             Shim.INSTANCE.xaction(() -> {
@@ -274,7 +276,7 @@ public class EventListener extends ListenerAdapter {
         }
         event.getChannel().sendMessage("Alerts now off, message `!alerts on` to re-enable at any time").queue();
 
-      } else if (event.getMessage().getContent().endsWith("on")) {
+      } else if (message.endsWith("on")) {
         for (Guild g : event.getJDA().getGuilds()) {
           if (g.getMember(event.getAuthor()) != null) {
             Shim.INSTANCE.xaction(() -> {
@@ -291,7 +293,7 @@ public class EventListener extends ListenerAdapter {
       }
 
         /* removed because prefix and aliases are dependent on guild, which cannot be assumed without a message sent from guild
-        } else if (event.getMessage().getContent().startsWith("!help")) {
+        } else if (message.startsWith("!help")) {
 
             EmbedBuilder embed = new EmbedBuilder();
             embed.setAuthor("Discord Echo", "http://DiscordEcho.com/", event.getJDA().getSelfUser().getAvatarUrl());
