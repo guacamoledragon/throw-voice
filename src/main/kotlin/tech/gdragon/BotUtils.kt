@@ -71,7 +71,7 @@ object BotUtils {
     textChannel
       ?.sendMessage("\u200B$msg")
       ?.queue(
-        { m -> logger.debug("Successful Message: ${m.content}") },
+        { m -> logger.debug("Successful Message: ${m.contentDisplay}") },
         { t -> logger.error("Error Sending: $msg on ${textChannel.name}", t) }
       )
   }

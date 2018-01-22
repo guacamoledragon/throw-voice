@@ -4,9 +4,6 @@ import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
-import tech.gdragon.db.dao.Alias
-import tech.gdragon.db.dao.Guild
-import tech.gdragon.db.dao.Settings
 import tech.gdragon.db.table.Tables
 import java.sql.Connection
 
