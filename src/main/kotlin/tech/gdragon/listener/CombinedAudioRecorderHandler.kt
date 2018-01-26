@@ -14,6 +14,7 @@ import net.dv8tion.jda.core.entities.TextChannel
 import net.dv8tion.jda.core.entities.VoiceChannel
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
+import synapticloop.b2.B2ApiClient
 import tech.gdragon.BotUtils
 import tech.gdragon.db.dao.Guild
 import java.io.ByteArrayOutputStream
@@ -29,12 +30,13 @@ import kotlin.concurrent.thread
 
 class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceChannel) : AudioReceiveHandler {
   companion object {
-    private const val AFK_LIMIT = (2 * 60 * 1000) / 20      // 2 minutes in ms over 20ms increments
-    private const val MAX_RECORDING_SIZE = 8 * 1024 * 1024  // 8MB
-    private const val BUFFER_TIMEOUT = 200L                 // 200 milliseconds
+    private const val AFK_LIMIT = (2 * 60 * 1000) / 20                      // 2 minutes in ms over 20ms increments
+    private const val MAX_RECORDING_MB = 110
+    private const val MAX_RECORDING_SIZE = MAX_RECORDING_MB * 1024 * 1024   // 8MB
+    private const val BUFFER_TIMEOUT = 200L                                 // 200 milliseconds
     private const val BUFFER_MAX_COUNT = 8
-    private const val BITRATE = 128                         // 128 kpbs
-    private const val BYTES_PER_SECOND = 16_000L            // 128 kbps == 16000 bytes per second
+    private const val BITRATE = 128                                         // 128 kpbs
+    private const val BYTES_PER_SECOND = 16_000L                            // 128 kbps == 16000 bytes per second
   }
 
   private val logger = LoggerFactory.getLogger(this.javaClass)
@@ -51,6 +53,12 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
   private var filename: String? = null
   private var queueFilename: String? = null
   private var recordingSize: Int = 0
+
+  private val accountId = ""
+  private val accountKey = ""
+  private val bucketId = "24d0288c1d2017ab60150a1d"
+//  val filename = "pawabot/recordings/333055724198559745/alone.pcm"
+  private val b2Client = B2ApiClient(accountId, accountKey)
 
   init {
     subscription = createRecording()
@@ -196,20 +204,25 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
     if (recording.length() < MAX_RECORDING_SIZE) {
 
       val message = MessageBuilder().also {
-        it.append("Unfortunately, current recordings are limited to the last 8MB recorded. Increasing limit in upcoming releases.")
+        it.append("Unfortunately, current recordings are limited to the last ${MAX_RECORDING_MB}MB recorded.")
         it.append("\nRecording for $voiceChannelName in $guildName.")
       }
 
-      channel
-        ?.sendFile(recording, recording.name, message.build())
-        ?.queue(null, { BotUtils.sendMessage(channel, "I don't have permissions to send files in ${channel.name}!") })
+      b2Client.uploadFile(bucketId, "$guildName/${recording.name}", recording)
+      BotUtils.sendMessage(channel, "Unfortunately, current recordings are limited to the last ${MAX_RECORDING_MB}MB recorded.\n" +
+          "Recording for $voiceChannelName in $guildName.\n" +
+          "${TODO("Insert b2Client URL")}")
 
-      thread(start = true) {
+      /*channel
+        ?.sendFile(recording, recording.name, message.build())
+        ?.queue(null, { BotUtils.sendMessage(channel, "I don't have permissions to send files in ${channel.name}!") })*/
+
+      /*thread(start = true) {
         try {
           sleep((1000 * 20).toLong()) //20 second life for files sent to discord (no need to save)
         } catch (e: InterruptedException) {
           logger.error("Failed during sleep", e)
-        }
+        }*/
 
         val isDeleteSuccess = recording.delete()
 
@@ -219,7 +232,7 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
           logger.info("Successfully deleted file {}.", recording.name)
         else
           logger.error("Could not delete file {}.", recording.name)
-      }
+//      }
     } else {
       BotUtils.sendMessage(channel, "Could not upload to Discord, file too large: " + recordingSize + "MB.")
     }

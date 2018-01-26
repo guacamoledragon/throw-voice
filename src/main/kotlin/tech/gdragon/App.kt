@@ -9,11 +9,13 @@ import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
+import synapticloop.b2.B2ApiClient
 import tech.gdragon.db.Shim
 import tech.gdragon.db.dao.Alias
 import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.table.Tables
+import java.io.File
 import java.sql.Connection
 
 fun dropAllTables() {
@@ -87,9 +89,23 @@ fun testAlerts() {
     .buildBlocking()
 }
 
+fun uploadRecording() {
+  val accountId = ""
+  val accountKey = ""
+  val bucketId = "24d0288c1d2017ab60150a1d"
+  val filename = "pawabot/recordings/333055724198559745/alone.pcm"
+  val b2Client = B2ApiClient(accountId, accountKey)
+
+//  val result = b2Client.getFileInfo(filename)
+//  val result = b2Client.uploadFile(bucketId, "recordings/333055724198559745/alone.pcm", File("recordings/alone.pcm"))
+
+  println("result = ${b2Client.downloadUrl}/file/$filename")
+}
+
 fun main(args: Array<String>) {
 //  testAlerts()
-  basicTest()
+//  basicTest()
 //  dropAllTables()
+  uploadRecording()
 
 }
