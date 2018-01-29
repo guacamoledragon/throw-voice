@@ -22,7 +22,7 @@ class Clip : Command {
       if (event.guild.audioManager.connectedChannel == null) {
         "I wasn't recording!"
       } else {
-        val voiceChannel = event.guild.audioManager.connectedChannel.name
+        val voiceChannel = event.guild.audioManager.connectedChannel
         val audioReceiveHandler = event.guild.audioManager.receiveHandler as CombinedAudioRecorderHandler
 
         try {

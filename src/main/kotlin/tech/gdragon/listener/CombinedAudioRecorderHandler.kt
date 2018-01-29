@@ -6,7 +6,6 @@ import io.reactivex.Observable
 import io.reactivex.disposables.Disposable
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
-import net.dv8tion.jda.core.MessageBuilder
 import net.dv8tion.jda.core.audio.AudioReceiveHandler
 import net.dv8tion.jda.core.audio.CombinedAudio
 import net.dv8tion.jda.core.audio.UserAudio
@@ -20,7 +19,6 @@ import tech.gdragon.db.dao.Guild
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
-import java.lang.Thread.sleep
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
@@ -40,6 +38,8 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
   }
 
   private val logger = LoggerFactory.getLogger(this.javaClass)
+  val bucketId: String = System.getenv("B2_BUCKET_ID") ?: ""
+  val bucketName: String = System.getenv("B2_BUCKET_NAME") ?: ""
 
   // State-licious
   private var subject: Subject<CombinedAudio>? = null
@@ -54,14 +54,24 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
   private var queueFilename: String? = null
   private var recordingSize: Int = 0
 
-  private val accountId = ""
-  private val accountKey = ""
-  private val bucketId = "24d0288c1d2017ab60150a1d"
-//  val filename = "pawabot/recordings/333055724198559745/alone.pcm"
-  private val b2Client = B2ApiClient(accountId, accountKey)
+  private var b2Client: B2ApiClient? = null
 
   init {
     subscription = createRecording()
+
+    val accountId: String = System.getenv("B2_ACCOUNT_ID") ?: ""
+    val accountKey: String = System.getenv("B2_APP_KEY") ?: ""
+
+    if (accountId.isNotBlank() && accountKey.isNotBlank() && bucketId.isNotBlank()) {
+      b2Client = B2ApiClient(accountId, accountKey)
+    } else {
+      logger.warn("""|B2 client is not configured correctly, missing information.
+                     |accountId: {}
+                     |accountKey: {}
+                     |bucketId: {}
+                     |bucketName: {}
+                     |""".trimMargin(), accountId, accountKey, bucketId, bucketName)
+    }
   }
 
   /**
@@ -124,7 +134,7 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
         queue.add(bytes)
         recordingSize += bytes.size
       })
-      ?.subscribe({_, e ->
+      ?.subscribe({ _, e ->
         e?.let {
           logger.error("An error occurred in the recording pipeline.", it)
         }
@@ -155,13 +165,13 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
       recording.name, voiceChannel?.name, voiceChannel?.guild?.name, recordingSizeInMB)
     logger.debug("Recording size in bytes: {}", recordingSize)
 
-    uploadRecording(recording, recordingSizeInMB, voiceChannel?.name, voiceChannel?.guild?.name, textChannel)
+    uploadRecording(recording, recordingSizeInMB, voiceChannel, textChannel)
 
     // Resume recording
     subscription = createRecording()
   }
 
-  fun saveClip(seconds: Long, voiceChannel: String?, channel: TextChannel?) {
+  fun saveClip(seconds: Long, voiceChannel: VoiceChannel?, channel: TextChannel?) {
     // Stop recording so that we can copy Queue File
     canReceive = false
 
@@ -177,7 +187,7 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
     var clipRecordingSize = recordingSize.toLong()
 
     // Reduce the queue size until it's just over the expected clip size
-    while(clipRecordingSize - queueFile.peek().size > BYTES_PER_SECOND * seconds) {
+    while (clipRecordingSize - queueFile.peek().size > BYTES_PER_SECOND * seconds) {
       queueFile.remove()
       clipRecordingSize -= queueFile.peek().size
     }
@@ -197,44 +207,41 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
     logger.info("Saving audio file '{}' from {} on {} of size {} MB.",
       recording.name, voiceChannel, channel?.guild?.name, recordingSizeInMB)
 
-    uploadRecording(recording, recordingSizeInMB, voiceChannel, channel?.guild?.name, channel)
+    uploadRecording(recording, recordingSizeInMB, voiceChannel, channel)
   }
 
-  private fun uploadRecording(recording: File, recordingSize: Double, voiceChannelName: String?, guildName: String?, channel: TextChannel?) {
+  private fun uploadRecording(recording: File, recordingSize: Double, voiceChannel: VoiceChannel?, channel: TextChannel?) {
+    val guildName = channel?.guild?.name
+
     if (recording.length() < MAX_RECORDING_SIZE) {
 
-      val message = MessageBuilder().also {
-        it.append("Unfortunately, current recordings are limited to the last ${MAX_RECORDING_MB}MB recorded.")
-        it.append("\nRecording for $voiceChannelName in $guildName.")
+      if (bucketId.isNotBlank()) {
+        val b2ClientUrl = b2Client?.downloadUrl
+        val b2Filename = "${channel?.guild?.id}/${recording.name}"
+
+        logger.info("Preparing to upload recording to: {}", "$b2ClientUrl/file/$b2Filename")
+
+        val result = b2Client?.uploadFile(bucketId, b2Filename, recording)
+
+        logger.info("Finished uploading file: {}", result?.fileName)
+
+        val recordingBaseUrl = (System.getenv("RECORDING_BASE_URL") ?: "$b2ClientUrl/file") + "/$bucketName"
+        val recordingUrl = "$recordingBaseUrl/$b2Filename"
+
+        val message = """|Recording for <#${voiceChannel?.id}> in `$guildName`.
+                         |:microphone2: $recordingUrl
+                         |
+                         |_Unfortunately, current recordings are limited to the last ${MAX_RECORDING_MB}MB recorded._
+                         |""".trimMargin()
+
+        BotUtils.sendMessage(channel, message)
+
+        cleanup(recording)
+      } else {
+        logger.warn("B2 Bucket ID not set.")
       }
-
-      b2Client.uploadFile(bucketId, "$guildName/${recording.name}", recording)
-      BotUtils.sendMessage(channel, "Unfortunately, current recordings are limited to the last ${MAX_RECORDING_MB}MB recorded.\n" +
-          "Recording for $voiceChannelName in $guildName.\n" +
-          "${TODO("Insert b2Client URL")}")
-
-      /*channel
-        ?.sendFile(recording, recording.name, message.build())
-        ?.queue(null, { BotUtils.sendMessage(channel, "I don't have permissions to send files in ${channel.name}!") })*/
-
-      /*thread(start = true) {
-        try {
-          sleep((1000 * 20).toLong()) //20 second life for files sent to discord (no need to save)
-        } catch (e: InterruptedException) {
-          logger.error("Failed during sleep", e)
-        }*/
-
-        val isDeleteSuccess = recording.delete()
-
-        logger.info("Deleting file {}...", recording.name)
-
-        if (isDeleteSuccess)
-          logger.info("Successfully deleted file {}.", recording.name)
-        else
-          logger.error("Could not delete file {}.", recording.name)
-//      }
     } else {
-      BotUtils.sendMessage(channel, "Could not upload to Discord, file too large: " + recordingSize + "MB.")
+      BotUtils.sendMessage(channel, "Could not upload, file too large: " + recordingSize + "MB.")
     }
   }
 
@@ -248,6 +255,16 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
       File(queueFilename).delete()
     }
 
+  }
+
+  private fun cleanup(recording: File) {
+    val isDeleteSuccess = recording.delete()
+    logger.info("Deleting file {}...", recording.name)
+
+    if (isDeleteSuccess)
+      logger.info("Successfully deleted file {}.", recording.name)
+    else
+      logger.error("Could not delete file {}.", recording.name)
   }
 
   override fun canReceiveUser(): Boolean = false
