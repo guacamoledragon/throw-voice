@@ -1,6 +1,7 @@
 package tech.gdragon
 
 import net.dv8tion.jda.core.EmbedBuilder
+import net.dv8tion.jda.core.entities.Message
 import net.dv8tion.jda.core.entities.TextChannel
 import net.dv8tion.jda.core.entities.VoiceChannel
 import net.dv8tion.jda.core.exceptions.InsufficientPermissionException
@@ -69,7 +70,7 @@ object BotUtils {
   @JvmStatic
   fun sendMessage(textChannel: TextChannel?, msg: String) {
     textChannel
-      ?.sendMessage("\u200B$msg")
+      ?.sendMessage(msg)
       ?.queue(
         { m -> logger.debug("Successful Message: ${m.contentDisplay}") },
         { t -> logger.error("Error Sending: $msg on ${textChannel.name}", t) }
