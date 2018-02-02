@@ -19,11 +19,12 @@ class Save : Command {
 
     val message =
       if (event.guild.audioManager.connectedChannel == null) {
-        "I wasn't recording!"
+        "_:no_entry_sign: I wasn't recording!_"
       } else {
         val voiceChannel = event.guild.audioManager.connectedChannel
         val audioReceiveHandler = event.guild.audioManager.receiveHandler as CombinedAudioRecorderHandler
 
+        BotUtils.sendMessage(event.channel, ":floppy_disk: **Saving <#${voiceChannel.id}> recording...**")
         if (args.isEmpty()) {
           audioReceiveHandler.saveRecording(voiceChannel, event.channel)
           ""
@@ -32,7 +33,7 @@ class Save : Command {
           val channels = event.guild.getTextChannelsByName(channelName, true)
 
           if (channels.isEmpty()) {
-            "Cannot find $channelName."
+            "_:no_entry_sign: Cannot find $channelName._"
           } else {
             channels.forEach { audioReceiveHandler.saveRecording(voiceChannel, it) }
             ""
@@ -46,5 +47,5 @@ class Save : Command {
 
   override fun usage(prefix: String): String = "${prefix}save | ${prefix}save [text channel output]"
 
-  override fun description(): String = "Saves the current recording and outputs it to the current or specified text chats (caps at 16MB)."
+  override fun description(): String = "Saves the current recording and outputs it to the current or specified text channel."
 }
