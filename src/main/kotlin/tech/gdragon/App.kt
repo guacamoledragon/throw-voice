@@ -9,11 +9,13 @@ import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
+import synapticloop.b2.B2ApiClient
 import tech.gdragon.db.Shim
 import tech.gdragon.db.dao.Alias
 import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.table.Tables
+import java.io.File
 import java.sql.Connection
 
 fun dropAllTables() {
@@ -87,9 +89,26 @@ fun testAlerts() {
     .buildBlocking()
 }
 
+fun uploadRecording() {
+  val accountId = ""
+  val accountKey = ""
+  val bucketId = ""
+  val filename = "333055724198559745/e05ee74e-d15d-4f0d-84b4-0aabd0fc9700.mp3"
+  val b2Client = B2ApiClient(accountId, accountKey)
+
+//  val result = b2Client.downloadUrl
+  val file = File("recordings/e05ee74e-d15d-4f0d-84b4-0aabd0fc9700.mp3")
+//  val result = b2Client.uploadFile(bucketId, filename, file)
+
+//  println("result = $result")
+
+//  println("result = ${b2Client.downloadUrl}/file/$filename")
+}
+
 fun main(args: Array<String>) {
 //  testAlerts()
-  basicTest()
+//  basicTest()
 //  dropAllTables()
+  uploadRecording()
 
 }

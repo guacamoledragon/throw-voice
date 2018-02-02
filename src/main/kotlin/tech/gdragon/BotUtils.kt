@@ -24,9 +24,9 @@ object BotUtils {
       val guild = Guild.findById(voiceChannel?.guild?.idLong ?: 0)
       val blackList = guild?.settings?.alertBlacklist
       val message = EmbedBuilder()
-        .setAuthor("pawabot", "https://github.com/guacamoledragon/throw-voice", voiceChannel?.jda?.selfUser?.avatarUrl)
+        .setAuthor("pawa", "https://www.pawabot.site/", voiceChannel?.jda?.selfUser?.avatarUrl)
         .setColor(Color.RED)
-        .setTitle("Your audio is now being recorded in ${voiceChannel?.name} on ${voiceChannel?.guild?.name}.")
+        .setTitle("Your audio is now being recorded in ${voiceChannel?.name} on `${voiceChannel?.guild?.name}`.")
         .setDescription("Disable this alert with `${guild?.settings?.prefix}alerts off`")
         .setThumbnail("http://www.freeiconspng.com/uploads/alert-icon-png-red-alert-round-icon-clip-art-3.png")
         .setTimestamp(OffsetDateTime.now())
@@ -69,10 +69,10 @@ object BotUtils {
   @JvmStatic
   fun sendMessage(textChannel: TextChannel?, msg: String) {
     textChannel
-      ?.sendMessage("\u200B$msg")
+      ?.sendMessage(msg)
       ?.queue(
-        { m -> logger.debug("Successful Message: ${m.contentDisplay}") },
-        { t -> logger.error("Error Sending: $msg on ${textChannel.name}", t) }
+        { m -> logger.debug("{}#{}: Send message - {}", m.guild.name, m.channel.name, m.contentDisplay) },
+        { t -> logger.error("${textChannel.guild.name}#${textChannel.name}: Error sending message - $msg", t) }
       )
   }
 
@@ -86,14 +86,14 @@ object BotUtils {
 
   @JvmStatic
   fun joinVoiceChannel(voiceChannel: VoiceChannel?, warning: Boolean) {
-    logger.info("Joining '{}' voice channel in {}.", voiceChannel?.name, voiceChannel?.guild?.name)
+    logger.info("{}#{}: Joining voice channel", voiceChannel?.guild?.name, voiceChannel?.name)
 
     if (voiceChannel == voiceChannel?.guild?.afkChannel) {
       if (warning) {
         transaction {
           val settings = Guild.findById(voiceChannel?.guild?.idLong ?: 0L)?.settings
           val channel = voiceChannel?.guild?.getTextChannelById(settings?.defaultTextChannel ?: 0L)
-          sendMessage(channel, "I don't join afk channels!")
+          sendMessage(channel, ":no_entry_sign: _I'm not allowed to join AFK channels._")
         }
       }
     }
@@ -111,7 +111,7 @@ object BotUtils {
       transaction {
         val settings = Guild.findById(voiceChannel?.guild?.idLong ?: 0L)?.settings
         val channel = voiceChannel?.guild?.getTextChannelById(settings?.defaultTextChannel ?: 0L)
-        sendMessage(channel, "I don't have permission to join ${voiceChannel?.name}!")
+        sendMessage(channel, ":no_entry_sign: _I don't have permission to join **<#${voiceChannel?.id}>**._")
       }
     }
   }
@@ -126,11 +126,11 @@ object BotUtils {
       disconnect()
     }
 
-    logger.info("Leaving '{}' voice channel in {}", voiceChannel?.name, guild?.name)
+    logger.info("{}#{}: Leaving voice channel", guild?.name, voiceChannel?.name)
     audioManager?.apply {
       setReceivingHandler(null)
       closeAudioConnection()
-      logger.info("Destroyed audio handlers for {}", guild.name)
+      logger.info("{}#{}: Destroyed audio handlers", guild.name, voiceChannel.name)
     }
   }
 }

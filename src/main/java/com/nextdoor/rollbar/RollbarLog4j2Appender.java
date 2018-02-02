@@ -87,7 +87,7 @@ public class RollbarLog4j2Appender extends AbstractAppender {
       } catch (UnknownHostException | IllegalArgumentException e) {
         LOGGER.error("unable to get hostname", e);
       }
-
+      config.handleUncaughtErrors(true);
       final Rollbar rollbar = Rollbar.init(config.build());
       appender = new RollbarLog4j2Appender(name, filter, layout, false, rollbar);
     }

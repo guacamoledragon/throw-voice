@@ -20,11 +20,11 @@ class Join : Command {
       val voiceChannel = event.member.voiceState.channel
       val message =
         if(voiceChannel == null) {
-          "You need to be in a voice channel to use this command!"
+          ":no_entry_sign: _Please join a voice channel before using this command._"
         } else {
           val connectedChannel = event.guild.audioManager.connectedChannel
           if(connectedChannel != null && connectedChannel.members.contains(event.member)) {
-            "I am already in your channel!"
+            ":no_entry_sign: _I am already in **<#${connectedChannel.id}>**._"
           } else {
 
             if(event.guild.audioManager.isConnected) {
@@ -38,7 +38,7 @@ class Join : Command {
             }
 
             BotUtils.joinVoiceChannel(voiceChannel, true)
-            "Joining ${voiceChannel.name}."
+            ":red_circle: **Recording on <#${voiceChannel.id}>**"
           }
         }
 
@@ -48,5 +48,5 @@ class Join : Command {
 
   override fun usage(prefix: String): String = "${prefix}join"
 
-  override fun description(): String = "Force the bot to join and record your current channel."
+  override fun description(): String = "Ask the bot to join and record in your current channel."
 }
