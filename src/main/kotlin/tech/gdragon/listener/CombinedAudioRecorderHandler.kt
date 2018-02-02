@@ -84,12 +84,12 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
     val isAfk = afkCounter >= AFK_LIMIT
 
     if (isAfk) {
-      logger.info("AFK detected, leaving '{}' voice channel in {}", voiceChannel.name, voiceChannel.guild.name)
+      logger.info("{}#{}: AFK detected.", voiceChannel.guild.name, voiceChannel.name)
       transaction {
         Guild.findById(voiceChannel.guild.idLong)?.settings?.defaultTextChannel
       }?.let {
         val textChannel = voiceChannel.guild.getTextChannelById(it)
-        BotUtils.sendMessage(textChannel, "No audio for 2 minutes, leaving from AFK detection...")
+        BotUtils.sendMessage(textChannel, "_:sleeping: No audio detected in the last 2 minutes, leaving <#${voiceChannel.id}>._")
       }
 
       thread(start = true) {
@@ -110,7 +110,7 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
 
     val encoder = LameEncoder(AudioReceiveHandler.OUTPUT_FORMAT, BITRATE, LameEncoder.CHANNEL_MODE_AUTO, LameEncoder.QUALITY_HIGHEST, false)
 
-
+    logger.info("{}#{}: Creating recording file - {}", voiceChannel.guild.name, voiceChannel.name, queueFilename)
     return subject
       ?.map { it.getAudioData(volume) }
       ?.buffer(BUFFER_TIMEOUT, TimeUnit.MILLISECONDS, BUFFER_MAX_COUNT)
@@ -161,8 +161,7 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
 
     val recordingSizeInMB = recording.length().toDouble() / 1024 / 1024
 
-    logger.info("Saving audio file '{}' from {} on {} of size {} MB.",
-      recording.name, voiceChannel?.name, voiceChannel?.guild?.name, recordingSizeInMB)
+    logger.info("{}#{}: Saving audio file {} - {}MB.",  voiceChannel?.guild?.name, voiceChannel?.name, recording.name, recordingSizeInMB)
     logger.debug("Recording size in bytes: {}", recordingSize)
 
     uploadRecording(recording, recordingSizeInMB, voiceChannel, textChannel)
@@ -212,6 +211,7 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
 
   private fun uploadRecording(recording: File, recordingSize: Double, voiceChannel: VoiceChannel?, channel: TextChannel?) {
     val guildName = channel?.guild?.name
+    val voiceChannelName = voiceChannel?.name
 
     if (recording.length() < MAX_RECORDING_SIZE) {
 
@@ -219,19 +219,17 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
         val b2ClientUrl = b2Client?.downloadUrl
         val b2Filename = "${channel?.guild?.id}/${recording.name}"
 
-        logger.info("Preparing to upload recording to: {}", "$b2ClientUrl/file/$b2Filename")
+        logger.info("{}#{}: Ready to upload recording to - {}", guildName, voiceChannelName, "$b2ClientUrl/file/$b2Filename")
 
         val result = b2Client?.uploadFile(bucketId, b2Filename, recording)
 
-        logger.info("Finished uploading file: {}", result?.fileName)
+        logger.info("{}#{}: Finished uploading file - {}", guildName, voiceChannelName, result?.fileName)
 
         val recordingBaseUrl = (System.getenv("RECORDING_BASE_URL") ?: "$b2ClientUrl/file") + "/$bucketName"
         val recordingUrl = "$recordingBaseUrl/$b2Filename"
 
-        val message = """|Recording for **<#${voiceChannel?.id}>** in `$guildName`.
-                         |:microphone2: $recordingUrl
-                         |
-                         |_Unfortunately, current recordings are limited to the last ${MAX_RECORDING_MB}MB recorded._
+        val message = """|:microphone2: **Recording <#${voiceChannel?.id}> has been uploaded!**
+                         |$recordingUrl
                          |""".trimMargin()
 
         BotUtils.sendMessage(channel, message)
