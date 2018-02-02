@@ -19,7 +19,7 @@ class Save : Command {
 
     val message =
       if (event.guild.audioManager.connectedChannel == null) {
-        "_:no_entry_sign: I wasn't recording!_"
+        ":no_entry_sign: _I am not currently recording._"
       } else {
         val voiceChannel = event.guild.audioManager.connectedChannel
         val audioReceiveHandler = event.guild.audioManager.receiveHandler as CombinedAudioRecorderHandler
@@ -33,7 +33,7 @@ class Save : Command {
           val channels = event.guild.getTextChannelsByName(channelName, true)
 
           if (channels.isEmpty()) {
-            "_:no_entry_sign: Cannot find $channelName._"
+            ":no_entry_sign: _Cannot find $channelName._"
           } else {
             channels.forEach { audioReceiveHandler.saveRecording(voiceChannel, it) }
             ""

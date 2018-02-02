@@ -93,7 +93,7 @@ object BotUtils {
         transaction {
           val settings = Guild.findById(voiceChannel?.guild?.idLong ?: 0L)?.settings
           val channel = voiceChannel?.guild?.getTextChannelById(settings?.defaultTextChannel ?: 0L)
-          sendMessage(channel, "_:no_entry_sign: I'm not allowed to join AFK channels._")
+          sendMessage(channel, ":no_entry_sign: _I'm not allowed to join AFK channels._")
         }
       }
     }
@@ -111,7 +111,7 @@ object BotUtils {
       transaction {
         val settings = Guild.findById(voiceChannel?.guild?.idLong ?: 0L)?.settings
         val channel = voiceChannel?.guild?.getTextChannelById(settings?.defaultTextChannel ?: 0L)
-        sendMessage(channel, "_:no_entry_sign: I don't have permission to join ${voiceChannel?.name}!_")
+        sendMessage(channel, ":no_entry_sign: _I don't have permission to join **<#${voiceChannel?.id}>**._")
       }
     }
   }
