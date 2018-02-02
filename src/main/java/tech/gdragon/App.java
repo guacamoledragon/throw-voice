@@ -44,18 +44,19 @@ public final class App extends NanoHTTPD {
    * Starts a simple HTTP Service, whose only response is to redirect to the bot's page.
    */
   public static void main(String[] args) {
-    // Connect to database
-    Shim.INSTANCE.initializeDatabase("settings.db");
-
     String token = System.getenv("BOT_TOKEN");
     String port = System.getenv("PORT");
     String clientId = System.getenv("CLIENT_ID");
+    String dataDirectory = System.getenv("DATA_DIR");
+
+    // Connect to database
+    Shim.INSTANCE.initializeDatabase(dataDirectory + "/settings.db");
 
     App app = new App(Integer.parseInt(port), clientId);
 
     // HACK: Create directory here cause for some reason it doesn't get created otherwise
     try {
-      Files.createDirectories(Paths.get("recordings/"));
+      Files.createDirectories(Paths.get(dataDirectory + "/recordings/"));
     } catch (IOException e) {
       logger.error("Could not create recordings directory", e);
     }
