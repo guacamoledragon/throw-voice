@@ -228,7 +228,7 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
         val recordingBaseUrl = (System.getenv("RECORDING_BASE_URL") ?: "$b2ClientUrl/file") + "/$bucketName"
         val recordingUrl = "$recordingBaseUrl/$b2Filename"
 
-        val message = """|Recording for <#${voiceChannel?.id}> in `$guildName`.
+        val message = """|Recording for **<#${voiceChannel?.id}>** in `$guildName`.
                          |:microphone2: $recordingUrl
                          |
                          |_Unfortunately, current recordings are limited to the last ${MAX_RECORDING_MB}MB recorded._
