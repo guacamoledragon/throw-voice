@@ -27,6 +27,6 @@ WORKDIR /root/
 
 COPY --from=0 /src/target/lib lib/
 COPY --from=0 /src/target/throw-voice-*.jar throw-voice.jar
-VOLUME recordings/
+VOLUME /app/data/
 
 CMD ["/usr/bin/java", "-cp", "throw-voice.jar:lib/*", "tech.gdragon.App"]

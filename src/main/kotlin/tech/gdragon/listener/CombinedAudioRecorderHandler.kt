@@ -40,6 +40,7 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
   private val logger = LoggerFactory.getLogger(this.javaClass)
   val bucketId: String = System.getenv("B2_BUCKET_ID") ?: ""
   val bucketName: String = System.getenv("B2_BUCKET_NAME") ?: ""
+  val dataDirectory: String = System.getenv("DATA_DIR") ?: ""
 
   // State-licious
   private var subject: Subject<CombinedAudio>? = null
@@ -103,8 +104,8 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
   private fun createRecording(): Disposable? {
     subject = PublishSubject.create()
     uuid = UUID.randomUUID()
-    filename = "recordings/$uuid.mp3"
-    queueFilename = "recordings/$uuid.queue"
+    filename = "$dataDirectory/recordings/$uuid.mp3"
+    queueFilename = "$dataDirectory/recordings/$uuid.queue"
     queueFile = QueueFile(File(queueFilename))
     canReceive = true
 
@@ -175,7 +176,7 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
     canReceive = false
 
     val path = Paths.get(queueFilename)
-    val clipPath = Paths.get("recordings/clip-${UUID.randomUUID()}.queue")
+    val clipPath = Paths.get("$dataDirectory/recordings/clip-${UUID.randomUUID()}.queue")
 
     // Copy the original Queue File so that we can resume receiving audio
     Files.copy(path, clipPath, StandardCopyOption.REPLACE_EXISTING)
