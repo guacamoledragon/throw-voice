@@ -13,9 +13,6 @@
 [![Docker Pulls](https://img.shields.io/docker/pulls/gdragon/throw-voice.svg)](https://hub.docker.com/r/gdragon/throw-voice/)
 [![](https://images.microbadger.com/badges/version/gdragon/throw-voice.svg)](https://microbadger.com/images/gdragon/throw-voice "Get your own version badge on microbadger.com")
 
-**Full Disclosure: This is a highly modified fork of [ajm1996/DiscordEcho](https://github.com/ajm1996/DiscordEcho).**
-
-
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 # Contents
@@ -91,7 +88,7 @@ Replace `CLIENT_ID` and `BOT_TOKEN` with your correct values. The port isn't fix
 
 See the [Docker Hub](https://hub.docker.com/r/gdragon/throw-voice/) registry for more details on the container.
 
-### Heroku Button _Currently not working, see #17_
+### Heroku Button _Currently not working, see [#17](https://github.com/guacamoledragon/throw-voice/issues/17)_
 
 You can deploy on Heroku by clicking on the button below and entering the `CLIENT_ID` and `BOT_TOKEN`.
 
@@ -107,5 +104,5 @@ commands.
 
 ## Attributions
 
-- Japanese Dragon icon made by [Freepik](http://www.freepik.com) from [www.flaticon.com](http://www.flaticon.com) is licensed by [CC 3.0 BY](http://creativecommons.org/licenses/by/3.0/)
-- Original codebase by [ajm1996](https://github.com/ajm1996)
+- "Dragon" by [lastspark](https://thenounproject.com/lastspark) from [the Noun Project](http://thenounproject.com/).
+- Bot inspired by [ajm1996's](https://github.com/ajm1996) [DiscordEcho](https://github.com/ajm1996/DiscordEcho).
