@@ -3,11 +3,12 @@ package tech.gdragon
 import fi.iki.elonen.NanoHTTPD
 import org.slf4j.LoggerFactory
 import tech.gdragon.db.Shim
+import tech.gdragon.discord.Bot
 import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Paths
 
-class App private constructor(port: Int, val clientId: String) : NanoHTTPD(port) {
+class App private constructor(port: Int, val clientId: String, val inviteUrl: String) : NanoHTTPD(port) {
 
   override fun serve(session: NanoHTTPD.IHTTPSession): NanoHTTPD.Response {
     val uri = session.uri
@@ -16,10 +17,8 @@ class App private constructor(port: Int, val clientId: String) : NanoHTTPD(port)
     if (uri.toLowerCase().contains("ping")) {
       response = NanoHTTPD.newFixedLengthResponse("pong")
     } else {
-      // TODO We don't gotta hand jam this, api.asBot().getInviteUrl(...)
-      val botUrl = "https://discordapp.com/oauth2/authorize?client_id=" + this.clientId + "&scope=bot&permissions=" + DiscordBot.PERMISSIONS
       response = NanoHTTPD.newFixedLengthResponse(NanoHTTPD.Response.Status.REDIRECT, NanoHTTPD.MIME_HTML, "")
-      response.addHeader("Location", botUrl)
+      response.addHeader("Location", inviteUrl)
     }
 
     return response
@@ -42,7 +41,9 @@ class App private constructor(port: Int, val clientId: String) : NanoHTTPD(port)
       // Connect to database
       Shim.initializeDatabase(dataDirectory + "/settings.db")
 
-      val app = App(Integer.parseInt(port), clientId)
+      val bot = Bot(token)
+      val inviteUrl = bot.api.asBot().getInviteUrl(Bot.PERMISSIONS)
+      val app = App(Integer.parseInt(port), clientId, inviteUrl)
 
       try {
         val recordingsDir = dataDirectory + "/recordings/"
@@ -51,8 +52,6 @@ class App private constructor(port: Int, val clientId: String) : NanoHTTPD(port)
       } catch (e: IOException) {
         logger.error("Could not create recordings directory", e)
       }
-
-      DiscordBot(token)
 
       try {
         logger.info("Starting HTTP Server: http://localhost:" + port)
