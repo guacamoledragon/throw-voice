@@ -17,7 +17,7 @@ object CommandHandler {
   val parser = CommandParser()
   var commands = HashMap<String, Command>()
 
-  // TODO this guy needs to throw exceptions all the way to DiscordBot
+  // TODO this guy needs to throw exceptions all the way to EventListener
   @JvmStatic
   fun handleCommand(event: GuildMessageReceivedEvent, commandContainer: CommandContainer): Boolean {
     return transaction {

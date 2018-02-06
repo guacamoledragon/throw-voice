@@ -14,7 +14,7 @@ import tech.gdragon.commands.misc.Help
 import tech.gdragon.commands.misc.Join
 import tech.gdragon.commands.misc.Leave
 import tech.gdragon.commands.settings.*
-import tech.gdragon.listeners.EventListener
+import tech.gdragon.listener.EventListener
 import javax.security.auth.login.LoginException
 
 class Bot(token: String) {
