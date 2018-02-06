@@ -39,7 +39,7 @@ class Volume : Command {
     }
   }
 
-  override fun usage(prefix: String?): String = "${prefix}volume [1-100]"
+  override fun usage(prefix: String): String = "${prefix}volume [1-100]"
 
   override fun description(): String = "Sets the percentage volume to record at, from 1-100%"
 }
