@@ -16,7 +16,6 @@ import net.dv8tion.jda.core.managers.AudioManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tech.gdragon.BotUtils;
-import tech.gdragon.DiscordBot;
 import tech.gdragon.commands.CommandHandler;
 import tech.gdragon.db.Shim;
 import tech.gdragon.db.dao.Channel;
@@ -251,9 +250,9 @@ public class EventListener extends ListenerAdapter {
     String rawContent = event.getMessage().getContentDisplay();
     if (rawContent.startsWith(prefix)) {
       // TODO: handle any CommandHandler exceptions here
-      CommandHandler.handleCommand(event, CommandHandler.parser.parse(rawContent.toLowerCase(), prefix));
+      CommandHandler.handleCommand(event, CommandHandler.parser.parse(prefix, rawContent.toLowerCase()));
     } else if (rawContent.equals("!help")) { // force help to always work with "!" prefix
-      CommandHandler.handleCommand(event, CommandHandler.parser.parse(prefix + "help", prefix));
+      CommandHandler.handleCommand(event, CommandHandler.parser.parse(prefix, prefix + "help"));
     }
   }
 
