@@ -7,8 +7,8 @@ import net.dv8tion.jda.core.JDABuilder
 import net.dv8tion.jda.core.Permission
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.audio.Clip
-import tech.gdragon.commands.audio.EchoCommand
-import tech.gdragon.commands.audio.MessageInABottleCommand
+import tech.gdragon.commands.audio.Echo
+import tech.gdragon.commands.audio.MessageInABottle
 import tech.gdragon.commands.audio.Save
 import tech.gdragon.commands.misc.Help
 import tech.gdragon.commands.misc.Join
@@ -46,8 +46,8 @@ class Bot(token: String) {
 
       // Register audio commands
       CommandHandler.commands["clip"] = Clip()
-      CommandHandler.commands["echo"] = EchoCommand()
-      CommandHandler.commands["miab"] = MessageInABottleCommand()
+      CommandHandler.commands["echo"] = Echo()
+      CommandHandler.commands["miab"] = MessageInABottle()
       CommandHandler.commands["save"] = Save()
 
       // Register settings commands
