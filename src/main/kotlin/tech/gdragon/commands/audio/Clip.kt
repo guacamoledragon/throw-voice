@@ -8,7 +8,7 @@ import tech.gdragon.db.dao.Guild
 import tech.gdragon.listener.CombinedAudioRecorderHandler
 
 class Clip : Command {
-  override fun action(args: Array<out String>, event: GuildMessageReceivedEvent) {
+  override fun action(args: Array<String>, event: GuildMessageReceivedEvent) {
     val prefix = transaction {
       val guild = Guild.findById(event.guild.idLong)
       guild?.settings?.prefix ?: "!"

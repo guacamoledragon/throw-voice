@@ -9,7 +9,7 @@ class MessageInABottle : Command {
     BotUtils.sendMessage(event.channel, "`miab` has been deprecated, contact bot author if this functionality is desired.")
   }
 
-  override fun usage(prefix: String?): String = "${prefix}miab [seconds] [voice channel]"
+  override fun usage(prefix: String): String = "${prefix}miab [seconds] [voice channel]"
 
   override fun description(): String = "Echos back the input number of seconds of the recording into the voice channel specified and then rejoins original channel (max 120 seconds)"
 }

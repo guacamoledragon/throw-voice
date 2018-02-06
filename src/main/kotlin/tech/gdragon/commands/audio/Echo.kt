@@ -9,7 +9,7 @@ class Echo: Command {
     BotUtils.sendMessage(event.channel, "`echo` has been deprecated, contact bot author if this functionality is desired.")
   }
 
-  override fun usage(prefix: String?): String = "${prefix}echo [seconds]"
+  override fun usage(prefix: String): String = "${prefix}echo [seconds]"
 
   override fun description(): String = "Echos back the input number of seconds of the recording into the voice channel (max 120 seconds)"
 }
