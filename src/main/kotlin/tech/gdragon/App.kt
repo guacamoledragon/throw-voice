@@ -1,114 +1,64 @@
 package tech.gdragon
 
-import net.dv8tion.jda.core.AccountType
-import net.dv8tion.jda.core.JDABuilder
-import net.dv8tion.jda.core.events.guild.voice.GuildVoiceJoinEvent
-import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent
-import net.dv8tion.jda.core.hooks.ListenerAdapter
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.transactions.TransactionManager
-import org.jetbrains.exposed.sql.transactions.transaction
-import synapticloop.b2.B2ApiClient
+import fi.iki.elonen.NanoHTTPD
+import org.slf4j.LoggerFactory
 import tech.gdragon.db.Shim
-import tech.gdragon.db.dao.Alias
-import tech.gdragon.db.dao.Channel
-import tech.gdragon.db.dao.Guild
-import tech.gdragon.db.table.Tables
-import java.io.File
-import java.sql.Connection
+import tech.gdragon.discord.Bot
+import java.io.IOException
+import java.nio.file.Files
+import java.nio.file.Paths
 
-fun dropAllTables() {
-  val database = "settings.db"
-  Database.connect("jdbc:sqlite:$database", driver = "org.sqlite.JDBC")
-  TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_READ_UNCOMMITTED
+class App private constructor(port: Int, val clientId: String, val inviteUrl: String) : NanoHTTPD(port) {
 
-  transaction {
-    SchemaUtils.drop(*Tables.allTables)
-  }
-}
+  override fun serve(session: NanoHTTPD.IHTTPSession): NanoHTTPD.Response {
+    val uri = session.uri
 
-fun basicTest() {
-  val database = "settings.db"
-  Database.connect("jdbc:sqlite:$database", driver = "org.sqlite.JDBC", setupConnection = {
-    val statement = it.createStatement()
-    statement.executeUpdate("PRAGMA foreign_keys = ON")
-  })
-  TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_READ_UNCOMMITTED
+    val response: NanoHTTPD.Response
+    if (uri.toLowerCase().contains("ping")) {
+      response = NanoHTTPD.newFixedLengthResponse("pong")
+    } else {
+      response = NanoHTTPD.newFixedLengthResponse(NanoHTTPD.Response.Status.REDIRECT, NanoHTTPD.MIME_HTML, "")
+      response.addHeader("Location", inviteUrl)
+    }
 
-  transaction {
-    SchemaUtils.drop(*Tables.allTables)
-    SchemaUtils.create(*Tables.allTables)
+    return response
   }
 
-  val guild = Guild.findOrCreate(333055724198559745L, "Guacamole Dragon")
+  companion object {
 
-  transaction {
-    Channel.new(346340766039146506L) {
-      name = "bot-testing"
-      settings = guild.settings
+    private val logger = LoggerFactory.getLogger(App::class.java)
+
+    /**
+     * Starts a simple HTTP Service, whose only response is to redirect to the bot's page.
+     */
+    @JvmStatic
+    fun main(args: Array<String>) {
+      val token = System.getenv("BOT_TOKEN")
+      val port = System.getenv("PORT")
+      val clientId = System.getenv("CLIENT_ID")
+      val dataDirectory = System.getenv("DATA_DIR")
+
+      // Connect to database
+      Shim.initializeDatabase(dataDirectory + "/settings.db")
+
+      val bot = Bot(token)
+      val inviteUrl = bot.api.asBot().getInviteUrl(Bot.PERMISSIONS)
+      val app = App(Integer.parseInt(port), clientId, inviteUrl)
+
+      try {
+        val recordingsDir = dataDirectory + "/recordings/"
+        logger.info("Creating recordings directory: {}", recordingsDir)
+        Files.createDirectories(Paths.get(recordingsDir))
+      } catch (e: IOException) {
+        logger.error("Could not create recordings directory", e)
+      }
+
+      try {
+        logger.info("Starting HTTP Server: http://localhost:" + port)
+        app.start(NanoHTTPD.SOCKET_READ_TIMEOUT, false)
+      } catch (e: IOException) {
+        e.printStackTrace()
+      }
     }
   }
-
-  val aliases: List<Alias> = transaction { guild.settings.aliases.toList() }
-
-  aliases.forEach { println("${it.name} -> ${it.alias}") }
-}
-
-fun testBiggestChannel() {
-  Shim.initializeDatabase("settings.db")
-  JDABuilder(AccountType.BOT)
-    .setToken(System.getenv("TOKEN"))
-    .addEventListener(object : ListenerAdapter() {
-      override fun onGuildVoiceJoin(event: GuildVoiceJoinEvent) {
-        println("event.guild = ${event.guild}")
-        println("Joined ${event.channelJoined}")
-        println("Largest channel: ${BotUtils.biggestChannel(event.guild)}")
-        super.onGuildVoiceJoin(event)
-      }
-
-      override fun onGuildVoiceLeave(event: GuildVoiceLeaveEvent) {
-        println("Leaving ${event.channelLeft}")
-        super.onGuildVoiceLeave(event)
-      }
-    })
-    .buildBlocking()
-}
-
-fun testAlerts() {
-  Shim.initializeDatabase("settings.db")
-  JDABuilder(AccountType.BOT)
-    .setToken(System.getenv("TOKEN"))
-    .addEventListener(object : ListenerAdapter() {
-      override fun onGuildVoiceJoin(event: GuildVoiceJoinEvent?) {
-        println("Sending alerts to users that joined ${event?.channelJoined}.")
-        BotUtils.alert(event?.channelJoined)
-        super.onGuildVoiceJoin(event)
-      }
-    })
-    .buildBlocking()
-}
-
-fun uploadRecording() {
-  val accountId = ""
-  val accountKey = ""
-  val bucketId = ""
-  val filename = "333055724198559745/e05ee74e-d15d-4f0d-84b4-0aabd0fc9700.mp3"
-  val b2Client = B2ApiClient(accountId, accountKey)
-
-//  val result = b2Client.downloadUrl
-  val file = File("recordings/e05ee74e-d15d-4f0d-84b4-0aabd0fc9700.mp3")
-//  val result = b2Client.uploadFile(bucketId, filename, file)
-
-//  println("result = $result")
-
-//  println("result = ${b2Client.downloadUrl}/file/$filename")
-}
-
-fun main(args: Array<String>) {
-//  testAlerts()
-//  basicTest()
-//  dropAllTables()
-  uploadRecording()
-
 }
