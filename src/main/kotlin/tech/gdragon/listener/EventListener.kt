@@ -227,8 +227,6 @@ class EventListener : ListenerAdapter() {
     if (rawContent.startsWith(prefix)) {
       // TODO: handle any CommandHandler exceptions here
       CommandHandler.handleCommand(event, CommandHandler.parser.parse(prefix, rawContent.toLowerCase()))
-    } else if (rawContent == "!help") { // force help to always work with "!" prefix
-      CommandHandler.handleCommand(event, CommandHandler.parser.parse(prefix, prefix + "help"))
     }
   }
 
