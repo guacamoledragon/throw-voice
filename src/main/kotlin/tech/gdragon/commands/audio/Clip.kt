@@ -4,18 +4,14 @@ import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
 import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.BotUtils
 import tech.gdragon.commands.Command
+import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.listener.CombinedAudioRecorderHandler
 
 class Clip : Command {
   override fun action(args: Array<String>, event: GuildMessageReceivedEvent) {
-    val prefix = transaction {
-      val guild = Guild.findById(event.guild.idLong)
-      guild?.settings?.prefix ?: "!"
-    }
-
     require(args.size in 1..2) {
-      BotUtils.sendMessage(event.channel, usage(prefix))
+      throw InvalidCommand(::usage, "Incorrect number of arguments: ${args.size}")
     }
 
     val message =
@@ -43,7 +39,7 @@ class Clip : Command {
             }
           }
         } catch (e: NumberFormatException) {
-          usage(prefix)
+          throw InvalidCommand(::usage, "Could not parse arguments: ${e.message}")
         }
       }
 

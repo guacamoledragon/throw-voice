@@ -6,6 +6,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.BotUtils
 import tech.gdragon.commands.Command
 import tech.gdragon.commands.CommandHandler
+import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.db.dao.Guild
 import java.awt.Color
 
@@ -16,7 +17,7 @@ class Help : Command {
       val prefix = guild?.settings?.prefix ?: "!"
 
       require(args.isEmpty()) {
-        BotUtils.sendMessage(event.channel, usage(prefix))
+        throw InvalidCommand(::usage, "Empty arguments")
       }
 
       val disclaimer = """|**Depending on where you live, it _may_ be illegal to record without everyone's consent. Please

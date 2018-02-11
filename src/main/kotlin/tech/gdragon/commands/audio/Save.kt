@@ -4,17 +4,14 @@ import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
 import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.BotUtils
 import tech.gdragon.commands.Command
+import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.listener.CombinedAudioRecorderHandler
 
 class Save : Command {
   override fun action(args: Array<String>, event: GuildMessageReceivedEvent) {
     require(args.size in 0..1) {
-      transaction {
-        val guild = Guild.findById(event.guild.idLong)
-        val prefix = guild?.settings?.prefix ?: "!"
-        BotUtils.sendMessage(event.channel, usage(prefix))
-      }
+      throw InvalidCommand(::usage, "Incorrect number of arguments: ${args.size}")
     }
 
     val message =
