@@ -16,6 +16,7 @@ import net.dv8tion.jda.core.hooks.ListenerAdapter
 import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.BotUtils
 import tech.gdragon.commands.CommandHandler
+import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.dao.User
 import java.io.IOException
@@ -225,8 +226,13 @@ class EventListener : ListenerAdapter() {
 
     val rawContent = event.message.contentDisplay
     if (rawContent.startsWith(prefix)) {
-      // TODO: handle any CommandHandler exceptions here
-      CommandHandler.handleCommand(event, CommandHandler.parser.parse(prefix, rawContent.toLowerCase()))
+      try {
+        CommandHandler.handleCommand(event, CommandHandler.parser.parse(prefix, rawContent.toLowerCase()))
+      } catch (e: InvalidCommand) {
+        val channel = event.channel
+        BotUtils.sendMessage(channel, e.usage(prefix))
+        logger.error { "${event.guild.name}#${channel.name}: ${e.reason}" }
+      }
     }
   }
 

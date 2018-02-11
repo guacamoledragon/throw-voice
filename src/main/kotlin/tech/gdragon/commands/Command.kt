@@ -7,10 +7,13 @@ import tech.gdragon.db.dao.Guild
 import java.util.*
 
 interface Command {
+  @Throws(InvalidCommand::class)
   fun action(args: Array<String>, event: GuildMessageReceivedEvent)
   fun usage(prefix: String): String
   fun description(): String
 }
+
+data class InvalidCommand(val usage: (String) -> String, val reason: String) : Throwable()
 
 object CommandHandler {
   @JvmField
@@ -19,6 +22,7 @@ object CommandHandler {
 
   // TODO this guy needs to throw exceptions all the way to EventListener
   @JvmStatic
+  @Throws(InvalidCommand::class)
   fun handleCommand(event: GuildMessageReceivedEvent, commandContainer: CommandContainer): Boolean {
     return transaction {
       var isSuccess = false
