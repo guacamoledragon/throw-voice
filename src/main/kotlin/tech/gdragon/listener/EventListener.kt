@@ -2,8 +2,6 @@ package tech.gdragon.listener
 
 import mu.KotlinLogging
 import net.dv8tion.jda.core.entities.Game
-import net.dv8tion.jda.core.events.Event
-import net.dv8tion.jda.core.entities.Guild as DiscordGuild
 import net.dv8tion.jda.core.events.ReadyEvent
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent
 import net.dv8tion.jda.core.events.guild.GuildLeaveEvent
@@ -22,6 +20,7 @@ import tech.gdragon.db.dao.User
 import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Paths
+import net.dv8tion.jda.core.entities.Guild as DiscordGuild
 
 class EventListener : ListenerAdapter() {
 
@@ -231,7 +230,7 @@ class EventListener : ListenerAdapter() {
       } catch (e: InvalidCommand) {
         val channel = event.channel
         BotUtils.sendMessage(channel, e.usage(prefix))
-        logger.error { "${event.guild.name}#${channel.name}: ${e.reason}" }
+        logger.error { "${event.guild.name}#${channel.name}: [$rawContent] ${e.reason}" }
       }
     }
   }

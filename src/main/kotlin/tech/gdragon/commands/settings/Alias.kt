@@ -5,15 +5,14 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.BotUtils
 import tech.gdragon.commands.Command
 import tech.gdragon.commands.CommandHandler
+import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.db.dao.Alias
 import tech.gdragon.db.dao.Guild
 
 class Alias : Command {
   override fun action(args: Array<String>, event: GuildMessageReceivedEvent) {
-    // Argument count must be two
     require(args.size == 2) {
-      val prefix = transaction { Guild.findById(event.guild.idLong)!!.settings.prefix }
-      BotUtils.sendMessage(event.channel, usage(prefix))
+      throw InvalidCommand(::usage, "Incorrect number of arguments: ${args.size}")
     }
 
     val channel = event.channel
