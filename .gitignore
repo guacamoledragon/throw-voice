@@ -16,7 +16,6 @@ buildNumber.properties
 #
 *.iml
 .idea/*
-!.idea/runConfigurations/
 
 .env*
 settings.json

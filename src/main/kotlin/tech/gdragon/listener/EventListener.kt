@@ -2,8 +2,6 @@ package tech.gdragon.listener
 
 import mu.KotlinLogging
 import net.dv8tion.jda.core.entities.Game
-import net.dv8tion.jda.core.events.Event
-import net.dv8tion.jda.core.entities.Guild as DiscordGuild
 import net.dv8tion.jda.core.events.ReadyEvent
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent
 import net.dv8tion.jda.core.events.guild.GuildLeaveEvent
@@ -16,11 +14,13 @@ import net.dv8tion.jda.core.hooks.ListenerAdapter
 import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.BotUtils
 import tech.gdragon.commands.CommandHandler
+import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.dao.User
 import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Paths
+import net.dv8tion.jda.core.entities.Guild as DiscordGuild
 
 class EventListener : ListenerAdapter() {
 
@@ -208,7 +208,6 @@ class EventListener : ListenerAdapter() {
     }
   }
 
-  // TODO continue work here!
   override fun onGuildMessageReceived(event: GuildMessageReceivedEvent) {
     if (event.member == null || event.member.user == null || event.member.user.isBot)
       return
@@ -225,10 +224,13 @@ class EventListener : ListenerAdapter() {
 
     val rawContent = event.message.contentDisplay
     if (rawContent.startsWith(prefix)) {
-      // TODO: handle any CommandHandler exceptions here
-      CommandHandler.handleCommand(event, CommandHandler.parser.parse(prefix, rawContent.toLowerCase()))
-    } else if (rawContent == "!help") { // force help to always work with "!" prefix
-      CommandHandler.handleCommand(event, CommandHandler.parser.parse(prefix, prefix + "help"))
+      try {
+        CommandHandler.handleCommand(event, CommandHandler.parser.parse(prefix, rawContent.toLowerCase()))
+      } catch (e: InvalidCommand) {
+        val channel = event.channel
+        BotUtils.sendMessage(channel, ":no_entry_sign: _Usage: `${e.usage(prefix)}`_")
+        logger.warn { "${event.guild.name}#${channel.name}: [$rawContent] ${e.reason}" }
+      }
     }
   }
 

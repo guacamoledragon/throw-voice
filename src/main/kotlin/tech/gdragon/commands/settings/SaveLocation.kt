@@ -4,17 +4,17 @@ import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
 import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.BotUtils
 import tech.gdragon.commands.Command
+import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.db.dao.Guild
 
 class SaveLocation : Command {
   override fun action(args: Array<String>, event: GuildMessageReceivedEvent) {
+    require(args.size in 0..1) {
+      throw InvalidCommand(::usage, "Incorrect number of arguments: ${args.size}")
+    }
+
     transaction {
       val guild = Guild.findById(event.guild.idLong)
-      val prefix = guild?.settings?.prefix ?: "!"
-
-      require(args.size in 0..1) {
-        BotUtils.sendMessage(event.channel, usage(prefix))
-      }
 
       val message =
         guild?.settings?.let {
@@ -23,7 +23,7 @@ class SaveLocation : Command {
 
             "Now defaulting to the ${event.channel.name} text channel."
           } else {
-            val channelName = if(args.first().startsWith("#")) args.first().substring(1) else args.first()
+            val channelName = if (args.first().startsWith("#")) args.first().substring(1) else args.first()
 
             val channels = event.guild.getTextChannelsByName(channelName, true)
 
