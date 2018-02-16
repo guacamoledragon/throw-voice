@@ -208,7 +208,6 @@ class EventListener : ListenerAdapter() {
     }
   }
 
-  // TODO continue work here!
   override fun onGuildMessageReceived(event: GuildMessageReceivedEvent) {
     if (event.member == null || event.member.user == null || event.member.user.isBot)
       return
@@ -229,8 +228,8 @@ class EventListener : ListenerAdapter() {
         CommandHandler.handleCommand(event, CommandHandler.parser.parse(prefix, rawContent.toLowerCase()))
       } catch (e: InvalidCommand) {
         val channel = event.channel
-        BotUtils.sendMessage(channel, e.usage(prefix))
-        logger.error { "${event.guild.name}#${channel.name}: [$rawContent] ${e.reason}" }
+        BotUtils.sendMessage(channel, ":no_entry_sign: _Usage: `${e.usage(prefix)}`_")
+        logger.warn { "${event.guild.name}#${channel.name}: [$rawContent] ${e.reason}" }
       }
     }
   }

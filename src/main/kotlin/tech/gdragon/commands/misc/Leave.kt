@@ -29,9 +29,9 @@ class Leave : Command {
           }
 
           BotUtils.leaveVoiceChannel(voiceChannel)
-          "Leaving ${voiceChannel.name}"
+          ":wave: _Leaving **<#${voiceChannel.id}>**_"
         } else {
-          "I am not in a channel!"
+          ":no_entry_sign: _I am not in a channel_"
         }
 
       BotUtils.sendMessage(event.channel, message)
