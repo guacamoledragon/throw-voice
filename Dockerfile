@@ -1,4 +1,4 @@
-FROM maven:3.5-jdk-9-slim
+FROM maven:3.5-jdk-9-slim as builder
 WORKDIR /src
 COPY . /src
 
@@ -16,17 +16,20 @@ ARG VERSION
 LABEL org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.name="throw-voice" \
       org.label-schema.description="A voice channel recording bot for Discord." \
-      org.label-schema.url="http://pawabot.site" \
+      org.label-schema.url="https://www.pawabot.site" \
       org.label-schema.vcs-ref=$VCS_REF \
       org.label-schema.vcs-url="https://github.com/guacamoledragon/throw-voice" \
       org.label-schema.vendor="Guacamole Dragon, LLC" \
       org.label-schema.version=$VERSION \
       org.label-schema.schema-version="1.0"
 
-WORKDIR /root/
+ENV APP_DIR /app
+ENV DATA_DIR $APP_DIR/data
 
-COPY --from=0 /src/target/lib lib/
-COPY --from=0 /src/target/throw-voice-*.jar throw-voice.jar
-VOLUME /app/data/
+WORKDIR $APP_DIR
 
-CMD ["/usr/bin/java", "-cp", "throw-voice.jar:lib/*", "tech.gdragon.App"]
+COPY --from=builder /src/target/lib $APP_DIR/lib/
+COPY --from=builder /src/target/throw-voice-*.jar $APP_DIR/throw-voice.jar
+VOLUME $DATA_DIR
+
+CMD ["sh", "-c", "/usr/bin/java ${JAVA_OPTS} -cp throw-voice.jar:lib/* tech.gdragon.App"]
