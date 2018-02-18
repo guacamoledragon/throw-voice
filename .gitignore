@@ -17,7 +17,7 @@ buildNumber.properties
 *.iml
 .idea/*
 
-.env*
+*.env*
 settings.json
 settings.db
 
