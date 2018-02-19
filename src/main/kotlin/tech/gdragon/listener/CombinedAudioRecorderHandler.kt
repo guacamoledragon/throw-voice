@@ -226,7 +226,7 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
 
         logger.info("{}#{}: Finished uploading file - {}", guildName, voiceChannelName, result?.fileName)
 
-        val recordingBaseUrl = (System.getenv("RECORDING_BASE_URL") ?: "$b2ClientUrl/file") + "/$bucketName"
+        val recordingBaseUrl = (System.getenv("B2_BASE_URL") ?: "$b2ClientUrl/file") + "/$bucketName"
         val recordingUrl = "$recordingBaseUrl/$b2Filename"
 
         val message = """|:microphone2: **Recording <#${voiceChannel?.id}> has been uploaded!**
