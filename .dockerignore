@@ -1,14 +1,14 @@
 .idea/
 docs/
-recordings/
 target/
+data/
 
 *.iml
-*.db
 *.json
 
 Dockerfile
+Rockerfile
 Procfile
 dependency-reduced-pom.xml
 .travis.yml
-.env*
+*.env*

@@ -1,11 +1,17 @@
-FROM maven:3.5-jdk-9-slim as builder
+FROM maven:3.5-jdk-9-slim
 WORKDIR /src
 COPY . /src
 
+MOUNT /root/.m2 /var/lib/apt/lists
+
 RUN apt-get update && apt-get install -y \
-  git \
- && mvn package \
- && rm -rf /var/lib/apt/lists/*
+    git \
+ && mvn package
+
+EXPORT /src/target/lib/ /lib
+EXPORT /src/target/throw-voice-1.0-SNAPSHOT.jar /throw-voice.jar
+
+TAG gdragon/throw-voice:1.0.0-builder
 
 FROM openjdk:9-jre-slim
 MAINTAINER Jose V. Trigueros <jose@gdragon.tech>
@@ -28,8 +34,11 @@ ENV DATA_DIR $APP_DIR/data
 
 WORKDIR $APP_DIR
 
-COPY --from=builder /src/target/lib $APP_DIR/lib/
-COPY --from=builder /src/target/throw-voice-*.jar $APP_DIR/throw-voice.jar
+IMPORT /lib/ /app/lib
+IMPORT /throw-voice.jar /app/
+
 VOLUME $DATA_DIR
 
 CMD ["sh", "-c", "/usr/bin/java ${JAVA_OPTS} -cp throw-voice.jar:lib/* tech.gdragon.App"]
+
+TAG gdragon/throw-voice:1.0.0

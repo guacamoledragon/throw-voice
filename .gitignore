@@ -17,8 +17,10 @@ buildNumber.properties
 *.iml
 .idea/*
 
-.env*
+*.env
+!sample-*.env
 settings.json
 settings.db
-
 recordings/
+data/
+

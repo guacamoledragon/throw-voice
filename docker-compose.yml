@@ -1,0 +1,18 @@
+version: '3'
+services:
+  pawa:
+    image: gdragon/throw-voice:1.0.0
+    env_file:
+      - ${ENV:-sample}-b2.env
+      - ${ENV:-sample}-bot.env
+      - ${ENV:-sample}-rollbar.env
+    environment:
+      - JAVA_OPTS=--add-modules java.xml.bind -Xmx700m
+      - TZ=America/Denver
+    volumes:
+      - ./data:/app/data
+    logging:
+      driver: json-file
+      options:
+        max-size: 100m
+        max-file: '5'
