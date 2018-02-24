@@ -20,6 +20,7 @@
 - [Commands](#commands)
 - [Self-hosting](#self-hosting)
 - [Attributions](#attributions)
+- [License](#license)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -33,10 +34,8 @@
 | `!autoleave [Voice Channel name \| 'all'] [number]`           | Sets the number of players for the bot to auto-leave a voice channel, or disables auto-leaving. 'all' will apply number to all voice channels. |
 | `!autosave`                                                   | Toggles the option to automatically save and send all files at the end of each session - not just saved or clipped files                       |
 | `!clip [seconds] \| !clip [seconds] [text channel output]`    | Saves a clip of the specified length and outputs it in the current or specified text channel (max 120 seconds)                                 |
-| ~~`!echo [seconds]`~~                                         | ~~Echos back the input number of seconds of the recording into the voice channel (max 120 seconds)~~                                           |
 | `!join`                                                       | Aliases: `record`. Force the bot to join and record your current channel                                                                       |
 | `!leave`                                                      | Aliases: `stop`. Force the bot to leave it's current channel                                                                                   |
-| ~~`!miab [seconds] [voice channel]`~~                         |~~Echos back the input number of seconds of the recording into the voice channel specified and then rejoins original channel (max 120 seconds)~~|
 | `!prefix [character]`                                         | Aliases: `symbol`. Sets the prefix for each command to avoid conflict with other bots _(Default is '!')_                                       |
 | `!removeAlias [alias name]`                                   | Removes an alias from a command.                                                                                                               |
 | `!save \| !save [text channel output]`                        | Saves the current recording and outputs it to the current or specified text chats (caps at 16MB)                                               |
@@ -50,8 +49,25 @@ _Replace brackets [] with item specified. Vertical bar | means 'or', either side
 Self-hosting instructions got a lot more complex, see the [self-hosting](./docs/self-hosting.md) section for more on how
 you can deploy the bot.
 
-
 ## Attributions
 
 - "Dragon" by [lastspark](https://thenounproject.com/lastspark) from [the Noun Project](http://thenounproject.com/).
-- Bot inspired by [ajm1996's](https://github.com/ajm1996) [DiscordEcho](https://github.com/ajm1996/DiscordEcho).
+- Original Java codebase by [ajm1996's](https://github.com/ajm1996) [DiscordEcho](https://github.com/ajm1996/DiscordEcho).
+
+## License
+
+```
+Copyright (c) 2017-2018 Guacamole Dragon, LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+```
