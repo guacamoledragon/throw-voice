@@ -8,17 +8,20 @@
   </formats>
   <files>
     <file>
-      <source>src/assembly/start.bat</source>
+      <source>${project.basedir}/src/assembly/start.bat</source>
       <lineEnding>windows</lineEnding>
       <filtered>true</filtered>
-    </file>
-    <file>
-      <source>README.md</source>
     </file>
     <file>
       <source>LICENSE</source>
     </file>
   </files>
+  <fileSets>
+    <fileSet>
+      <directory>${project.build.directory}/html</directory>
+      <outputDirectory>./</outputDirectory>
+    </fileSet>
+  </fileSets>
   <dependencySets>
     <dependencySet>
       <includes>
