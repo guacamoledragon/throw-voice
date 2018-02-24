@@ -55,6 +55,17 @@
       <groupId>org.jetbrains.exposed</groupId>
       <artifactId>exposed</artifactId>
       <version>0.9.1</version>
+      <exclusions>
+        <exclusion>
+          <artifactId>kotlin-reflect</artifactId>
+          <groupId>org.jetbrains.kotlin</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.jetbrains.kotlin</groupId>
+      <artifactId>kotlin-reflect</artifactId>
+      <version>${kotlin.version}</version>
     </dependency>
     <dependency>
       <groupId>org.jetbrains.kotlin</groupId>
