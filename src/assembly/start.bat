@@ -25,4 +25,4 @@ echo   Revision:  https://github.com/guacamoledragon/throw-voice/commit/${revisi
 echo ==========================================================================
 @echo.
 
-java -cp ${name}-${version}.jar;lib\* tech.gdragon.App
+java -Xmx512m --add-modules java.xml.bind -cp ${name}-${version}.jar;lib\* tech.gdragon.App

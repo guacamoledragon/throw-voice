@@ -1,0 +1,33 @@
+<assembly xmlns="http://maven.apache.org/ASSEMBLY/2.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.0.0 http://maven.apache.org/xsd/assembly-2.0.0.xsd">
+  <id>bin</id>
+  <includeBaseDirectory>false</includeBaseDirectory>
+  <formats>
+    <format>dir</format>
+  </formats>
+  <files>
+    <file>
+      <source>src/assembly/start.bat</source>
+      <lineEnding>windows</lineEnding>
+      <filtered>true</filtered>
+    </file>
+    <file>
+      <source>README.md</source>
+    </file>
+    <file>
+      <source>LICENSE</source>
+    </file>
+  </files>
+  <dependencySets>
+    <dependencySet>
+      <includes>
+        <include>tech.gdragon:throw-voice</include>
+      </includes>
+    </dependencySet>
+    <dependencySet>
+      <useProjectArtifact>false</useProjectArtifact>
+      <outputDirectory>./lib</outputDirectory>
+    </dependencySet>
+  </dependencySets>
+</assembly>
