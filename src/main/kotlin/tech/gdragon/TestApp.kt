@@ -63,7 +63,7 @@ fun testBiggestChannel() {
       override fun onGuildVoiceJoin(event: GuildVoiceJoinEvent) {
         println("event.guild = ${event.guild}")
         println("Joined ${event.channelJoined}")
-        println("Largest channel: ${BotUtils.biggestChannel(event.guild)}")
+//        println("Largest channel: ${BotUtils.biggestChannel(event.guild)}")
         super.onGuildVoiceJoin(event)
       }
 

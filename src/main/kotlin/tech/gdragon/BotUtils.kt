@@ -47,6 +47,7 @@ object BotUtils {
    * Find biggest voice chanel that surpasses the Guild's autoJoin minimum
    */
   @JvmStatic
+  @Deprecated("This contains a bug, any code using this should stop for now", level = DeprecationLevel.ERROR)
   fun biggestChannel(guild: DiscordGuild): VoiceChannel? {
     val voiceChannels = guild.voiceChannels
 
@@ -57,7 +58,7 @@ object BotUtils {
         .filter { voiceChannel ->
           val channel = settings?.channels?.find { it.id.value == voiceChannel.idLong }
           val channelSize = voiceChannelSize(voiceChannel)
-          channel?.autoJoin?.let { it <= channelSize } ?: false
+          /*channel?.autoJoin?.let { it <= channelSize } ?: */false
         }
         .maxBy(BotUtils::voiceChannelSize)
     }

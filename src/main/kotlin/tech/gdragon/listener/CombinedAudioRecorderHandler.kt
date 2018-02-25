@@ -229,8 +229,10 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
         val recordingBaseUrl = (System.getenv("B2_BASE_URL") ?: "$b2ClientUrl/file") + "/$bucketName"
         val recordingUrl = "$recordingBaseUrl/$b2Filename"
 
-        val message = """|:microphone2: **Recording <#${voiceChannel?.id}> has been uploaded!**
+        val message = """|:microphone2: **Recording for <#${voiceChannel?.id}> has been uploaded!**
                          |$recordingUrl
+                         |
+                         |_Recording will only be available for 24hrs_
                          |""".trimMargin()
 
         BotUtils.sendMessage(channel, message)

@@ -13,12 +13,12 @@ class AutoLeave : Command {
     transaction {
       Channel
         .findOrCreate(channel.idLong, channel.name, channel.guild.idLong, channel.guild.name)
-        .forEach { it.autoLeave = autoLeave }
+//        .forEach { it.autoLeave = autoLeave }
     }
   }
 
   override fun action(args: Array<String>, event: GuildMessageReceivedEvent) {
-    require(args.size >= 2) {
+    /*require(args.size >= 2) {
       throw InvalidCommand(::usage, "Incorrect number of arguments: ${args.size}")
     }
 
@@ -49,9 +49,9 @@ class AutoLeave : Command {
         throw InvalidCommand(::usage, "Could not parse number argument: ${e.message}")
       } catch (e: IllegalArgumentException) {
         throw InvalidCommand(::usage, "Number must be positive: ${e.message}")
-      }
+      }*/
 
-    BotUtils.sendMessage(event.channel, message)
+    BotUtils.sendMessage(event.channel, ":no_entry_sign: _AutoLeave is currently disabled due to some bugs_")
   }
 
   override fun usage(prefix: String): String = "${prefix}autoleave [Voice Channel name | 'all'] [number]"
