@@ -52,7 +52,7 @@ _Note: If you're deploying on your own VPS, then you'll need a bit more setup as
 If Docker is your jam, the easiest thing to do is to create a `.env` file with all the variables described under
 [environment variables](./environment-variables.md). Then:
 
-    docker run -it --env-file .env -p <PORT>:<PORT> gdragon/throw-voice:<version>
+    docker run -it --env-file .env --env JAVA_OPTS="-Xmx512m --add-modules java.xml.bind" -p <PORT>:<PORT> gdragon/throw-voice:<version>
 
 This repo also contains a [`docker-compose.yml`](../docker-compose.yml) that can be used if desired, but it's mostly used
 for my deployment purposes.

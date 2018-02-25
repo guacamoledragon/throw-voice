@@ -28,8 +28,9 @@ ENV DATA_DIR $APP_DIR/data
 
 WORKDIR $APP_DIR
 
-COPY --from=builder /src/target/lib $APP_DIR/lib/
-COPY --from=builder /src/target/throw-voice-*.jar $APP_DIR/throw-voice.jar
+COPY --from=builder /src/target/throw-voice-*-release.zip /tmp/throw-voice-release.zip
+RUN unzip -d $APP_DIR /tmp/throw-voice-release.zip
+
 VOLUME $DATA_DIR
 
-CMD ["sh", "-c", "/usr/bin/java ${JAVA_OPTS} -cp throw-voice.jar:lib/* tech.gdragon.App"]
+CMD ["sh", "-c", "/usr/bin/java ${JAVA_OPTS} -cp *:lib/* tech.gdragon.App"]
