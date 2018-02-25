@@ -8,8 +8,7 @@ RUN apt-get update && apt-get install -y \
     git \
  && mvn package
 
-EXPORT /src/target/lib/ /lib
-EXPORT /src/target/throw-voice-1.0-SNAPSHOT.jar /throw-voice.jar
+EXPORT /src/target/throw-voice-1.0-SNAPSHOT-release.zip /throw-voice-release.zip
 
 TAG gdragon/throw-voice:1.0.0-builder
 
@@ -34,11 +33,11 @@ ENV DATA_DIR $APP_DIR/data
 
 WORKDIR $APP_DIR
 
-IMPORT /lib/ /app/lib
-IMPORT /throw-voice.jar /app/
+IMPORT /throw-voice-release.zip /tmp/
+RUN unzip -d $APP_DIR /tmp/throw-voice-release.zip
 
 VOLUME $DATA_DIR
 
-CMD ["sh", "-c", "/usr/bin/java ${JAVA_OPTS} -cp throw-voice.jar:lib/* tech.gdragon.App"]
+CMD ["sh", "-c", "/usr/bin/java ${JAVA_OPTS} -cp *:lib/* tech.gdragon.App"]
 
 TAG gdragon/throw-voice:1.0.0

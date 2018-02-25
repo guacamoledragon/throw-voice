@@ -90,19 +90,16 @@ fun testAlerts() {
 }
 
 fun uploadRecording() {
-  val accountId = ""
+/*  val accountId = ""
   val accountKey = ""
   val bucketId = ""
   val filename = "333055724198559745/e05ee74e-d15d-4f0d-84b4-0aabd0fc9700.mp3"
   val b2Client = B2ApiClient(accountId, accountKey)
-
-//  val result = b2Client.downloadUrl
+  val result = b2Client.downloadUrl
   val file = File("recordings/e05ee74e-d15d-4f0d-84b4-0aabd0fc9700.mp3")
-//  val result = b2Client.uploadFile(bucketId, filename, file)
-
-//  println("result = $result")
-
-//  println("result = ${b2Client.downloadUrl}/file/$filename")
+  val result = b2Client.uploadFile(bucketId, filename, file)
+  println("result = $result")
+  println("result = ${b2Client.downloadUrl}/file/$filename")*/
 }
 
 fun main(args: Array<String>) {
