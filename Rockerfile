@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y \
 
 EXPORT /src/target/throw-voice-1.0-SNAPSHOT-release.zip /throw-voice-release.zip
 
-TAG gdragon/throw-voice:1.0.0-builder
+TAG gdragon/throw-voice:builder
 
 FROM openjdk:9-jre-slim
 MAINTAINER Jose V. Trigueros <jose@gdragon.tech>

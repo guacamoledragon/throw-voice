@@ -5,9 +5,6 @@ import net.dv8tion.jda.core.entities.Game
 import net.dv8tion.jda.core.events.ReadyEvent
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent
 import net.dv8tion.jda.core.events.guild.GuildLeaveEvent
-import net.dv8tion.jda.core.events.guild.voice.GuildVoiceJoinEvent
-import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent
-import net.dv8tion.jda.core.events.guild.voice.GuildVoiceMoveEvent
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent
 import net.dv8tion.jda.core.hooks.ListenerAdapter
@@ -45,7 +42,7 @@ class EventListener : ListenerAdapter() {
   }
 
   // TODO: Add logging
-  override fun onGuildVoiceJoin(event: GuildVoiceJoinEvent) {
+/*  override fun onGuildVoiceJoin(event: GuildVoiceJoinEvent) {
     if (event.member == null || event.member.user == null || event.member.user.isBot)
       return
 
@@ -88,9 +85,9 @@ class EventListener : ListenerAdapter() {
         BotUtils.joinVoiceChannel(event.channelJoined, false)
       }
     }
-  }
+  }*/
 
-  override fun onGuildVoiceLeave(event: GuildVoiceLeaveEvent) {
+/*  override fun onGuildVoiceLeave(event: GuildVoiceLeaveEvent) {
     if (event.member == null || event.member.user == null || event.member.user.isBot)
       return
 
@@ -99,7 +96,7 @@ class EventListener : ListenerAdapter() {
 
       for (channel in settings.channels) {
         if (channel.id.value == event.channelLeft.idLong) {
-          return@transaction channel . autoLeave
+          return@transaction channel.autoLeave
         }
       }
 
@@ -128,9 +125,9 @@ class EventListener : ListenerAdapter() {
         BotUtils.joinVoiceChannel(biggest, false)
       }
     }
-  }
+  }*/
 
-  override fun onGuildVoiceMove(event: GuildVoiceMoveEvent) {
+/*  override fun onGuildVoiceMove(event: GuildVoiceMoveEvent) {
     if (event.member == null || event.member.user == null || event.member.user.isBot)
       return
 
@@ -206,7 +203,7 @@ class EventListener : ListenerAdapter() {
         BotUtils.joinVoiceChannel(event.channelJoined, false)
       }
     }
-  }
+  }*/
 
   override fun onGuildMessageReceived(event: GuildMessageReceivedEvent) {
     if (event.member == null || event.member.user == null || event.member.user.isBot)
@@ -311,12 +308,12 @@ class EventListener : ListenerAdapter() {
     }
 
     //check for servers to join
-    for (g in event.jda.guilds) {
+/*    for (g in event.jda.guilds) {
       val biggest = BotUtils.biggestChannel(g)
       if (biggest != null) {
         BotUtils.joinVoiceChannel(BotUtils.biggestChannel(g), false)
       }
-    }
+    }*/
   }
 }
 
