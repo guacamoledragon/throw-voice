@@ -7,18 +7,14 @@ this bot, it can be self-hosted without any issues in one of the following ways.
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 ## Contents
 
-  - [Pre-Requisites](#pre-requisites)
+- [Pre-Requisites](#pre-requisites)
   - [Local (or VPS)](#local-or-vps)
   - [Docker](#docker)
   - [Heroku Button](#heroku-button)
-- [Environment Variables](#environment-variables)
-  - [Bot specific variables, **_required_**](#bot-specific-variables-_required_)
-  - [BackBlaze B2 Cloud Storage specific variables, **_required_**](#backblaze-b2-cloud-storage-specific-variables-_required_)
-  - [Rollbar variables, _optional_](#rollbar-variables-_optional_)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-## Pre-Requisites
+# Pre-Requisites
 
 - Create a [Discord Application](https://discordapp.com/developers/application).
   - You'll need to have both the **Client ID** and **App Bot Token** available to configure the bot.
@@ -39,10 +35,10 @@ have [install Java 9 JRE](http://www.oracle.com/technetwork/java/javase/download
 
 - Configure Bot
   - Windows Users:
-    - Edit `start.bat` and enter the appropriate values for all the variables described under [environment variables](#environment-variables).
+    - Edit `start.bat` and enter the appropriate values for all the variables described under [environment variables](./environment-variables.md).
     - Save `start.bat`, start bot by double-click'ing `start.bat`
   - Linux Users:
-    - Drop down to a shell and set all the variables described under [environment variables](#environment-variables).
+    - Drop down to a shell and set all the variables described under [environment variables](./environment-variables.md).
     - Start bot by running: `java -Xmx512m --add-modules java.xml.bind -cp 'throw-voice-<version>.jar:lib\*' tech.gdragon.App`
 
 - Navigate to `http://localhost:<PORT>` to add the bot to your Guild. 
@@ -54,7 +50,7 @@ _Note: If you're deploying on your own VPS, then you'll need a bit more setup as
 ## Docker
 
 If Docker is your jam, the easiest thing to do is to create a `.env` file with all the variables described under
-[environment variables](#environment-variables). Then:
+[environment variables](./environment-variables.md). Then:
 
     docker run -it --env-file .env -p <PORT>:<PORT> gdragon/throw-voice:<version>
 
@@ -78,32 +74,3 @@ Dyno wakes up.
 
 Simply, visit `https://<heroku-app-name>.herokuapp.com/ping` to wake the bot before you start issuing
 commands.
-
-# Environment Variables
-
-These are the environment configuration variables used by the bot.
-
-## Bot specific variables, **_required_**
-
-- `BOT_TOKEN`: Discord Bot Token
-- `CLIENT_ID`: Discord Client ID
-- `DATA_DIR`: Directory path to store bot files
-- `PORT`: Port on which the bot will run it's HTTP server on and redirect to bot's invite URL
-
-## BackBlaze B2 Cloud Storage specific variables, **_required_**
-
-For more information on these see [https://www.backblaze.com/b2/docs/](https://www.backblaze.com/b2/docs/).
-
-- `B2_APP_KEY`: Application Key
-- `B2_ACCOUNT_ID`: Account ID
-- `B2_BASE_URL` _(optional)_: The base URL to use for B2, only useful if you're choosing a custom URL, don't set otherwise.
-- `B2_BUCKET_ID`: Bucket ID
-- `B2_BUCKET_NAME`: Bucket Name
-
-## Rollbar variables, _optional_
-
-All of these are optional, but if you want to upload your logs to Rollbar, create a
-[Rollbar account](https://rollbar.com/signup/).
-
-- `ROLLBAR_ENV`: Logging environment
-- `ROLLBAR_TOKEN`: Application Token
