@@ -1,19 +1,19 @@
 @echo off
 
-REM Bot specific variables, required
+REM Bot variables, required
 SET BOT_TOKEN=
 SET CLIENT_ID=
 SET DATA_DIR=
 SET PORT=
 
-REM Storage specific variables, required
+REM BackBlaze B2 Cloud Storage variables, required
 SET B2_APP_KEY=
 SET B2_ACCOUNT_ID=
 SET B2_BASE_URL=
 SET B2_BUCKET_ID=
 SET B2_BUCKET_NAME=
 
-REM Logging specific variables, optional
+REM Rollbar variables, optional
 SET ROLLBAR_ENV=
 SET ROLLBAR_TOKEN=
 
