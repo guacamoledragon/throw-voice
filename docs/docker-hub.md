@@ -1,42 +1,55 @@
 # throw-voice
 > A voice channel recording bot for Discord.
 
+<p align="center">
+  <a href="https://discordbots.org/bot/338897906524225538">
+    <img src="https://discordbots.org/api/widget/338897906524225538.png" alt="Discord Bots" />
+  </a>
+</p>
+
 [![Build Status](https://travis-ci.org/guacamoledragon/throw-voice.svg?branch=master)](https://travis-ci.org/guacamoledragon/throw-voice)
 [![Coverage Status](https://coveralls.io/repos/github/guacamoledragon/throw-voice/badge.svg)](https://coveralls.io/github/guacamoledragon/throw-voice)
+[![Waffle.io - Columns and their card count](https://badge.waffle.io/guacamoledragon/throw-voice.svg?columns=all)](https://waffle.io/guacamoledragon/throw-voice)
 [![Docker Pulls](https://img.shields.io/docker/pulls/gdragon/throw-voice.svg)](https://hub.docker.com/r/gdragon/throw-voice/)
-
-**Full Disclosure: This is a highly modified fork of [ajm1996/DiscordEcho](https://github.com/ajm1996/DiscordEcho).**
+[![](https://images.microbadger.com/badges/version/gdragon/throw-voice.svg)](https://microbadger.com/images/gdragon/throw-voice "Get your own version badge on microbadger.com")
 
 # Supported tags and respective `Dockerfile` links
 
-- [`1.0-beta.6, latest` (*Dockerfile*)](https://github.com/guacamoledragon/throw-voice/blob/v1.0-beta.6/Dockerfile)
-- [`1.0-beta.5` (*Dockerfile*)](https://github.com/guacamoledragon/throw-voice/blob/c45ab837722df47b717158009df2da0bb18ee359/Dockerfile)
-- [`1.0-beta.4` (*Dockerfile*)](https://github.com/guacamoledragon/throw-voice/blob/f84723eac7882f9ee14a6b4063bdd2cc53e6b72f/Dockerfile)
-- [`1.0-beta.3` (*Dockerfile*)](https://github.com/guacamoledragon/throw-voice/blob/5d5c9ae8f545c7afee4727cf110b7d330d0edee4/Dockerfile)
-- [`1.0-beta.2` (*Dockerfile*)](https://github.com/guacamoledragon/throw-voice/blob/f8e89617e0f71ca2d3b9a83426429f361163b429/Dockerfile)
-- [`1.0-beta.1` (*Dockerfile*)](https://github.com/guacamoledragon/throw-voice/blob/f8e89617e0f71ca2d3b9a83426429f361163b429/Dockerfile)
+- [`1.0.0, latest` (*Dockerfile*)](https://github.com/guacamoledragon/throw-voice/blob/v1.0.0/Dockerfile)
 
 # How to use this image
 
 The following environment variables are necessary:
 
-  - `PORT`: Port on which the bot will run it's HTTP server on, strictly speaking not necessary,
-  but it's convenient.
-  - `CLIENT_ID`: Your Discord App Client ID
-  - `BOT_TOKEN`: Your Discord App's App Bot User Token (what a mouthful!)
+## Bot variables, **_required_**
 
-The container can be run in interactive mode like so:
+- `BOT_TOKEN`: Discord Bot Token
+- `CLIENT_ID`: Discord Client ID
+- `DATA_DIR`: Directory path to store bot files
+- `PORT`: Port on which the bot will run it's HTTP server on and redirect to bot's invite URL
 
-    docker run -it -e PORT=8080 -e CLIENT_ID=... -e BOT_TOKEN=... -p 8080:8080 gdragon/throw-voice
-    
-Or in the background:
+## BackBlaze B2 Cloud Storage variables, **_required_**
 
-    docker run -d -e PORT=8080 -e CLIENT_ID=... -e BOT_TOKEN=... -p 8080:8080 gdragon/throw-voice
+For more information on these see [https://www.backblaze.com/b2/docs/](https://www.backblaze.com/b2/docs/).
+
+- `B2_APP_KEY`: Application Key
+- `B2_ACCOUNT_ID`: Account ID
+- `B2_BASE_URL` _(optional)_: The base URL to use for B2, only useful if you're choosing a custom URL, don't set otherwise.
+- `B2_BUCKET_ID`: Bucket ID
+- `B2_BUCKET_NAME`: Bucket Name
+
+## Rollbar variables, _optional_
+
+All of these are optional, but if you want to upload your logs to Rollbar, create a
+[Rollbar account](https://rollbar.com/signup/).
+
+- `ROLLBAR_ENV`: Logging environment
+- `ROLLBAR_TOKEN`: Application Token
+
+The easiest thing to do is to create a `.env` file with all the environment variables:
+
+    docker run -it --env-file .env --env JAVA_OPTS="-Xmx512m --add-modules java.xml.bind" -p 8080:8080 gdragon/throw-voice
 
 The bot will automatically connect to your Guild if it has connected before, otherwise visit `http://localhost:8080` to
 add to your Guild.
 
-## Attributions
-
-- Japanese Dragon icon made by [Freepik](http://www.freepik.com) from [www.flaticon.com](http://www.flaticon.com) is licensed by [CC 3.0 BY](http://creativecommons.org/licenses/by/3.0/)
-- Original codebase by [ajm1996](https://github.com/ajm1996)
