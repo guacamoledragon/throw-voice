@@ -1,28 +1,76 @@
 package tech.gdragon
 
 import fi.iki.elonen.NanoHTTPD
+import okhttp3.MultipartBody
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import org.json.JSONException
+import org.json.JSONObject
 import org.slf4j.LoggerFactory
 import tech.gdragon.db.Shim
-import tech.gdragon.discord.Bot
 import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Paths
 
 class App private constructor(port: Int, val clientId: String, val inviteUrl: String) : NanoHTTPD(port) {
+  val client = OkHttpClient()
+  val discordRollbarWebhook: String? = System.getenv("DISCORD_ROLLBAR_WEBHOOK")
+
+  private fun discordWebhook(body: Map<String, String>): okhttp3.Response? {
+    val postData = JSONObject(body["postData"])
+    val eventName = postData["event_name"]
+    val data = postData["data"] as JSONObject
+    val itemBody: String =
+      try {
+        val item = data["item"] as JSONObject
+        item.let {
+          (((it["last_occurrence"] as JSONObject)["body"] as JSONObject)["message"] as JSONObject)["body"].toString()
+        }
+      } catch (e: JSONException) {
+        ""
+      }
+
+    val requestBody = MultipartBody.Builder()
+      .setType(MultipartBody.FORM)
+      .addFormDataPart("content", itemBody)
+      .build()
+
+    val request = Request.Builder()
+      .url(discordRollbarWebhook)
+      .post(requestBody)
+      .build()
+
+    return client.newCall(request).execute()
+  }
 
   override fun serve(session: NanoHTTPD.IHTTPSession): NanoHTTPD.Response {
     val uri = session.uri
 
-    val response: NanoHTTPD.Response
+    return when (uri.toLowerCase()) {
+      "/ping" -> {
+        val response = newFixedLengthResponse("pong")
+        response
+      }
+      "/rollbar" -> {
+        val response =
+          if(session.method == Method.POST && !discordRollbarWebhook.isNullOrEmpty()) {
+            val body = mutableMapOf<String, String>()
+            session.parseBody(body)
+            discordWebhook(body)
+          } else null
 
-    if (uri.toLowerCase().contains("ping")) {
-      response = NanoHTTPD.newFixedLengthResponse("pong")
-    } else {
-      response = NanoHTTPD.newFixedLengthResponse(NanoHTTPD.Response.Status.REDIRECT, NanoHTTPD.MIME_HTML, "")
-      response.addHeader("Location", inviteUrl)
+        val status = Response.Status.lookup(response?.code() ?: 500)
+        val mime = response?.header("content-type") ?: MIME_PLAINTEXT
+        val message = response?.message() ?: ""
+
+        newFixedLengthResponse(status, mime, message)
+      }
+      else -> {
+        val response = newFixedLengthResponse(Response.Status.REDIRECT, MIME_HTML, "")
+        response.addHeader("Location", inviteUrl)
+        response
+      }
     }
-
-    return response
   }
 
   companion object {
