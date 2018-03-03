@@ -14,6 +14,7 @@ class App private constructor(port: Int, val clientId: String, val inviteUrl: St
     val uri = session.uri
 
     val response: NanoHTTPD.Response
+
     if (uri.toLowerCase().contains("ping")) {
       response = NanoHTTPD.newFixedLengthResponse("pong")
     } else {
@@ -41,9 +42,9 @@ class App private constructor(port: Int, val clientId: String, val inviteUrl: St
       // Connect to database
       Shim.initializeDatabase(dataDirectory + "/settings.db")
 
-      val bot = Bot(token)
-      val inviteUrl = bot.api.asBot().getInviteUrl(Bot.PERMISSIONS)
-      val app = App(Integer.parseInt(port), clientId, inviteUrl)
+//      val bot = Bot(token)
+//      val inviteUrl = bot.api.asBot().getInviteUrl(Bot.PERMISSIONS)
+      val app = App(Integer.parseInt(port), clientId, inviteUrl = "")
 
       try {
         val recordingsDir = dataDirectory + "/recordings/"
