@@ -6,6 +6,8 @@ import net.dv8tion.jda.core.events.ReadyEvent
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent
 import net.dv8tion.jda.core.events.guild.GuildLeaveEvent
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceJoinEvent
+import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent
+import net.dv8tion.jda.core.events.guild.voice.GuildVoiceMoveEvent
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent
 import net.dv8tion.jda.core.hooks.ListenerAdapter
@@ -42,12 +44,9 @@ class EventListener : ListenerAdapter() {
     logger.info{"Left server '${event.guild.name}', connected to ${event.jda.guilds.size} guilds."}
   }
 
-  // TODO: Add logging
   override fun onGuildVoiceJoin(event: GuildVoiceJoinEvent) {
-    logger.info { "${event.guild.name}#${event.channelJoined.name} - ${event.member.effectiveName} joined voice channel" }
-    val audioManager = event.guild.audioManager
+    logger.debug { "${event.guild.name}#${event.channelJoined.name} - ${event.member.effectiveName} joined voice channel" }
 
-    // TODO verify this logic
     val biggestChannel = BotUtils.biggestChannel(event.guild)
     logger.info("${event.guild.name}#${event.channelJoined.name} - ${biggestChannel?.name} is the biggest channel")
 
@@ -56,7 +55,9 @@ class EventListener : ListenerAdapter() {
     }
   }
 
-/*  override fun onGuildVoiceLeave(event: GuildVoiceLeaveEvent) {
+  override fun onGuildVoiceLeave(event: GuildVoiceLeaveEvent) {
+    logger.debug { "${event.guild.name}#${event.channelLeft.name} - ${event.member.effectiveName} left voice channel" }
+    /*
     if (event.member == null || event.member.user == null || event.member.user.isBot)
       return
 
@@ -94,9 +95,12 @@ class EventListener : ListenerAdapter() {
         BotUtils.joinVoiceChannel(biggest, false)
       }
     }
-  }*/
+    */
+  }
 
-/*  override fun onGuildVoiceMove(event: GuildVoiceMoveEvent) {
+  override fun onGuildVoiceMove(event: GuildVoiceMoveEvent) {
+    logger.debug { "${event.guild.name}#${event.channelLeft.name}#${event.channelJoined.name} - ${event.member.effectiveName} moved voice channels" }
+    /*
     if (event.member == null || event.member.user == null || event.member.user.isBot)
       return
 
@@ -172,7 +176,8 @@ class EventListener : ListenerAdapter() {
         BotUtils.joinVoiceChannel(event.channelJoined, false)
       }
     }
-  }*/
+    */
+  }
 
   override fun onGuildMessageReceived(event: GuildMessageReceivedEvent) {
     if (event.member == null || event.member.user == null || event.member.user.isBot)
