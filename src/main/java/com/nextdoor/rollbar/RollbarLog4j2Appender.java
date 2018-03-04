@@ -34,8 +34,11 @@ import org.apache.logging.log4j.core.layout.PatternLayout;
 import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.rollbar.notifier.config.ConfigBuilder.withAccessToken;
+import static tech.gdragon.discord.logging.UtilKt.*;
 
 @Plugin(name = "Rollbar", category = "Core", elementType = "appender", printObject = true)
 public class RollbarLog4j2Appender extends AbstractAppender {
@@ -98,8 +101,18 @@ public class RollbarLog4j2Appender extends AbstractAppender {
   public void append(LogEvent event) {
     Level rollbarLevel;
 
+    final String formattedMessage = new String(getLayout().toByteArray(event));
+    final String body = parseBody(formattedMessage);
+    HashMap<String, Object> metadata = new HashMap<>();
     if (event.getLevel() == org.apache.logging.log4j.Level.INFO) {
       rollbarLevel = Level.INFO;
+      Map<String, Object> guildInfo = parseGuildInfo(body);
+      metadata.putAll(guildInfo);
+
+      if(body.contains("Saving audio file")) {
+        Map<String, Object> audioFile = parseAudioFile(body);
+        metadata.putAll(audioFile);
+      }
     } else if (event.getLevel() == org.apache.logging.log4j.Level.TRACE
       || event.getLevel() == org.apache.logging.log4j.Level.DEBUG) {
       rollbarLevel = Level.DEBUG;
@@ -113,7 +126,6 @@ public class RollbarLog4j2Appender extends AbstractAppender {
       return;
     }
 
-    final String formattedMessage = new String(getLayout().toByteArray(event));
     if (event.getThrown() != null) {
       if (event.getMessage().toString() != null) {
         this.client.log(event.getThrown(), formattedMessage, rollbarLevel);
@@ -121,7 +133,7 @@ public class RollbarLog4j2Appender extends AbstractAppender {
         this.client.log(event.getThrown(), rollbarLevel);
       }
     } else {
-      this.client.log(formattedMessage, rollbarLevel);
+      this.client.log(formattedMessage, metadata, rollbarLevel);
     }
   }
 }
