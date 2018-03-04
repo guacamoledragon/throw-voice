@@ -128,10 +128,9 @@ object BotUtils {
     }
 
     val audioManager = channel.guild.audioManager
-    val connectedChannel = audioManager?.connectedChannel
 
-    if (connectedChannel?.idLong == channel.idLong) {
-      logger.debug { "${channel.guild.name}#${channel.name} - Already connected to ${channel.name}" }
+    if(audioManager?.isConnected == true) {
+      logger.debug { "${channel.guild.name}#${channel.name} - Already connected to ${audioManager.connectedChannel.name}" }
     } else {
 
       try {
