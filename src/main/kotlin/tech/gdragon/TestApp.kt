@@ -9,13 +9,11 @@ import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
-import synapticloop.b2.B2ApiClient
 import tech.gdragon.db.Shim
 import tech.gdragon.db.dao.Alias
 import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.table.Tables
-import java.io.File
 import java.sql.Connection
 
 fun dropAllTables() {
@@ -80,9 +78,9 @@ fun testAlerts() {
   JDABuilder(AccountType.BOT)
     .setToken(System.getenv("TOKEN"))
     .addEventListener(object : ListenerAdapter() {
-      override fun onGuildVoiceJoin(event: GuildVoiceJoinEvent?) {
-        println("Sending alerts to users that joined ${event?.channelJoined}.")
-        BotUtils.alert(event?.channelJoined)
+      override fun onGuildVoiceJoin(event: GuildVoiceJoinEvent) {
+        println("Sending alerts to users that joined ${event.channelJoined}.")
+        BotUtils.alert(event.channelJoined, "")
         super.onGuildVoiceJoin(event)
       }
     })
