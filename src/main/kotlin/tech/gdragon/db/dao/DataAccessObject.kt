@@ -50,7 +50,6 @@ class Channel(id: EntityID<Long>) : LongEntity(id) {
   }
 
   var name by Channels.name
-  @Deprecated("This feature is broken", level = DeprecationLevel.ERROR)
   var autoJoin by Channels.autoJoin
   @Deprecated("This feature is broken", level = DeprecationLevel.ERROR)
   var autoLeave by Channels.autoLeave

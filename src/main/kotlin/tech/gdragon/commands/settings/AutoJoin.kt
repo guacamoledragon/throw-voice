@@ -13,7 +13,7 @@ class AutoJoin : Command {
     transaction {
       Channel
         .findOrCreate(channel.idLong, channel.name, channel.guild.idLong, channel.guild.name)
-//        .forEach { it.autoJoin = autoJoin }
+        .forEach { it.autoJoin = autoJoin }
     }
   }
 
@@ -22,7 +22,7 @@ class AutoJoin : Command {
    * channel is disabled.
    */
   override fun action(args: Array<String>, event: GuildMessageReceivedEvent) {
-    /*require(args.size >= 2) {
+    require(args.size >= 2) {
       throw InvalidCommand(::usage, "Incorrect number of arguments: ${args.size}")
     }
 
@@ -70,9 +70,9 @@ class AutoJoin : Command {
         throw InvalidCommand(::usage, "Could not parse number argument: ${e.message}")
       } catch (e: IllegalArgumentException) {
         throw InvalidCommand(::usage, "Number must be positive: ${e.message}")
-      }*/
+      }
 
-    BotUtils.sendMessage(event.channel, ":no_entry_sign: _AutoJoin is currently disabled due to some bugs_")
+    BotUtils.sendMessage(event.channel, message)
   }
 
   override fun usage(prefix: String): String = "${prefix}autojoin [Voice Channel name | 'all'] [number | 'off']"
