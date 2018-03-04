@@ -8,7 +8,6 @@ import net.dv8tion.jda.core.entities.User
 import net.dv8tion.jda.core.entities.VoiceChannel
 import net.dv8tion.jda.core.exceptions.InsufficientPermissionException
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.slf4j.LoggerFactory
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.listener.CombinedAudioRecorderHandler
 import java.awt.Color
@@ -111,10 +110,7 @@ object BotUtils {
   /**
    * Returns the effective size of the voice channel, excluding bots.
    */
-  @JvmStatic
-  fun voiceChannelSize(voiceChannel: VoiceChannel?): Int {
-    return voiceChannel?.members?.count { !it.user.isBot } ?: 0
-  }
+  fun voiceChannelSize(voiceChannel: VoiceChannel?): Int = voiceChannel?.members?.count() ?: 0
 
   @JvmStatic
   fun joinVoiceChannel(voiceChannel: VoiceChannel?, warning: Boolean = false) {
