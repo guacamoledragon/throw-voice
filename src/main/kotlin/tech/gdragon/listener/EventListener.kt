@@ -63,45 +63,6 @@ class EventListener : ListenerAdapter() {
 
   override fun onGuildVoiceLeave(event: GuildVoiceLeaveEvent) {
     logger.debug { "${event.guild.name}#${event.channelLeft.name} - ${event.member.effectiveName} left voice channel" }
-    /*
-    if (event.member == null || event.member.user == null || event.member.user.isBot)
-      return
-
-    val min = transaction {
-      val settings = tech.gdragon.db.dao.Guild.findById(event.guild.idLong)!!.settings
-
-      for (channel in settings.channels) {
-        if (channel.id.value == event.channelLeft.idLong) {
-          return@transaction channel.autoLeave
-        }
-      }
-
-      Integer.MAX_VALUE
-    }
-
-    val size = BotUtils.voiceChannelSize(event.channelLeft)
-
-    val audioManager = event.guild.audioManager
-
-    if (size <= min && audioManager.connectedChannel === event.channelLeft) {
-      val autoSave = transaction {
-        val settings = tech.gdragon.db.dao.Guild.findById(event.guild.idLong)!!.settings
-        settings.autoSave
-      }
-
-      if (autoSave) {
-        val receiveHandler = audioManager.receiveHandler as CombinedAudioRecorderHandler
-        receiveHandler.saveRecording(event.channelLeft, event.member.defaultChannel)
-      }
-
-      BotUtils.leaveVoiceChannel(audioManager.connectedChannel)
-
-      val biggest = BotUtils.biggestChannel(event.guild)
-      if (biggest != null) {
-        BotUtils.joinVoiceChannel(biggest, false)
-      }
-    }
-    */
   }
 
   override fun onGuildVoiceMove(event: GuildVoiceMoveEvent) {
@@ -120,83 +81,6 @@ class EventListener : ListenerAdapter() {
          |""".trimMargin()
     }
     errorMessage?.let { BotUtils.alert(event.channelJoined, it) }
-    /*
-    if (event.member == null || event.member.user == null || event.member.user.isBot)
-      return
-
-    val audioManager = event.guild.audioManager
-
-    if (audioManager.isConnected) {
-      val newSize = BotUtils.voiceChannelSize(event.channelJoined)
-      val botSize = BotUtils.voiceChannelSize(audioManager.connectedChannel)
-
-      val min = transaction {
-        val settings = tech.gdragon.db.dao.Guild.findById(event.guild.idLong)!!.settings
-
-        for (channel in settings.channels) {
-          if (channel.id.value == event.channelJoined.idLong) {
-            val autoJoin = channel.autoJoin
-            return@transaction autoJoin ?: Integer.MAX_VALUE
-          }
-        }
-
-        Integer.MAX_VALUE
-      }
-
-      if (newSize >= min && botSize < newSize) {  //check for tie with old server
-        val autoSave = transaction {
-          val settings = Guild.findById(event.guild.idLong)?.settings
-          settings?.autoSave
-        }
-
-        if (autoSave == true) {
-          val receiveHandler = audioManager.receiveHandler as CombinedAudioRecorderHandler
-          receiveHandler.saveRecording(event.channelLeft, event.member.defaultChannel)
-        }
-
-        BotUtils.joinVoiceChannel(event.channelJoined, false)
-      }
-
-    } else {
-      val biggestChannel = BotUtils.biggestChannel(event.guild)
-      if (biggestChannel != null) {
-        BotUtils.joinVoiceChannel(biggestChannel, false)
-      }
-    }
-
-    //Check if bot needs to leave old channel
-    val min = transaction {
-      val settings = tech.gdragon.db.dao.Guild.findById(event.guild.idLong)!!.settings
-
-      for (channel in settings.channels) {
-        if (channel.id.value == event.channelJoined.idLong) {
-          return@transaction channel.autoLeave
-        }
-      }
-
-      0 // TODO, weeeeird, fix these loops
-    }
-    val size = BotUtils.voiceChannelSize(event.channelLeft)
-
-    if (audioManager.isConnected && size <= min && audioManager.connectedChannel === event.channelLeft) {
-      val autoSave = transaction {
-        val settings = Guild.findById(event.guild.idLong)?.settings
-        settings?.autoSave
-      }
-
-      if (autoSave == true) {
-        val receiveHandler = audioManager.receiveHandler as CombinedAudioRecorderHandler
-        receiveHandler.saveRecording(event.channelLeft, event.member.defaultChannel)
-      }
-
-      BotUtils.leaveVoiceChannel(audioManager.connectedChannel)
-
-      val biggest = BotUtils.biggestChannel(event.guild)
-      if (biggest != null) {
-        BotUtils.joinVoiceChannel(event.channelJoined, false)
-      }
-    }
-    */
   }
 
   override fun onGuildMessageReceived(event: GuildMessageReceivedEvent) {

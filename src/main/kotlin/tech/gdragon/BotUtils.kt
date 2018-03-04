@@ -133,11 +133,10 @@ object BotUtils {
     if (connectedChannel?.idLong == channel.idLong) {
       logger.debug { "${channel.guild.name}#${channel.name} - Already connected to ${channel.name}" }
     } else {
-      // TODO: Before disconnect check if you need to autosave
 
       try {
-        logger.info { "${channel.guild.name}#${channel.name} - Connecting to voice channel" }
         audioManager?.openAudioConnection(channel)
+        logger.info { "${channel.guild.name}#${channel.name} - Connected to voice channel" }
       } catch (e: InsufficientPermissionException) {
         logger.warn { "${channel.guild.name}#${channel.name} - Need permission: ${e.permission}" }
         return onError(e)
@@ -151,7 +150,6 @@ object BotUtils {
           ?: 1.0
 
         audioManager?.setReceivingHandler(CombinedAudioRecorderHandler(volume, channel))
-        BotUtils.logger.debug { "${channel.guild.name}#${channel.name} - Audio Recorder Handler set" }
         alert(channel, "Your audio is now being recorded in **<#${channel.id}>** on **${channel.guild.name}**.")
       }
     }
