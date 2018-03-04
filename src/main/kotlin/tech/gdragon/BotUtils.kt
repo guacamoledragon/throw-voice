@@ -112,34 +112,35 @@ object BotUtils {
    */
   fun voiceChannelSize(voiceChannel: VoiceChannel?): Int = voiceChannel?.members?.count() ?: 0
 
-  @JvmStatic
-  fun joinVoiceChannel(voiceChannel: VoiceChannel?, warning: Boolean = false) {
-    logger.info("{}#{}: Joining voice channel", voiceChannel?.guild?.name, voiceChannel?.name)
+  fun joinVoiceChannel(channel: VoiceChannel, warning: Boolean = false) {
+//    logger.info("{}#{}: Joining voice channel", channel?.guild?.name, channel?.name)
 
-    if (voiceChannel == voiceChannel?.guild?.afkChannel) {
+    if (channel == channel.guild.afkChannel) {
       if (warning) { // TODO: wtf does this do again?
         transaction {
-          val settings = Guild.findById(voiceChannel?.guild?.idLong ?: 0L)?.settings
-          val channel = voiceChannel?.guild?.getTextChannelById(settings?.defaultTextChannel ?: 0L)
+          val settings = Guild.findById(channel.guild.idLong)?.settings
+          val channel = channel.guild.getTextChannelById(settings?.defaultTextChannel ?: 0L)
           sendMessage(channel, ":no_entry_sign: _I'm not allowed to join AFK channels._")
         }
       }
     }
 
     try {
-      val audioManager = voiceChannel?.guild?.audioManager
-      audioManager?.openAudioConnection(voiceChannel)
-      alert(voiceChannel)
+      val audioManager = channel.guild.audioManager
+      logger.debug { "${channel.guild.name}#${channel.name} - $audioManager" }
+
+      audioManager?.openAudioConnection(channel)
+      alert(channel)
       transaction {
-        val volume = Guild.findById(voiceChannel?.guild?.idLong ?: 0L)?.settings?.volume?.toDouble() ?: 0.8
-        audioManager?.setReceivingHandler(CombinedAudioRecorderHandler(volume, voiceChannel))
+        val volume = Guild.findById(channel.guild.idLong)?.settings?.volume?.toDouble() ?: 1.0
+        audioManager?.setReceivingHandler(CombinedAudioRecorderHandler(volume, channel))
       }
     } catch (e: InsufficientPermissionException) {
-      logger.error("Not enough permissions to join ${voiceChannel?.name}", e)
+      logger.error("Not enough permissions to join ${channel.name}", e)
       transaction {
-        val settings = Guild.findById(voiceChannel?.guild?.idLong ?: 0L)?.settings
-        val channel = voiceChannel?.guild?.getTextChannelById(settings?.defaultTextChannel ?: 0L)
-        sendMessage(channel, ":no_entry_sign: _I don't have permission to join **<#${voiceChannel?.id}>**._")
+        val settings = Guild.findById(channel?.guild?.idLong ?: 0L)?.settings
+        val channel = channel.guild.getTextChannelById(settings?.defaultTextChannel ?: 0L)
+        sendMessage(channel, ":no_entry_sign: _I don't have permission to join **<#${channel?.id}>**._")
       }
     }
   }
