@@ -12,7 +12,7 @@
   <properties>
     <jda.version>3.5.1_339</jda.version>
     <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
-    <kotlin.version>1.2.21</kotlin.version>
+    <kotlin.version>1.2.30</kotlin.version>
     <main.class>tech.gdragon.App</main.class>
     <maven.compiler.source>1.9</maven.compiler.source>
     <maven.compiler.target>1.9</maven.compiler.target>
