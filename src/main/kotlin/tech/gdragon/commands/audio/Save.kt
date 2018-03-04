@@ -21,7 +21,7 @@ class Save : Command {
         val voiceChannel = event.guild.audioManager.connectedChannel
         val audioReceiveHandler = event.guild.audioManager.receiveHandler as CombinedAudioRecorderHandler
 
-        BotUtils.sendMessage(event.channel, ":floppy_disk: **Saving <#${voiceChannel.id}> recording...**")
+        BotUtils.sendMessage(event.channel, ":floppy_disk: **Saving <#${voiceChannel.id}>'s recording...**")
         if (args.isEmpty()) {
           audioReceiveHandler.saveRecording(voiceChannel, event.channel)
           ""
