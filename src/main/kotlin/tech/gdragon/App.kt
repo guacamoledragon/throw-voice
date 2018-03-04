@@ -8,6 +8,7 @@ import org.json.JSONException
 import org.json.JSONObject
 import org.slf4j.LoggerFactory
 import tech.gdragon.db.Shim
+import tech.gdragon.discord.Bot
 import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -53,7 +54,7 @@ class App private constructor(port: Int, val clientId: String, val inviteUrl: St
       }
       "/rollbar" -> {
         val response =
-          if(session.method == Method.POST && !discordRollbarWebhook.isNullOrEmpty()) {
+          if (session.method == Method.POST && !discordRollbarWebhook.isNullOrEmpty()) {
             val body = mutableMapOf<String, String>()
             session.parseBody(body)
             discordWebhook(body)
@@ -90,9 +91,9 @@ class App private constructor(port: Int, val clientId: String, val inviteUrl: St
       // Connect to database
       Shim.initializeDatabase(dataDirectory + "/settings.db")
 
-//      val bot = Bot(token)
-//      val inviteUrl = bot.api.asBot().getInviteUrl(Bot.PERMISSIONS)
-      val app = App(Integer.parseInt(port), clientId, inviteUrl = "")
+      val bot = Bot(token)
+      val inviteUrl = bot.api.asBot().getInviteUrl(Bot.PERMISSIONS)
+      val app = App(Integer.parseInt(port), clientId, inviteUrl)
 
       try {
         val recordingsDir = dataDirectory + "/recordings/"
