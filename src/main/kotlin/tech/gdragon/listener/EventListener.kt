@@ -45,14 +45,15 @@ class EventListener : ListenerAdapter() {
   }
 
   override fun onGuildVoiceJoin(event: GuildVoiceJoinEvent) {
-    logger.debug { "${event.guild.name}#${event.channelJoined.name} - ${event.member.effectiveName} joined voice channel" }
+    val user = event.member.user
+    logger.debug { "${event.guild.name}#${event.channelJoined.name} - ${user.name} joined voice channel" }
 
-    val biggestChannel = BotUtils.biggestChannel(event.guild)
-    logger.info("${event.guild.name}#${event.channelJoined.name} - ${biggestChannel?.name} is the biggest channel")
-
-    if (biggestChannel != null) {
-      BotUtils.joinVoiceChannel(event.channelJoined, false)
+    if(BotUtils.isSelfBot(event.jda, user)) {
+      logger.debug { "${event.guild.name}#${event.channelJoined.name} - ${user.name} is self-bot" }
+      return
     }
+
+    BotUtils.autoJoin(event.guild, event.channelJoined)
   }
 
   override fun onGuildVoiceLeave(event: GuildVoiceLeaveEvent) {
@@ -99,7 +100,16 @@ class EventListener : ListenerAdapter() {
   }
 
   override fun onGuildVoiceMove(event: GuildVoiceMoveEvent) {
-    logger.debug { "${event.guild.name}#${event.channelLeft.name}#${event.channelJoined.name} - ${event.member.effectiveName} moved voice channels" }
+    val user = event.member.user
+    logger.debug { "${event.guild.name}#${event.channelLeft.name} - ${user.name} left voice channel" }
+    logger.debug { "${event.guild.name}#${event.channelJoined.name} - ${user.name} joined voice channel" }
+
+    if(BotUtils.isSelfBot(event.jda, user)) {
+      logger.debug { "${event.guild.name}#${event.channelJoined.name} - ${user.name} is self-bot" }
+      return
+    }
+
+    BotUtils.autoJoin(event.guild, event.channelJoined)
     /*
     if (event.member == null || event.member.user == null || event.member.user.isBot)
       return

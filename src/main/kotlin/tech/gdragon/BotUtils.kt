@@ -16,7 +16,7 @@ import java.time.OffsetDateTime
 import net.dv8tion.jda.core.entities.Guild as DiscordGuild
 
 object BotUtils {
-  private val logger = LoggerFactory.getLogger(BotUtils.javaClass)
+  private val logger = KotlinLogging.logger {}
 
   /**
    * Send a DM to anyone in the voiceChannel unless they are in the blacklist
@@ -67,6 +67,29 @@ object BotUtils {
     }
   }
 
+  /**
+   * AutoJoin voice channel if it meets the autojoining criterion
+   */
+  fun autoJoin(guild: DiscordGuild, channel: VoiceChannel): Unit {
+    val channelMemberCount = voiceChannelSize(channel)
+    logger.debug { "${guild.name}#${channel.name} - Channel member count: $channelMemberCount" }
+
+    transaction {
+      Guild.findById(guild.idLong)
+        ?.settings
+        ?.channels
+        ?.first { it.id.value == channel.idLong }
+        ?.let {
+          val autoJoin = it.autoJoin
+          BotUtils.logger.debug { "${guild.name}#${channel.name} - AutoJoin value: $autoJoin" }
+
+          if (autoJoin != null && channelMemberCount >= autoJoin) {
+            joinVoiceChannel(channel)
+          }
+        }
+    }
+
+  }
 
   fun isSelfBot(jda: JDA, user: User): Boolean {
     return user.isBot && jda.selfUser.idLong == user.idLong
@@ -94,11 +117,11 @@ object BotUtils {
   }
 
   @JvmStatic
-  fun joinVoiceChannel(voiceChannel: VoiceChannel?, warning: Boolean) {
+  fun joinVoiceChannel(voiceChannel: VoiceChannel?, warning: Boolean = false) {
     logger.info("{}#{}: Joining voice channel", voiceChannel?.guild?.name, voiceChannel?.name)
 
     if (voiceChannel == voiceChannel?.guild?.afkChannel) {
-      if (warning) {
+      if (warning) { // TODO: wtf does this do again?
         transaction {
           val settings = Guild.findById(voiceChannel?.guild?.idLong ?: 0L)?.settings
           val channel = voiceChannel?.guild?.getTextChannelById(settings?.defaultTextChannel ?: 0L)
