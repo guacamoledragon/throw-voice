@@ -32,28 +32,33 @@ class EventListener : ListenerAdapter() {
       Guild.findOrCreate(guild.idLong, guild.name)
     }
 
-    logger.info {"Joined new server '${event.guild.name}', connected to ${event.jda.guilds.size} guilds."}
+    logger.info { "Joined new server '${event.guild.name}', connected to ${event.jda.guilds.size} guilds." }
   }
 
   override fun onGuildLeave(event: GuildLeaveEvent) {
-     transaction {
+    transaction {
       val guild = Guild.findById(event.guild.idLong)
       guild?.delete()
     }
 
-    logger.info{"Left server '${event.guild.name}', connected to ${event.jda.guilds.size} guilds."}
+    logger.info { "Left server '${event.guild.name}', connected to ${event.jda.guilds.size} guilds." }
   }
 
   override fun onGuildVoiceJoin(event: GuildVoiceJoinEvent) {
     val user = event.member.user
     logger.debug { "${event.guild.name}#${event.channelJoined.name} - ${user.name} joined voice channel" }
 
-    if(BotUtils.isSelfBot(event.jda, user)) {
+    if (BotUtils.isSelfBot(event.jda, user)) {
       logger.debug { "${event.guild.name}#${event.channelJoined.name} - ${user.name} is self-bot" }
       return
     }
 
-    BotUtils.autoJoin(event.guild, event.channelJoined)
+    val errorMessage = BotUtils.autoJoin(event.guild, event.channelJoined) { ex ->
+      """|:no_entry_sign: _Cannot join **<#${event.channelJoined.id}>** on Guild **${event.guild.name}**,
+         |need permission:_ ```${ex.permission}```
+         |""".trimMargin()
+    }
+    errorMessage?.let { BotUtils.alert(event.channelJoined, it) }
   }
 
   override fun onGuildVoiceLeave(event: GuildVoiceLeaveEvent) {
@@ -104,12 +109,17 @@ class EventListener : ListenerAdapter() {
     logger.debug { "${event.guild.name}#${event.channelLeft.name} - ${user.name} left voice channel" }
     logger.debug { "${event.guild.name}#${event.channelJoined.name} - ${user.name} joined voice channel" }
 
-    if(BotUtils.isSelfBot(event.jda, user)) {
+    if (BotUtils.isSelfBot(event.jda, user)) {
       logger.debug { "${event.guild.name}#${event.channelJoined.name} - ${user.name} is self-bot" }
       return
     }
 
-    BotUtils.autoJoin(event.guild, event.channelJoined)
+    val errorMessage = BotUtils.autoJoin(event.guild, event.channelJoined) { ex ->
+      """|:no_entry_sign: _Cannot join **<#${event.channelJoined.id}>** on Guild **${event.guild.name}**,
+         |need permission:_ ```${ex.permission}```
+         |""".trimMargin()
+    }
+    errorMessage?.let { BotUtils.alert(event.channelJoined, it) }
     /*
     if (event.member == null || event.member.user == null || event.member.user.isBot)
       return
@@ -260,7 +270,7 @@ class EventListener : ListenerAdapter() {
 
     }
 
-    logger.info{"ONLINE: Connected to ${event.jda.guilds.size} guilds!"}
+    logger.info { "ONLINE: Connected to ${event.jda.guilds.size} guilds!" }
 
     // Add guild if not present
     for (g in event.jda.guilds) {
