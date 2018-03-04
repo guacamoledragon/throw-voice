@@ -85,7 +85,7 @@ class App private constructor(port: Int, val clientId: String, val inviteUrl: St
     fun main(args: Array<String>) {
       val token = System.getenv("BOT_TOKEN")
       val port = System.getenv("PORT")
-      val clientId = System.getenv("CLIENT_ID")
+      val clientId = System.getenv("CLIENT_ID") // TODO: Can we get rid of this w/o consequences?
       val dataDirectory = System.getenv("DATA_DIR")
 
       // Connect to database
