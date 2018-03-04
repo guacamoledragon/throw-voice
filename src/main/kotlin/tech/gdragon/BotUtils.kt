@@ -1,7 +1,10 @@
 package tech.gdragon
 
+import mu.KotlinLogging
 import net.dv8tion.jda.core.EmbedBuilder
+import net.dv8tion.jda.core.JDA
 import net.dv8tion.jda.core.entities.TextChannel
+import net.dv8tion.jda.core.entities.User
 import net.dv8tion.jda.core.entities.VoiceChannel
 import net.dv8tion.jda.core.exceptions.InsufficientPermissionException
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -62,6 +65,11 @@ object BotUtils {
         }
         .maxBy(BotUtils::voiceChannelSize)
     }
+  }
+
+
+  fun isSelfBot(jda: JDA, user: User): Boolean {
+    return user.isBot && jda.selfUser.idLong == user.idLong
   }
 
   /**
