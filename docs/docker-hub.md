@@ -15,7 +15,8 @@
 
 # Supported tags and respective `Dockerfile` links
 
-- [`1.0.0, latest` (*Dockerfile*)](https://github.com/guacamoledragon/throw-voice/blob/v1.0.0/Dockerfile)
+- [`1.1.0, latest` (*Dockerfile*)](https://github.com/guacamoledragon/throw-voice/blob/v1.1.0/Dockerfile)
+- [`1.0.0` (*Dockerfile*)](https://github.com/guacamoledragon/throw-voice/blob/v1.0.0/Dockerfile)
 
 # How to use this image
 

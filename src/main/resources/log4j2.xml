@@ -17,8 +17,10 @@
   </Appenders>
   <Loggers>
     <Root level="info">
-      <AppenderRef ref="Console"/>
       <AppenderRef ref="Rollbar"/>
     </Root>
+    <Logger name="tech.gdragon" level="debug" additivity="false">
+      <AppenderRef ref="Console"/>
+    </Logger>
   </Loggers>
 </Configuration>

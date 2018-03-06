@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>tech.gdragon</groupId>
   <artifactId>throw-voice</artifactId>
-  <version>1.0.0</version>
+  <version>1.1.0</version>
   <scm>
     <connection>scm:git:https://github.com/guacamoledragon/throw-voice.git</connection>
     <url>https://github.com/guacamoledragon/throw-voice</url>

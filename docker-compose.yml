@@ -1,7 +1,7 @@
 version: '3'
 services:
   pawa:
-    image: gdragon/throw-voice:1.0.0
+    image: gdragon/throw-voice:1.1.0
     env_file:
       - ${ENV:-sample}-b2.env
       - ${ENV:-sample}-bot.env
@@ -16,3 +16,11 @@ services:
       options:
         max-size: 100m
         max-file: '5'
+  nginx:
+    image: nginx:1.13
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - 80:80
+    depends_on:
+      - pawa

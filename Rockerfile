@@ -40,4 +40,4 @@ VOLUME $DATA_DIR
 
 CMD ["sh", "-c", "/usr/bin/java ${JAVA_OPTS} -cp *:lib/* tech.gdragon.App"]
 
-TAG gdragon/throw-voice:1.0.0
+TAG gdragon/throw-voice:1.1.0
