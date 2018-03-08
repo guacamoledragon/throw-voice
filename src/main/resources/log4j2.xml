@@ -13,6 +13,7 @@
       <accessToken>${env:ROLLBAR_TOKEN}</accessToken>
       <environment>${env:ROLLBAR_ENV}</environment>
       <PatternLayout pattern="${globalPattern}"/>
+      <RegexFilter regex=".*synapticloop\.b2\.response\.B2AuthorizeAccountResponse.*" onMatch="DENY"/>
     </Rollbar>
   </Appenders>
   <Loggers>

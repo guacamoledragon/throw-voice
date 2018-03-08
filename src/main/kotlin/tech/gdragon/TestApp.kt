@@ -9,11 +9,13 @@ import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
+import synapticloop.b2.B2ApiClient
 import tech.gdragon.db.Shim
 import tech.gdragon.db.dao.Alias
 import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.table.Tables
+import java.io.File
 import java.sql.Connection
 
 fun dropAllTables() {
@@ -88,16 +90,18 @@ fun testAlerts() {
 }
 
 fun uploadRecording() {
-/*  val accountId = ""
-  val accountKey = ""
-  val bucketId = ""
-  val filename = "333055724198559745/e05ee74e-d15d-4f0d-84b4-0aabd0fc9700.mp3"
+  val bucketId: String = System.getenv("B2_BUCKET_ID") ?: ""
+  val bucketName: String = System.getenv("B2_BUCKET_NAME") ?: ""
+  val dataDirectory: String = System.getenv("DATA_DIR") ?: ""
+  val accountId: String = System.getenv("B2_ACCOUNT_ID") ?: ""
+  val accountKey: String = System.getenv("B2_APP_KEY") ?: ""
+
+  val filename = "data/recordings/alone.pcm"
   val b2Client = B2ApiClient(accountId, accountKey)
-  val result = b2Client.downloadUrl
-  val file = File("recordings/e05ee74e-d15d-4f0d-84b4-0aabd0fc9700.mp3")
-  val result = b2Client.uploadFile(bucketId, filename, file)
-  println("result = $result")
-  println("result = ${b2Client.downloadUrl}/file/$filename")*/
+//  val result = b2Client.uploadFile(bucketId, filename, File(filename))
+
+//  println("result = $result")
+  println("result = ${b2Client.downloadUrl}/file/$filename")
 }
 
 fun main(args: Array<String>) {
