@@ -104,10 +104,22 @@ fun uploadRecording() {
   println("result = ${b2Client.downloadUrl}/file/$filename")
 }
 
+fun testAutoJoin() {
+  Shim.initializeDatabase("./data/settings.db")
+  transaction {
+    val settings = Guild.findById(333055724198559745L)?.settings
+
+    settings
+      ?.channels
+      ?.firstOrNull{ it.id.value == 41992802040138956L }
+      ?.let { println(it.id.value) }
+  }
+}
+
 fun main(args: Array<String>) {
 //  testAlerts()
 //  basicTest()
 //  dropAllTables()
-  uploadRecording()
-
+//  uploadRecording()
+  testAutoJoin()
 }

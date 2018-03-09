@@ -19,9 +19,7 @@
   <Loggers>
     <Root level="info">
       <AppenderRef ref="Rollbar"/>
-    </Root>
-    <Logger name="tech.gdragon" level="debug" additivity="false">
       <AppenderRef ref="Console"/>
-    </Logger>
+    </Root>
   </Loggers>
 </Configuration>
