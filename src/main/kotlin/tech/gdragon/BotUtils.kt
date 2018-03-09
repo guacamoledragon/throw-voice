@@ -79,7 +79,7 @@ object BotUtils {
 
       settings
         ?.channels
-        ?.first { it.id.value == channel.idLong }
+        ?.firstOrNull { it.id.value == channel.idLong }
         ?.let {
           val autoJoin = it.autoJoin
           BotUtils.logger.debug { "${guild.name}#${channel.name} - AutoJoin value: $autoJoin" }
@@ -129,7 +129,7 @@ object BotUtils {
 
     val audioManager = channel.guild.audioManager
 
-    if(audioManager?.isConnected == true) {
+    if (audioManager?.isConnected == true) {
       logger.debug { "${channel.guild.name}#${channel.name} - Already connected to ${audioManager.connectedChannel.name}" }
     } else {
 
