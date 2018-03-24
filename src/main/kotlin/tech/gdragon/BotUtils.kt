@@ -10,8 +10,11 @@ import net.dv8tion.jda.core.exceptions.InsufficientPermissionException
 import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.listener.CombinedAudioRecorderHandler
+import tech.gdragon.listener.SilenceAudioSendHandler
 import java.awt.Color
 import java.time.OffsetDateTime
+import java.util.*
+import kotlin.concurrent.schedule
 import net.dv8tion.jda.core.entities.Guild as DiscordGuild
 
 object BotUtils {
@@ -148,7 +151,13 @@ object BotUtils {
           ?.toDouble()
           ?: 1.0
 
+        val audioSendHandler = SilenceAudioSendHandler()
+        // Only send 5 seconds of audio at the beginning of the recording see: https://github.com/DV8FromTheWorld/JDA/issues/653
+        Timer().schedule(5 * 1000) {
+          audioSendHandler.canProvide = false
+        }
         audioManager?.setReceivingHandler(CombinedAudioRecorderHandler(volume, channel, defaultChannel))
+        audioManager?.sendingHandler = audioSendHandler
         alert(channel, "Your audio is now being recorded in **<#${channel.id}>** on **${channel.guild.name}**.")
       }
     }
@@ -169,6 +178,7 @@ object BotUtils {
     logger.info("{}#{}: Leaving voice channel", guild?.name, voiceChannel?.name)
     audioManager?.apply {
       setReceivingHandler(null)
+      sendingHandler = null
       closeAudioConnection()
       logger.info("{}#{}: Destroyed audio handlers", guild.name, voiceChannel.name)
     }
