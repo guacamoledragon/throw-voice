@@ -15,7 +15,6 @@ import tech.gdragon.db.dao.Alias
 import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.table.Tables
-import java.io.File
 import java.sql.Connection
 
 fun dropAllTables() {
