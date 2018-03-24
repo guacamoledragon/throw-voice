@@ -11,6 +11,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/guacamoledragon/throw-voice/badge.svg)](https://coveralls.io/github/guacamoledragon/throw-voice)
 [![Waffle.io - Columns and their card count](https://badge.waffle.io/guacamoledragon/throw-voice.svg?columns=all)](https://waffle.io/guacamoledragon/throw-voice)
 [![Docker Pulls](https://img.shields.io/docker/pulls/gdragon/throw-voice.svg)](https://hub.docker.com/r/gdragon/throw-voice/)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fguacamoledragon%2Fthrow-voice.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fguacamoledragon%2Fthrow-voice?ref=badge_shield)
 [![](https://images.microbadger.com/badges/version/gdragon/throw-voice.svg)](https://microbadger.com/images/gdragon/throw-voice "Get your own version badge on microbadger.com")
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
@@ -71,3 +72,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ```
+
+
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fguacamoledragon%2Fthrow-voice.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fguacamoledragon%2Fthrow-voice?ref=badge_large)
