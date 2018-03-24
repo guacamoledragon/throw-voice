@@ -37,8 +37,7 @@ class Join : Command {
               }
             }
 
-
-            BotUtils.joinVoiceChannel(voiceChannel, true) { ex ->
+            BotUtils.joinVoiceChannel(voiceChannel, event.channel, true) { ex ->
               ":no_entry_sign: _Cannot join **<#${event.channel.id}>**, need permission:_ ```${ex.permission}```"
             } ?: ":red_circle: **Recording on <#${voiceChannel.id}>**"
           }

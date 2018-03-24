@@ -9,13 +9,12 @@ import io.reactivex.subjects.Subject
 import net.dv8tion.jda.core.audio.AudioReceiveHandler
 import net.dv8tion.jda.core.audio.CombinedAudio
 import net.dv8tion.jda.core.audio.UserAudio
+import net.dv8tion.jda.core.entities.MessageChannel
 import net.dv8tion.jda.core.entities.TextChannel
 import net.dv8tion.jda.core.entities.VoiceChannel
-import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
 import synapticloop.b2.B2ApiClient
 import tech.gdragon.BotUtils
-import tech.gdragon.db.dao.Guild
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -26,7 +25,7 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
 
-class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceChannel) : AudioReceiveHandler {
+class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceChannel, val defaultChannel: MessageChannel) : AudioReceiveHandler {
   companion object {
     private const val AFK_LIMIT = (2 * 60 * 1000) / 20                      // 2 minutes in ms over 20ms increments
     private const val MAX_RECORDING_MB = 110
@@ -86,12 +85,8 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
 
     if (isAfk) {
       logger.info("{}#{}: AFK detected.", voiceChannel.guild.name, voiceChannel.name)
-      transaction {
-        Guild.findById(voiceChannel.guild.idLong)?.settings?.defaultTextChannel
-      }?.let {
-        val textChannel = voiceChannel.guild.getTextChannelById(it)
-        BotUtils.sendMessage(textChannel, "_:sleeping: No audio detected in the last 2 minutes, leaving <#${voiceChannel.id}>._")
-      }
+
+      BotUtils.sendMessage(defaultChannel, "_:sleeping: No audio detected in the last 2 minutes, leaving <#${voiceChannel.id}>._")
 
       thread(start = true) {
         BotUtils.leaveVoiceChannel(voiceChannel)

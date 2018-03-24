@@ -85,7 +85,7 @@ object BotUtils {
           BotUtils.logger.debug { "${guild.name}#${channel.name} - AutoJoin value: $autoJoin" }
 
           if (autoJoin != null && channelMemberCount >= autoJoin) {
-            return@let joinVoiceChannel(channel, onError = onError)
+            return@let joinVoiceChannel(channel, guild.defaultChannel!!, onError = onError)
           }
 
           return@let null
@@ -115,7 +115,7 @@ object BotUtils {
    */
   fun voiceChannelSize(voiceChannel: VoiceChannel?): Int = voiceChannel?.members?.count() ?: 0
 
-  fun joinVoiceChannel(channel: VoiceChannel, warning: Boolean = false, onError: (InsufficientPermissionException) -> String? = { _ -> null }): String? {
+  fun joinVoiceChannel(channel: VoiceChannel, defaultChannel: MessageChannel, warning: Boolean = false, onError: (InsufficientPermissionException) -> String? = { _ -> null }): String? {
     // TODO: Bot warns about AFK channel but connects anyway lulz
     if (channel == channel.guild.afkChannel) {
       if (warning) { // TODO: wtf does this do again?
@@ -148,7 +148,7 @@ object BotUtils {
           ?.toDouble()
           ?: 1.0
 
-        audioManager?.setReceivingHandler(CombinedAudioRecorderHandler(volume, channel))
+        audioManager?.setReceivingHandler(CombinedAudioRecorderHandler(volume, channel, defaultChannel))
         alert(channel, "Your audio is now being recorded in **<#${channel.id}>** on **${channel.guild.name}**.")
       }
     }
