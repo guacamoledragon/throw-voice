@@ -36,3 +36,5 @@ All of these are optional, but if you want to upload your logs to Rollbar, creat
 
 - `ROLLBAR_ENV`: Logging environment
 - `ROLLBAR_TOKEN`: Application Token
+- `DISCORD_ROLLBAR_WEBHOOK`: The location of the Discord webhook that will get triggered by Rollbar, needs to be
+                             configured on both Discord and Rollbar
