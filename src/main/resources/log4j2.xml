@@ -15,10 +15,15 @@
       <PatternLayout pattern="${globalPattern}"/>
       <RegexFilter regex=".*Found an unexpected key.*" onMatch="DENY" onMismatch="ACCEPT"/>
     </Rollbar>
+    <Discord name="Discord">
+      <webhookUrl>${env:DISCORD_WEBHOOK}</webhookUrl>
+      <PatternLayout pattern="${globalPattern}"/>
+    </Discord>
   </Appenders>
   <Loggers>
     <Root level="info">
-      <AppenderRef ref="Rollbar"/>
+      <AppenderRef level="error" ref="Rollbar"/>
+      <AppenderRef level="error" ref="Discord"/>
       <AppenderRef ref="Console"/>
     </Root>
   </Loggers>

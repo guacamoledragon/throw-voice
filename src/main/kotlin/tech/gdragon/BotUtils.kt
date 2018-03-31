@@ -4,6 +4,7 @@ import mu.KotlinLogging
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.JDA
 import net.dv8tion.jda.core.entities.MessageChannel
+import net.dv8tion.jda.core.entities.TextChannel
 import net.dv8tion.jda.core.entities.User
 import net.dv8tion.jda.core.entities.VoiceChannel
 import net.dv8tion.jda.core.exceptions.InsufficientPermissionException
@@ -88,7 +89,8 @@ object BotUtils {
           BotUtils.logger.debug { "${guild.name}#${channel.name} - AutoJoin value: $autoJoin" }
 
           if (autoJoin != null && channelMemberCount >= autoJoin) {
-            return@let joinVoiceChannel(channel, guild.defaultChannel!!, onError = onError)
+            val defaultChannel = guild.textChannels.find { it.canTalk() } // TODO: this is probably not the best way to go about this, but will prevent exceptions
+            return@let joinVoiceChannel(channel, defaultChannel!!, onError = onError)
           }
 
           return@let null
@@ -105,12 +107,18 @@ object BotUtils {
    */
   @JvmStatic
   fun sendMessage(textChannel: MessageChannel?, msg: String) {
-    textChannel
-      ?.sendMessage(msg)
-      ?.queue(
-        { m -> logger.debug("{}#{}: Send message - {}", m.guild.name, m.channel.name, m.contentDisplay) },
-        { t -> logger.error("#${textChannel.name}: Error sending message - $msg", t) }
-      )
+    try {
+      textChannel
+        ?.sendMessage(msg)
+        ?.queue(
+          { m -> logger.debug("{}#{}: Send message - {}", m.guild.name, m.channel.name, m.contentDisplay) },
+          { t -> logger.error("#${textChannel.name}: Error sending message - $msg", t) }
+        )
+    } catch (e: InsufficientPermissionException) {
+      logger.warn(e) {
+        "<insert guild name>#${textChannel?.name}: Missing permission ${e.permission}"
+      }
+    }
   }
 
   /**

@@ -4,6 +4,7 @@ REM Bot variables, required
 SET BOT_TOKEN=
 SET CLIENT_ID=
 SET DATA_DIR=
+SET DISCORD_WEBHOOK=
 SET PORT=
 
 REM BackBlaze B2 Cloud Storage variables, required
