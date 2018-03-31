@@ -1,6 +1,6 @@
 FROM maven:3.5-jdk-9-slim as builder
-WORKDIR /src
-COPY . /src
+WORKDIR /app
+COPY . /app
 
 RUN apt-get update && apt-get install -y \
   git \
@@ -26,11 +26,16 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
 ENV APP_DIR /app
 ENV DATA_DIR $APP_DIR/data
 
+ENV JAVA_LIB_DIR lib/*
+ENV JAVA_MAIN_CLASS tech.gdragon.App
+
 WORKDIR $APP_DIR
 
-COPY --from=builder /src/target/throw-voice-*-release.zip /tmp/throw-voice-release.zip
+COPY --from=builder /app/target/throw-voice-*-release.zip /tmp/throw-voice-release.zip
 RUN unzip -d $APP_DIR /tmp/throw-voice-release.zip
+
+ADD https://cdn.rawgit.com/fabric8io-images/run-java-sh/v1.2.0/fish-pepper/run-java-sh/fp-files/run-java.sh $APP_DIR
 
 VOLUME $DATA_DIR
 
-CMD ["sh", "-c", "/usr/bin/java ${JAVA_OPTS} -cp *:lib/* tech.gdragon.App"]
+CMD ["sh", "run-java.sh"]
