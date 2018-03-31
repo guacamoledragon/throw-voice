@@ -17,7 +17,9 @@ These are the environment configuration variables used by the bot.
 - `BOT_TOKEN`: Discord Bot Token
 - `CLIENT_ID`: Discord Client ID
 - `DATA_DIR`: Directory path to store bot files
+- `DISCORD_WEBHOOK` _(optional)_: The location of the Discord webhook where error logs will be sent
 - `PORT`: Port on which the bot will run it's HTTP server on and redirect to bot's invite URL
+
 
 ## BackBlaze B2 Cloud Storage variables, **_required_**
 
@@ -36,5 +38,3 @@ All of these are optional, but if you want to upload your logs to Rollbar, creat
 
 - `ROLLBAR_ENV`: Logging environment
 - `ROLLBAR_TOKEN`: Application Token
-- `DISCORD_ROLLBAR_WEBHOOK`: The location of the Discord webhook that will get triggered by Rollbar, needs to be
-                             configured on both Discord and Rollbar
