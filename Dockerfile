@@ -1,6 +1,6 @@
 FROM maven:3.5-jdk-9-slim as builder
-WORKDIR /src
-COPY . /src
+WORKDIR /app
+COPY . /app
 
 RUN apt-get update && apt-get install -y \
   git \
@@ -28,7 +28,7 @@ ENV DATA_DIR $APP_DIR/data
 
 WORKDIR $APP_DIR
 
-COPY --from=builder /src/target/throw-voice-*-release.zip /tmp/throw-voice-release.zip
+COPY --from=builder /app/target/throw-voice-*-release.zip /tmp/throw-voice-release.zip
 RUN unzip -d $APP_DIR /tmp/throw-voice-release.zip
 
 VOLUME $DATA_DIR
