@@ -1,13 +1,13 @@
 version: '3'
 services:
   pawa:
-    image: gdragon/throw-voice:1.1.0
+    image: gdragon/throw-voice:1.2.0-beta
     env_file:
       - ${ENV:-sample}-b2.env
       - ${ENV:-sample}-bot.env
       - ${ENV:-sample}-rollbar.env
     environment:
-      - JAVA_OPTS=--add-modules java.xml.bind -Xmx700m
+      - JAVA_OPTIONS=--add-modules java.xml.bind
       - TZ=America/Denver
     volumes:
       - ./data:/app/data
