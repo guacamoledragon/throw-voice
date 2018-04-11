@@ -15,8 +15,8 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.BotUtils
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
+import tech.gdragon.commands.settings.configureAlerts
 import tech.gdragon.db.dao.Guild
-import tech.gdragon.db.dao.User
 import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -116,34 +116,28 @@ class EventListener : ListenerAdapter() {
     val message = event.message.contentDisplay
 
     if (message.startsWith("!alerts")) {
-      if (message.endsWith("off")) {
-        for (g in event.jda.guilds) {
-          if (g.getMember(event.author) != null) {
-            transaction {
-              val settings = tech.gdragon.db.dao.Guild.findById(g.idLong)!!.settings
-              User.findOrCreate(event.author.idLong, event.author.name, settings)
-            }
-          }
-        }
-        event.channel.sendMessage("Alerts now off, message `!alerts on` to re-enable at any time").queue()
+      val userId = event.author.id
 
-      } else if (message.endsWith("on")) {
-        for (g in event.jda.guilds) {
-          if (g.getMember(event.author) != null) {
-            transaction {
-              val settings = tech.gdragon.db.dao.Guild.findById(g.idLong)!!.settings
-              val user = User.findOrCreate(event.author.idLong, event.author.name, settings)
-              user.delete()
-              user
+      event.jda.guilds
+        .filter { it.isMember(event.author) }
+        .forEach {
+          val guildId = it.idLong
+          val alert = { enable: Boolean -> configureAlerts(userId, guildId, enable) }
+
+          when {
+            message.endsWith("off") -> {
+              alert(false)
+              event.channel.sendMessage("Alerts now off for guild `${it.name}`, message `!alerts on` to re-enable.").queue()
             }
+            message.endsWith("on") -> {
+              alert(true)
+              event.channel.sendMessage("Alerts now on for guild `${it.name}`, message `!alerts off` to disable.").queue()
+            }
+            else -> event.channel.sendMessage("!alerts [on | off]").queue()
           }
         }
-        event.channel.sendMessage("Alerts now on, message `!alerts off` to disable at any time").queue()
-      } else {
-        event.channel.sendMessage("!alerts [on | off]").queue()
-      }
     } else {
-      event.channel.sendMessage("DM commands unsupported, send `!help` in your guild chat for more info.").queue()
+      event.channel.sendMessage("The only DM command supported is `!alerts`.").queue()
     }
   }
 
