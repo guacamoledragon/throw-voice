@@ -102,14 +102,14 @@ class Settings(id: EntityID<Long>) : LongEntity(id) {
 class User(id: EntityID<Long>) : LongEntity(id) {
   companion object : LongEntityClass<User>(Users) {
     @JvmStatic
-    fun findOrCreate(id: Long, name: String, settings: Settings): User = transaction {
+    fun findOrCreate(id: String, settings: Settings): User = transaction {
       val users = User.find {
-        (Users.id eq id) and (Users.settings eq settings.id)
+        (Users.name eq id) and (Users.settings eq settings.id)
       }
 
       if (users.empty()) {
-        User.new(id) {
-          this.name = name
+        User.new {
+          this.name = id
           this.settings = settings
         }
       } else {
