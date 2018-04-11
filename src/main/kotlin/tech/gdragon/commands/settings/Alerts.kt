@@ -9,6 +9,17 @@ import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.dao.User
 import tech.gdragon.db.table.Tables.Users
 
+fun configureAlerts(userId: String, guildId: Long, enable: Boolean) {
+  transaction {
+    val settings = Guild.findById(guildId)?.settings!!
+    val user = User.findOrCreate(userId, settings)
+
+    if (enable) {
+      user.delete()
+    }
+  }
+}
+
 class Alerts : Command {
   override fun action(args: Array<String>, event: GuildMessageReceivedEvent) {
     val guildId = event.guild.idLong
