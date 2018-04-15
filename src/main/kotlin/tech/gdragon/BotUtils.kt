@@ -132,8 +132,8 @@ object BotUtils {
       if (warning) { // TODO: wtf does this do again?
         transaction {
           val settings = Guild.findById(channel.guild.idLong)?.settings
-          val channel = channel.guild.getTextChannelById(settings?.defaultTextChannel ?: 0L)
-          sendMessage(channel, ":no_entry_sign: _I'm not allowed to join AFK channels._")
+          val textChannel = channel.guild.getTextChannelById(settings?.defaultTextChannel ?: 0L)
+          sendMessage(textChannel, ":no_entry_sign: _I'm not allowed to join AFK channels._")
         }
       }
     }
