@@ -4,9 +4,9 @@ import mu.KotlinLogging
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.JDA
 import net.dv8tion.jda.core.entities.MessageChannel
-import net.dv8tion.jda.core.entities.TextChannel
 import net.dv8tion.jda.core.entities.User
 import net.dv8tion.jda.core.entities.VoiceChannel
+import net.dv8tion.jda.core.exceptions.ErrorResponseException
 import net.dv8tion.jda.core.exceptions.InsufficientPermissionException
 import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.db.dao.Guild
@@ -43,8 +43,12 @@ object BotUtils {
         ?.map { it.user }
         ?.filter { user -> !user.isBot && blackList?.find { it.id.value == user.idLong } == null }
         ?.forEach { user ->
-          user.openPrivateChannel().queue { channel ->
-            channel.sendMessage(message).queue()
+          user.openPrivateChannel().queue { privateChannel ->
+            privateChannel.sendMessage(message).queue(null, {
+              BotUtils.logger.warn {
+                "${channel.guild.name}#${channel.name}: Could not alert ${user.name}"
+              }
+            })
           }
         }
     }
