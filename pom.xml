@@ -415,33 +415,5 @@
         </plugins>
       </build>
     </profile>
-
-    <!--
-      I've become quite accustomed to developing with a REPL,
-      this is profile that adds Scala Maven Plugin so that I can
-      load a REPL with this pom's classpath.
-    -->
-    <profile>
-      <id>repl</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>net.alchim31.maven</groupId>
-            <artifactId>scala-maven-plugin</artifactId>
-            <version>3.2.1</version>
-            <configuration>
-              <fork>false</fork>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-      <dependencies>
-        <dependency>
-          <groupId>org.scala-lang</groupId>
-          <artifactId>scala-library</artifactId>
-          <version>2.11.8</version>
-        </dependency>
-      </dependencies>
-    </profile>
   </profiles>
 </project>
