@@ -9,7 +9,7 @@ jobs:
       # specify the version you desire here
       - image: circleci/openjdk:9-jdk
 
-     working_directory: ~/repo
+     working_directory: ~/pawa
 
     environment:
       # Customize the JVM maximum heap limit
@@ -21,17 +21,16 @@ jobs:
       # Download and cache dependencies
       - restore_cache:
           keys:
-          - v1-dependencies-{{ checksum "pom.xml" }}
+          - pawa-{{ checksum "pom.xml" }}
           # fallback to using the latest cache if no exact match is found
-          - v1-dependencies-
+          - pawa-
 
       - run: mvn dependency:go-offline
 
       - save_cache:
           paths:
             - ~/.m2
-          key: v1-dependencies-{{ checksum "pom.xml" }}
+          key: pawa-{{ checksum "pom.xml" }}
 
       # run tests!
       - run: mvn integration-test
-
