@@ -1,16 +1,9 @@
-# Java Maven CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-java/ for more details
-#
 version: 2
 jobs:
   build:
+    working_directory: ~/pawa
     docker:
-      # specify the version you desire here
       - image: circleci/openjdk:9-jdk
-
-     working_directory: ~/pawa
-
     environment:
       # Customize the JVM maximum heap limit
       MAVEN_OPTS: -Xmx3200m
