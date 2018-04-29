@@ -1,9 +1,12 @@
+defaults: &defafults
+  working_directory: ~/pawa
+  docker:
+    - image: circleci/openjdk:9-jdk
+
 version: 2
 jobs:
   build:
-    working_directory: ~/pawa
-    docker:
-      - image: circleci/openjdk:9-jdk
+    <<: *defafults
     environment:
       # Customize the JVM maximum heap limit
       MAVEN_OPTS: -Xmx3200m
@@ -29,18 +32,16 @@ jobs:
       - run: mvn integration-test
 
       - persist_to_workspace:
-          root: /root/workspace
+          root: ./workspace
           paths:
             - target/site/jacoco/jacoco.xml
 
   coverage:
-    working_directory: ~/pawa
-    docker:
-      - image: circleci/openjdk:9-jdk
+    <<: *defafults
     steps:
         - attach_workspace:
-            at: /root/workspace
-        - run: bash <(curl -s https://codecov.io/bash) -s /root/workspace
+            at: ~/pawa/workspace
+        - run: bash <(curl -s https://codecov.io/bash) -s ~/pawa/workspace
 workflows:
   version: 2
   build-coverage:
