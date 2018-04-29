@@ -32,9 +32,9 @@ jobs:
       - run: mvn integration-test
 
       - persist_to_workspace:
-          root: ./workspace
+          root: target
           paths:
-            - target/site/jacoco/jacoco.xml
+            - site/jacoco/jacoco.xml
 
   coverage:
     <<: *defafults
