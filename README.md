@@ -9,10 +9,10 @@
 
 [![Build Status](https://travis-ci.org/guacamoledragon/throw-voice.svg?branch=master)](https://travis-ci.org/guacamoledragon/throw-voice)
 [![CircleCI](https://circleci.com/gh/guacamoledragon/throw-voice.svg?style=svg)](https://circleci.com/gh/guacamoledragon/throw-voice)
-[![Coverage Status](https://coveralls.io/repos/github/guacamoledragon/throw-voice/badge.svg)](https://coveralls.io/github/guacamoledragon/throw-voice)
+[![codecov](https://codecov.io/gh/guacamoledragon/throw-voice/branch/master/graph/badge.svg)](https://codecov.io/gh/guacamoledragon/throw-voice)
 [![Waffle.io - Columns and their card count](https://badge.waffle.io/guacamoledragon/throw-voice.svg?columns=all)](https://waffle.io/guacamoledragon/throw-voice)
 [![Docker Pulls](https://img.shields.io/docker/pulls/gdragon/throw-voice.svg)](https://hub.docker.com/r/gdragon/throw-voice/)
-[![](https://images.microbadger.com/badges/version/gdragon/throw-voice.svg)](https://microbadger.com/images/gdragon/throw-voice "Get your own version badge on microbadger.com")
+[![Get your own version badge on microbadger.com](https://images.microbadger.com/badges/version/gdragon/throw-voice.svg)](https://microbadger.com/images/gdragon/throw-voice)
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fguacamoledragon%2Fthrow-voice.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fguacamoledragon%2Fthrow-voice?ref=badge_shield)
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->

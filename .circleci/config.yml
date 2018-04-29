@@ -38,6 +38,8 @@ jobs:
 
   coverage:
     <<: *defafults
+    docker:
+      - image: circleci/buildpack-deps:curl
     steps:
         - attach_workspace:
             at: ~/pawa/workspace
