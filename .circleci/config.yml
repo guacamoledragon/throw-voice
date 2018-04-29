@@ -43,7 +43,9 @@ jobs:
         - run: bash <(curl -s https://codecov.io/bash) -s /root/workspace
 workflows:
   version: 2
-  full_build:
+  build-coverage:
     jobs:
       - build
-      - coverage
+      - coverage:
+          requires:
+            - build
