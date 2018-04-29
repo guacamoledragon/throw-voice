@@ -27,3 +27,23 @@ jobs:
 
       # run tests!
       - run: mvn integration-test
+
+      - persist_to_workspace:
+          root: /tmp/workspace
+          paths:
+            - target/site/jacoco/jacoco.xml
+
+  coverage:
+    working_directory: ~/pawa
+    docker:
+      - image: circleci/openjdk:9-jdk
+    steps:
+        - attach_workspace:
+            at: /tmp/workspace
+        - run: bash <(curl -s https://codecov.io/bash) -s /tmp/workspace
+workflows:
+  version: 2
+  full_build:
+    jobs:
+      - build
+      - coverage

@@ -276,15 +276,6 @@
           <shortRevisionLength>7</shortRevisionLength>
         </configuration>
       </plugin>
-      <!--
-          You can run jacoco in the default profile with:
-          mvn jacoco:prepare-agent test jacoco:report
-      -->
-      <plugin>
-        <groupId>org.jacoco</groupId>
-        <artifactId>jacoco-maven-plugin</artifactId>
-        <version>0.7.9</version>
-      </plugin>
     </plugins>
   </build>
 
@@ -354,22 +345,30 @@
     </profile>
 
     <!--
-    This profile enables jacoco when unit tests are run.
-    You can run it with mvn -P jacoco test.
-    It also activates itself on Travis.
+    For the Travis profile:
+    - we want to be able to publish coverage report to coveralls.
     -->
     <profile>
-      <id>jacoco</id>
+      <id>ci</id>
       <activation>
         <property>
-          <name>env.TRAVIS</name>
+          <name>env.CI</name>
         </property>
       </activation>
       <build>
         <plugins>
+<!--          <plugin>
+            <groupId>org.eluder.coveralls</groupId>
+            <artifactId>coveralls-maven-plugin</artifactId>
+            <version>4.3.0</version>
+            <configuration>
+              <repoToken>VXG0CtzEZxQUi9U3NS9Zjo0LHRnGGQP22</repoToken>
+            </configuration>
+          </plugin>-->
           <plugin>
             <groupId>org.jacoco</groupId>
             <artifactId>jacoco-maven-plugin</artifactId>
+            <version>0.7.9</version>
             <executions>
               <execution>
                 <id>prepare-agent</id>
@@ -386,31 +385,6 @@
                 </goals>
               </execution>
             </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-
-    <!--
-    For the Travis profile:
-    - we want to be able to publish coverage report to coveralls.
-    -->
-    <profile>
-      <id>travis</id>
-      <activation>
-        <property>
-          <name>env.TRAVIS</name>
-        </property>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.eluder.coveralls</groupId>
-            <artifactId>coveralls-maven-plugin</artifactId>
-            <version>4.3.0</version>
-            <configuration>
-              <repoToken>VXG0CtzEZxQUi9U3NS9Zjo0LHRnGGQP22</repoToken>
-            </configuration>
           </plugin>
         </plugins>
       </build>
