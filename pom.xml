@@ -344,10 +344,6 @@
       </build>
     </profile>
 
-    <!--
-    For the Travis profile:
-    - we want to be able to publish coverage report to coveralls.
-    -->
     <profile>
       <id>ci</id>
       <activation>
@@ -357,14 +353,6 @@
       </activation>
       <build>
         <plugins>
-<!--          <plugin>
-            <groupId>org.eluder.coveralls</groupId>
-            <artifactId>coveralls-maven-plugin</artifactId>
-            <version>4.3.0</version>
-            <configuration>
-              <repoToken>VXG0CtzEZxQUi9U3NS9Zjo0LHRnGGQP22</repoToken>
-            </configuration>
-          </plugin>-->
           <plugin>
             <groupId>org.jacoco</groupId>
             <artifactId>jacoco-maven-plugin</artifactId>
