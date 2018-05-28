@@ -47,15 +47,12 @@ jobs:
         - run: bash <(curl -s https://codecov.io/bash) -s ~/pawa/target -X gcov
 
   upload-artifact:
-    <<: *defaults
+    working_directory: ~/pawa
     steps:
-      - checkout
       - attach_workspace:
           at: ~/pawa
-      - run: |
-          export `printf 'VERSION=${project.version}\n0\n' | mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate | grep '^VERSION'`
       - store_artifacts:
-          path: target/throw-voice-${VERSION}-release.zip
+          path: target/throw-voice-1.2.0-SNAPSHOT-release.zip
 
 workflows:
   version: 2
