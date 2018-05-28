@@ -34,10 +34,7 @@ jobs:
       - persist_to_workspace:
           root: .
           paths:
-            - target/site
-
-      - store_artifacts:
-          path: target/throw-voice-*-release.zip
+            - target
 
   coverage:
     <<: *defaults
@@ -49,11 +46,25 @@ jobs:
             at: ~/pawa
         - run: bash <(curl -s https://codecov.io/bash) -s ~/pawa/target -X gcov
 
+  upload-artifact:
+    <<: *defaults
+    steps:
+      - checkout
+      - attach_workspace:
+          at: ~/pawa
+      - run: |
+          export `printf 'VERSION=${project.version}\n0\n' | mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate | grep '^VERSION'`
+      - store_artifacts:
+          path: target/throw-voice-${VERSION}-release.zip
+
 workflows:
   version: 2
   build-coverage:
     jobs:
       - build
       - coverage:
+          requires:
+            - build
+      - upload-artifact:
           requires:
             - build
