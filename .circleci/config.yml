@@ -66,3 +66,6 @@ workflows:
       - upload-artifact:
           requires:
             - build
+          filters:
+            branches:
+             only: master
