@@ -1,36 +1,28 @@
 defaults: &defaults
   working_directory: ~/pawa
-  docker:
-    - image: circleci/openjdk:9-jdk
 
 version: 2
 jobs:
   build:
     <<: *defaults
+    docker:
+        - image: circleci/openjdk:9-jdk
     environment:
       # Customize the JVM maximum heap limit
       MAVEN_OPTS: -Xmx3200m
-
     steps:
       - checkout
-
-      # Download and cache dependencies
       - restore_cache:
           keys:
           - pawa-{{ checksum "pom.xml" }}
           # fallback to using the latest cache if no exact match is found
           - pawa-
-
       - run: mvn dependency:go-offline
-
       - save_cache:
           paths:
             - ~/.m2
           key: pawa-{{ checksum "pom.xml" }}
-
-      # run tests!
       - run: mvn integration-test
-
       - persist_to_workspace:
           root: .
           paths:
@@ -47,7 +39,7 @@ jobs:
         - run: bash <(curl -s https://codecov.io/bash) -s ~/pawa/target -X gcov
 
   upload-artifact:
-    working_directory: ~/pawa
+    <<: *defaults
     machine: true
     steps:
       - attach_workspace:
