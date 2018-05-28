@@ -48,6 +48,7 @@ jobs:
 
   upload-artifact:
     working_directory: ~/pawa
+    machine: true
     steps:
       - attach_workspace:
           at: ~/pawa
