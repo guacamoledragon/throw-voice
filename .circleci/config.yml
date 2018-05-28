@@ -47,17 +47,21 @@ jobs:
       - store_artifacts:
           path: target/throw-voice-1.2.0-SNAPSHOT-release.zip
 
+  container:
+    <<: *defaults
+    machine: true
+    steps:
+      - run: |
+          VCS_REF=$(git rev-parse --short HEAD)
+          VERSION=1.2.0-beta.${CIRCLE_BUILD_NUM}
+          BUILD_DATE=date +%FT%T.%z
+          echo ${VCS_REF}
+          echo ${VERSION}
+          echo ${BUILD_DATE}
+          # docker build -t gdragon/throw-voice:%VERSION% --build-arg VCS_REF=${VCS_REF} --build-arg BUILD_DATE=${BUILD_DATE} --build-arg VERSION=${VERSION} .
+
 workflows:
   version: 2
-  build-coverage:
+  build-container:
     jobs:
-      - build
-      - coverage:
-          requires:
-            - build
-      - upload-artifact:
-          requires:
-            - build
-          filters:
-            branches:
-             only: master
+      - container
