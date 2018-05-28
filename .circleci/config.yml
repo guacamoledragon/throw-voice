@@ -36,6 +36,9 @@ jobs:
           paths:
             - target/site
 
+      - store_artifacts:
+          path: target/throw-voice-*-release.zip
+
   coverage:
     <<: *defaults
     docker:
