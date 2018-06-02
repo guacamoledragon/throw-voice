@@ -1,7 +1,7 @@
 version: '3'
 services:
   pawa:
-    image: gdragon/throw-voice:1.2.0-beta
+    image: gdragon/throw-voice:${VERSION}
     env_file:
       - ${ENV:-sample}-b2.env
       - ${ENV:-sample}-bot.env
