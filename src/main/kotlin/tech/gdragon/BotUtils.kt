@@ -97,6 +97,28 @@ object BotUtils {
     }
   }
 
+  fun autoLeave(guild: DiscordGuild, channel: VoiceChannel) {
+    val channelMemberCount = voiceChannelSize(channel)
+    logger.debug { "${guild.name}#${channel.name} - Channel member count: $channelMemberCount" }
+
+    transaction {
+      val settings = Guild.findById(guild.idLong)?.settings
+
+      settings
+        ?.channels
+        ?.firstOrNull { it.id.value == channel.idLong }
+        ?.let {
+          val autoLeave = it.autoLeave
+          BotUtils.logger.debug { "${guild.name}#${channel.name} - AutoLeave value: $autoLeave" }
+
+          if (channelMemberCount <= autoLeave) {
+            // val defaultChannel = guild.textChannels.find { it.canTalk() } // TODO: this is probably not the best way to go about this, but will prevent exceptions
+            leaveVoiceChannel(channel) // , defaultChannel!!, onError = onError)
+          }
+        }
+    }
+  }
+
   fun isSelfBot(jda: JDA, user: User): Boolean {
     return user.isBot && jda.selfUser.idLong == user.idLong
   }

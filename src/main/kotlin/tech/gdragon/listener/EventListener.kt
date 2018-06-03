@@ -76,6 +76,7 @@ class EventListener : ListenerAdapter(), KoinComponent {
 
   override fun onGuildVoiceLeave(event: GuildVoiceLeaveEvent) {
     logger.debug { "${event.guild.name}#${event.channelLeft.name} - ${event.member.effectiveName} left voice channel" }
+    BotUtils.autoLeave(event.guild, event.channelLeft)
   }
 
   override fun onGuildVoiceMove(event: GuildVoiceMoveEvent) {

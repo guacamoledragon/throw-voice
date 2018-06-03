@@ -25,16 +25,16 @@ class Channel(id: EntityID<Long>) : LongEntity(id) {
   companion object : LongEntityClass<Channel>(Channels) {
     fun findOrCreate(id: Long, name: String, guild: Guild): Channel {
 
-      return find { (Channels.settings eq guild.settings.id) and (Channels.id eq id) }.firstOrNull() ?: Channel.new(id) {
-        this.name = name
-        this.settings = guild.settings
-      }
+      return find { (Channels.settings eq guild.settings.id) and (Channels.id eq id) }.firstOrNull()
+        ?: Channel.new(id) {
+          this.name = name
+          this.settings = guild.settings
+        }
     }
   }
 
   var name by Channels.name
   var autoRecord by Channels.autoRecord
-  @Deprecated("This feature is broken", level = DeprecationLevel.ERROR)
   var autoStop by Channels.autoStop
   var settings by Settings referencedOn Channels.settings
 }

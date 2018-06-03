@@ -4,6 +4,7 @@ import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
 import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.BotUtils
 import tech.gdragon.commands.CommandHandler
+import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
 import net.dv8tion.jda.core.entities.Channel as DiscordChannel
@@ -17,12 +18,12 @@ class AutoStop : CommandHandler {
 
       Channel
         .findOrCreate(channel.idLong, channel.name, guild)
-//        .forEach { it.autoStop = autoStop }
+        .let { it.autoStop = autoStop }
     }
   }
 
   override fun action(args: Array<String>, event: GuildMessageReceivedEvent) {
-    /*require(args.size >= 2) {
+    require(args.size >= 2) {
       throw InvalidCommand(::usage, "Incorrect number of arguments: ${args.size}")
     }
 
@@ -53,10 +54,9 @@ class AutoStop : CommandHandler {
         throw InvalidCommand(::usage, "Could not parse number argument: ${e.message}")
       } catch (e: IllegalArgumentException) {
         throw InvalidCommand(::usage, "Number must be positive: ${e.message}")
-      }*/
+      }
 
-    val defaultChannel = BotUtils.defaultTextChannel(event.guild) ?: event.channel
-    BotUtils.sendMessage(defaultChannel, ":no_entry_sign: _autostop is currently disabled due to some bugs_")
+    BotUtils.sendMessage(event.channel, message)
   }
 
   override fun usage(prefix: String): String = "${prefix}autostop [Voice Channel name | 'all'] [number]"
