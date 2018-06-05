@@ -41,7 +41,7 @@ object BotUtils {
 
       channel.members
         ?.map { it.user }
-        ?.filter { user -> !user.isBot && blackList?.find { it.id.value == user.idLong } == null }
+        ?.filter { user -> !user.isBot && blackList?.find { it.name == user.id } == null }
         ?.forEach { user ->
           user.openPrivateChannel().queue { privateChannel ->
             privateChannel.sendMessage(message).queue(null, {
