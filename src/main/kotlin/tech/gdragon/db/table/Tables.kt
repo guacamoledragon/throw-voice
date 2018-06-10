@@ -33,7 +33,11 @@ object Tables {
 
   object Users : LongIdTable() {
     val name = text("name")
-    val settings = reference("settings", Settings, ReferenceOption.CASCADE).uniqueIndex()
+    val settings = reference("settings", Settings, ReferenceOption.CASCADE)
+
+    init {
+      index(true, name, settings)
+    }
   }
 
   val allTables = arrayOf(Aliases, Channels, Guilds, Settings, Users)

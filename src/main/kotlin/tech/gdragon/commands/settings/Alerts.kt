@@ -36,14 +36,14 @@ class Alerts : Command {
           "off" -> {
             alert(false)
             logger.info {
-              "${event.guild.name}#${event.channel.name}: Disable alerts"
+              "${event.guild.name}#${event.channel.name}: Disable alerts for ${author.id}"
             }
             ":bangbang: _Alerts now **off**_"
           }
           "on" -> {
             alert(true)
             logger.info {
-              "${event.guild.name}#${event.channel.name}: Enable alerts"
+              "${event.guild.name}#${event.channel.name}: Enable alerts for ${author.id}"
             }
             ":bangbang: _Alerts now **on**_"
           }

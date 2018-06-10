@@ -54,7 +54,7 @@
     <dependency>
       <groupId>org.jetbrains.exposed</groupId>
       <artifactId>exposed</artifactId>
-      <version>0.9.1</version>
+      <version>0.10.2</version>
       <exclusions>
         <exclusion>
           <artifactId>kotlin-reflect</artifactId>
@@ -95,7 +95,7 @@
     <dependency>
       <groupId>org.xerial</groupId>
       <artifactId>sqlite-jdbc</artifactId>
-      <version>3.20.0</version>
+      <version>3.23.1</version>
     </dependency>
     <dependency>
       <groupId>synapticloop</groupId>
