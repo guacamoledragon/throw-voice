@@ -43,13 +43,14 @@ object BotUtils {
         ?.map { it.user }
         ?.filter { user -> !user.isBot && blackList?.find { it.name == user.id } == null }
         ?.forEach { user ->
-          user.openPrivateChannel().queue { privateChannel ->
-            privateChannel.sendMessage(message).queue(null, {
-              BotUtils.logger.warn {
-                "${channel.guild.name}#${channel.name}: Could not alert ${user.name}"
-              }
-            })
+          val errorHandler: ((t: Throwable) -> Unit) = {
+            BotUtils.logger.warn {
+              "${channel.guild.name}#${channel.name}: Could not alert ${user.name}"
+            }
           }
+
+          user.openPrivateChannel()
+            .queue({ it.sendMessage(message).queue(null, errorHandler) }, errorHandler)
         }
     }
   }
