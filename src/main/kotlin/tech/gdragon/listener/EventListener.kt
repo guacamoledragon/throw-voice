@@ -144,7 +144,7 @@ class EventListener : ListenerAdapter() {
   override fun onReady(event: ReadyEvent) {
     event
       .jda
-      .presence.game = object : Game("1.2.0-SNAPSHOT | https://www.pawabot.site", "https://www.pawabot.site", Game.GameType.DEFAULT) {
+      .presence.game = object : Game("1.2.0-branch.74 | https://www.pawabot.site", "https://www.pawabot.site", Game.GameType.DEFAULT) {
 
     }
 
@@ -160,7 +160,7 @@ class EventListener : ListenerAdapter() {
       var dir = Paths.get("/var/www/html/")
       if (Files.notExists(dir)) {
         val dataDirectory = System.getenv("DATA_DIR")
-        dir = Files.createDirectories(Paths.get(dataDirectory + "/recordings/"))
+        dir = Files.createDirectories(Paths.get("$dataDirectory/recordings/"))
         logger.info("Creating: " + dir.toString())
       }
 

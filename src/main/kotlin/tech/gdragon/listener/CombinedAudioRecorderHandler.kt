@@ -91,6 +91,7 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
       BotUtils.sendMessage(defaultChannel, "_:sleeping: No audio detected in the last 2 minutes, leaving <#${voiceChannel.id}>._")
 
       thread(start = true) {
+        if(BotUtils.autoSave(voiceChannel.guild)) saveRecording(voiceChannel, voiceChannel.guild.getTextChannelById(defaultChannel.idLong))
         BotUtils.leaveVoiceChannel(voiceChannel)
       }
     }
