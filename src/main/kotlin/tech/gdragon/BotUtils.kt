@@ -178,6 +178,13 @@ object BotUtils {
     return null
   }
 
+  fun autoSave(discordGuild: DiscordGuild): Boolean {
+    return transaction {
+      val guild = Guild.findById(discordGuild.idLong)
+      guild?.settings?.autoSave ?: false
+    }
+  }
+
   @JvmStatic
   fun leaveVoiceChannel(voiceChannel: VoiceChannel?) {
     val guild = voiceChannel?.guild
