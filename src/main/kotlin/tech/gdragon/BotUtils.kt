@@ -6,7 +6,6 @@ import net.dv8tion.jda.core.JDA
 import net.dv8tion.jda.core.entities.MessageChannel
 import net.dv8tion.jda.core.entities.User
 import net.dv8tion.jda.core.entities.VoiceChannel
-import net.dv8tion.jda.core.exceptions.ErrorResponseException
 import net.dv8tion.jda.core.exceptions.InsufficientPermissionException
 import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.db.dao.Guild
@@ -56,27 +55,6 @@ object BotUtils {
   }
 
   /**
-   * Find biggest voice chanel that surpasses the Guild's autoJoin minimum
-   */
-  @JvmStatic
-  @Deprecated("This contains a bug, any code using this should stop for now", level = DeprecationLevel.WARNING)
-  fun biggestChannel(guild: DiscordGuild): VoiceChannel? {
-    val voiceChannels = guild.voiceChannels
-
-    return transaction {
-      val settings = Guild.findById(guild.idLong)?.settings
-
-      voiceChannels
-        .filter { voiceChannel ->
-          val channel = settings?.channels?.find { it.id.value == voiceChannel.idLong }
-          val channelSize = voiceChannelSize(voiceChannel)
-          channel?.autoJoin?.let { it <= channelSize } ?: false
-        }
-        .maxBy(BotUtils::voiceChannelSize)
-    }
-  }
-
-  /**
    * AutoJoin voice channel if it meets the autojoining criterion
    */
   fun autoJoin(guild: DiscordGuild, channel: VoiceChannel, onError: (InsufficientPermissionException) -> String? = { _ -> null }): String? {
@@ -103,33 +81,37 @@ object BotUtils {
     }
   }
 
-  fun isSelfBot(jda: JDA, user: User): Boolean {
-    return user.isBot && jda.selfUser.idLong == user.idLong
-  }
-
-  /**
-   * General message sending utility with error logging
-   */
-  @JvmStatic
-  fun sendMessage(textChannel: MessageChannel?, msg: String) {
-    try {
-      textChannel
-        ?.sendMessage(msg)
-        ?.queue(
-          { m -> logger.debug("{}#{}: Send message - {}", m.guild.name, m.channel.name, m.contentDisplay) },
-          { t -> logger.error("#${textChannel.name}: Error sending message - $msg", t) }
-        )
-    } catch (e: InsufficientPermissionException) {
-      logger.warn(e) {
-        "<insert guild name>#${textChannel?.name}: Missing permission ${e.permission}"
-      }
+  fun autoSave(discordGuild: DiscordGuild): Boolean {
+    return transaction {
+      val guild = Guild.findById(discordGuild.idLong)
+      guild?.settings?.autoSave ?: false
     }
   }
 
   /**
-   * Returns the effective size of the voice channel, excluding bots.
+   * Find biggest voice chanel that surpasses the Guild's autoJoin minimum
    */
-  fun voiceChannelSize(voiceChannel: VoiceChannel?): Int = voiceChannel?.members?.count() ?: 0
+  @JvmStatic
+  @Deprecated("This contains a bug, any code using this should stop for now", level = DeprecationLevel.WARNING)
+  fun biggestChannel(guild: DiscordGuild): VoiceChannel? {
+    val voiceChannels = guild.voiceChannels
+
+    return transaction {
+      val settings = Guild.findById(guild.idLong)?.settings
+
+      voiceChannels
+        .filter { voiceChannel ->
+          val channel = settings?.channels?.find { it.id.value == voiceChannel.idLong }
+          val channelSize = voiceChannelSize(voiceChannel)
+          channel?.autoJoin?.let { it <= channelSize } ?: false
+        }
+        .maxBy(BotUtils::voiceChannelSize)
+    }
+  }
+
+  fun isSelfBot(jda: JDA, user: User): Boolean {
+    return user.isBot && jda.selfUser.idLong == user.idLong
+  }
 
   fun joinVoiceChannel(channel: VoiceChannel, defaultChannel: MessageChannel, warning: Boolean = false, onError: (InsufficientPermissionException) -> String? = { _ -> null }): String? {
     // TODO: Bot warns about AFK channel but connects anyway lulz
@@ -178,13 +160,6 @@ object BotUtils {
     return null
   }
 
-  fun autoSave(discordGuild: DiscordGuild): Boolean {
-    return transaction {
-      val guild = Guild.findById(discordGuild.idLong)
-      guild?.settings?.autoSave ?: false
-    }
-  }
-
   @JvmStatic
   fun leaveVoiceChannel(voiceChannel: VoiceChannel?) {
     val guild = voiceChannel?.guild
@@ -203,4 +178,28 @@ object BotUtils {
       logger.info("{}#{}: Destroyed audio handlers", guild.name, voiceChannel.name)
     }
   }
+
+  /**
+   * General message sending utility with error logging
+   */
+  @JvmStatic
+  fun sendMessage(textChannel: MessageChannel?, msg: String) {
+    try {
+      textChannel
+        ?.sendMessage(msg)
+        ?.queue(
+          { m -> logger.debug("{}#{}: Send message - {}", m.guild.name, m.channel.name, m.contentDisplay) },
+          { t -> logger.error("#${textChannel.name}: Error sending message - $msg", t) }
+        )
+    } catch (e: InsufficientPermissionException) {
+      logger.warn(e) {
+        "<insert guild name>#${textChannel?.name}: Missing permission ${e.permission}"
+      }
+    }
+  }
+
+  /**
+   * Returns the effective size of the voice channel, excluding bots.
+   */
+  fun voiceChannelSize(voiceChannel: VoiceChannel?): Int = voiceChannel?.members?.count() ?: 0
 }
