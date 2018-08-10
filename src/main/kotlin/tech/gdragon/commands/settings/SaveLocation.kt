@@ -19,22 +19,29 @@ class SaveLocation : Command {
       val message =
         guild?.settings?.let {
           if (args.isEmpty()) {
-            it.defaultTextChannel = event.channel.idLong
-
-            "Now defaulting to the ${event.channel.name} text channel."
+            if (event.channel.canTalk()) {
+              it.defaultTextChannel = event.channel.idLong
+              ":file_folder: _All messages will default to channel **<#${event.channel.id}>**._"
+            } else {
+              ":no_entry_sign: _Cannot send messages in **<#${event.channel.id}>**, please configure permissions and try again._"
+            }
           } else {
             val channelName = if (args.first().startsWith("#")) args.first().substring(1) else args.first()
-
             val channels = event.guild.getTextChannelsByName(channelName, true)
 
             if (channels.isEmpty()) {
-              "Cannot find $channelName!"
+              ":no_entry_sign: _Cannot find text channel **${args.first()}**!_"
             } else {
-              it.defaultTextChannel = channels.first().idLong
-              "Now defaulting to the ${channels.first().name} text channel."
+              val channel = channels.first()
+              if (channel.canTalk()) {
+                it.defaultTextChannel = channel.idLong
+                ":file_folder: _All messages will default to channel **<#${channel.id}>**._"
+              } else {
+                ":no_entry_sign: _Cannot send messages in **<#${channel.id}>**, please configure permissions and try again._"
+              }
             }
           }
-        } ?: "Could not set default save location."
+        } ?: ":no_entry_sign: _Could not set default save location._"
 
       BotUtils.sendMessage(event.channel, message)
     }
@@ -42,5 +49,5 @@ class SaveLocation : Command {
 
   override fun usage(prefix: String): String = "${prefix}saveLocation | ${prefix}saveLocation [text channel name]"
 
-  override fun description(): String = "Sets the text channel of message or the text channel specified as the default location to send files."
+  override fun description(): String = "Set default channel to send messages in, including the link to the voice recording"
 }
