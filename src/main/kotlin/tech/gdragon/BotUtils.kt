@@ -23,6 +23,7 @@ object BotUtils {
   /**
    * Send a DM to anyone in the voiceChannel unless they are in the blacklist
    */
+  @Deprecated("Alerts no longer supported, will be removed on next version.", ReplaceWith("BotUtils.sendMessage(null, alertMessage)", "tech.gdragon"), DeprecationLevel.ERROR)
   fun alert(channel: VoiceChannel, alertMessage: String) {
     transaction {
       val guild = Guild.findById(channel.guild.idLong)
