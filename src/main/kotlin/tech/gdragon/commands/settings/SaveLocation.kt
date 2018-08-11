@@ -13,9 +13,9 @@ class SaveLocation : Command {
   private fun setSaveLocation(settings: Settings, channel: TextChannel): String {
     return if (channel.canTalk()) {
       settings.defaultTextChannel = channel.idLong
-      ":file_folder: _All messages will default to channel **<#${channel.id}>**._"
+      ":file_folder: _All messages will default to channel **${channel.asMention}**._"
     } else {
-      ":no_entry_sign: _Cannot send messages in **<#${channel.id}>**, please configure permissions and try again._"
+      ":no_entry_sign: _Cannot send messages in **${channel.asMention}**, please configure permissions and try again._"
     }
   }
 

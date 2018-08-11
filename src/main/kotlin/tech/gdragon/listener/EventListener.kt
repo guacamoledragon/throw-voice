@@ -15,7 +15,6 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.BotUtils
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
-import tech.gdragon.commands.settings.configureAlerts
 import tech.gdragon.db.dao.Guild
 import java.io.IOException
 import java.nio.file.Files
@@ -53,12 +52,7 @@ class EventListener : ListenerAdapter() {
       return
     }
 
-    val errorMessage = BotUtils.autoJoin(event.guild, event.channelJoined) { ex ->
-      """|:no_entry_sign: _Cannot join **<#${event.channelJoined.id}>** on Guild **${event.guild.name}**,
-         |need permission:_ ```${ex.permission}```
-         |""".trimMargin()
-    }
-    errorMessage?.let { BotUtils.alert(event.channelJoined, it) }
+    BotUtils.autoJoin(event.guild, event.channelJoined)
   }
 
   override fun onGuildVoiceLeave(event: GuildVoiceLeaveEvent) {
@@ -75,12 +69,7 @@ class EventListener : ListenerAdapter() {
       return
     }
 
-    val errorMessage = BotUtils.autoJoin(event.guild, event.channelJoined) { ex ->
-      """|:no_entry_sign: _Cannot join **<#${event.channelJoined.id}>** on Guild **${event.guild.name}**,
-         |need permission:_ ```${ex.permission}```
-         |""".trimMargin()
-    }
-    errorMessage?.let { BotUtils.alert(event.channelJoined, it) }
+    BotUtils.autoJoin(event.guild, event.channelJoined)
   }
 
   override fun onGuildMessageReceived(event: GuildMessageReceivedEvent) {
@@ -110,34 +99,15 @@ class EventListener : ListenerAdapter() {
   }
 
   override fun onPrivateMessageReceived(event: PrivateMessageReceivedEvent) {
-    if (event.author == null || event.author.isBot)
-      return
+    if (event.author.isBot.not()) {
+      val message = """
+        For more information on ${event.jda.selfUser.asMention}, please visit https://www.pawa.im.
+      """.trimIndent()
 
-    val message = event.message.contentDisplay
-
-    if (message.startsWith("!alerts")) {
-      val userId = event.author.id
-
-      event.jda.guilds
-        .filter { it.isMember(event.author) }
-        .forEach {
-          val guildId = it.idLong
-          val alert = { enable: Boolean -> configureAlerts(userId, guildId, enable) }
-
-          when {
-            message.endsWith("off") -> {
-              alert(false)
-              event.channel.sendMessage("Alerts now off for guild `${it.name}`, message `!alerts on` to re-enable.").queue()
-            }
-            message.endsWith("on") -> {
-              alert(true)
-              event.channel.sendMessage("Alerts now on for guild `${it.name}`, message `!alerts off` to disable.").queue()
-            }
-            else -> event.channel.sendMessage("!alerts [on | off]").queue()
-          }
-        }
-    } else {
-      event.channel.sendMessage("The only DM command supported is `!alerts`.").queue()
+      event
+        .channel
+        .sendMessage(message)
+        .queue()
     }
   }
 

@@ -10,11 +10,8 @@ import net.dv8tion.jda.core.exceptions.InsufficientPermissionException
 import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.listener.CombinedAudioRecorderHandler
-import tech.gdragon.listener.SilenceAudioSendHandler
 import java.awt.Color
 import java.time.OffsetDateTime
-import java.util.*
-import kotlin.concurrent.schedule
 import net.dv8tion.jda.core.entities.Guild as DiscordGuild
 
 object BotUtils {
@@ -23,6 +20,7 @@ object BotUtils {
   /**
    * Send a DM to anyone in the voiceChannel unless they are in the blacklist
    */
+  @Deprecated("Alerts no longer supported, will be removed on next version.", ReplaceWith("BotUtils.sendMessage(null, alertMessage)", "tech.gdragon"), DeprecationLevel.ERROR)
   fun alert(channel: VoiceChannel, alertMessage: String) {
     transaction {
       val guild = Guild.findById(channel.guild.idLong)
@@ -57,7 +55,7 @@ object BotUtils {
   /**
    * AutoJoin voice channel if it meets the autojoining criterion
    */
-  fun autoJoin(guild: DiscordGuild, channel: VoiceChannel, onError: (InsufficientPermissionException) -> String? = { _ -> null }): String? {
+  fun autoJoin(guild: DiscordGuild, channel: VoiceChannel) {
     val channelMemberCount = voiceChannelSize(channel)
     logger.debug { "${guild.name}#${channel.name} - Channel member count: $channelMemberCount" }
 
@@ -72,11 +70,13 @@ object BotUtils {
           BotUtils.logger.debug { "${guild.name}#${channel.name} - AutoJoin value: $autoJoin" }
 
           if (autoJoin != null && channelMemberCount >= autoJoin) {
-            val defaultChannel = defaultTextChannel(guild)
-            return@let joinVoiceChannel(channel, defaultChannel, onError = onError)
-          }
+            val saveLocation = defaultTextChannel(guild)
 
-          return@let null
+            joinVoiceChannel(channel, saveLocation) { ex ->
+              val message = ":no_entry_sign: _Cannot autojoin **<#${channel.id}>**, need permission:_ ```${ex.permission}```"
+              BotUtils.sendMessage(saveLocation, message)
+            }
+          }
         }
     }
   }
@@ -116,29 +116,31 @@ object BotUtils {
    */
   fun defaultTextChannel(discordGuild: DiscordGuild): MessageChannel? {
     return transaction {
-        val guild = Guild.findById(discordGuild.idLong)
-        val defaultChannelId = guild?.settings?.defaultTextChannel
-        if (defaultChannelId == null) {
-          (discordGuild.textChannels.find { it.canTalk() })?.also {
-            val prefix = guild?.settings?.prefix
-            val msg = """
+      val guild = Guild.findById(discordGuild.idLong)
+      val defaultChannelId = guild?.settings?.defaultTextChannel
+      if (defaultChannelId == null) {
+        (discordGuild.textChannels.find { it.canTalk() })?.also {
+          val prefix = guild?.settings?.prefix
+          val msg = """
               :warning: _The save location hasn't been set, please use `${prefix}saveLocation` to set.
               This channel will be used in the meantime. For more information use `${prefix}help`._
             """.trimIndent()
-            sendMessage(it, msg)
-          }
-        } else {
-          discordGuild.getTextChannelById(defaultChannelId)
+          sendMessage(it, msg)
         }
+      } else {
+        discordGuild.getTextChannelById(defaultChannelId)
       }
+    }
   }
 
   fun isSelfBot(jda: JDA, user: User): Boolean {
     return user.isBot && jda.selfUser.idLong == user.idLong
   }
 
-  fun joinVoiceChannel(channel: VoiceChannel, defaultChannel: MessageChannel?, warning: Boolean = false, onError: (InsufficientPermissionException) -> String? = { _ -> null }): String? {
+  fun joinVoiceChannel(channel: VoiceChannel, defaultChannel: MessageChannel?, warning: Boolean = false, onError: (InsufficientPermissionException) -> Unit = {}) {
     val saveLocation = defaultChannel ?: defaultTextChannel(channel.guild)
+
+    /** Begin assertions **/
 
     if (saveLocation == null || !channel.guild.getTextChannelById(saveLocation.id).canTalk()) {
       logger.warn {
@@ -146,17 +148,21 @@ object BotUtils {
         "${guild.name}:${channel.name}: Attempted to join, but bot cannot write to any channel."
       }
 
-      return null
+      // TODO: This is shitty, all these branch if-else-if-else **gag**
+      return
     }
 
-    // TODO: Bot warns about AFK channel but connects anyway lulz
+    // Bot won't connect to AFK channels
     if (channel == channel.guild.afkChannel) {
-      if (warning) { // TODO: wtf does this do again?
+      if (warning) {
         sendMessage(saveLocation, ":no_entry_sign: _I'm not allowed to join AFK channels._")
       }
 
-      return null
+      // TODO: Again another short circuit here...
+      return
     }
+
+    /** End assertions **/
 
     val audioManager = channel.guild.audioManager
 
@@ -169,7 +175,8 @@ object BotUtils {
         logger.info { "${channel.guild.name}#${channel.name} - Connected to voice channel" }
       } catch (e: InsufficientPermissionException) {
         logger.warn { "${channel.guild.name}#${channel.name} - Need permission: ${e.permission}" }
-        return onError(e)
+        onError(e)
+        return
       }
 
       transaction {
@@ -179,18 +186,10 @@ object BotUtils {
           ?.toDouble()
           ?: 1.0
 
-        val audioSendHandler = SilenceAudioSendHandler()
-        // Only send 5 seconds of audio at the beginning of the recording see: https://github.com/DV8FromTheWorld/JDA/issues/653
-        Timer().schedule(5 * 1000) {
-          audioSendHandler.canProvide = false
-        }
         audioManager?.setReceivingHandler(CombinedAudioRecorderHandler(volume, channel, saveLocation))
-        audioManager?.sendingHandler = audioSendHandler
-        alert(channel, "Your audio is now being recorded in **<#${channel.id}>** on **${channel.guild.name}**.")
+        sendMessage(saveLocation, ":red_circle: **Audio is being recorded on <#${channel.id}>**")
       }
     }
-
-    return null
   }
 
   @JvmStatic

@@ -81,7 +81,7 @@ fun testAlerts() {
     .addEventListener(object : ListenerAdapter() {
       override fun onGuildVoiceJoin(event: GuildVoiceJoinEvent) {
         println("Sending alerts to users that joined ${event.channelJoined}.")
-        BotUtils.alert(event.channelJoined, "")
+        BotUtils.sendMessage(null, "")
         super.onGuildVoiceJoin(event)
       }
     })
