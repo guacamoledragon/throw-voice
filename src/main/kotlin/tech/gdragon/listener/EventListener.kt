@@ -58,7 +58,7 @@ class EventListener : ListenerAdapter() {
          |need permission:_ ```${ex.permission}```
          |""".trimMargin()
     }
-    errorMessage?.let { BotUtils.alert(event.channelJoined, it) }
+    errorMessage?.let { /*BotUtils.alert(event.channelJoined, it)*/ }
   }
 
   override fun onGuildVoiceLeave(event: GuildVoiceLeaveEvent) {
@@ -80,7 +80,7 @@ class EventListener : ListenerAdapter() {
          |need permission:_ ```${ex.permission}```
          |""".trimMargin()
     }
-    errorMessage?.let { BotUtils.alert(event.channelJoined, it) }
+    errorMessage?.let { /*BotUtils.alert(event.channelJoined, it)*/ }
   }
 
   override fun onGuildMessageReceived(event: GuildMessageReceivedEvent) {
