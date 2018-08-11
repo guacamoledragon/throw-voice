@@ -28,7 +28,6 @@
 
 |                            Command                            |                                                                  Description                                                                   |
 |:--------------------------------------------------------------|:-----------------------------------------------------------------------------------------------------------------------------------------------|
-| `!alerts [on \| off]`                                         | Turns on/off direct message alerts for when you are being recorded in a voice channel (on by default)                                          |
 | `!alias [command name] [new command alias]`                   | Creates an alias, or alternate name, to a command for customization.                                                                           |
 | `!autojoin [Voice Channel name \| 'all'] [number \| 'off']`   | Sets the number of players for the bot to auto-join a voice channel, or disables auto-joining. 'all' will apply number to all voice channels.  |
 | `!autoleave [Voice Channel name \| 'all'] [number]`           | Sets the number of players for the bot to auto-leave a voice channel, or disables auto-leaving. 'all' will apply number to all voice channels. |
