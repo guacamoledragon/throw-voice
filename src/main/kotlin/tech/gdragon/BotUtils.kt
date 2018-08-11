@@ -117,21 +117,21 @@ object BotUtils {
    */
   fun defaultTextChannel(discordGuild: DiscordGuild): MessageChannel? {
     return transaction {
-        val guild = Guild.findById(discordGuild.idLong)
-        val defaultChannelId = guild?.settings?.defaultTextChannel
-        if (defaultChannelId == null) {
-          (discordGuild.textChannels.find { it.canTalk() })?.also {
-            val prefix = guild?.settings?.prefix
-            val msg = """
+      val guild = Guild.findById(discordGuild.idLong)
+      val defaultChannelId = guild?.settings?.defaultTextChannel
+      if (defaultChannelId == null) {
+        (discordGuild.textChannels.find { it.canTalk() })?.also {
+          val prefix = guild?.settings?.prefix
+          val msg = """
               :warning: _The save location hasn't been set, please use `${prefix}saveLocation` to set.
               This channel will be used in the meantime. For more information use `${prefix}help`._
             """.trimIndent()
-            sendMessage(it, msg)
-          }
-        } else {
-          discordGuild.getTextChannelById(defaultChannelId)
+          sendMessage(it, msg)
         }
+      } else {
+        discordGuild.getTextChannelById(defaultChannelId)
       }
+    }
   }
 
   fun isSelfBot(jda: JDA, user: User): Boolean {
