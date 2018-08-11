@@ -53,12 +53,7 @@ class EventListener : ListenerAdapter() {
       return
     }
 
-    val errorMessage = BotUtils.autoJoin(event.guild, event.channelJoined) { ex ->
-      """|:no_entry_sign: _Cannot join **<#${event.channelJoined.id}>** on Guild **${event.guild.name}**,
-         |need permission:_ ```${ex.permission}```
-         |""".trimMargin()
-    }
-    errorMessage?.let { /*BotUtils.alert(event.channelJoined, it)*/ }
+    BotUtils.autoJoin(event.guild, event.channelJoined)
   }
 
   override fun onGuildVoiceLeave(event: GuildVoiceLeaveEvent) {
@@ -75,12 +70,7 @@ class EventListener : ListenerAdapter() {
       return
     }
 
-    val errorMessage = BotUtils.autoJoin(event.guild, event.channelJoined) { ex ->
-      """|:no_entry_sign: _Cannot join **<#${event.channelJoined.id}>** on Guild **${event.guild.name}**,
-         |need permission:_ ```${ex.permission}```
-         |""".trimMargin()
-    }
-    errorMessage?.let { /*BotUtils.alert(event.channelJoined, it)*/ }
+    BotUtils.autoJoin(event.guild, event.channelJoined)
   }
 
   override fun onGuildMessageReceived(event: GuildMessageReceivedEvent) {

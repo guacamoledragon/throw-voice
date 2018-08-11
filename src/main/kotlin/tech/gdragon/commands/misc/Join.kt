@@ -18,7 +18,7 @@ class Join : Command {
       val guild = Guild.findById(event.guild.idLong)
 
       val voiceChannel = event.member.voiceState.channel
-      val message =
+      val message: String? =
         if (voiceChannel == null) {
           ":no_entry_sign: _Please join a voice channel before using this command._"
         } else {
@@ -26,7 +26,7 @@ class Join : Command {
           if (connectedChannel != null && connectedChannel.members.contains(event.member)) {
             ":no_entry_sign: _I am already in **<#${connectedChannel.id}>**._"
           } else {
-
+            // This is where the happy path logic begins
             if (event.guild.audioManager.isConnected) {
               guild?.settings?.let {
                 if (it.autoSave) {
@@ -37,9 +37,13 @@ class Join : Command {
               }
             }
 
+            // We need to give something to the onError handler because sometimes life doesn't do what we want
             BotUtils.joinVoiceChannel(voiceChannel, event.channel, true) { ex ->
-              ":no_entry_sign: _Cannot join **<#${event.channel.id}>**, need permission:_ ```${ex.permission}```"
+              val errorMessage = ":no_entry_sign: _Cannot join **<#${event.channel.id}>**, need permission:_ ```${ex.permission}```"
+              BotUtils.sendMessage(event.channel, errorMessage)
             }
+
+            null // TODO: This is weird, but the problem is probably with the way the logic is structured
           }
         }
 

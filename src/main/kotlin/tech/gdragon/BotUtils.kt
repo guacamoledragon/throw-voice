@@ -55,7 +55,7 @@ object BotUtils {
   /**
    * AutoJoin voice channel if it meets the autojoining criterion
    */
-  fun autoJoin(guild: DiscordGuild, channel: VoiceChannel, onError: (InsufficientPermissionException) -> String? = { _ -> null }): String? {
+  fun autoJoin(guild: DiscordGuild, channel: VoiceChannel) {
     val channelMemberCount = voiceChannelSize(channel)
     logger.debug { "${guild.name}#${channel.name} - Channel member count: $channelMemberCount" }
 
@@ -70,11 +70,13 @@ object BotUtils {
           BotUtils.logger.debug { "${guild.name}#${channel.name} - AutoJoin value: $autoJoin" }
 
           if (autoJoin != null && channelMemberCount >= autoJoin) {
-            val defaultChannel = defaultTextChannel(guild)
-            return@let joinVoiceChannel(channel, defaultChannel, onError = onError)
-          }
+            val saveLocation = defaultTextChannel(guild)
 
-          return@let null
+            joinVoiceChannel(channel, saveLocation) { ex ->
+              val message = ":no_entry_sign: _Cannot autojoin **<#${channel.id}>**, need permission:_ ```${ex.permission}```"
+              BotUtils.sendMessage(saveLocation, message)
+            }
+          }
         }
     }
   }
@@ -135,8 +137,10 @@ object BotUtils {
     return user.isBot && jda.selfUser.idLong == user.idLong
   }
 
-  fun joinVoiceChannel(channel: VoiceChannel, defaultChannel: MessageChannel?, warning: Boolean = false, onError: (InsufficientPermissionException) -> String? = { _ -> null }): String? {
+  fun joinVoiceChannel(channel: VoiceChannel, defaultChannel: MessageChannel?, warning: Boolean = false, onError: (InsufficientPermissionException) -> Unit = {}) {
     val saveLocation = defaultChannel ?: defaultTextChannel(channel.guild)
+
+    /** Begin assertions **/
 
     if (saveLocation == null || !channel.guild.getTextChannelById(saveLocation.id).canTalk()) {
       logger.warn {
@@ -144,17 +148,21 @@ object BotUtils {
         "${guild.name}:${channel.name}: Attempted to join, but bot cannot write to any channel."
       }
 
-      return null
+      // TODO: This is shitty, all these branch if-else-if-else **gag**
+      return
     }
 
-    // TODO: Bot warns about AFK channel but connects anyway lulz
+    // Bot won't connect to AFK channels
     if (channel == channel.guild.afkChannel) {
-      if (warning) { // TODO: wtf does this do again?
+      if (warning) {
         sendMessage(saveLocation, ":no_entry_sign: _I'm not allowed to join AFK channels._")
       }
 
-      return null
+      // TODO: Again another short circuit here...
+      return
     }
+
+    /** End assertions **/
 
     val audioManager = channel.guild.audioManager
 
@@ -167,7 +175,8 @@ object BotUtils {
         logger.info { "${channel.guild.name}#${channel.name} - Connected to voice channel" }
       } catch (e: InsufficientPermissionException) {
         logger.warn { "${channel.guild.name}#${channel.name} - Need permission: ${e.permission}" }
-        return onError(e)
+        onError(e)
+        return
       }
 
       transaction {
@@ -181,8 +190,6 @@ object BotUtils {
         sendMessage(saveLocation, ":red_circle: **Audio is being recorded on <#${channel.id}>**")
       }
     }
-
-    return null
   }
 
   @JvmStatic
