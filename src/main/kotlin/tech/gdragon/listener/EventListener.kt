@@ -5,6 +5,7 @@ import net.dv8tion.jda.core.entities.Game
 import net.dv8tion.jda.core.events.ReadyEvent
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent
 import net.dv8tion.jda.core.events.guild.GuildLeaveEvent
+import net.dv8tion.jda.core.events.guild.member.GuildMemberNickChangeEvent
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceJoinEvent
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceMoveEvent
@@ -108,6 +109,21 @@ class EventListener : ListenerAdapter() {
         .channel
         .sendMessage(message)
         .queue()
+    }
+  }
+
+  /**
+   * Always add recording prefix when recording and if possible.
+   */
+  override fun onGuildMemberNickChange(event: GuildMemberNickChangeEvent) {
+    if (BotUtils.isSelfBot(event.jda, event.user)) {
+      if(event.guild.audioManager.isConnected) {
+        logger.debug {
+          "${event.guild}#: Attempting to change nickname from ${event.prevNick} -> ${event.newNick}"
+        }
+
+        BotUtils.recordingStatus(event.member, true)
+      }
     }
   }
 
