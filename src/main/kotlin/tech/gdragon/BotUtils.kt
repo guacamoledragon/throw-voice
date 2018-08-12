@@ -3,10 +3,12 @@ package tech.gdragon
 import mu.KotlinLogging
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.JDA
+import net.dv8tion.jda.core.entities.Member
 import net.dv8tion.jda.core.entities.MessageChannel
 import net.dv8tion.jda.core.entities.User
 import net.dv8tion.jda.core.entities.VoiceChannel
 import net.dv8tion.jda.core.exceptions.InsufficientPermissionException
+import net.dv8tion.jda.core.exceptions.RateLimitedException
 import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.listener.CombinedAudioRecorderHandler
@@ -187,14 +189,15 @@ object BotUtils {
           ?: 1.0
 
         audioManager?.setReceivingHandler(CombinedAudioRecorderHandler(volume, channel, saveLocation))
+        recordingStatus(channel.guild.selfMember, true)
         sendMessage(saveLocation, ":red_circle: **Audio is being recorded on <#${channel.id}>**")
       }
     }
   }
 
   @JvmStatic
-  fun leaveVoiceChannel(voiceChannel: VoiceChannel?) {
-    val guild = voiceChannel?.guild
+  fun leaveVoiceChannel(voiceChannel: VoiceChannel) {
+    val guild = voiceChannel.guild
     val audioManager = guild?.audioManager
     val receiveHandler = audioManager?.receiveHandler as CombinedAudioRecorderHandler?
 
@@ -202,13 +205,15 @@ object BotUtils {
       disconnect()
     }
 
-    logger.info("{}#{}: Leaving voice channel", guild?.name, voiceChannel?.name)
+    logger.info("{}#{}: Leaving voice channel", guild?.name, voiceChannel.name)
     audioManager?.apply {
       setReceivingHandler(null)
       sendingHandler = null
       closeAudioConnection()
       logger.info("{}#{}: Destroyed audio handlers", guild.name, voiceChannel.name)
     }
+
+    recordingStatus(voiceChannel.guild.selfMember, false)
   }
 
   /**
@@ -226,6 +231,45 @@ object BotUtils {
     } catch (e: InsufficientPermissionException) {
       logger.warn(e) {
         "<insert guild name>#${textChannel?.name}: Missing permission ${e.permission}"
+      }
+    }
+  }
+
+  /**
+   * Change the bot's nickname depending on it's recording status.
+   *
+   * There are a few edge cases that I don't feel like fixing, for instance
+   * if the nickname exceeds 32 characters, then it's just not renamed. Additionally,
+   * if the blocking call to change the nick fails, it'll just leave it as it was as
+   * set by the user.
+   */
+  fun recordingStatus(bot: Member, isRecording: Boolean) {
+    val prefix = "[REC]"
+    val prevNick = bot.effectiveName
+
+    val newNick = if (isRecording) {
+      if (prevNick.startsWith(prefix).not()) {
+        prefix + prevNick
+      } else {
+        prevNick
+      }
+    } else {
+      if (prevNick.startsWith(prefix)) {
+        prevNick.removePrefix(prefix)
+      } else {
+        prevNick
+      }
+    }
+
+    if(newNick != prevNick && (newNick.length <= 32)) {
+      try {
+        bot.guild.controller
+          .setNickname(bot, newNick)
+          .complete(true)
+      } catch (e: RateLimitedException) {
+        logger.error(e) {
+          "Could not change nickname: $prevNick -> $newNick"
+        }
       }
     }
   }
