@@ -37,7 +37,8 @@ class Bot(token: String) {
       api = JDABuilder(AccountType.BOT)
         .setToken(token)
         .addEventListener(EventListener())
-        .buildBlocking()
+        .build()
+        .awaitReady()
 
       // Register misc commands
       CommandHandler.commands["help"] = Help()

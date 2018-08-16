@@ -107,7 +107,7 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
     queueFile = QueueFile(File(queueFilename))
     canReceive = true
 
-    val encoder = LameEncoder(AudioReceiveHandler.OUTPUT_FORMAT, BITRATE, LameEncoder.CHANNEL_MODE_AUTO, LameEncoder.QUALITY_HIGHEST, false)
+    val encoder = LameEncoder(AudioReceiveHandler.OUTPUT_FORMAT, BITRATE, LameEncoder.CHANNEL_MODE_AUTO, LameEncoder.QUALITY_HIGHEST, true)
 
     logger.info("{}#{}: Creating recording file - {}", voiceChannel.guild.name, voiceChannel.name, queueFilename)
     return subject
