@@ -130,7 +130,7 @@ class EventListener : ListenerAdapter() {
   override fun onReady(event: ReadyEvent) {
     event
       .jda
-      .presence.game = object : Game("1.2.0-beta.76 | https://www.pawa.im", "https://www.pawa.im", Game.GameType.DEFAULT) {
+      .presence.game = object : Game("1.2.0-beta.22d2bd1 | https://www.pawa.im", "https://www.pawa.im", Game.GameType.DEFAULT) {
 
     }
 
