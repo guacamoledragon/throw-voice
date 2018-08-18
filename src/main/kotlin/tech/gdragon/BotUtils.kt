@@ -266,6 +266,10 @@ object BotUtils {
         bot.guild.controller
           .setNickname(bot, newNick)
           .complete(true)
+      } catch (e: InsufficientPermissionException) {
+        logger.warn {
+          "Missing ${e.permission} permission to change $prevNick -> $newNick"
+        }
       } catch (e: RateLimitedException) {
         logger.error(e) {
           "Could not change nickname: $prevNick -> $newNick"
