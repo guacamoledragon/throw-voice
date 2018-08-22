@@ -7,6 +7,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.db.table.Tables.Aliases
 import tech.gdragon.db.table.Tables.Channels
 import tech.gdragon.db.table.Tables.Guilds
+import tech.gdragon.db.table.Tables.Recordings
 import tech.gdragon.db.table.Tables.Users
 import tech.gdragon.db.table.Tables.Settings as SettingsTable
 
@@ -83,6 +84,17 @@ class Guild(id: EntityID<Long>) : LongEntity(id) {
 
   var name by Guilds.name
   val settings by Settings backReferencedOn SettingsTable.guild
+}
+
+class Recording(id: EntityID<Long>) : LongEntity(id) {
+  companion object : LongEntityClass<Recording>(Recordings)
+
+  val createdOn by Recordings.createdOn
+
+  var channelId by Recordings.channelId
+  var modifiedOn by Recordings.modifiedOn
+  var url by Recordings.url
+  var guild by Guild referencedOn Recordings.guild
 }
 
 class Settings(id: EntityID<Long>) : LongEntity(id) {

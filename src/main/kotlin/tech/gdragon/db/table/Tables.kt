@@ -4,6 +4,8 @@ import org.jetbrains.exposed.dao.IntIdTable
 import org.jetbrains.exposed.dao.LongIdTable
 import org.jetbrains.exposed.sql.ReferenceOption
 import java.math.BigDecimal
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 object Tables {
   object Guilds : LongIdTable() {
@@ -40,5 +42,13 @@ object Tables {
     }
   }
 
-  val allTables = arrayOf(Aliases, Channels, Guilds, Settings, Users)
+  object Recordings : LongIdTable() {
+    val channelId = long("channelId")
+    val createdOn = text("created_on").default(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
+    val modifiedOn = text("modified_on").nullable()
+    val url = text("url")
+    val guild = reference("guild", Guilds, ReferenceOption.CASCADE)
+  }
+
+  val allTables = arrayOf(Aliases, Channels, Guilds, Recordings, Settings, Users)
 }

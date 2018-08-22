@@ -16,12 +16,16 @@ import net.dv8tion.jda.core.entities.VoiceChannel
 import org.jetbrains.exposed.sql.transactions.transaction
 import synapticloop.b2.B2ApiClient
 import tech.gdragon.BotUtils
+import tech.gdragon.db.dao.Guild
+import tech.gdragon.db.dao.Recording
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
@@ -47,6 +51,7 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
   private var subscription: Disposable? = null
   private var uuid: UUID? = null
   private var queueFile: QueueFile? = null
+  private var recordingRecord: Recording? = null
 
   private var canReceive = true
   private var afkCounter = 0
@@ -99,6 +104,14 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
   }
 
   private fun createRecording(): Disposable? {
+    recordingRecord = transaction {
+      Guild.findById(voiceChannel.guild.idLong)?.let {
+        Recording.new {
+          channelId = voiceChannel.idLong
+          guild = it
+        }
+      }
+    }
     subject = PublishSubject.create()
     uuid = UUID.randomUUID()
     filename = "$dataDirectory/recordings/$uuid.mp3"
@@ -233,6 +246,13 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
 
         BotUtils.sendMessage(channel, message)
 
+        transaction {
+          commit()
+          recordingRecord?.let {
+            it.url = recordingUrl
+            it.modifiedOn = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+          }
+        }
         cleanup(recording)
       } else {
         logger.warn("B2 Bucket ID not set.")
