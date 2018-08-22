@@ -8,13 +8,12 @@ import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import mu.KotlinLogging
 import net.dv8tion.jda.core.audio.AudioReceiveHandler
-import net.dv8tion.jda.core.audio.AudioSendHandler
 import net.dv8tion.jda.core.audio.CombinedAudio
 import net.dv8tion.jda.core.audio.UserAudio
 import net.dv8tion.jda.core.entities.MessageChannel
 import net.dv8tion.jda.core.entities.TextChannel
 import net.dv8tion.jda.core.entities.VoiceChannel
-import org.slf4j.LoggerFactory
+import org.jetbrains.exposed.sql.transactions.transaction
 import synapticloop.b2.B2ApiClient
 import tech.gdragon.BotUtils
 import java.io.ByteArrayOutputStream
@@ -34,11 +33,11 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
     private const val MAX_RECORDING_SIZE = MAX_RECORDING_MB * 1024 * 1024   // 8MB
     private const val BUFFER_TIMEOUT = 200L                                 // 200 milliseconds
     private const val BUFFER_MAX_COUNT = 8
-    private const val BITRATE = 128                                         // 128 kpbs
+    private const val BITRATE = 128                                         // 128 kbps
     private const val BYTES_PER_SECOND = 16_000L                            // 128 kbps == 16000 bytes per second
   }
 
-  private val logger = LoggerFactory.getLogger(this.javaClass)
+  private val logger = KotlinLogging.logger {  }
   val bucketId: String = System.getenv("B2_BUCKET_ID") ?: ""
   val bucketName: String = System.getenv("B2_BUCKET_NAME") ?: ""
   val dataDirectory: String = System.getenv("DATA_DIR") ?: ""
@@ -113,7 +112,7 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
     return subject
       ?.map { it.getAudioData(volume) }
       ?.buffer(BUFFER_TIMEOUT, TimeUnit.MILLISECONDS, BUFFER_MAX_COUNT)
-      ?.flatMap({ bytesArray ->
+      ?.flatMap { bytesArray ->
         val baos = ByteArrayOutputStream()
 
         bytesArray.forEach {
@@ -123,8 +122,8 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
         }
 
         Observable.fromArray(baos.toByteArray())
-      })
-      ?.collectInto(queueFile!!, { queue, bytes ->
+      }
+      ?.collectInto(queueFile!!) { queue, bytes ->
 
         while (recordingSize + bytes.size > MAX_RECORDING_SIZE) {
           recordingSize -= queue.peek()?.size ?: 0
@@ -132,12 +131,12 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
         }
         queue.add(bytes)
         recordingSize += bytes.size
-      })
-      ?.subscribe({ _, e ->
+      }
+      ?.subscribe { _, e ->
         e?.let {
           logger.error("An error occurred in the recording pipeline.", it)
         }
-      })
+      }
   }
 
   fun saveRecording(voiceChannel: VoiceChannel?, textChannel: TextChannel?) {
@@ -148,9 +147,9 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
 
     FileOutputStream(recording).use {
       queueFile?.apply {
-        forEach({ stream, _ ->
+        forEach { stream, _ ->
           stream.transferTo(it)
-        })
+        }
 
         clear()
         close()
@@ -192,9 +191,9 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
 
     FileOutputStream(recording).use {
       queueFile.apply {
-        forEach({ stream, _ ->
+        forEach { stream, _ ->
           stream.transferTo(it)
-        })
+        }
 
         close()
         Files.delete(clipPath)
@@ -252,7 +251,6 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
       close()
       File(queueFilename).delete()
     }
-
   }
 
   private fun cleanup(recording: File) {

@@ -23,26 +23,24 @@ object CommandHandler {
   @JvmStatic
   @Throws(InvalidCommand::class)
   fun handleCommand(event: GuildMessageReceivedEvent, commandContainer: CommandContainer): Boolean {
-    return transaction {
-      var isSuccess = false
-      val settings = Guild.findById(event.guild.idLong)?.settings
-      val command = commandContainer.command
+    var isSuccess = false
+    val command = commandContainer.command
 
-      if (!commands.containsKey(command)) {
-        for (alias in (settings?.aliases ?: emptyList<Alias>())) {
-          if (alias.alias == command) {
-            commands[alias.name]?.action(commandContainer.args, event)
-            isSuccess = true
-            break
-          }
+    if (!commands.containsKey(command)) {
+      val aliases = transaction { Guild.findById(event.guild.idLong)?.settings?.aliases?.toList() }
+      for (alias in (aliases ?: emptyList())) {
+        if (alias.alias == command) {
+          commands[alias.name]?.action(commandContainer.args, event)
+          isSuccess = true
+          break
         }
-      } else {
-        commands[command]?.action(commandContainer.args, event)
-        isSuccess = true
       }
-
-      isSuccess
+    } else {
+      commands[command]?.action(commandContainer.args, event)
+      isSuccess = true
     }
+
+    return isSuccess
   }
 }
 

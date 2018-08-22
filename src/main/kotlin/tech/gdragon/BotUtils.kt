@@ -181,17 +181,17 @@ object BotUtils {
         return
       }
 
-      transaction {
-        val volume = Guild.findById(channel.guild.idLong)
+      val volume = transaction {
+        Guild.findById(channel.guild.idLong)
           ?.settings
           ?.volume
           ?.toDouble()
           ?: 1.0
-
-        audioManager?.setReceivingHandler(CombinedAudioRecorderHandler(volume, channel, saveLocation))
-        recordingStatus(channel.guild.selfMember, true)
-        sendMessage(saveLocation, ":red_circle: **Audio is being recorded on <#${channel.id}>**")
       }
+
+      audioManager?.setReceivingHandler(CombinedAudioRecorderHandler(volume, channel, saveLocation))
+      recordingStatus(channel.guild.selfMember, true)
+      sendMessage(saveLocation, ":red_circle: **Audio is being recorded on <#${channel.id}>**")
     }
   }
 
