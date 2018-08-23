@@ -13,7 +13,7 @@ class AutoJoin : Command {
     transaction {
       Channel
         .findOrCreate(channel.idLong, channel.name, channel.guild.idLong, channel.guild.name)
-        .forEach { it.autoJoin = autoJoin }
+        .also { it.autoJoin = autoJoin }
     }
   }
 
