@@ -3,6 +3,7 @@ package tech.gdragon.db.dao
 import org.jetbrains.exposed.dao.*
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.exposedLogger
+import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.db.table.Tables.Aliases
 import tech.gdragon.db.table.Tables.Channels
@@ -15,7 +16,7 @@ class Alias(id: EntityID<Int>) : IntEntity(id) {
   companion object : IntEntityClass<Alias>(Aliases) {
     private val aliases = listOf("info" to "help", "record" to "join", "stop" to "leave", "symbol" to "prefix")
 
-    fun createDefaultAliases(settings: Settings) = aliases.map { (alias, name) ->
+    fun createDefaultAliases(settings: Settings) = aliases.forEach { (alias, name) ->
       Alias.new {
         this.name = name
         this.alias = alias
@@ -52,23 +53,15 @@ class Guild(id: EntityID<Long>) : LongEntity(id) {
   companion object : LongEntityClass<Guild>(Guilds) {
 
     @JvmStatic
-    fun findOrCreate(id: Long, name: String): Guild = transaction {
-      val guild = Guild.findById(id)
+    fun findOrCreate(id: Long, name: String): Guild {
+      return Guild.findById(id) ?: Guild.new(id) {
+        this.name = name
+      }.also { guild ->
+        // Please ensure Guild is created before proceeding
+        exposedLogger.info("Creating Guild database entry for: ${guild.name}")
+        TransactionManager.current().commit()
 
-      return@transaction if (guild != null) {
-        guild
-      } else {
-        val settings = Settings.new {
-          this.guild = Guild.new(id) {
-            this.name = name
-          }
-        }
-
-        commit()
-
-        Alias.createDefaultAliases(settings)
-        exposedLogger.info("Creating database entry for: ${settings.guild.name}")
-        settings.guild
+        Alias.createDefaultAliases(Settings.new { this.guild = guild })
       }
     }
   }

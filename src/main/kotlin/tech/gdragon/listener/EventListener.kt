@@ -137,8 +137,11 @@ class EventListener : ListenerAdapter() {
     logger.info { "ONLINE: Connected to ${event.jda.guilds.size} guilds!" }
 
     // Add guild if not present
-    for (g in event.jda.guilds) {
-      tech.gdragon.db.dao.Guild.findOrCreate(g.idLong, g.name)
+
+    event.jda.guilds.forEach {
+      transaction {
+        tech.gdragon.db.dao.Guild.findOrCreate(it.idLong, it.name)
+      }
     }
 
     try {
