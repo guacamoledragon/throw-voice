@@ -75,7 +75,8 @@ class Recording(id: EntityID<Long>) : LongEntity(id) {
 
   val createdOn by Recordings.createdOn
 
-  var channelId by Recordings.channelId
+  var channel by Channel referencedOn Recordings.channel
+  var size by Recordings.size
   var modifiedOn by Recordings.modifiedOn
   var url by Recordings.url
   var guild by Guild referencedOn Recordings.guild

@@ -1,7 +1,9 @@
 create table Recordings
 (
   id          INTEGER primary key,
-  channelId   BIGINT,
+  channel     INTEGER not null
+    references Channels,
+  size        INTEGER,
   created_on  TEXT   not null,
   modified_on TEXT,
   url         TEXT,
