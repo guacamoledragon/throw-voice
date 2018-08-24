@@ -16,6 +16,7 @@ import net.dv8tion.jda.core.entities.VoiceChannel
 import org.jetbrains.exposed.sql.transactions.transaction
 import synapticloop.b2.B2ApiClient
 import tech.gdragon.BotUtils
+import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.dao.Recording
 import java.io.ByteArrayOutputStream
@@ -107,7 +108,7 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
     recordingRecord = transaction {
       Guild.findById(voiceChannel.guild.idLong)?.let {
         Recording.new {
-          channelId = voiceChannel.idLong
+          channel = Channel.findOrCreate(voiceChannel.idLong, voiceChannel.name, it.id.value, it.name)
           guild = it
         }
       }
@@ -147,7 +148,7 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
       }
       ?.subscribe { _, e ->
         e?.let {
-          logger.error("An error occurred in the recording pipeline.", it)
+          logger.error("An error occurred in the recording pipeline: ${it.message}", it)
         }
       }
   }
@@ -247,10 +248,10 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
         BotUtils.sendMessage(channel, message)
 
         transaction {
-          commit()
-          recordingRecord?.let {
-            it.url = recordingUrl
-            it.modifiedOn = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+          recordingRecord?.apply {
+            size = recording.length()
+            modifiedOn = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+            url = recordingUrl
           }
         }
         cleanup(recording)
@@ -264,12 +265,27 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
 
   fun disconnect() {
     canReceive = false
-    subject?.onComplete()
+
+    try {
+      subject?.onComplete()
+    } catch (e: Exception) {
+      logger.warn(e) {
+        "Issue calling `onComplete` on CombinedAudioRecorderHandler: ${e.message}"
+      }
+    }
+
     subscription?.dispose()
     queueFile?.apply {
       clear()
       close()
       File(queueFilename).delete()
+    }
+
+    transaction {
+      recordingRecord?.apply {
+        if(url.isNullOrEmpty())
+          delete()
+      }
     }
   }
 
