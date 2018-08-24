@@ -14,9 +14,11 @@ import org.apache.logging.log4j.core.config.plugins.Plugin;
 import org.apache.logging.log4j.core.config.plugins.PluginAttribute;
 import org.apache.logging.log4j.core.config.plugins.PluginElement;
 import org.apache.logging.log4j.core.config.plugins.PluginFactory;
+import org.apache.logging.log4j.core.impl.ThrowableProxy;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Arrays;
 
 @Plugin(name = "Discord", category = "Core", elementType = "appender", printObject = true)
 public class DiscordWebhookAppender extends AbstractAppender {
@@ -44,9 +46,16 @@ public class DiscordWebhookAppender extends AbstractAppender {
 
   @Override
   public void append(LogEvent event) {
+    String stacktrace = "";
+    ThrowableProxy thrownProxy = event.getThrownProxy();
+    if (thrownProxy != null) {
+      if (thrownProxy.getStackTrace() != null)
+        stacktrace = "\n```\n" + Arrays.toString(thrownProxy.getStackTrace()) + "\n```";
+    }
+
     MultipartBody multipartBody = new MultipartBody.Builder()
       .setType(MultipartBody.FORM)
-      .addFormDataPart("content", event.getMessage().getFormattedMessage())
+      .addFormDataPart("content", event.getMessage().getFormattedMessage() + stacktrace)
       .build();
 
     Request request = new Request.Builder()
