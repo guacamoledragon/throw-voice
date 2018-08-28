@@ -3,10 +3,12 @@ package tech.gdragon.db.dao
 import org.jetbrains.exposed.dao.*
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.exposedLogger
+import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.db.table.Tables.Aliases
 import tech.gdragon.db.table.Tables.Channels
 import tech.gdragon.db.table.Tables.Guilds
+import tech.gdragon.db.table.Tables.Recordings
 import tech.gdragon.db.table.Tables.Users
 import tech.gdragon.db.table.Tables.Settings as SettingsTable
 
@@ -14,7 +16,7 @@ class Alias(id: EntityID<Int>) : IntEntity(id) {
   companion object : IntEntityClass<Alias>(Aliases) {
     private val aliases = listOf("info" to "help", "record" to "join", "stop" to "leave", "symbol" to "prefix")
 
-    fun createDefaultAliases(settings: Settings) = aliases.map { (alias, name) ->
+    fun createDefaultAliases(settings: Settings) = aliases.forEach { (alias, name) ->
       Alias.new {
         this.name = name
         this.alias = alias
@@ -30,21 +32,12 @@ class Alias(id: EntityID<Int>) : IntEntity(id) {
 
 class Channel(id: EntityID<Long>) : LongEntity(id) {
   companion object : LongEntityClass<Channel>(Channels) {
-    fun findOrCreate(id: Long, name: String, guildId: Long, guildName: String): Iterable<Channel> = transaction {
+    fun findOrCreate(id: Long, name: String, guildId: Long, guildName: String): Channel {
       val guild = Guild.findOrCreate(guildId, guildName)
-      val channels = Channel.find { (Channels.settings eq guild.settings.id) and (Channels.id eq id) }
 
-      if (channels.empty()) {
-        val newChannel = Channel.new(id) {
-          this.name = name
-          this.settings = guild.settings
-        }
-
-        commit()
-
-        listOf(newChannel)
-      } else {
-        channels
+      return find { (Channels.settings eq guild.settings.id) and (Channels.id eq id) }.firstOrNull() ?: Channel.new(id) {
+        this.name = name
+        this.settings = guild.settings
       }
     }
   }
@@ -60,29 +53,33 @@ class Guild(id: EntityID<Long>) : LongEntity(id) {
   companion object : LongEntityClass<Guild>(Guilds) {
 
     @JvmStatic
-    fun findOrCreate(id: Long, name: String): Guild = transaction {
-      val guild = Guild.findById(id)
+    fun findOrCreate(id: Long, name: String): Guild {
+      return Guild.findById(id) ?: Guild.new(id) {
+        this.name = name
+      }.also { guild ->
+        // Please ensure Guild is created before proceeding
+        exposedLogger.info("Creating Guild database entry for: ${guild.name}")
+        TransactionManager.current().commit()
 
-      return@transaction if (guild != null) {
-        guild
-      } else {
-        val settings = Settings.new {
-          this.guild = Guild.new(id) {
-            this.name = name
-          }
-        }
-
-        commit()
-
-        Alias.createDefaultAliases(settings)
-        exposedLogger.info("Creating database entry for: ${settings.guild.name}")
-        settings.guild
+        Alias.createDefaultAliases(Settings.new { this.guild = guild })
       }
     }
   }
 
   var name by Guilds.name
   val settings by Settings backReferencedOn SettingsTable.guild
+}
+
+class Recording(id: EntityID<Long>) : LongEntity(id) {
+  companion object : LongEntityClass<Recording>(Recordings)
+
+  val createdOn by Recordings.createdOn
+
+  var channel by Channel referencedOn Recordings.channel
+  var size by Recordings.size
+  var modifiedOn by Recordings.modifiedOn
+  var url by Recordings.url
+  var guild by Guild referencedOn Recordings.guild
 }
 
 class Settings(id: EntityID<Long>) : LongEntity(id) {

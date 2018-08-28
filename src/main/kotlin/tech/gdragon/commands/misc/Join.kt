@@ -14,20 +14,20 @@ class Join : Command {
       throw InvalidCommand(::usage, "Incorrect number of arguments: ${args.size}")
     }
 
-    transaction {
-      val guild = Guild.findById(event.guild.idLong)
-
-      val voiceChannel = event.member.voiceState.channel
-      val message: String? =
-        if (voiceChannel == null) {
-          ":no_entry_sign: _Please join a voice channel before using this command._"
+    val voiceChannel = event.member.voiceState.channel
+    val message: String? =
+      if (voiceChannel == null) {
+        ":no_entry_sign: _Please join a voice channel before using this command._"
+      } else {
+        val connectedChannel = event.guild.audioManager.connectedChannel
+        if (connectedChannel != null && connectedChannel.members.contains(event.member)) {
+          ":no_entry_sign: _I am already in **<#${connectedChannel.id}>**._"
         } else {
-          val connectedChannel = event.guild.audioManager.connectedChannel
-          if (connectedChannel != null && connectedChannel.members.contains(event.member)) {
-            ":no_entry_sign: _I am already in **<#${connectedChannel.id}>**._"
-          } else {
-            // This is where the happy path logic begins
-            if (event.guild.audioManager.isConnected) {
+          // This is where the happy path logic begins
+          if (event.guild.audioManager.isConnected) {
+            transaction {
+              val guild = Guild.findById(event.guild.idLong)
+
               guild?.settings?.let {
                 if (it.autoSave) {
                   val audioReceiveHandler = event.guild.audioManager.receiveHandler as CombinedAudioRecorderHandler
@@ -36,20 +36,20 @@ class Join : Command {
                 }
               }
             }
-
-            // We need to give something to the onError handler because sometimes life doesn't do what we want
-            BotUtils.joinVoiceChannel(voiceChannel, event.channel, true) { ex ->
-              val errorMessage = ":no_entry_sign: _Cannot join **<#${event.channel.id}>**, need permission:_ ```${ex.permission}```"
-              BotUtils.sendMessage(event.channel, errorMessage)
-            }
-
-            null // TODO: This is weird, but the problem is probably with the way the logic is structured
           }
-        }
 
-      message?.let {
-        BotUtils.sendMessage(event.channel, it)
+          // We need to give something to the onError handler because sometimes life doesn't do what we want
+          BotUtils.joinVoiceChannel(voiceChannel, event.channel, true) { ex ->
+            val errorMessage = ":no_entry_sign: _Cannot join **<#${event.channel.id}>**, need permission:_ ```${ex.permission}```"
+            BotUtils.sendMessage(event.channel, errorMessage)
+          }
+
+          null // TODO: This is weird, but the problem is probably with the way the logic is structured
+        }
       }
+
+    message?.let {
+      BotUtils.sendMessage(event.channel, it)
     }
   }
 

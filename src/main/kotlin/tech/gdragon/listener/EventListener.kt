@@ -1,6 +1,7 @@
 package tech.gdragon.listener
 
 import mu.KotlinLogging
+import mu.withLoggingContext
 import net.dv8tion.jda.core.entities.Game
 import net.dv8tion.jda.core.events.ReadyEvent
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent
@@ -89,12 +90,14 @@ class EventListener : ListenerAdapter() {
 
     val rawContent = event.message.contentDisplay
     if (rawContent.startsWith(prefix)) {
-      try {
-        CommandHandler.handleCommand(event, CommandHandler.parser.parse(prefix, rawContent.toLowerCase()))
-      } catch (e: InvalidCommand) {
-        val channel = event.channel
-        BotUtils.sendMessage(channel, ":no_entry_sign: _Usage: `${e.usage(prefix)}`_")
-        logger.warn { "${event.guild.name}#${channel.name}: [$rawContent] ${e.reason}" }
+      withLoggingContext("guild" to event.guild.name, "text-channel" to event.channel.name) {
+        try {
+          CommandHandler.handleCommand(event, CommandHandler.parser.parse(prefix, rawContent.toLowerCase()))
+        } catch (e: InvalidCommand) {
+          val channel = event.channel
+          BotUtils.sendMessage(channel, ":no_entry_sign: _Usage: `${e.usage(prefix)}`_")
+          logger.warn { "${event.guild.name}#${channel.name}: [$rawContent] ${e.reason}" }
+        }
       }
     }
   }
@@ -137,8 +140,11 @@ class EventListener : ListenerAdapter() {
     logger.info { "ONLINE: Connected to ${event.jda.guilds.size} guilds!" }
 
     // Add guild if not present
-    for (g in event.jda.guilds) {
-      tech.gdragon.db.dao.Guild.findOrCreate(g.idLong, g.name)
+
+    event.jda.guilds.forEach {
+      transaction {
+        tech.gdragon.db.dao.Guild.findOrCreate(it.idLong, it.name)
+      }
     }
 
     try {

@@ -1,10 +1,8 @@
 package tech.gdragon.db
 
 import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
-import tech.gdragon.db.table.Tables
 import java.sql.Connection
 
 /**
@@ -17,10 +15,6 @@ object Shim {
       statement.executeUpdate("PRAGMA foreign_keys = ON")
     })
     TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_READ_UNCOMMITTED
-
-    transaction {
-      SchemaUtils.create(*Tables.allTables)
-    }
   }
 
   /**

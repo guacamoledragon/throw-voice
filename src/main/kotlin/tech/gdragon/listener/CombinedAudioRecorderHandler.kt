@@ -8,21 +8,25 @@ import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import mu.KotlinLogging
 import net.dv8tion.jda.core.audio.AudioReceiveHandler
-import net.dv8tion.jda.core.audio.AudioSendHandler
 import net.dv8tion.jda.core.audio.CombinedAudio
 import net.dv8tion.jda.core.audio.UserAudio
 import net.dv8tion.jda.core.entities.MessageChannel
 import net.dv8tion.jda.core.entities.TextChannel
 import net.dv8tion.jda.core.entities.VoiceChannel
-import org.slf4j.LoggerFactory
+import org.jetbrains.exposed.sql.transactions.transaction
 import synapticloop.b2.B2ApiClient
 import tech.gdragon.BotUtils
+import tech.gdragon.db.dao.Channel
+import tech.gdragon.db.dao.Guild
+import tech.gdragon.db.dao.Recording
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
@@ -34,11 +38,11 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
     private const val MAX_RECORDING_SIZE = MAX_RECORDING_MB * 1024 * 1024   // 8MB
     private const val BUFFER_TIMEOUT = 200L                                 // 200 milliseconds
     private const val BUFFER_MAX_COUNT = 8
-    private const val BITRATE = 128                                         // 128 kpbs
+    private const val BITRATE = 128                                         // 128 kbps
     private const val BYTES_PER_SECOND = 16_000L                            // 128 kbps == 16000 bytes per second
   }
 
-  private val logger = LoggerFactory.getLogger(this.javaClass)
+  private val logger = KotlinLogging.logger {  }
   val bucketId: String = System.getenv("B2_BUCKET_ID") ?: ""
   val bucketName: String = System.getenv("B2_BUCKET_NAME") ?: ""
   val dataDirectory: String = System.getenv("DATA_DIR") ?: ""
@@ -48,6 +52,7 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
   private var subscription: Disposable? = null
   private var uuid: UUID? = null
   private var queueFile: QueueFile? = null
+  private var recordingRecord: Recording? = null
 
   private var canReceive = true
   private var afkCounter = 0
@@ -100,6 +105,14 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
   }
 
   private fun createRecording(): Disposable? {
+    recordingRecord = transaction {
+      Guild.findById(voiceChannel.guild.idLong)?.let {
+        Recording.new {
+          channel = Channel.findOrCreate(voiceChannel.idLong, voiceChannel.name, it.id.value, it.name)
+          guild = it
+        }
+      }
+    }
     subject = PublishSubject.create()
     uuid = UUID.randomUUID()
     filename = "$dataDirectory/recordings/$uuid.mp3"
@@ -113,7 +126,7 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
     return subject
       ?.map { it.getAudioData(volume) }
       ?.buffer(BUFFER_TIMEOUT, TimeUnit.MILLISECONDS, BUFFER_MAX_COUNT)
-      ?.flatMap({ bytesArray ->
+      ?.flatMap { bytesArray ->
         val baos = ByteArrayOutputStream()
 
         bytesArray.forEach {
@@ -123,8 +136,8 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
         }
 
         Observable.fromArray(baos.toByteArray())
-      })
-      ?.collectInto(queueFile!!, { queue, bytes ->
+      }
+      ?.collectInto(queueFile!!) { queue, bytes ->
 
         while (recordingSize + bytes.size > MAX_RECORDING_SIZE) {
           recordingSize -= queue.peek()?.size ?: 0
@@ -132,12 +145,12 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
         }
         queue.add(bytes)
         recordingSize += bytes.size
-      })
-      ?.subscribe({ _, e ->
+      }
+      ?.subscribe { _, e ->
         e?.let {
-          logger.error("An error occurred in the recording pipeline.", it)
+          logger.error("An error occurred in the recording pipeline: ${it.message}", it)
         }
-      })
+      }
   }
 
   fun saveRecording(voiceChannel: VoiceChannel?, textChannel: TextChannel?) {
@@ -148,9 +161,9 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
 
     FileOutputStream(recording).use {
       queueFile?.apply {
-        forEach({ stream, _ ->
+        forEach { stream, _ ->
           stream.transferTo(it)
-        })
+        }
 
         clear()
         close()
@@ -192,9 +205,9 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
 
     FileOutputStream(recording).use {
       queueFile.apply {
-        forEach({ stream, _ ->
+        forEach { stream, _ ->
           stream.transferTo(it)
-        })
+        }
 
         close()
         Files.delete(clipPath)
@@ -234,6 +247,13 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
 
         BotUtils.sendMessage(channel, message)
 
+        transaction {
+          recordingRecord?.apply {
+            size = recording.length()
+            modifiedOn = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+            url = recordingUrl
+          }
+        }
         cleanup(recording)
       } else {
         logger.warn("B2 Bucket ID not set.")
@@ -245,7 +265,15 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
 
   fun disconnect() {
     canReceive = false
-    subject?.onComplete()
+
+    try {
+      subject?.onComplete()
+    } catch (e: Exception) {
+      logger.warn(e) {
+        "Issue calling `onComplete` on CombinedAudioRecorderHandler: ${e.message}"
+      }
+    }
+
     subscription?.dispose()
     queueFile?.apply {
       clear()
@@ -253,6 +281,12 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
       File(queueFilename).delete()
     }
 
+    transaction {
+      recordingRecord?.apply {
+        if(url.isNullOrEmpty())
+          delete()
+      }
+    }
   }
 
   private fun cleanup(recording: File) {
