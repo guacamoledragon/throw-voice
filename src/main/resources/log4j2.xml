@@ -15,10 +15,12 @@
       <language>kotlin</language>
       <PatternLayout pattern="${globalPattern}"/>
       <RegexFilter regex=".*Found an unexpected key.*" onMatch="DENY" onMismatch="ACCEPT"/>
+      <RegexFilter regex=".*There was some unexpected exception in the combinedAudioExecutor.*" onMatch="DENY" onMismatch="ACCEPT"/>
     </Rollbar>
     <Discord name="Discord">
       <webhookUrl>${env:DISCORD_WEBHOOK}</webhookUrl>
       <PatternLayout pattern="${globalPattern}"/>
+      <RegexFilter regex=".*There was some unexpected exception in the combinedAudioExecutor.*" onMatch="DENY" onMismatch="ACCEPT"/>
     </Discord>
   </Appenders>
   <Loggers>
