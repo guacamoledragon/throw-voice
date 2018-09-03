@@ -10,7 +10,7 @@
   </scm>
 
   <properties>
-    <jda.version>3.7.1_392</jda.version>
+    <jda.version>3.7.1_414</jda.version>
     <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
     <kotlin.version>1.2.51</kotlin.version>
     <main.class>tech.gdragon.App</main.class>
