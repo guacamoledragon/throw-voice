@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>tech.gdragon</groupId>
   <artifactId>throw-voice</artifactId>
-  <version>1.2.0-branch.74</version>
+  <version>1.2.0-hotfix.audio-chirps</version>
   <scm>
     <connection>scm:git:https://github.com/guacamoledragon/throw-voice.git</connection>
     <url>https://github.com/guacamoledragon/throw-voice</url>
@@ -21,6 +21,11 @@
   </properties>
 
   <dependencies>
+    <dependency>
+      <groupId>com.github.guacamoledragon</groupId>
+      <artifactId>JDA</artifactId>
+      <version>99720a84a5</version>
+    </dependency>
     <dependency>
       <groupId>com.rollbar</groupId>
       <artifactId>rollbar-log4j2</artifactId>
@@ -41,11 +46,13 @@
       <artifactId>rxjava</artifactId>
       <version>2.2.0</version>
     </dependency>
+    <!--
     <dependency>
       <groupId>net.dv8tion</groupId>
       <artifactId>JDA</artifactId>
       <version>${jda.version}</version>
     </dependency>
+    -->
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-core</artifactId>
@@ -296,6 +303,10 @@
       <id>jcenter</id>
       <name>jcenter-bintray</name>
       <url>http://jcenter.bintray.com</url>
+    </repository>
+    <repository>
+      <id>jitpack.io</id>
+      <url>https://jitpack.io</url>
     </repository>
   </repositories>
 
