@@ -133,7 +133,7 @@ class EventListener : ListenerAdapter() {
   override fun onReady(event: ReadyEvent) {
     event
       .jda
-      .presence.game = object : Game("1.2.0-hotfix.audio-chirps | https://www.pawa.im", "https://www.pawa.im", Game.GameType.DEFAULT) {
+      .presence.game = object : Game("1.2.0-12643ad | https://www.pawa.im", "https://www.pawa.im", Game.GameType.DEFAULT) {
 
     }
 
