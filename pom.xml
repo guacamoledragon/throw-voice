@@ -10,9 +10,9 @@
   </scm>
 
   <properties>
-    <jda.version>3.7.1_419</jda.version>
+    <jda.version>3.8.0_433</jda.version>
     <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
-    <kotlin.version>1.2.61</kotlin.version>
+    <kotlin.version>1.2.71</kotlin.version>
     <main.class>tech.gdragon.App</main.class>
     <maven.compiler.source>1.9</maven.compiler.source>
     <maven.compiler.target>1.9</maven.compiler.target>

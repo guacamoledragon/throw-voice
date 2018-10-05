@@ -131,9 +131,10 @@ class EventListener : ListenerAdapter() {
   }
 
   override fun onReady(event: ReadyEvent) {
+    val version = System.getenv("VERSION")
     event
       .jda
-      .presence.game = object : Game("1.2.0-12643ad | https://www.pawa.im", "https://www.pawa.im", Game.GameType.DEFAULT) {
+      .presence.game = object : Game("$version | https://www.pawa.im", "https://www.pawa.im", Game.GameType.DEFAULT) {
 
     }
 
