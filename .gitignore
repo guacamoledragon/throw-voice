@@ -18,8 +18,12 @@ buildNumber.properties
 .idea/*
 
 *.env
-!sample-*.env
+!conf/sample-*.env
 settings.json
 settings.db
 recordings/
-/data
+data/
+
+*.bat
+!build-docker.bat
+!start.bat
