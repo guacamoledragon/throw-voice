@@ -1,5 +1,8 @@
 package tech.gdragon
 
+import com.natpryce.konfig.Configuration
+import com.natpryce.konfig.ConfigurationProperties
+import com.natpryce.konfig.overriding
 import io.minio.MinioClient
 import net.dv8tion.jda.core.AccountType
 import net.dv8tion.jda.core.JDABuilder
@@ -119,16 +122,6 @@ fun removeUnusedGuilds() {
   }
 }
 
-fun main(args: Array<String>) {
-//  testAlerts()
-//  basicTest()
-//  dropAllTables()
-//  testAutoJoin()
-//  removeUnusedGuilds()
-  minio()
-}
-
-
 fun minio() {
   val minioClient = MinioClient("http://localhost:9000", System.getenv("DS_ACCESS_KEY"), System.getenv("DS_SECRET_KEY"))
   val file = File("./data/test-data/mp3-encoded/4ceeafa2-17ac-4d5f-9a7b-9903c6f11fa8.mp3")
@@ -147,3 +140,14 @@ fun minio() {
   val statObject = minioClient.statObject("dev-recordings", "/333055724198559745/4ceeafa2-17ac-4d5f-9a7b-9903c6f11fa9.mp3")
   println("statObject = $statObject")
 }
+
+fun main(args: Array<String>) {
+//  testAlerts()
+//  basicTest()
+//  dropAllTables()
+//  testAutoJoin()
+//  removeUnusedGuilds()
+//  minio()
+  val config: Configuration = ConfigurationProperties.systemProperties() overriding
+}
+
