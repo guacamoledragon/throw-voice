@@ -1,0 +1,20 @@
+{
+  "databases": {
+    "settings": {
+      "queries": {
+        "stats": {
+          "sql": "select datetime(created_on)                                                        as timestamp,\n       printf('%05.2f', (julianday(modified_on) - julianday(created_on)) * 1440.0) as duration,\n       url,\n       guilds.name                                                                 as guild,\n       channels.name                                                               as channel\nfrom Recordings\n       join Guilds guilds on Recordings.guild = guilds.id\n       join Channels channels on Recordings.channel = channels.id\nwhere url notnull\n  and (julianday('now') - julianday(created_on)) < 1.5\norder by created_on desc;",
+          "title": "Most Recent Recordings"
+        },
+        "top-latest": {
+          "sql": "select guilds.name                                                                      as guild,\n       printf('%05.2f', sum((julianday(modified_on) - julianday(created_on)) * 1440.0)) as recorded_minutes,\n       count(*)                                                                         as recordings\nfrom Recordings\n       join Guilds guilds on Recordings.guild = guilds.id\n       join Channels channels on Recordings.channel = channels.id\nwhere url not null\n  and (julianday('now') - julianday(created_on)) < 1.5\ngroup by guilds.name\nhaving recorded_minutes > 1\norder by recorded_minutes desc;",
+          "title": "Guilds with most Recordings"
+        },
+        "top": {
+          "sql": "select guilds.name                                                                      as guild,\n       printf('%05.2f', sum((julianday(modified_on) - julianday(created_on)) * 1440.0)) as recorded_minutes,\n       count(*)                                                                         as recordings\nfrom Recordings\n       join Guilds guilds on Recordings.guild = guilds.id\n       join Channels channels on Recordings.channel = channels.id\nwhere url not null\ngroup by guilds.name\nhaving recorded_minutes > 1\norder by recorded_minutes desc;",
+          "title": "Guilds with most Recordings of all time"
+        }
+      }
+    }
+  }
+}
