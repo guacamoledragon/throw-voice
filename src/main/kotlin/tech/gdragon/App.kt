@@ -49,7 +49,8 @@ class App private constructor(port: Int, val inviteUrl: String) : NanoHTTPD(port
 
       val botConfig = BotConfig(
         token = config[Bot.token],
-        version = config[appVersion]
+        version = config[appVersion],
+        website = config[appWebsite]
       )
 
       val discordBot = DiscordBot(botConfig)

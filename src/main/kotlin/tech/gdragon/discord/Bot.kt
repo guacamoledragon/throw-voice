@@ -55,7 +55,7 @@ class Bot(config: BotConfig) {
   }
 }
 
-data class BotConfig(val token: String, val version: String)
+data class BotConfig(val token: String, val version: String, val website: String)
 
 enum class Command {
   ALIAS {

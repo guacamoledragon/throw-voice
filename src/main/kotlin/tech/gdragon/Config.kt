@@ -6,6 +6,7 @@ val appDatabase = Key("db-name", stringType)
 val appData = Key("data-dir", stringType)
 val appPort = Key("port", intType)
 val appVersion = Key("version", stringType)
+val appWebsite = Key("website", stringType)
 
 object B2 : PropertyGroup() {
   val account_id by stringType
