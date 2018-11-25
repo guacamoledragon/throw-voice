@@ -17,10 +17,10 @@ import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.joda.time.DateTime
 import tech.gdragon.data.DataStore
-import tech.gdragon.db.Shim
 import tech.gdragon.db.dao.Alias
 import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
+import tech.gdragon.db.initializeDatabase
 import tech.gdragon.db.table.Tables
 import tech.gdragon.db.table.Tables.Guilds
 import java.io.File
@@ -64,7 +64,7 @@ fun basicTest() {
 }
 
 fun testBiggestChannel() {
-  Shim.initializeDatabase("settings.db")
+  initializeDatabase("settings.db")
   JDABuilder(AccountType.BOT)
     .setToken(System.getenv("TOKEN"))
     .addEventListener(object : ListenerAdapter() {
@@ -85,7 +85,7 @@ fun testBiggestChannel() {
 }
 
 fun testAlerts() {
-  Shim.initializeDatabase("settings.db")
+  initializeDatabase("settings.db")
   JDABuilder(AccountType.BOT)
     .setToken(System.getenv("TOKEN"))
     .addEventListener(object : ListenerAdapter() {
@@ -100,7 +100,7 @@ fun testAlerts() {
 }
 
 fun testAutoJoin() {
-  Shim.initializeDatabase("./data/settings.db")
+  initializeDatabase("./data/settings.db")
   transaction {
     val settings = Guild.findById(333055724198559745L)?.settings
 
@@ -112,8 +112,6 @@ fun testAutoJoin() {
 }
 
 fun removeUnusedGuilds() {
-  Shim.initializeDatabase("./data/settings.db")
-
   transaction {
     Guilds.deleteWhere {
       val now = DateTime.now()
@@ -148,6 +146,6 @@ fun main(args: Array<String>) {
 //  testAutoJoin()
 //  removeUnusedGuilds()
 //  minio()
-  val config: Configuration = ConfigurationProperties.systemProperties() overriding
+  val config: Configuration = ConfigurationProperties.systemProperties()
 }
 
