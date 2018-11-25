@@ -2,9 +2,10 @@ package tech.gdragon
 
 import com.natpryce.konfig.*
 
-val appPort = Key("port", intType)
 val appDatabase = Key("db-name", stringType)
 val appData = Key("data-dir", stringType)
+val appPort = Key("port", intType)
+val appVersion = Key("version", stringType)
 
 object B2 : PropertyGroup() {
   val account_id by stringType
