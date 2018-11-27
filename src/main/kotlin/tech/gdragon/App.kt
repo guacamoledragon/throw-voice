@@ -8,6 +8,7 @@ import fi.iki.elonen.NanoHTTPD
 import mu.KotlinLogging
 import tech.gdragon.db.initializeDatabase
 import tech.gdragon.discord.BotConfig
+import tech.gdragon.discord.DataStoreConfig
 import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -47,10 +48,19 @@ class App private constructor(port: Int, val inviteUrl: String) : NanoHTTPD(port
       // Connect to database
       initializeDatabase("$dataDirectory/$databaseName")
 
+      val dataStoreConfig = DataStoreConfig(
+        bucketId = config[B2.bucket_id],
+        bucketName = config[B2.bucket_name],
+        accountId = config[B2.account_id],
+        accountKey = config[B2.account_key],
+        baseUrl = config[B2.base_url]
+      )
+
       val botConfig = BotConfig(
         token = config[Bot.token],
         version = config[appVersion],
-        website = config[appWebsite]
+        website = config[appWebsite],
+        datastore = dataStoreConfig
       )
 
       val discordBot = DiscordBot(botConfig)

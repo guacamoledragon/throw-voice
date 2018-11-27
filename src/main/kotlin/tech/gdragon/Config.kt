@@ -10,7 +10,7 @@ val appWebsite = Key("website", stringType)
 
 object B2 : PropertyGroup() {
   val account_id by stringType
-  val app_key by stringType
+  val account_key by stringType
   val base_url by stringType
   val bucket_id by stringType
   val bucket_name by stringType
