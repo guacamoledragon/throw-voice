@@ -75,7 +75,7 @@ class EventListener : ListenerAdapter() {
   }
 
   override fun onGuildMessageReceived(event: GuildMessageReceivedEvent) {
-    if (event.member == null || event.member.user == null || event.member.user.isBot)
+    if (event.member == null || event.member.user == null)
       return
 
     val guildId = event.guild.idLong
