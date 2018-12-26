@@ -1,0 +1,7 @@
+FROM openjdk:11-jre-slim
+
+ENV VERSION 0.31.2
+
+ADD http://downloads.metabase.com/v$VERSION/metabase.jar /opt/metabase.jar
+
+CMD ["java", "-jar", "/opt/metabase.jar"]
