@@ -18,7 +18,7 @@ ARG VERSION
 LABEL org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.name="throw-voice" \
       org.label-schema.description="A voice channel recording bot for Discord." \
-      org.label-schema.url="https://www.pawabot.site" \
+      org.label-schema.url="https://www.pawa.im" \
       org.label-schema.vcs-ref=$VCS_REF \
       org.label-schema.vcs-url="https://github.com/guacamoledragon/throw-voice" \
       org.label-schema.vendor="Guacamole Dragon, LLC" \
@@ -40,7 +40,7 @@ WORKDIR $APP_DIR
 COPY --from=builder /app/target/throw-voice-*-release.zip /tmp/throw-voice-release.zip
 RUN unzip -d $APP_DIR /tmp/throw-voice-release.zip
 
-ADD https://cdn.rawgit.com/fabric8io-images/run-java-sh/v1.2.0/fish-pepper/run-java-sh/fp-files/run-java.sh $APP_DIR
+ADD https://cdn.rawgit.com/fabric8io-images/run-java-sh/v1.2.2/fish-pepper/run-java-sh/fp-files/run-java.sh $APP_DIR
 
 VOLUME $DATA_DIR
 
