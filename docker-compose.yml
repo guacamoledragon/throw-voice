@@ -1,4 +1,11 @@
-version: '3'
+version: '3.4'
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: 100m
+    max-file: '5'
+
 services:
   bot:
     image: gdragon/throw-voice:${VERSION}
@@ -7,36 +14,34 @@ services:
       - ${ENV:-sample}-bot.env
       - ${ENV:-sample}-rollbar.env
     environment:
-      - JAVA_OPTIONS=--add-modules java.xml.bind
       - TZ=America/Los_Angeles
       - VERSION=${VERSION}
     volumes:
       - ./data:/app/data
     restart: on-failure:5
     logging:
-      driver: json-file
-      options:
-        max-size: 100m
-        max-file: '5'
+      <<: *logging
   portainer:
     image: portainer/portainer:latest
     command: -H unix:///var/run/docker.sock
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer_data:/data
+    logging:
+      <<: *logging
   data:
-    image: datasetteproject/datasette:0.25.1
-    command: datasette -p 8001 -h 0.0.0.0 -m /mnt/metadata.json /mnt/settings.db
+    build:
+      context: .
+      dockerfile: Dockerfile.metabase
+    image: metabase/metabase:v0.31.2-custom
     environment:
       - TZ=America/Los_Angeles
+      - MB_DB_FILE=/tmp/metabase.db
     volumes:
-      - ./data/settings.db:/mnt/settings.db:ro
-      - ${CONF:-./}metadata.json:/mnt/metadata.json
+      - ./data/metabase:/tmp
+      - ./data/settings.db:/opt/bot.db
     logging:
-      driver: json-file
-      options:
-        max-size: 100m
-        max-file: '5'
+      <<: *logging
   nginx:
     image: nginx:1.15-alpine
     command: /bin/sh -c "envsubst '$${BOT_HOST},$${DATA_HOST},$${DATA_WHITELIST_IP}' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && exec nginx -g 'daemon off;'"
@@ -52,6 +57,8 @@ services:
       - data
       - bot
       - portainer
+    logging:
+      <<: *logging
 
 volumes:
   portainer_data:
