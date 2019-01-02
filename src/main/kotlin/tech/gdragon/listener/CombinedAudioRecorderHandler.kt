@@ -13,6 +13,7 @@ import net.dv8tion.jda.core.audio.UserAudio
 import net.dv8tion.jda.core.entities.MessageChannel
 import net.dv8tion.jda.core.entities.TextChannel
 import net.dv8tion.jda.core.entities.VoiceChannel
+import org.apache.commons.io.FileUtils
 import org.jetbrains.exposed.sql.transactions.transaction
 import synapticloop.b2.B2ApiClient
 import tech.gdragon.BotUtils
@@ -171,9 +172,9 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
       }
     }
 
-    val recordingSizeInMB = recording.length().toDouble() / 1024 / 1024
+    val recordingSizeInMB = FileUtils.byteCountToDisplaySize(recording.length())
 
-    logger.info("{}#{}: Saving audio file {} - {}MB.",  voiceChannel?.guild?.name, voiceChannel?.name, recording.name, recordingSizeInMB)
+    logger.info("{}#{}: Saving audio file {} - {}.",  voiceChannel?.guild?.name, voiceChannel?.name, recording.name, recordingSizeInMB)
     logger.debug("Recording size in bytes: {}", recordingSize)
 
     uploadRecording(recording, recordingSizeInMB, voiceChannel, textChannel)
@@ -214,13 +215,13 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
       }
     }
 
-    val recordingSizeInMB = recording.length().toDouble() / 1024 / 1024
-    logger.info("{}#{}: Saving audio clip {} - {}MB.",  voiceChannel?.guild?.name, voiceChannel?.name, recording.name, recordingSizeInMB)
+    val recordingSizeInMB = FileUtils.byteCountToDisplaySize(recording.length())
+    logger.info("{}#{}: Saving audio clip {} - {}.",  voiceChannel?.guild?.name, voiceChannel?.name, recording.name, recordingSizeInMB)
 
     uploadRecording(recording, recordingSizeInMB, voiceChannel, channel)
   }
 
-  private fun uploadRecording(recording: File, recordingSize: Double, voiceChannel: VoiceChannel?, channel: TextChannel?) {
+  private fun uploadRecording(recording: File, recordingSize: String, voiceChannel: VoiceChannel?, channel: TextChannel?) {
     val guildName = channel?.guild?.name
     val voiceChannelName = voiceChannel?.name
 
@@ -259,7 +260,7 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
         logger.warn("B2 Bucket ID not set.")
       }
     } else {
-      BotUtils.sendMessage(channel, "Could not upload, file too large: " + recordingSize + "MB.")
+      BotUtils.sendMessage(channel, "Could not upload, file too large: $recordingSize.")
     }
   }
 
