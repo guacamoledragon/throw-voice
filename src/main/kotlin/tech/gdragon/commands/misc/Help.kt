@@ -1,5 +1,6 @@
 package tech.gdragon.commands.misc
 
+import mu.KotlinLogging
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -11,6 +12,8 @@ import tech.gdragon.db.dao.Guild
 import java.awt.Color
 
 class Help : Command {
+  private val logger = KotlinLogging.logger {}
+
   override fun action(args: Array<String>, event: GuildMessageReceivedEvent) {
     transaction {
       val guild = Guild.findById(event.guild.idLong)
@@ -60,10 +63,19 @@ class Help : Command {
           embed.addField(command?.usage(prefix), description, false)
         }
 
-      BotUtils.sendMessage(event.channel, "<@${event.author.id}> check your DMs!")
-      event.author.openPrivateChannel().queue({ channel ->
-        channel.sendMessage(embed.build()).queue()
-      })
+      if (event.author.isBot) {
+        BotUtils.sendMessage(event.channel, "Can't DM a bot!")
+        this@Help.logger.warn {
+          val channel = event.channel
+          val user = event.author
+          "${channel.guild.name}#${channel.name}: Could not alert bot ${user.name}"
+        }
+      } else {
+        BotUtils.sendMessage(event.channel, "<@${event.author.id}> check your DMs!")
+        event.author.openPrivateChannel().queue { channel ->
+          channel.sendMessage(embed.build()).queue()
+        }
+      }
     }
   }
 
