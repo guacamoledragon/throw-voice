@@ -6,13 +6,18 @@ import tech.gdragon.BotUtils
 import tech.gdragon.commands.Command
 import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.db.dao.Channel
+import tech.gdragon.db.dao.Guild
 import net.dv8tion.jda.core.entities.Channel as DiscordChannel
 
 class AutoLeave : Command {
   private fun updateChannelAutoLeave(channel: DiscordChannel, autoLeave: Int) {
     transaction {
+      val guild = channel.guild.run {
+        Guild.findOrCreate(idLong, name, region.name)
+      }
+
       Channel
-        .findOrCreate(channel.idLong, channel.name, channel.guild.idLong, channel.guild.name)
+        .findOrCreate(channel.idLong, channel.name, guild)
 //        .forEach { it.autoLeave = autoLeave }
     }
   }

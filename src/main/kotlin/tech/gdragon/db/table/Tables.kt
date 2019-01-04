@@ -10,6 +10,7 @@ import java.time.format.DateTimeFormatter
 object Tables {
   object Guilds : LongIdTable() {
     val name = text("name")
+    val region = text("region")
   }
 
   object Settings : LongIdTable() {

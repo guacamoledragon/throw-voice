@@ -32,8 +32,7 @@ class Alias(id: EntityID<Int>) : IntEntity(id) {
 
 class Channel(id: EntityID<Long>) : LongEntity(id) {
   companion object : LongEntityClass<Channel>(Channels) {
-    fun findOrCreate(id: Long, name: String, guildId: Long, guildName: String): Channel {
-      val guild = Guild.findOrCreate(guildId, guildName)
+    fun findOrCreate(id: Long, name: String, guild: Guild): Channel {
 
       return find { (Channels.settings eq guild.settings.id) and (Channels.id eq id) }.firstOrNull() ?: Channel.new(id) {
         this.name = name
@@ -53,9 +52,10 @@ class Guild(id: EntityID<Long>) : LongEntity(id) {
   companion object : LongEntityClass<Guild>(Guilds) {
 
     @JvmStatic
-    fun findOrCreate(id: Long, name: String): Guild {
+    fun findOrCreate(id: Long, name: String, region: String): Guild {
       return Guild.findById(id) ?: Guild.new(id) {
         this.name = name
+        this.region = region
       }.also { guild ->
         // Please ensure Guild is created before proceeding
         exposedLogger.info("Creating Guild database entry for: ${guild.name}")
@@ -67,6 +67,7 @@ class Guild(id: EntityID<Long>) : LongEntity(id) {
   }
 
   var name by Guilds.name
+  var region by Guilds.region
   val settings by Settings backReferencedOn SettingsTable.guild
 }
 

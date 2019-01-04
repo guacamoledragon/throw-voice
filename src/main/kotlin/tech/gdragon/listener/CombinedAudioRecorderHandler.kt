@@ -109,11 +109,12 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
     recordingRecord = transaction {
       Guild.findById(voiceChannel.guild.idLong)?.let {
         Recording.new {
-          channel = Channel.findOrCreate(voiceChannel.idLong, voiceChannel.name, it.id.value, it.name)
+          channel = Channel.findOrCreate(voiceChannel.idLong, voiceChannel.name, it)
           guild = it
         }
       }
     }
+
     subject = PublishSubject.create()
     uuid = UUID.randomUUID()
     filename = "$dataDirectory/recordings/$uuid.mp3"

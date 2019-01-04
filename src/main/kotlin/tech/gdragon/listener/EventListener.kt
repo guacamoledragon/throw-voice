@@ -30,7 +30,7 @@ class EventListener : ListenerAdapter() {
   override fun onGuildJoin(event: GuildJoinEvent) {
     transaction {
       val guild = event.guild
-      Guild.findOrCreate(guild.idLong, guild.name)
+      Guild.findOrCreate(guild.idLong, guild.name, guild.region.name)
     }
 
     logger.info { "Joined new server '${event.guild.name}', connected to ${event.jda.guilds.size} guilds." }
@@ -83,7 +83,7 @@ class EventListener : ListenerAdapter() {
     val prefix = transaction {
       // HACK: Create settings for a guild that needs to be accessed. This is a problem when restarting bot.
       // TODO: On bot initialization, I should be able to check which Guilds the bot is connected to and purge/add respectively
-      val guild = Guild.findById(guildId) ?: Guild.findOrCreate(guildId, event.guild.name)
+      val guild = Guild.findById(guildId) ?: Guild.findOrCreate(guildId, event.guild.name, event.guild.region.name)
 
       guild.settings.prefix
     }
@@ -144,7 +144,7 @@ class EventListener : ListenerAdapter() {
 
     event.jda.guilds.forEach {
       transaction {
-        tech.gdragon.db.dao.Guild.findOrCreate(it.idLong, it.name)
+        tech.gdragon.db.dao.Guild.findOrCreate(it.idLong, it.name, it.region.name)
       }
     }
 
