@@ -7,6 +7,7 @@ import net.dv8tion.jda.core.events.ReadyEvent
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent
 import net.dv8tion.jda.core.events.guild.GuildLeaveEvent
 import net.dv8tion.jda.core.events.guild.member.GuildMemberNickChangeEvent
+import net.dv8tion.jda.core.events.guild.update.GuildUpdateRegionEvent
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceJoinEvent
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceMoveEvent
@@ -26,6 +27,20 @@ import net.dv8tion.jda.core.entities.Guild as DiscordGuild
 class EventListener : ListenerAdapter() {
 
   private val logger = KotlinLogging.logger {}
+
+  override fun onGuildUpdateRegion(event: GuildUpdateRegionEvent) {
+    withLoggingContext("guild" to event.guild.name) {
+      transaction {
+        this@EventListener.logger.info {
+          "Changed region ${event.oldRegion} -> ${event.newRegion}"
+        }
+        event.guild.run {
+          val guild = Guild.findOrCreate(idLong, name, event.oldRegion.name)
+          guild.region = event.newRegion.name
+        }
+      }
+    }
+  }
 
   override fun onGuildJoin(event: GuildJoinEvent) {
     transaction {
@@ -120,7 +135,7 @@ class EventListener : ListenerAdapter() {
    */
   override fun onGuildMemberNickChange(event: GuildMemberNickChangeEvent) {
     if (BotUtils.isSelfBot(event.jda, event.user)) {
-      if(event.guild.audioManager.isConnected) {
+      if (event.guild.audioManager.isConnected) {
         logger.debug {
           "${event.guild}#: Attempting to change nickname from ${event.prevNick} -> ${event.newNick}"
         }
