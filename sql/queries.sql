@@ -32,3 +32,15 @@ where url not null
 group by guilds.name
 having recorded_minutes > 1
 order by recorded_minutes desc;
+
+select datetime(created_on, 'localtime') as created_on, name
+from Guilds
+where id = 333055724198559745
+  and ifnull(created_on, '') not like '%Z';
+
+
+-- Adjust time by adding 8 hours and formatting to proper format
+update Guilds
+set created_on = strftime('%Y-%m-%dT%H:%M:%fZ',datetime(created_on, '+8 hours'))
+where id = 333055724198559745
+  and ifnull(created_on, '') not like '%Z';
