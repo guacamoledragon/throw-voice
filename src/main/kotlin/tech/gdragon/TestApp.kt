@@ -72,7 +72,8 @@ fun testBiggestChannel() {
         super.onGuildVoiceLeave(event)
       }
     })
-    .buildBlocking()
+    .build()
+    .awaitReady()
 }
 
 fun testAlerts() {
@@ -86,7 +87,8 @@ fun testAlerts() {
         super.onGuildVoiceJoin(event)
       }
     })
-    .buildBlocking()
+    .build()
+    .awaitReady()
 }
 
 fun uploadRecording() {

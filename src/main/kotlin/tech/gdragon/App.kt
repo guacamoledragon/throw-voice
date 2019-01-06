@@ -1,12 +1,16 @@
 package tech.gdragon
 
 import fi.iki.elonen.NanoHTTPD
-import org.slf4j.LoggerFactory
+import mu.KotlinLogging
 import tech.gdragon.db.Shim
+import tech.gdragon.db.removeAncientGuilds
 import tech.gdragon.discord.Bot
 import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Paths
+import java.time.Duration
+import java.util.*
+import kotlin.concurrent.scheduleAtFixedRate
 
 class App private constructor(port: Int, val clientId: String, val inviteUrl: String) : NanoHTTPD(port) {
   override fun serve(session: NanoHTTPD.IHTTPSession): NanoHTTPD.Response {
@@ -27,7 +31,7 @@ class App private constructor(port: Int, val clientId: String, val inviteUrl: St
 
   companion object {
 
-    private val logger = LoggerFactory.getLogger(App::class.java)
+    private val logger = KotlinLogging.logger { }
 
     /**
      * Starts a simple HTTP Service, whose only response is to redirect to the bot's page.
@@ -48,14 +52,20 @@ class App private constructor(port: Int, val clientId: String, val inviteUrl: St
 
       try {
         val recordingsDir = "$dataDirectory/recordings/"
-        logger.info("Creating recordings directory: {}", recordingsDir)
+        logger.info { "Creating recordings directory: $recordingsDir" }
         Files.createDirectories(Paths.get(recordingsDir))
       } catch (e: IOException) {
-        logger.error("Could not create recordings directory", e)
+        logger.error(e) { "Could not create recordings directory" }
       }
 
+      logger.info { "Start background process to remove unused Guilds." }
+      Timer("remove-old-guilds", true)
+        .scheduleAtFixedRate(0L, Duration.ofDays(1L).toMillis()) {
+          removeAncientGuilds()
+        }
+
       try {
-        logger.info("Starting HTTP Server: http://localhost:" + port)
+        logger.info { "Starting HTTP Server: http://localhost:$port" }
         app.start(NanoHTTPD.SOCKET_READ_TIMEOUT, false)
       } catch (e: IOException) {
         e.printStackTrace()

@@ -1,10 +1,11 @@
 package tech.gdragon.db
 
+import org.jetbrains.exposed.sql.Between
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.not
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.joda.time.DateTime
-import tech.gdragon.db.table.Tables
+import tech.gdragon.db.table.Tables.Guilds
 
 fun nowUTC(): DateTime = DateTime.now()
 
@@ -13,9 +14,9 @@ fun nowUTC(): DateTime = DateTime.now()
  */
 fun removeAncientGuilds() {
   transaction {
-    Tables.Guilds.deleteWhere {
+    Guilds.deleteWhere {
       val now = DateTime.now()
-      not(Tables.Guilds.lastActiveOn.between(now.minusDays(30), now))
+      not(Between(Guilds.lastActiveOn, dateTimeLiteral(now.minusDays(30)), dateTimeLiteral(now)))
     }
   }
 }
