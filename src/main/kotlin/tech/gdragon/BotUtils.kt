@@ -9,8 +9,15 @@ import net.dv8tion.jda.core.entities.User
 import net.dv8tion.jda.core.entities.VoiceChannel
 import net.dv8tion.jda.core.exceptions.InsufficientPermissionException
 import net.dv8tion.jda.core.exceptions.RateLimitedException
+import org.jetbrains.exposed.sql.Between
+import org.jetbrains.exposed.sql.Op
+import org.jetbrains.exposed.sql.SqlExpressionBuilder
+import org.jetbrains.exposed.sql.not
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.joda.time.DateTime
 import tech.gdragon.db.dao.Guild
+import tech.gdragon.db.dateTimeLiteral
+import tech.gdragon.db.table.Tables
 import tech.gdragon.listener.CombinedAudioRecorderHandler
 import tech.gdragon.listener.SilenceAudioSendHandler
 import java.awt.Color
@@ -276,7 +283,7 @@ object BotUtils {
       }
     }
 
-    if(newNick != prevNick && (newNick.length <= 32)) {
+    if (newNick != prevNick && (newNick.length <= 32)) {
       try {
         bot.guild.controller
           .setNickname(bot, newNick)
@@ -297,4 +304,36 @@ object BotUtils {
    * Returns the effective size of the voice channel, excluding bots.
    */
   fun voiceChannelSize(voiceChannel: VoiceChannel?): Int = voiceChannel?.members?.count() ?: 0
+
+  /**
+   * Leaves any Guild that hasn't been active in the past 30 days.
+   *
+   * In the past, I've been deleting the Guild from the database, but that makes things annoying when you rejoin.
+   * For now, we'll just be leaving a Guild, but keeping the settings.
+   */
+  fun leaveAncientGuilds(jda: JDA) {
+    val op: SqlExpressionBuilder.() -> Op<Boolean> = {
+      val now = DateTime.now()
+      not(Between(Tables.Guilds.lastActiveOn, dateTimeLiteral(now.minusDays(30)), dateTimeLiteral(now)))
+    }
+
+    // Find all ancient guilds and ask the Bot to leave them
+    transaction {
+      Guild.find(op).toList()
+    }.forEach {
+      val guild = jda.getGuildById(it.id.value)
+      guild
+        ?.leave()
+        ?.queue({
+          logger.info { "Left server '$guild', reached inactivity period." }
+        }, { e ->
+          logger.error(e) { "Could not leave server '$guild'!" }
+        })
+    }
+
+    // Delete all ancient guilds using the same query as above
+    /*transaction {
+      Guilds.deleteWhere(op = op)
+    }*/
+  }
 }

@@ -52,10 +52,10 @@ class EventListener : ListenerAdapter() {
   }
 
   override fun onGuildLeave(event: GuildLeaveEvent) {
-    transaction {
+    /*transaction {
       val guild = Guild.findById(event.guild.idLong)
       guild?.delete()
-    }
+    }*/
 
     logger.info { "Left server '${event.guild.name}', connected to ${event.jda.guilds.size} guilds." }
   }

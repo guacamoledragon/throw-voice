@@ -3,7 +3,6 @@ package tech.gdragon
 import fi.iki.elonen.NanoHTTPD
 import mu.KotlinLogging
 import tech.gdragon.db.Shim
-import tech.gdragon.db.removeAncientGuilds
 import tech.gdragon.discord.Bot
 import java.io.IOException
 import java.nio.file.Files
@@ -61,7 +60,7 @@ class App private constructor(port: Int, val clientId: String, val inviteUrl: St
       logger.info { "Start background process to remove unused Guilds." }
       Timer("remove-old-guilds", true)
         .scheduleAtFixedRate(0L, Duration.ofDays(1L).toMillis()) {
-          removeAncientGuilds()
+          BotUtils.leaveAncientGuilds(bot.api)
         }
 
       try {
