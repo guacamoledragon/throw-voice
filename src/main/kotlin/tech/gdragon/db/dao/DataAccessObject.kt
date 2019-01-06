@@ -5,7 +5,7 @@ import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.exposedLogger
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
-import tech.gdragon.db.table.Tables
+import tech.gdragon.db.nowUTC
 import tech.gdragon.db.table.Tables.Aliases
 import tech.gdragon.db.table.Tables.Channels
 import tech.gdragon.db.table.Tables.Guilds
@@ -70,7 +70,7 @@ class Guild(id: EntityID<Long>) : LongEntity(id) {
     fun updateActivity(guildId: Long, region: String) {
       transaction {
         Guild.findById(guildId)?.let {
-          it.lastActiveOn = Tables.jodaNowUTC()
+          it.lastActiveOn = nowUTC()
           it.region = region
         }
       }

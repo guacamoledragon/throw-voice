@@ -6,6 +6,8 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.joda.time.DateTime
 import tech.gdragon.db.table.Tables
 
+fun nowUTC(): DateTime = DateTime.now()
+
 /**
  * Removes any Guild that hasn't been active in the past 30 days.
  */

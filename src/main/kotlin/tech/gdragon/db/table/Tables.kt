@@ -3,21 +3,14 @@ package tech.gdragon.db.table
 import org.jetbrains.exposed.dao.IntIdTable
 import org.jetbrains.exposed.dao.LongIdTable
 import org.jetbrains.exposed.sql.ReferenceOption
-import org.joda.time.DateTime
-import org.joda.time.DateTimeZone
+import tech.gdragon.db.nowUTC
 import java.math.BigDecimal
-import java.time.ZoneId
-import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
 
 object Tables {
-  fun nowUTC(): String = ZonedDateTime.now(ZoneId.of("Z")).format(DateTimeFormatter.ISO_ZONED_DATE_TIME)
-  fun jodaNowUTC(): DateTime = DateTime.now(DateTimeZone.UTC)
-
   object Guilds : LongIdTable() {
     val name = text("name")
     val region = text("region")
-    val createdOn = text("created_on").clientDefault(::nowUTC)
+    val createdOn = datetime("created_on").clientDefault(::nowUTC)
     val lastActiveOn = datetime("last_active_on")
   }
 
@@ -54,8 +47,8 @@ object Tables {
   object Recordings : LongIdTable() {
     val channel = reference("channel", Channels)
     val size = long("size").default(0)
-    val createdOn = text("created_on").clientDefault(::nowUTC)
-    val modifiedOn = text("modified_on").nullable()
+    val createdOn = datetime("created_on").clientDefault(::nowUTC)
+    val modifiedOn = datetime("modified_on").nullable()
     val url = text("url").nullable()
     val guild = reference("guild", Guilds, ReferenceOption.CASCADE)
   }
