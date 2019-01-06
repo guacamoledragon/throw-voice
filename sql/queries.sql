@@ -41,6 +41,13 @@ where id = 333055724198559745
 
 -- Adjust time by adding 8 hours and formatting to proper format
 update Guilds
-set created_on = strftime('%Y-%m-%dT%H:%M:%fZ',datetime(created_on, '+8 hours'))
+set created_on = strftime('%Y-%m-%dT%H:%M:%fZ', datetime(created_on, '+8 hours'))
 where id = 333055724198559745
   and ifnull(created_on, '') not like '%Z';
+
+
+select *
+from Guilds
+where date(last_active_on)
+  not between date('now', '-30 days') and date('now')
+limit 50;
