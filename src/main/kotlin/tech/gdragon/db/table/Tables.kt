@@ -52,7 +52,7 @@ object Tables {
   object Recordings : LongIdTable() {
     val channel = reference("channel", Channels)
     val size = long("size").default(0)
-    val createdOn = text("created_on").clientDefault { LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) }
+    val createdOn = text("created_on").clientDefault(::nowUTC)
     val modifiedOn = text("modified_on").nullable()
     val url = text("url").nullable()
     val guild = reference("guild", Guilds, ReferenceOption.CASCADE)
