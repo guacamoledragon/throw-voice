@@ -5,12 +5,17 @@ import org.jetbrains.exposed.dao.LongIdTable
 import org.jetbrains.exposed.sql.ReferenceOption
 import java.math.BigDecimal
 import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 object Tables {
+  fun nowUTC(): String = ZonedDateTime.now(ZoneId.of("Z")).format(DateTimeFormatter.ISO_ZONED_DATE_TIME)
+
   object Guilds : LongIdTable() {
     val name = text("name")
     val region = text("region")
+    val createdOn = text("created_on").clientDefault(::nowUTC)
   }
 
   object Settings : LongIdTable() {

@@ -64,8 +64,17 @@ class Guild(id: EntityID<Long>) : LongEntity(id) {
         Alias.createDefaultAliases(Settings.new { this.guild = guild })
       }
     }
+
+    // TODO: Remove region from the method signature
+    fun updateActivity(guildId: Long, region: String) {
+      transaction {
+        val guild = Guild.findById(guildId)
+        guild?.region = region
+      }
+    }
   }
 
+  val createdOn by Guilds.createdOn
   var name by Guilds.name
   var region by Guilds.region
   val settings by Settings backReferencedOn SettingsTable.guild

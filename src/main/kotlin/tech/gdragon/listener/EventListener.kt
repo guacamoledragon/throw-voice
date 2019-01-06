@@ -113,6 +113,8 @@ class EventListener : ListenerAdapter() {
           BotUtils.sendMessage(channel, ":no_entry_sign: _Usage: `${e.usage(prefix)}`_")
           logger.warn { "${event.guild.name}#${channel.name}: [$rawContent] ${e.reason}" }
         }
+
+        Guild.updateActivity(event.guild.idLong, event.guild.region.name)
       }
     }
   }
@@ -157,6 +159,7 @@ class EventListener : ListenerAdapter() {
 
     // Add guild if not present
 
+    logger.info { "Add any missing Guilds to the Database..." }
     event.jda.guilds.forEach {
       transaction {
         tech.gdragon.db.dao.Guild.findOrCreate(it.idLong, it.name, it.region.name)
@@ -172,19 +175,20 @@ class EventListener : ListenerAdapter() {
         logger.info("Creating: " + dir.toString())
       }
 
+      logger.info { "Performing audio file cleanup if necessary..." }
       Files
         .list(dir)
         .filter { path -> Files.isRegularFile(path) && path.toString().toLowerCase().endsWith(".mp3") }
         .forEach { path ->
           try {
             Files.delete(path)
-            logger.info("Deleting file $path...")
-          } catch (e1: IOException) {
-            logger.error("Could not delete: " + path, e1)
+            logger.info { "Deleting file $path..." }
+          } catch (e: IOException) {
+            logger.error(e) { "Could not delete: $path" }
           }
         }
-    } catch (e1: IOException) {
-      logger.error("Error preparing to read recordings", e1)
+    } catch (e: IOException) {
+      logger.error(e) { "Error preparing to read recordings" }
     }
 
     //check for servers to join
