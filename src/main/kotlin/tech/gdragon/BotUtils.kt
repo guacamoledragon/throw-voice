@@ -81,6 +81,8 @@ object BotUtils {
               val message = ":no_entry_sign: _Cannot autojoin **<#${channel.id}>**, need permission:_ ```${ex.permission}```"
               BotUtils.sendMessage(saveLocation, message)
             }
+
+            Guild.updateActivity(guild.idLong, guild.region.name)
           }
         }
     }

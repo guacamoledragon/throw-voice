@@ -5,6 +5,7 @@ import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.exposedLogger
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
+import tech.gdragon.db.table.Tables
 import tech.gdragon.db.table.Tables.Aliases
 import tech.gdragon.db.table.Tables.Channels
 import tech.gdragon.db.table.Tables.Guilds
@@ -68,14 +69,17 @@ class Guild(id: EntityID<Long>) : LongEntity(id) {
     // TODO: Remove region from the method signature
     fun updateActivity(guildId: Long, region: String) {
       transaction {
-        val guild = Guild.findById(guildId)
-        guild?.region = region
+        Guild.findById(guildId)?.let {
+          it.lastActiveOn = Tables.nowUTC()
+          it.region = region
+        }
       }
     }
   }
 
   val createdOn by Guilds.createdOn
   var name by Guilds.name
+  var lastActiveOn by Guilds.lastActiveOn
   var region by Guilds.region
   val settings by Settings backReferencedOn SettingsTable.guild
 }

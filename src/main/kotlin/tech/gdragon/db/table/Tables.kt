@@ -16,6 +16,7 @@ object Tables {
     val name = text("name")
     val region = text("region")
     val createdOn = text("created_on").clientDefault(::nowUTC)
+    val lastActiveOn = text("last_active_on")
   }
 
   object Settings : LongIdTable() {
