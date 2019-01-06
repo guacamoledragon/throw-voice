@@ -5,16 +5,17 @@ import net.dv8tion.jda.core.JDABuilder
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceJoinEvent
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent
 import net.dv8tion.jda.core.hooks.ListenerAdapter
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.joda.time.DateTime
 import synapticloop.b2.B2ApiClient
 import tech.gdragon.db.Shim
 import tech.gdragon.db.dao.Alias
 import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.table.Tables
+import tech.gdragon.db.table.Tables.Guilds
 import java.sql.Connection
 
 fun dropAllTables() {
@@ -110,8 +111,19 @@ fun testAutoJoin() {
 
     settings
       ?.channels
-      ?.firstOrNull{ it.id.value == 41992802040138956L }
+      ?.firstOrNull { it.id.value == 41992802040138956L }
       ?.let { println(it.id.value) }
+  }
+}
+
+fun removeUnusedGuilds() {
+  Shim.initializeDatabase("./data/settings.db")
+
+  transaction {
+    Guilds.deleteWhere {
+      val now = DateTime.now()
+      not(Guilds.lastActiveOn.between(now.minusDays(30), now))
+    }
   }
 }
 
@@ -120,5 +132,6 @@ fun main(args: Array<String>) {
 //  basicTest()
 //  dropAllTables()
 //  uploadRecording()
-  testAutoJoin()
+//  testAutoJoin()
+  removeUnusedGuilds()
 }

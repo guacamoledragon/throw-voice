@@ -70,7 +70,7 @@ class Guild(id: EntityID<Long>) : LongEntity(id) {
     fun updateActivity(guildId: Long, region: String) {
       transaction {
         Guild.findById(guildId)?.let {
-          it.lastActiveOn = Tables.nowUTC()
+          it.lastActiveOn = Tables.jodaNowUTC()
           it.region = region
         }
       }
