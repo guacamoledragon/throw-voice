@@ -5,6 +5,7 @@ import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.exposedLogger
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
+import tech.gdragon.db.nowUTC
 import tech.gdragon.db.table.Tables.Aliases
 import tech.gdragon.db.table.Tables.Channels
 import tech.gdragon.db.table.Tables.Guilds
@@ -32,8 +33,7 @@ class Alias(id: EntityID<Int>) : IntEntity(id) {
 
 class Channel(id: EntityID<Long>) : LongEntity(id) {
   companion object : LongEntityClass<Channel>(Channels) {
-    fun findOrCreate(id: Long, name: String, guildId: Long, guildName: String): Channel {
-      val guild = Guild.findOrCreate(guildId, guildName)
+    fun findOrCreate(id: Long, name: String, guild: Guild): Channel {
 
       return find { (Channels.settings eq guild.settings.id) and (Channels.id eq id) }.firstOrNull() ?: Channel.new(id) {
         this.name = name
@@ -53,9 +53,10 @@ class Guild(id: EntityID<Long>) : LongEntity(id) {
   companion object : LongEntityClass<Guild>(Guilds) {
 
     @JvmStatic
-    fun findOrCreate(id: Long, name: String): Guild {
+    fun findOrCreate(id: Long, name: String, region: String): Guild {
       return Guild.findById(id) ?: Guild.new(id) {
         this.name = name
+        this.region = region
       }.also { guild ->
         // Please ensure Guild is created before proceeding
         exposedLogger.info("Creating Guild database entry for: ${guild.name}")
@@ -64,9 +65,22 @@ class Guild(id: EntityID<Long>) : LongEntity(id) {
         Alias.createDefaultAliases(Settings.new { this.guild = guild })
       }
     }
+
+    // TODO: Remove region from the method signature
+    fun updateActivity(guildId: Long, region: String) {
+      transaction {
+        Guild.findById(guildId)?.let {
+          it.lastActiveOn = nowUTC()
+          it.region = region
+        }
+      }
+    }
   }
 
+  val createdOn by Guilds.createdOn
   var name by Guilds.name
+  var lastActiveOn by Guilds.lastActiveOn
+  var region by Guilds.region
   val settings by Settings backReferencedOn SettingsTable.guild
 }
 

@@ -20,14 +20,13 @@ import tech.gdragon.BotUtils
 import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.dao.Recording
+import tech.gdragon.db.nowUTC
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
@@ -109,11 +108,12 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
     recordingRecord = transaction {
       Guild.findById(voiceChannel.guild.idLong)?.let {
         Recording.new {
-          channel = Channel.findOrCreate(voiceChannel.idLong, voiceChannel.name, it.id.value, it.name)
+          channel = Channel.findOrCreate(voiceChannel.idLong, voiceChannel.name, it)
           guild = it
         }
       }
     }
+
     subject = PublishSubject.create()
     uuid = UUID.randomUUID()
     filename = "$dataDirectory/recordings/$uuid.mp3"
@@ -251,7 +251,7 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
         transaction {
           recordingRecord?.apply {
             size = recording.length()
-            modifiedOn = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+            modifiedOn = nowUTC()
             url = recordingUrl
           }
         }

@@ -25,7 +25,8 @@ class Bot(token: String) {
       Permission.MESSAGE_WRITE,
       Permission.VOICE_CONNECT,
       Permission.VOICE_USE_VAD,
-      Permission.VOICE_SPEAK
+      Permission.VOICE_SPEAK,
+      Permission.NICKNAME_CHANGE
     )
   }
 

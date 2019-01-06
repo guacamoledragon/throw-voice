@@ -7,6 +7,7 @@ import net.dv8tion.jda.core.events.ReadyEvent
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent
 import net.dv8tion.jda.core.events.guild.GuildLeaveEvent
 import net.dv8tion.jda.core.events.guild.member.GuildMemberNickChangeEvent
+import net.dv8tion.jda.core.events.guild.update.GuildUpdateRegionEvent
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceJoinEvent
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceMoveEvent
@@ -27,20 +28,34 @@ class EventListener : ListenerAdapter() {
 
   private val logger = KotlinLogging.logger {}
 
+  override fun onGuildUpdateRegion(event: GuildUpdateRegionEvent) {
+    withLoggingContext("guild" to event.guild.name) {
+      transaction {
+        this@EventListener.logger.info {
+          "Changed region ${event.oldRegion} -> ${event.newRegion}"
+        }
+        event.guild.run {
+          val guild = Guild.findOrCreate(idLong, name, event.oldRegion.name)
+          guild.region = event.newRegion.name
+        }
+      }
+    }
+  }
+
   override fun onGuildJoin(event: GuildJoinEvent) {
     transaction {
       val guild = event.guild
-      Guild.findOrCreate(guild.idLong, guild.name)
+      Guild.findOrCreate(guild.idLong, guild.name, guild.region.name)
     }
 
     logger.info { "Joined new server '${event.guild.name}', connected to ${event.jda.guilds.size} guilds." }
   }
 
   override fun onGuildLeave(event: GuildLeaveEvent) {
-    transaction {
+    /*transaction {
       val guild = Guild.findById(event.guild.idLong)
       guild?.delete()
-    }
+    }*/
 
     logger.info { "Left server '${event.guild.name}', connected to ${event.jda.guilds.size} guilds." }
   }
@@ -83,7 +98,7 @@ class EventListener : ListenerAdapter() {
     val prefix = transaction {
       // HACK: Create settings for a guild that needs to be accessed. This is a problem when restarting bot.
       // TODO: On bot initialization, I should be able to check which Guilds the bot is connected to and purge/add respectively
-      val guild = Guild.findById(guildId) ?: Guild.findOrCreate(guildId, event.guild.name)
+      val guild = Guild.findById(guildId) ?: Guild.findOrCreate(guildId, event.guild.name, event.guild.region.name)
 
       guild.settings.prefix
     }
@@ -98,6 +113,8 @@ class EventListener : ListenerAdapter() {
           BotUtils.sendMessage(channel, ":no_entry_sign: _Usage: `${e.usage(prefix)}`_")
           logger.warn { "${event.guild.name}#${channel.name}: [$rawContent] ${e.reason}" }
         }
+
+        Guild.updateActivity(event.guild.idLong, event.guild.region.name)
       }
     }
   }
@@ -120,7 +137,7 @@ class EventListener : ListenerAdapter() {
    */
   override fun onGuildMemberNickChange(event: GuildMemberNickChangeEvent) {
     if (BotUtils.isSelfBot(event.jda, event.user)) {
-      if(event.guild.audioManager.isConnected) {
+      if (event.guild.audioManager.isConnected) {
         logger.debug {
           "${event.guild}#: Attempting to change nickname from ${event.prevNick} -> ${event.newNick}"
         }
@@ -142,9 +159,10 @@ class EventListener : ListenerAdapter() {
 
     // Add guild if not present
 
+    logger.info { "Add any missing Guilds to the Database..." }
     event.jda.guilds.forEach {
       transaction {
-        tech.gdragon.db.dao.Guild.findOrCreate(it.idLong, it.name)
+        tech.gdragon.db.dao.Guild.findOrCreate(it.idLong, it.name, it.region.name)
       }
     }
 
@@ -157,19 +175,20 @@ class EventListener : ListenerAdapter() {
         logger.info("Creating: " + dir.toString())
       }
 
+      logger.info { "Performing audio file cleanup if necessary..." }
       Files
         .list(dir)
         .filter { path -> Files.isRegularFile(path) && path.toString().toLowerCase().endsWith(".mp3") }
         .forEach { path ->
           try {
             Files.delete(path)
-            logger.info("Deleting file $path...")
-          } catch (e1: IOException) {
-            logger.error("Could not delete: " + path, e1)
+            logger.info { "Deleting file $path..." }
+          } catch (e: IOException) {
+            logger.error(e) { "Could not delete: $path" }
           }
         }
-    } catch (e1: IOException) {
-      logger.error("Error preparing to read recordings", e1)
+    } catch (e: IOException) {
+      logger.error(e) { "Error preparing to read recordings" }
     }
 
     //check for servers to join
@@ -181,4 +200,3 @@ class EventListener : ListenerAdapter() {
     }*/
   }
 }
-
