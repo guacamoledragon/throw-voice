@@ -30,41 +30,6 @@ object BotUtils {
   private val logger = KotlinLogging.logger {}
 
   /**
-   * Send a DM to anyone in the voiceChannel unless they are in the blacklist
-   */
-  @Deprecated("Alerts no longer supported, will be removed on next version.", ReplaceWith("BotUtils.sendMessage(null, alertMessage)", "tech.gdragon"), DeprecationLevel.ERROR)
-  fun alert(channel: VoiceChannel, alertMessage: String) {
-    transaction {
-      val guild = Guild.findById(channel.guild.idLong)
-      val blackList = guild?.settings?.alertBlacklist
-      val message = EmbedBuilder()
-        .setAuthor("pawa", "https://www.pawabot.site/", channel.jda.selfUser.avatarUrl)
-        .setColor(Color.RED)
-        .setTitle("Alert!")
-        .setDescription("""|$alertMessage
-                           |
-                           |Disable this alert with `${guild?.settings?.prefix}alerts off`""".trimMargin())
-        .setThumbnail("http://www.freeiconspng.com/uploads/alert-icon-png-red-alert-round-icon-clip-art-3.png")
-        .setTimestamp(OffsetDateTime.now())
-        .build()
-
-      channel.members
-        ?.map { it.user }
-        ?.filter { user -> !user.isBot && blackList?.find { it.name == user.id } == null }
-        ?.forEach { user ->
-          val errorHandler: ((t: Throwable) -> Unit) = {
-            BotUtils.logger.warn {
-              "${channel.guild.name}#${channel.name}: Could not alert ${user.name}"
-            }
-          }
-
-          user.openPrivateChannel()
-            .queue({ it.sendMessage(message).queue(null, errorHandler) }, errorHandler)
-        }
-    }
-  }
-
-  /**
    * AutoJoin voice channel if it meets the autojoining criterion
    */
   fun autoJoin(guild: DiscordGuild, channel: VoiceChannel) {
