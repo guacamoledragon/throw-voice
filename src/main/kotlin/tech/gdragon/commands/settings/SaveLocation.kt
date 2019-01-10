@@ -4,12 +4,12 @@ import net.dv8tion.jda.core.entities.TextChannel
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
 import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.BotUtils
-import tech.gdragon.commands.Command
+import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.dao.Settings
 
-class SaveLocation : Command {
+class SaveLocation : CommandHandler {
   private fun setSaveLocation(settings: Settings, channel: TextChannel): String {
     return if (channel.canTalk()) {
       settings.defaultTextChannel = channel.idLong

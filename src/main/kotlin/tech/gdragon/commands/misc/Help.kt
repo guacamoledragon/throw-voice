@@ -5,13 +5,13 @@ import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
 import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.BotUtils
-import tech.gdragon.commands.Command
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.db.dao.Guild
+import tech.gdragon.discord.Command
 import java.awt.Color
 
-class Help : Command {
+class Help : CommandHandler {
   private val logger = KotlinLogging.logger {}
 
   override fun action(args: Array<String>, event: GuildMessageReceivedEvent) {
@@ -42,25 +42,25 @@ class Help : Command {
         addBlankField(false)
       }
 
-      val commands = CommandHandler.commands.keys
+      val commands = Command.values()
       val aliases = guild?.settings?.aliases?.toList()
 
       commands
         .sorted()
-        .forEach {
-          val command = CommandHandler.commands[it]
+        .forEach { command ->
+          val commandHandler = command.handler
 
           val aliasDescription =
             aliases
-              ?.filter { alias -> alias.name == it }
+              ?.filter { alias -> alias.name == command.name.toLowerCase() }
               ?.let {
                 if (it.isNotEmpty()) {
                   "\nAliases: " + it.joinToString(",") { alias -> "`${alias.alias}`" }
                 } else ""
               } ?: ""
 
-          val description = command?.description() + aliasDescription
-          embed.addField(command?.usage(prefix), description, false)
+          val description = commandHandler.description() + aliasDescription
+          embed.addField(commandHandler.usage(prefix), description, false)
         }
 
       if (event.author.isBot) {

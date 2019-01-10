@@ -3,7 +3,6 @@ package tech.gdragon.db.dao
 import org.jetbrains.exposed.dao.*
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.exposedLogger
-import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.db.nowUTC
 import tech.gdragon.db.table.Tables.Aliases
@@ -14,17 +13,7 @@ import tech.gdragon.db.table.Tables.Users
 import tech.gdragon.db.table.Tables.Settings as SettingsTable
 
 class Alias(id: EntityID<Int>) : IntEntity(id) {
-  companion object : IntEntityClass<Alias>(Aliases) {
-    private val aliases = listOf("info" to "help", "record" to "join", "stop" to "leave", "symbol" to "prefix")
-
-    fun createDefaultAliases(settings: Settings) = aliases.forEach { (alias, name) ->
-      Alias.new {
-        this.name = name
-        this.alias = alias
-        this.settings = settings
-      }
-    }
-  }
+  companion object : IntEntityClass<Alias>(Aliases)
 
   var name by Aliases.name
   var alias by Aliases.alias
@@ -60,9 +49,6 @@ class Guild(id: EntityID<Long>) : LongEntity(id) {
       }.also { guild ->
         // Please ensure Guild is created before proceeding
         exposedLogger.info("Creating Guild database entry for: ${guild.name}")
-        TransactionManager.current().commit()
-
-        Alias.createDefaultAliases(Settings.new { this.guild = guild })
       }
     }
 

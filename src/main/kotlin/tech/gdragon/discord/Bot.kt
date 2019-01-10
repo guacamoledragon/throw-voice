@@ -7,8 +7,6 @@ import net.dv8tion.jda.core.JDABuilder
 import net.dv8tion.jda.core.Permission
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.audio.Clip
-import tech.gdragon.commands.audio.Echo
-import tech.gdragon.commands.audio.MessageInABottle
 import tech.gdragon.commands.audio.Save
 import tech.gdragon.commands.misc.Help
 import tech.gdragon.commands.misc.Join
@@ -19,6 +17,7 @@ import javax.security.auth.login.LoginException
 
 class Bot(token: String) {
   private val logger = KotlinLogging.logger {}
+
   companion object {
     val PERMISSIONS = listOf(
       Permission.MESSAGE_READ,
@@ -40,33 +39,10 @@ class Bot(token: String) {
         .addEventListener(EventListener())
         .build()
         .awaitReady()
-
-      // Register misc commands
-      CommandHandler.commands["help"] = Help()
-      CommandHandler.commands["join"] = Join()
-      CommandHandler.commands["leave"] = Leave()
-
-      // Register audio commands
-      CommandHandler.commands["clip"] = Clip()
-      CommandHandler.commands["echo"] = Echo()
-      CommandHandler.commands["miab"] = MessageInABottle()
-      CommandHandler.commands["save"] = Save()
-
-      // Register settings commands
-      CommandHandler.commands["alias"] = Alias()
-      CommandHandler.commands["alerts"] = Alerts()
-      CommandHandler.commands["autojoin"] = AutoJoin()
-      CommandHandler.commands["autoleave"] = AutoLeave()
-      CommandHandler.commands["autosave"] = AutoSave()
-      CommandHandler.commands["prefix"] = Prefix()
-      CommandHandler.commands["removealias"] = RemoveAlias()
-      CommandHandler.commands["savelocation"] = SaveLocation()
-      CommandHandler.commands["volume"] = Volume()
     } catch (e: LoginException) {
       logger.error(e) {
         "Could not authenticate using token: $token"
       }
-      e.printStackTrace()
     } catch (e: InterruptedException) {
       logger.error(e) {
         "Interrupted Exception when attempting to create bot."
@@ -78,3 +54,49 @@ class Bot(token: String) {
     }
   }
 }
+
+enum class Command {
+  ALIAS {
+    override val handler: CommandHandler = Alias()
+  },
+  AUTOJOIN {
+    override val handler: CommandHandler = AutoJoin()
+  },
+  AUTOLEAVE {
+    override val handler: CommandHandler = AutoLeave()
+  },
+  AUTOSAVE {
+    override val handler: CommandHandler = AutoSave()
+  },
+  CLIP {
+    override val handler: CommandHandler = Clip()
+  },
+  HELP {
+    override val handler: CommandHandler = Help()
+  },
+  JOIN {
+    override val handler: CommandHandler = Join()
+  },
+  LEAVE {
+    override val handler: CommandHandler = Leave()
+  },
+  PREFIX {
+    override val handler: CommandHandler = Prefix()
+  },
+  REMOVEALIAS {
+    override val handler: CommandHandler = RemoveAlias()
+  },
+  SAVE {
+    override val handler: CommandHandler = Save()
+  },
+  SAVELOCATION {
+    override val handler: CommandHandler = SaveLocation()
+  },
+  VOLUME {
+    override val handler: CommandHandler = Volume()
+  };
+
+  abstract val handler: CommandHandler
+}
+
+
