@@ -2,6 +2,8 @@ package tech.gdragon.commands
 
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
 import org.jetbrains.exposed.sql.transactions.transaction
+import tech.gdragon.BotUtils
+import tech.gdragon.commands.settings.Alias
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.discord.Command
 
@@ -27,7 +29,14 @@ fun handleCommand(event: GuildMessageReceivedEvent, prefix: String, rawInput: St
     val aliases = transaction { Guild.findById(event.guild.idLong)?.settings?.aliases?.toList() }
     aliases
       ?.find { it.alias == rawCommand }
-      ?.let { Command.valueOf(it.name.toUpperCase()) }
+      ?.let { Command.valueOf(it.name) }
+      ?.also {
+        if(Alias.deprecationMap.containsKey(rawCommand)) {
+          BotUtils.sendMessage(
+            event.channel,
+            ":warning: _The command `$prefix$rawCommand` will become `$prefix${Alias.deprecationMap[rawCommand]}` in the next release. Use `${prefix}alias` to restore._")
+        }
+      }
   }
 
   command?.handler?.action(args, event)

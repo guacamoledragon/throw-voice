@@ -104,11 +104,11 @@ class EventListener : ListenerAdapter() {
       guild.settings.prefix
     }
 
-    val rawContent = event.message.contentDisplay
+    val rawContent = event.message.contentDisplay.toLowerCase()
     if (rawContent.startsWith(prefix)) {
       withLoggingContext("guild" to event.guild.name, "text-channel" to event.channel.name) {
         try {
-          handleCommand(event, prefix, rawContent.toLowerCase())
+          handleCommand(event, prefix, rawContent)
         } catch (e: InvalidCommand) {
           val channel = event.channel
           BotUtils.sendMessage(channel, ":no_entry_sign: _Usage: `${e.usage(prefix)}`_")

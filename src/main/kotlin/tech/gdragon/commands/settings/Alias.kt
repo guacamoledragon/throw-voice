@@ -10,29 +10,38 @@ import tech.gdragon.db.dao.Guild
 import tech.gdragon.discord.Command
 
 class Alias : CommandHandler {
+  companion object {
+    val deprecationMap = mapOf(
+      "join" to "record",
+      "info" to "help",
+      "leave" to "stop",
+      "symbol" to "prefix"
+    )
+  }
+
   override fun action(args: Array<String>, event: GuildMessageReceivedEvent) {
     require(args.size == 2) {
       throw InvalidCommand(::usage, "Incorrect number of arguments: ${args.size}")
     }
 
     val channel = event.channel
-    val command = args.first().toUpperCase()
+    val command = args.first()
 
     // Checks that command to alias exists
-    if (Command.values().none { it.name == command }) {
+    if (Command.values().none { it.name == command.toUpperCase() }) {
       BotUtils.sendMessage(channel, "Command '$command' not found.")
     } else {
       val aliases = transaction { Guild.findById(event.guild.idLong)?.settings?.aliases?.toList() }
-      val alias = args[1].toLowerCase()
+      val alias = args[1]
 
       // Checks that alias doesn't already exist
       if (aliases?.any { it.name == alias } == true) {
-        BotUtils.sendMessage (channel, "Alias '$alias' already exists.")
+        BotUtils.sendMessage(channel, "Alias '$alias' already exists.")
       } else {
         transaction {
           Guild.findById(event.guild.idLong)?.settings?.let {
             Alias.new {
-              name = command.toLowerCase()
+              name = command.toUpperCase()
               this.alias = alias
               settings = it
             }
