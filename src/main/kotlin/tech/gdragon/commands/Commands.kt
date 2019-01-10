@@ -7,6 +7,9 @@ import tech.gdragon.BotUtils
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.listener.CombinedAudioRecorderHandler
 
+/**
+ * I don't remember what this was for, I think perhaps I don't need the class hierarchy?
+ */
 object Commands {
   fun leave(guildId: Long, audioManager: AudioManager, channel: TextChannel?): String {
     return transaction {

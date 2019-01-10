@@ -3,13 +3,12 @@ package tech.gdragon.commands.settings
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
 import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.BotUtils
-import tech.gdragon.commands.Command
-import tech.gdragon.commands.InvalidCommand
+import tech.gdragon.commands.CommandHandler
 import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
 import net.dv8tion.jda.core.entities.Channel as DiscordChannel
 
-class AutoLeave : Command {
+class AutoLeave : CommandHandler {
   private fun updateChannelAutoLeave(channel: DiscordChannel, autoLeave: Int) {
     transaction {
       val guild = channel.guild.run {

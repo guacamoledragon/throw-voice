@@ -18,6 +18,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.BotUtils
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
+import tech.gdragon.commands.handleCommand
 import tech.gdragon.db.dao.Guild
 import java.io.IOException
 import java.nio.file.Files
@@ -107,7 +108,7 @@ class EventListener : ListenerAdapter() {
     if (rawContent.startsWith(prefix)) {
       withLoggingContext("guild" to event.guild.name, "text-channel" to event.channel.name) {
         try {
-          CommandHandler.handleCommand(event, CommandHandler.parser.parse(prefix, rawContent.toLowerCase()))
+          handleCommand(event, prefix, rawContent.toLowerCase())
         } catch (e: InvalidCommand) {
           val channel = event.channel
           BotUtils.sendMessage(channel, ":no_entry_sign: _Usage: `${e.usage(prefix)}`_")
