@@ -1,5 +1,6 @@
 package tech.gdragon.commands
 
+import net.dv8tion.jda.core.entities.TextChannel
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
 import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.BotUtils
@@ -25,19 +26,26 @@ fun handleCommand(event: GuildMessageReceivedEvent, prefix: String, rawInput: St
 
   val command = try {
     Command.valueOf(rawCommand.toUpperCase())
+      .also {
+        warnAboutDeprecation(prefix, event.channel, rawCommand)
+      }
   } catch (e: IllegalArgumentException) {
     val aliases = transaction { Guild.findById(event.guild.idLong)?.settings?.aliases?.toList() }
     aliases
       ?.find { it.alias == rawCommand }
       ?.let { Command.valueOf(it.name) }
       ?.also {
-        if(Alias.deprecationMap.containsKey(rawCommand)) {
-          BotUtils.sendMessage(
-            event.channel,
-            ":warning: _The command `$prefix$rawCommand` will become `$prefix${Alias.deprecationMap[rawCommand]}` in the next release. Use `${prefix}alias` to restore._")
-        }
+        warnAboutDeprecation(prefix, event.channel, rawCommand)
       }
   }
 
   command?.handler?.action(args, event)
+}
+
+fun warnAboutDeprecation(prefix: String, channel: TextChannel, input: String) {
+  if(Alias.deprecationMap.containsKey(input)) {
+    BotUtils.sendMessage(
+      channel,
+      ":warning: _The command `$prefix$input` will become `$prefix${Alias.deprecationMap[input]}` in the next release. Use `${prefix}alias` to restore._")
+  }
 }
