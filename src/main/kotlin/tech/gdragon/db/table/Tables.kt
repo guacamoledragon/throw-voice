@@ -13,7 +13,7 @@ object Tables {
     val name = text("name")
     val region = text("region")
     val createdOn = registerColumn<DateTime>("created_on", DateColumnType(true)).clientDefault(::nowUTC)
-    val lastActiveOn = registerColumn<DateTime>("last_active_on", DateColumnType(true))
+    val lastActiveOn = registerColumn<DateTime>("last_active_on", DateColumnType(true)).clientDefault(::nowUTC)
   }
 
   object Settings : LongIdTable() {
