@@ -13,7 +13,6 @@ import org.jetbrains.exposed.sql.not
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.joda.time.DateTime
-import synapticloop.b2.B2ApiClient
 import tech.gdragon.data.DataStore
 import tech.gdragon.db.Shim
 import tech.gdragon.db.dao.Alias
@@ -97,21 +96,6 @@ fun testAlerts() {
     .awaitReady()
 }
 
-fun uploadRecording() {
-  val bucketId: String = System.getenv("B2_BUCKET_ID") ?: ""
-  val bucketName: String = System.getenv("B2_BUCKET_NAME") ?: ""
-  val dataDirectory: String = System.getenv("DATA_DIR") ?: ""
-  val accountId: String = System.getenv("B2_ACCOUNT_ID") ?: ""
-  val accountKey: String = System.getenv("B2_APP_KEY") ?: ""
-
-  val filename = "data/recordings/alone.pcm"
-  val b2Client = B2ApiClient(accountId, accountKey)
-//  val result = b2Client.uploadFile(bucketId, filename, File(filename))
-
-//  println("result = $result")
-  println("result = ${b2Client.downloadUrl}/file/$filename")
-}
-
 fun testAutoJoin() {
   Shim.initializeDatabase("./data/settings.db")
   transaction {
@@ -139,7 +123,6 @@ fun main(args: Array<String>) {
 //  testAlerts()
 //  basicTest()
 //  dropAllTables()
-//  uploadRecording()
 //  testAutoJoin()
 //  removeUnusedGuilds()
   minio()
