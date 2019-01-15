@@ -42,7 +42,7 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
   }
 
   private val logger = KotlinLogging.logger { }
-  private val datastore = DataStore.createDataStore(System.getenv("B2_BUCKET_NAME"))
+  private val datastore = DataStore.createDataStore(System.getenv("DS_BUCKET"))
   private val dataDirectory: String = System.getenv("DATA_DIR") ?: ""
 
   // State-licious

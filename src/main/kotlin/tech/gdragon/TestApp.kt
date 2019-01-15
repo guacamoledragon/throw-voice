@@ -130,7 +130,7 @@ fun main(args: Array<String>) {
 
 
 fun minio() {
-  val minioClient = MinioClient("http://localhost:9000", System.getenv("B2_ACCOUNT_ID"), System.getenv("B2_APP_KEY"))
+  val minioClient = MinioClient("http://localhost:9000", System.getenv("DS_ACCESS_KEY"), System.getenv("DS_SECRET_KEY"))
   val file = File("./data/test-data/mp3-encoded/4ceeafa2-17ac-4d5f-9a7b-9903c6f11fa8.mp3")
   val dataStore = DataStore.createDataStore("dev-recordings")
   val result = dataStore.upload("/333055724198559745/4ceeafa2-17ac-4d5f-9a7b-9903c6f11fa9.mp3", file)

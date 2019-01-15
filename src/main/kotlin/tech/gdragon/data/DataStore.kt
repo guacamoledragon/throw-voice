@@ -13,14 +13,14 @@ class DataStore(endpoint: String, private val bucketName: String, accessKey: Str
     fun createDataStore(bucketName: String): DataStore = DataStore(
       System.getenv("DS_HOST"),
       bucketName,
-      System.getenv("B2_ACCOUNT_ID"),
-      System.getenv("B2_APP_KEY")
+      System.getenv("DS_ACCESS_KEY"),
+      System.getenv("DS_SECRET_KEY")
     )
   }
 
   val logger = KotlinLogging.logger { }
   private val client: MinioClient = MinioClient(endpoint, accessKey, secretKey)
-  val baseUrl: String = (System.getenv("B2_BASE_URL") ?: endpoint)
+  private val baseUrl: String = (System.getenv("DS_BASEURL") ?: endpoint)
 
   init {
     require(client.bucketExists(bucketName)) {
