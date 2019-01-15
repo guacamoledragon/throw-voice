@@ -14,12 +14,14 @@ import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.joda.time.DateTime
 import synapticloop.b2.B2ApiClient
+import tech.gdragon.data.DataStore
 import tech.gdragon.db.Shim
 import tech.gdragon.db.dao.Alias
 import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.table.Tables
 import tech.gdragon.db.table.Tables.Guilds
+import java.io.File
 import java.sql.Connection
 
 fun dropAllTables() {
@@ -143,17 +145,22 @@ fun main(args: Array<String>) {
   minio()
 }
 
+
 fun minio() {
   val minioClient = MinioClient("http://localhost:9000", System.getenv("B2_ACCOUNT_ID"), System.getenv("B2_APP_KEY"))
-  minioClient.listBuckets().forEach { bucket ->
+  val file = File("./data/test-data/mp3-encoded/4ceeafa2-17ac-4d5f-9a7b-9903c6f11fa8.mp3")
+  val dataStore = DataStore.createDataStore("dev-recordings")
+  val result = dataStore.upload("/333055724198559745/4ceeafa2-17ac-4d5f-9a7b-9903c6f11fa9.mp3", file)
+  println("result = $result")
+  /*minioClient.listBuckets().forEach { bucket ->
     println("bucket = ${bucket.name()}")
   }
 
   val objectUrl = minioClient.getObjectUrl("dev-recordings", "/333055724198559745/0245a36c-654a-4b3b-8718-4e9d99f21fc3.mp3")
-  println("recordingObject = $objectUrl")
+  println("recordingObject = $objectUrl")*/
 
 //  minioClient.putObject("dev-recordings", "/333055724198559745/4ceeafa2-17ac-4d5f-9a7b-9903c6f11fa8.mp3", "./data/test-data/mp3-encoded/4ceeafa2-17ac-4d5f-9a7b-9903c6f11fa8.mp3")
 
-  val statObject = minioClient.getObjectUrl("dev-recordings", "/333055724198559745/4ceeafa2-17ac-4d5f-9a7b-9903c6f11fa8.mp3")
+  val statObject = minioClient.statObject("dev-recordings", "/333055724198559745/4ceeafa2-17ac-4d5f-9a7b-9903c6f11fa9.mp3")
   println("statObject = $statObject")
 }
