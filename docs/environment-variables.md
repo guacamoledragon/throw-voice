@@ -7,7 +7,7 @@ These are the environment configuration variables used by the bot.
 ## Contents
 
 - [Bot variables, **_required_**](#bot-variables-_required_)
-- [BackBlaze B2 Cloud Storage variables, **_required_**](#backblaze-b2-cloud-storage-variables-_required_)
+- [Minio Storage variables, **_required_**](#minio-storage-variables-_required_)
 - [Rollbar variables, _optional_](#rollbar-variables-_optional_)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -20,16 +20,17 @@ These are the environment configuration variables used by the bot.
 - `DISCORD_WEBHOOK` _(optional)_: The location of the Discord webhook where error logs will be sent
 - `PORT`: Port on which the bot will run it's HTTP server on and redirect to bot's invite URL
 
+## Minio Storage variables, **_required_**
 
-## BackBlaze B2 Cloud Storage variables, **_required_**
+For more information on this see [Minio](https://www.minio.io/).
 
-For more information on these see [https://www.backblaze.com/b2/docs/](https://www.backblaze.com/b2/docs/).
+> In the past, I used BackBlaze B2, but with Minio the user can provide their own data store.
 
-- `B2_APP_KEY`: Application Key
-- `B2_ACCOUNT_ID`: Account ID
-- `B2_BASE_URL` _(optional)_: The base URL to use for B2, only useful if you're choosing a custom URL, don't set otherwise.
-- `B2_BUCKET_ID`: Bucket ID
-- `B2_BUCKET_NAME`: Bucket Name
+- `DS_ACCESS_KEY` _(optional)_: Access Key
+- `DS_SECRET_KEY` _(optional)_: Application Key
+- `DS_BASEURL` _(optional)_: Only useful if you're choosing a custom URL, don't set otherwise.
+- `DS_BUCKET`: Bucket Name
+- `DS_HOST`: Minio host url e.g _http://localhost:9000_
 
 ## Rollbar variables, _optional_
 
