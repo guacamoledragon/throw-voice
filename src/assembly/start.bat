@@ -7,12 +7,12 @@ SET DATA_DIR=
 SET DISCORD_WEBHOOK=
 SET PORT=
 
-REM BackBlaze B2 Cloud Storage variables, required
-SET B2_APP_KEY=
-SET B2_ACCOUNT_ID=
-SET B2_BASE_URL=
-SET B2_BUCKET_ID=
-SET B2_BUCKET_NAME=
+REM Minio Cloud Storage variables, required
+SET DS_ACCESS_KEY=
+SET DS_BASEURL=
+SET DS_BUCKET=
+SET DS_HOST=
+SET DS_SECRET_KEY=
 
 REM Rollbar variables, optional
 SET ROLLBAR_ENV=

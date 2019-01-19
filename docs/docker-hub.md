@@ -7,11 +7,11 @@
   </a>
 </p>
 
-[![Build Status](https://travis-ci.org/guacamoledragon/throw-voice.svg?branch=master)](https://travis-ci.org/guacamoledragon/throw-voice)
-[![Coverage Status](https://coveralls.io/repos/github/guacamoledragon/throw-voice/badge.svg)](https://coveralls.io/github/guacamoledragon/throw-voice)
-[![Waffle.io - Columns and their card count](https://badge.waffle.io/guacamoledragon/throw-voice.svg?columns=all)](https://waffle.io/guacamoledragon/throw-voice)
-[![Docker Pulls](https://img.shields.io/docker/pulls/gdragon/throw-voice.svg)](https://hub.docker.com/r/gdragon/throw-voice/)
-[![](https://images.microbadger.com/badges/version/gdragon/throw-voice.svg)](https://microbadger.com/images/gdragon/throw-voice "Get your own version badge on microbadger.com")
+[![Discord](https://discordapp.com/api/guilds/408795211901173762/widget.png)](https://discord.gg/gkvsNw8)
+[![CircleCI](https://circleci.com/gh/guacamoledragon/throw-voice.svg?style=svg)](https://circleci.com/gh/guacamoledragon/throw-voice)
+[![codecov](https://codecov.io/gh/guacamoledragon/throw-voice/branch/master/graph/badge.svg)](https://codecov.io/gh/guacamoledragon/throw-voice)
+[![Get your own version badge on microbadger.com](https://images.microbadger.com/badges/version/gdragon/throw-voice.svg)](https://microbadger.com/images/gdragon/throw-voice)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fguacamoledragon%2Fthrow-voice.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fguacamoledragon%2Fthrow-voice?ref=badge_shield)
 
 # Supported tags and respective `Dockerfile` links
 
@@ -29,17 +29,20 @@ The following environment variables are necessary:
 - `BOT_TOKEN`: Discord Bot Token
 - `CLIENT_ID`: Discord Client ID
 - `DATA_DIR`: Directory path to store bot files
+- `DISCORD_WEBHOOK` _(optional)_: The location of the Discord webhook where error logs will be sent
 - `PORT`: Port on which the bot will run it's HTTP server on and redirect to bot's invite URL
 
-## BackBlaze B2 Cloud Storage variables, **_required_**
+## Minio Storage variables, **_required_**
 
-For more information on these see [https://www.backblaze.com/b2/docs/](https://www.backblaze.com/b2/docs/).
+For more information on this see [Minio](https://www.minio.io/).
 
-- `B2_APP_KEY`: Application Key
-- `B2_ACCOUNT_ID`: Account ID
-- `B2_BASE_URL` _(optional)_: The base URL to use for B2, only useful if you're choosing a custom URL, don't set otherwise.
-- `B2_BUCKET_ID`: Bucket ID
-- `B2_BUCKET_NAME`: Bucket Name
+> In the past, I used BackBlaze B2, but with Minio the user can provide their own data store.
+
+- `DS_ACCESS_KEY` _(optional)_: Access Key
+- `DS_SECRET_KEY` _(optional)_: Application Key
+- `DS_BASEURL` _(optional)_: Only useful if you're choosing a custom URL, don't set otherwise.
+- `DS_BUCKET`: Bucket Name
+- `DS_HOST`: Minio host url e.g _http://localhost:9000_
 
 ## Rollbar variables, _optional_
 

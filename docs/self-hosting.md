@@ -18,12 +18,11 @@ this bot, it can be self-hosted without any issues in one of the following ways.
 
 - Create a [Discord Application](https://discordapp.com/developers/application).
   - You'll need to have both the **Client ID** and **App Bot Token** available to configure the bot.
-- Create a [BackBlaze B2 Cloud Storage](https://www.backblaze.com/b2/cloud-storage.html) account
-  - You'll need to create a bucket, take a note of the following:
-    - Bucket ID
+- A running instance of [Minio Cloud Storage](https://www.minio.io/)
+  - Using Minio allows you to use whatever cloud storage solution you want (or none), but you'll need:
     - Bucket Name
-    - Account ID
-    - Application Key
+    - Access Key _(may be optional if your store does not require it)_
+    - Secret Key _(may be optional if your store does not require it)_
 
 ## Local (or VPS)
 
