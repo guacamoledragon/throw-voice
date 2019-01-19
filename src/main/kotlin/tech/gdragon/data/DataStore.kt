@@ -20,7 +20,7 @@ class DataStore(endpoint: String, private val bucketName: String, accessKey: Str
 
   val logger = KotlinLogging.logger { }
   private val client: MinioClient = MinioClient(endpoint, accessKey, secretKey)
-  private val baseUrl: String = (System.getenv("DS_BASEURL") ?: endpoint)
+  private val baseUrl: String = (System.getenv("DS_BASEURL") ?: "$endpoint/$bucketName")
 
   init {
     require(client.bucketExists(bucketName)) {
@@ -29,14 +29,12 @@ class DataStore(endpoint: String, private val bucketName: String, accessKey: Str
   }
 
   fun upload(key: String, file: File): UploadResult {
-    val url = "$baseUrl/${bucketName.replace("-recordings", "")}"
-
     logger.info {
-      "Ready to upload recording to - $url$key"
+      "Ready to upload recording to - $baseUrl$key"
     }
 
     client.putObject(bucketName, key, file.path)
-    val stat = UploadResult.from(url, client.statObject(bucketName, key))
+    val stat = UploadResult.from(baseUrl, client.statObject(bucketName, key))
 
     logger.info {
       "Finished uploading file - (${FileUtils.byteCountToDisplaySize(stat.size)}) ${stat.key}"
