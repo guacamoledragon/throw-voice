@@ -30,7 +30,7 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
 
-class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceChannel, val defaultChannel: MessageChannel) : AudioReceiveHandler {
+class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceChannel, val defaultChannel: TextChannel?) : AudioReceiveHandler {
   companion object {
     private const val AFK_LIMIT = (2 * 60 * 1000) / 20                      // 2 minutes in ms over 20ms increments
     private const val MAX_RECORDING_MB = 110
@@ -78,7 +78,8 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
       BotUtils.sendMessage(defaultChannel, "_:sleeping: No audio detected in the last 2 minutes, leaving <#${voiceChannel.id}>._")
 
       thread(start = true) {
-        if (BotUtils.autoSave(voiceChannel.guild)) saveRecording(voiceChannel, voiceChannel.guild.getTextChannelById(defaultChannel.idLong))
+        if (BotUtils.autoSave(voiceChannel.guild))
+          saveRecording(voiceChannel, defaultChannel)
         BotUtils.leaveVoiceChannel(voiceChannel)
       }
     }

@@ -16,7 +16,6 @@ import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent
 import net.dv8tion.jda.core.hooks.ListenerAdapter
 import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.BotUtils
-import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.commands.handleCommand
 import tech.gdragon.db.dao.Guild

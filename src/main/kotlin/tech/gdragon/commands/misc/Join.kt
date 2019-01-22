@@ -14,6 +14,7 @@ class Join : CommandHandler {
       throw InvalidCommand(::usage, "Incorrect number of arguments: ${args.size}")
     }
 
+    val defaultChannel = BotUtils.defaultTextChannel(event.guild) ?: event.channel
     val voiceChannel = event.member.voiceState.channel
     val message: String? =
       if (voiceChannel == null) {
@@ -31,7 +32,7 @@ class Join : CommandHandler {
               guild?.settings?.let {
                 if (it.autoSave) {
                   val audioReceiveHandler = event.guild.audioManager.receiveHandler as CombinedAudioRecorderHandler
-                  audioReceiveHandler.saveRecording(connectedChannel, event.channel)
+                  audioReceiveHandler.saveRecording(connectedChannel, defaultChannel)
                   BotUtils.leaveVoiceChannel(connectedChannel)
                 }
               }
@@ -39,9 +40,9 @@ class Join : CommandHandler {
           }
 
           // We need to give something to the onError handler because sometimes life doesn't do what we want
-          BotUtils.joinVoiceChannel(voiceChannel, event.channel, true) { ex ->
-            val errorMessage = ":no_entry_sign: _Cannot join **<#${event.channel.id}>**, need permission:_ ```${ex.permission}```"
-            BotUtils.sendMessage(event.channel, errorMessage)
+          BotUtils.joinVoiceChannel(voiceChannel, defaultChannel) { ex ->
+            val errorMessage = ":no_entry_sign: _Cannot join **<#${defaultChannel.id}>**, need permission:_ ```${ex.permission}```"
+            BotUtils.sendMessage(defaultChannel, errorMessage)
           }
 
           null // TODO: This is weird, but the problem is probably with the way the logic is structured
@@ -49,7 +50,7 @@ class Join : CommandHandler {
       }
 
     message?.let {
-      BotUtils.sendMessage(event.channel, it)
+      BotUtils.sendMessage(defaultChannel, it)
     }
   }
 
