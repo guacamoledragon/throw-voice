@@ -91,6 +91,11 @@ object BotUtils {
     return transaction {
       val guild = Guild.findById(discordGuild.idLong)
       val defaultChannelId = guild?.settings?.defaultTextChannel
+      if ( defaultChannelId != null )
+        discordGuild.getTextChannelById(defaultChannelId)
+      else
+        null
+      /*
       if (defaultChannelId == null) {
         (discordGuild.textChannels.find { it.canTalk() })?.also {
           val prefix = guild?.settings?.prefix
@@ -103,6 +108,7 @@ object BotUtils {
       } else {
         discordGuild.getTextChannelById(defaultChannelId)
       }
+      */
     }
   }
 

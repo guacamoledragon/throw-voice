@@ -12,6 +12,7 @@ class Clip : CommandHandler {
       throw InvalidCommand(::usage, "Incorrect number of arguments: ${args.size}")
     }
 
+    val defaultChannel = BotUtils.defaultTextChannel(event.guild) ?: event.channel
     val message =
       if (event.guild.audioManager.connectedChannel == null) {
         "I wasn't recording!"
@@ -23,7 +24,7 @@ class Clip : CommandHandler {
           val seconds = args.first().toLong()
 
           if (args.size == 1) {
-            audioReceiveHandler.saveClip(seconds, voiceChannel, event.channel)
+            audioReceiveHandler.saveClip(seconds, voiceChannel, defaultChannel)
             ""
           } else {
             val channelName = if (args[1].startsWith("#")) args[1].substring(1) else args[1]
@@ -32,7 +33,7 @@ class Clip : CommandHandler {
             if (channels.isEmpty()) {
               "Cannot find $channelName."
             } else {
-              channels.forEach { audioReceiveHandler.saveClip(seconds, voiceChannel, event.channel) }
+              channels.forEach { audioReceiveHandler.saveClip(seconds, voiceChannel, defaultChannel) }
               ""
             }
           }
@@ -42,7 +43,7 @@ class Clip : CommandHandler {
       }
 
     if (message.isNotBlank())
-      BotUtils.sendMessage(event.channel, message)
+      BotUtils.sendMessage(defaultChannel, message)
   }
 
   override fun usage(prefix: String): String = "${prefix}clip [seconds] | ${prefix}clip [seconds] [text channel output]"

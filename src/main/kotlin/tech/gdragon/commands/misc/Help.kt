@@ -42,6 +42,7 @@ class Help : CommandHandler {
         addBlankField(false)
       }
 
+      val defaultChannel = BotUtils.defaultTextChannel(event.guild) ?: event.channel
       val commands = Command.values()
       val aliases = guild?.settings?.aliases?.toList()
 
@@ -64,14 +65,13 @@ class Help : CommandHandler {
         }
 
       if (event.author.isBot) {
-        BotUtils.sendMessage(event.channel, "Can't DM a bot!")
+        BotUtils.sendMessage(defaultChannel, "Can't DM a bot!")
         this@Help.logger.warn {
-          val channel = event.channel
           val user = event.author
-          "${channel.guild.name}#${channel.name}: Could not alert bot ${user.name}"
+          "Could not alert bot ${user.name}"
         }
       } else {
-        BotUtils.sendMessage(event.channel, "<@${event.author.id}> check your DMs!")
+        BotUtils.sendMessage(defaultChannel, "<@${event.author.id}> check your DMs!")
         event.author.openPrivateChannel().queue { channel ->
           channel.sendMessage(embed.build()).queue()
         }

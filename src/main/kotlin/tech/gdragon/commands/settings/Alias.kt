@@ -24,19 +24,19 @@ class Alias : CommandHandler {
       throw InvalidCommand(::usage, "Incorrect number of arguments: ${args.size}")
     }
 
-    val channel = event.channel
+    val defaultChannel = BotUtils.defaultTextChannel(event.guild) ?: event.channel
     val command = args.first()
 
     // Checks that command to alias exists
     if (Command.values().none { it.name == command.toUpperCase() }) {
-      BotUtils.sendMessage(channel, "Command '$command' not found.")
+      BotUtils.sendMessage(defaultChannel, "Command '$command' not found.")
     } else {
       val aliases = transaction { Guild.findById(event.guild.idLong)?.settings?.aliases?.toList() }
       val alias = args[1]
 
       // Checks that alias doesn't already exist
       if (aliases?.any { it.name == alias } == true) {
-        BotUtils.sendMessage(channel, "Alias '$alias' already exists.")
+        BotUtils.sendMessage(defaultChannel, "Alias '$alias' already exists.")
       } else {
         transaction {
           Guild.findById(event.guild.idLong)?.settings?.let {
@@ -46,7 +46,7 @@ class Alias : CommandHandler {
               settings = it
             }
 
-            BotUtils.sendMessage(channel, "New alias '$alias' set for command '$command'.")
+            BotUtils.sendMessage(defaultChannel, "New alias '$alias' set for command '$command'.")
           }
         }
       }

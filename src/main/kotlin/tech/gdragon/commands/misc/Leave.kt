@@ -16,6 +16,7 @@ class Leave : CommandHandler {
 
     transaction {
       val guild = Guild.findById(event.guild.idLong)
+      val defaultChannel = BotUtils.defaultTextChannel(event.guild) ?: event.channel
 
       val message =
         if (event.guild.audioManager.isConnected) {
@@ -24,7 +25,7 @@ class Leave : CommandHandler {
           guild?.settings?.let {
             if (it.autoSave) {
               val audioReceiveHandler = event.guild.audioManager.receiveHandler as CombinedAudioRecorderHandler
-              audioReceiveHandler.saveRecording(voiceChannel, event.channel)
+              audioReceiveHandler.saveRecording(voiceChannel, defaultChannel)
             }
           }
 
@@ -34,7 +35,7 @@ class Leave : CommandHandler {
           ":no_entry_sign: _I am not in a channel_"
         }
 
-      BotUtils.sendMessage(event.channel, message)
+      BotUtils.sendMessage(defaultChannel, message)
     }
   }
 

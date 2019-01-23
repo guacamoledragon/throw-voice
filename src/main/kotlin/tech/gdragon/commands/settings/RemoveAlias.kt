@@ -15,13 +15,12 @@ class RemoveAlias : CommandHandler {
 
     transaction {
       val guild = Guild.findById(event.guild.idLong)
-
-
+      val defaultChannel = BotUtils.defaultTextChannel(event.guild) ?: event.channel
       val alias = args.first().toLowerCase()
 
-      guild?.settings?.let {
-        it.aliases.find { it.alias == alias }?.delete()
-        BotUtils.sendMessage(event.channel, "Alias '$alias' has been removed.")
+      guild?.settings?.let { settings ->
+        settings.aliases.find { it.alias == alias }?.delete()
+        BotUtils.sendMessage(defaultChannel, "Alias '$alias' has been removed.")
       }
     }
   }

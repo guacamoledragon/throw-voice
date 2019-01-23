@@ -55,7 +55,8 @@ class AutoLeave : CommandHandler {
         throw InvalidCommand(::usage, "Number must be positive: ${e.message}")
       }*/
 
-    BotUtils.sendMessage(event.channel, ":no_entry_sign: _AutoLeave is currently disabled due to some bugs_")
+    val defaultChannel = BotUtils.defaultTextChannel(event.guild) ?: event.channel
+    BotUtils.sendMessage(defaultChannel, ":no_entry_sign: _AutoLeave is currently disabled due to some bugs_")
   }
 
   override fun usage(prefix: String): String = "${prefix}autoleave [Voice Channel name | 'all'] [number]"

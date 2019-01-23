@@ -38,12 +38,14 @@ class SaveLocation : CommandHandler {
             if (channels.isEmpty()) {
               ":no_entry_sign: _Cannot find text channel **${args.first()}**!_"
             } else {
+              channels.forEach(::println)
               setSaveLocation(it, channels.first())
             }
           }
         } ?: ":no_entry_sign: _Could not set default save location._"
 
-      BotUtils.sendMessage(event.channel, message)
+      val defaultChannel = BotUtils.defaultTextChannel(event.guild) ?: event.channel
+      BotUtils.sendMessage(defaultChannel, message)
     }
   }
 
