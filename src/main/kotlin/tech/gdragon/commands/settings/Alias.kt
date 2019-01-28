@@ -15,7 +15,9 @@ class Alias : CommandHandler {
       "join" to "record",
       "info" to "help",
       "leave" to "stop",
-      "symbol" to "prefix"
+      "symbol" to "prefix",
+      "autojoin" to "autorecord",
+      "autoleave" to "autostop"
     )
   }
 
