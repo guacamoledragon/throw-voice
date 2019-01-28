@@ -111,9 +111,7 @@ class EventListener : ListenerAdapter() {
         } catch (e: InvalidCommand) {
           val defaultChannel = BotUtils.defaultTextChannel(event.guild) ?: event.channel
           BotUtils.sendMessage(defaultChannel, ":no_entry_sign: _Usage: `${e.usage(prefix)}`_")
-          logger.warn {
-            "[$rawContent] ${e.reason}"
-          }
+          logger.warn { "[$rawContent] ${e.reason}" }
         }
 
         Guild.updateActivity(event.guild.idLong, event.guild.region.name)
