@@ -16,6 +16,7 @@ class AutoSave : CommandHandler {
 
     transaction {
       val guild = Guild.findById(event.guild.idLong)
+      val defaultChannel = BotUtils.defaultTextChannel(event.guild) ?: event.channel
 
       val message =
         guild?.settings?.let {
@@ -27,7 +28,7 @@ class AutoSave : CommandHandler {
             "No longer saving at the end of each session!"
         } ?: "Could not toggle autosave option."
 
-      BotUtils.sendMessage(event.channel, message)
+      BotUtils.sendMessage(defaultChannel, message)
     }
   }
 

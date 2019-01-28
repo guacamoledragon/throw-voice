@@ -15,6 +15,7 @@ class Prefix : CommandHandler {
 
     transaction {
       val guild = Guild.findById(event.guild.idLong)
+      val defaultChannel = BotUtils.defaultTextChannel(event.guild) ?: event.channel
       val newPrefix = args.first()
 
       val message =
@@ -23,7 +24,7 @@ class Prefix : CommandHandler {
           "Command prefix now set to ${it.prefix}."
         } ?: "Could not set to prefix $newPrefix."
 
-      BotUtils.sendMessage(event.channel, message)
+      BotUtils.sendMessage(defaultChannel, message)
     }
   }
 

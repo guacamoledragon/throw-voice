@@ -31,6 +31,7 @@ class AutoJoin : CommandHandler {
       throw InvalidCommand(::usage, "Incorrect number of arguments: ${args.size}")
     }
 
+    val defaultChannel = BotUtils.defaultTextChannel(event.guild) ?: event.channel
     val message: String =
       try {
         val channelName = args.dropLast(1).joinToString(" ")
@@ -77,7 +78,7 @@ class AutoJoin : CommandHandler {
         throw InvalidCommand(::usage, "Number must be positive: ${e.message}")
       }
 
-    BotUtils.sendMessage(event.channel, message)
+    BotUtils.sendMessage(defaultChannel, message)
   }
 
   override fun usage(prefix: String): String = "${prefix}autojoin [Voice Channel name | 'all'] [number | 'off']"

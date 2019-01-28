@@ -24,10 +24,11 @@ fun handleCommand(event: GuildMessageReceivedEvent, prefix: String, rawInput: St
   val rawCommand = tokens.first()
   val args = tokens.drop(1).toTypedArray()
 
+  val defaultChannel = BotUtils.defaultTextChannel(event.guild) ?: event.channel
   val command = try {
     Command.valueOf(rawCommand.toUpperCase())
       .also {
-        warnAboutDeprecation(prefix, event.channel, rawCommand)
+        warnAboutDeprecation(prefix, defaultChannel, rawCommand)
       }
   } catch (e: IllegalArgumentException) {
     val aliases = transaction { Guild.findById(event.guild.idLong)?.settings?.aliases?.toList() }
@@ -35,7 +36,7 @@ fun handleCommand(event: GuildMessageReceivedEvent, prefix: String, rawInput: St
       ?.find { it.alias == rawCommand }
       ?.let { Command.valueOf(it.name) }
       ?.also {
-        warnAboutDeprecation(prefix, event.channel, rawCommand)
+        warnAboutDeprecation(prefix, defaultChannel, rawCommand)
       }
   }
 

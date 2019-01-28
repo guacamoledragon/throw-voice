@@ -12,6 +12,7 @@ class Save : CommandHandler {
       throw InvalidCommand(::usage, "Incorrect number of arguments: ${args.size}")
     }
 
+    val defaultChannel = BotUtils.defaultTextChannel(event.guild) ?: event.channel
     val message =
       if (event.guild.audioManager.connectedChannel == null) {
         ":no_entry_sign: _I am not currently recording._"
@@ -19,9 +20,9 @@ class Save : CommandHandler {
         val voiceChannel = event.guild.audioManager.connectedChannel
         val audioReceiveHandler = event.guild.audioManager.receiveHandler as CombinedAudioRecorderHandler
 
-        BotUtils.sendMessage(event.channel, ":floppy_disk: **Saving <#${voiceChannel.id}>'s recording...**")
+        BotUtils.sendMessage(defaultChannel, ":floppy_disk: **Saving <#${voiceChannel.id}>'s recording...**")
         if (args.isEmpty()) {
-          audioReceiveHandler.saveRecording(voiceChannel, event.channel)
+          audioReceiveHandler.saveRecording(voiceChannel, defaultChannel)
           ""
         } else {
           val channelName = if (args.first().startsWith("#")) args.first().substring(1) else args.first()
@@ -37,7 +38,7 @@ class Save : CommandHandler {
       }
 
     if (message.isNotBlank())
-      BotUtils.sendMessage(event.channel, message)
+      BotUtils.sendMessage(defaultChannel, message)
   }
 
   override fun usage(prefix: String): String = "${prefix}save | ${prefix}save [text channel output]"

@@ -16,7 +16,6 @@ import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent
 import net.dv8tion.jda.core.hooks.ListenerAdapter
 import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.BotUtils
-import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.commands.handleCommand
 import tech.gdragon.db.dao.Guild
@@ -110,9 +109,9 @@ class EventListener : ListenerAdapter() {
         try {
           handleCommand(event, prefix, rawContent)
         } catch (e: InvalidCommand) {
-          val channel = event.channel
-          BotUtils.sendMessage(channel, ":no_entry_sign: _Usage: `${e.usage(prefix)}`_")
-          logger.warn { "${event.guild.name}#${channel.name}: [$rawContent] ${e.reason}" }
+          val defaultChannel = BotUtils.defaultTextChannel(event.guild) ?: event.channel
+          BotUtils.sendMessage(defaultChannel, ":no_entry_sign: _Usage: `${e.usage(prefix)}`_")
+          logger.warn { "[$rawContent] ${e.reason}" }
         }
 
         Guild.updateActivity(event.guild.idLong, event.guild.region.name)

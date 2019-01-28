@@ -16,6 +16,7 @@ class Volume : CommandHandler {
 
     transaction {
       val guild = Guild.findById(event.guild.idLong)
+      val defaultChannel = BotUtils.defaultTextChannel(event.guild) ?: event.channel
       val prefix = guild?.settings?.prefix ?: "!"
 
       val message: String =
@@ -36,7 +37,7 @@ class Volume : CommandHandler {
           usage(prefix)
         }
 
-      BotUtils.sendMessage(event.channel, message)
+      BotUtils.sendMessage(defaultChannel, message)
     }
   }
 
