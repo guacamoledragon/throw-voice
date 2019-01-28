@@ -10,12 +10,17 @@ import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.dao.Settings
 
 class SaveLocation : CommandHandler {
-  private fun setSaveLocation(settings: Settings, channel: TextChannel): String {
-    return if (channel.canTalk()) {
-      settings.defaultTextChannel = channel.idLong
-      ":file_folder: _All messages will default to channel **${channel.asMention}**._"
-    } else {
-      ":no_entry_sign: _Cannot send messages in **${channel.asMention}**, please configure permissions and try again._"
+  private fun setSaveLocation(settings: Settings, channel: TextChannel?): String {
+    return when {
+      channel == null -> {
+        settings.defaultTextChannel = null
+        ":file_folder: _All messages will default to current channel._"
+      }
+      channel.canTalk() -> {
+        settings.defaultTextChannel = channel.idLong
+        ":file_folder: _All messages will default to channel **${channel.asMention}**._"
+      }
+      else -> ":no_entry_sign: _Cannot send messages in **${channel.asMention}**, please configure permissions and try again._"
     }
   }
 
@@ -29,17 +34,18 @@ class SaveLocation : CommandHandler {
 
       val message =
         guild?.settings?.let {
-          if (args.isEmpty()) {
-            setSaveLocation(it, event.channel)
-          } else {
-            val channelName = if (args.first().startsWith("#")) args.first().substring(1) else args.first()
-            val channels = event.guild.getTextChannelsByName(channelName, true)
+          when {
+            args.isEmpty() -> setSaveLocation(it, event.channel)
+            args.first() == "off" -> setSaveLocation(it, null)
+            else -> {
+              val channelName = if (args.first().startsWith("#")) args.first().substring(1) else args.first()
+              val channels = event.guild.getTextChannelsByName(channelName, true)
 
-            if (channels.isEmpty()) {
-              ":no_entry_sign: _Cannot find text channel **${args.first()}**!_"
-            } else {
-              channels.forEach(::println)
-              setSaveLocation(it, channels.first())
+              if (channels.isEmpty()) {
+                ":no_entry_sign: _Cannot find text channel **${args.first()}**!_"
+              } else {
+                setSaveLocation(it, channels.first())
+              }
             }
           }
         } ?: ":no_entry_sign: _Could not set default save location._"
@@ -49,7 +55,7 @@ class SaveLocation : CommandHandler {
     }
   }
 
-  override fun usage(prefix: String): String = "${prefix}saveLocation | ${prefix}saveLocation [text channel name]"
+  override fun usage(prefix: String): String = "${prefix}saveLocation | ${prefix}saveLocation [text channel | 'off']"
 
-  override fun description(): String = "Set default channel to send messages in, including the link to the voice recording"
+  override fun description(): String = "Sets the text channel to send all messages to, use `off` to restore default behaviour."
 }

@@ -26,20 +26,20 @@
 
 ## Commands
 
-|                            Command                            |                                                                  Description                                                                   |
-|:--------------------------------------------------------------|:-----------------------------------------------------------------------------------------------------------------------------------------------|
-| `!alias [command name] [new command alias]`                   | Creates an alias, or alternate name, to a command for customization.                                                                           |
-| `!autojoin [Voice Channel name \| 'all'] [number \| 'off']`   | Sets the number of players for the bot to auto-join a voice channel, or disables auto-joining. 'all' will apply number to all voice channels.  |
-| `!autoleave [Voice Channel name \| 'all'] [number]`           | Sets the number of players for the bot to auto-leave a voice channel, or disables auto-leaving. 'all' will apply number to all voice channels. |
-| `!autosave`                                                   | Toggles the option to automatically save and send all files at the end of each session - not just saved or clipped files                       |
-| `!clip [seconds] \| !clip [seconds] [text channel output]`    | Saves a clip of the specified length and outputs it in the current or specified text channel (max 120 seconds)                                 |
-| `!record`                                                     | Ask the bot to join and record your current channel                                                                                            |
-| `!stop`                                                       | Ask the bot to leave it's current channel                                                                                                      |
-| `!prefix [character]`                                         | Sets the prefix for each command to avoid conflict with other bots _(Default is '!')_                                                          |
-| `!removeAlias [alias name]`                                   | Removes an alias from a command.                                                                                                               |
-| `!save \| !save [text channel output]`                        | Saves the current recording and outputs it to the current or specified text chats (caps at 16MB)                                               |
-| `!saveLocation \| !saveLocation [text channel name]`          | Sets the text channel of message or the text channel specified as the default location to send files                                           |
-| `!volume [1-100]`                                             | Sets the percentage volume to record at, from 1-100%                                                                                           |
+|                            Command                          |                                                                  Description                                                                   |
+|:------------------------------------------------------------|:-----------------------------------------------------------------------------------------------------------------------------------------------|
+| `!alias [command name] [new command alias]`                 | Creates an alias, or alternate name, to a command for customization.                                                                           |
+| `!autojoin [Voice Channel name \| 'all'] [number \| 'off']` | Sets the number of players for the bot to auto-join a voice channel, or disables auto-joining. 'all' will apply number to all voice channels.  |
+| `!autoleave [Voice Channel name \| 'all'] [number]`         | Sets the number of players for the bot to auto-leave a voice channel, or disables auto-leaving. 'all' will apply number to all voice channels. |
+| `!autosave`                                                 | Toggles the option to automatically save and send all files at the end of each session - not just saved or clipped files                       |
+| `!clip [seconds] \| !clip [seconds] [text channel]`         | Saves a clip of the specified length and outputs it in the current or specified text channel (max 120 seconds)                                 |
+| `!record`                                                   | Ask the bot to join and record your current channel                                                                                            |
+| `!stop`                                                     | Ask the bot to leave it's current channel                                                                                                      |
+| `!prefix [character]`                                       | Sets the prefix for each command to avoid conflict with other bots _(Default is '!')_                                                          |
+| `!removeAlias [alias name]`                                 | Removes an alias from a command.                                                                                                               |
+| `!save \| !save [text channel]`                             | Saves the current recording and outputs it to the current or specified text chats (caps at 16MB)                                               |
+| `!saveLocation \| !saveLocation [text channel \| 'off']`    | Sets the text channel to send all messages to, use `off` to restore default behaviour.                                                         |
+| `!volume [1-100]`                                           | Sets the percentage volume to record at, from 1-100%                                                                                           |
 
 _Replace brackets [] with item specified. Vertical bar | means 'or', either side of bar is valid choice._
 
