@@ -41,7 +41,7 @@ object BotUtils {
           BotUtils.logger.debug { "AutoJoin value: $autoJoin" }
 
           if (autoJoin != null && channelMemberCount >= autoJoin) {
-            val defaultChannel = defaultTextChannel(guild)
+            val defaultChannel = defaultTextChannel(guild) ?: findPublicChannel(guild)
 
             joinVoiceChannel(channel, defaultChannel) { ex ->
               val message = ":no_entry_sign: _Cannot autojoin **<#${channel.id}>**, need permission:_ ```${ex.permission}```"
@@ -87,28 +87,13 @@ object BotUtils {
    * - Retrieve it based on the ID that the bot stores
    * - Retrieve the first channel that the bot can talk to
    */
-  fun defaultTextChannel(discordGuild: DiscordGuild): TextChannel? {
+  fun defaultTextChannel(guild: DiscordGuild): TextChannel? {
     return transaction {
-      val guild = Guild.findById(discordGuild.idLong)
-      val defaultChannelId = guild?.settings?.defaultTextChannel
-      if ( defaultChannelId != null )
-        discordGuild.getTextChannelById(defaultChannelId)
-      else
-        null
-      /*
-      if (defaultChannelId == null) {
-        (discordGuild.textChannels.find { it.canTalk() })?.also {
-          val prefix = guild?.settings?.prefix
-          val msg = """
-              :warning: _The save location hasn't been set, please use `${prefix}saveLocation` to set.
-              This channel will be used in the meantime. For more information use `${prefix}help`._
-            """.trimIndent()
-          sendMessage(it, msg)
-        }
-      } else {
-        discordGuild.getTextChannelById(defaultChannelId)
-      }
-      */
+      Guild
+        .findById(guild.idLong)
+        ?.settings
+        ?.defaultTextChannel
+        ?.let(guild::getTextChannelById)
     }
   }
 
@@ -120,14 +105,17 @@ object BotUtils {
 
     /** Begin assertions **/
     require(defaultChannel != null && channel.guild.getTextChannelById(defaultChannel.id).canTalk()) {
-      logger.warn {
-        "Attempted to join, but bot cannot write to any channel."
-      }
+      val msg = "Attempted to join, but bot cannot write to any channel."
+      logger.warn(msg)
+      msg
     }
 
     // Bot won't connect to AFK channels
     require(channel != channel.guild.afkChannel) {
-      sendMessage(defaultChannel, ":no_entry_sign: _I'm not allowed to join AFK channels._")
+      val msg = ":no_entry_sign: _I'm not allowed to join AFK channels._"
+      sendMessage(defaultChannel, msg)
+      logger.warn(msg)
+      msg
     }
 
     /** End assertions **/
@@ -288,5 +276,21 @@ object BotUtils {
     /*transaction {
       Guilds.deleteWhere(op = op)
     }*/
+  }
+
+  /**
+   * Finds an open channel where messages can be sent.
+   */
+  fun findPublicChannel(guild: DiscordGuild): TextChannel? {
+    return guild
+      .textChannels
+      .find(TextChannel::canTalk)
+      ?.also {
+        val msg = """
+                  :warning: _The save location hasn't been set, please use `<prefix>saveLocation` to set.
+                  This channel will be used in the meantime._
+                  """.trimIndent()
+        sendMessage(it, msg)
+      }
   }
 }
