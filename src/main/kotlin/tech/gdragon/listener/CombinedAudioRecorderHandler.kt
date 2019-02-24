@@ -99,6 +99,7 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
 
     subject = PublishSubject.create()
     uuid = UUID.randomUUID()
+    val filenameExtension = "mp3"
     filename = "$dataDirectory/recordings/$uuid.mp3"
     queueFilename = "$dataDirectory/recordings/$uuid.queue"
     queueFile = QueueFile(File(queueFilename))
@@ -110,13 +111,17 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
     return subject
       ?.map { it.getAudioData(volume) }
       ?.buffer(BUFFER_TIMEOUT, TimeUnit.MILLISECONDS, BUFFER_MAX_COUNT)
-      ?.flatMap { bytesArray ->
+      ?.flatMap { byteArrays ->
         val baos = ByteArrayOutputStream()
 
-        bytesArray.forEach {
-          val buffer = ByteArray(it.size)
-          val bytesEncoded = encoder.encodeBuffer(it, 0, it.size, buffer)
-          baos.write(buffer, 0, bytesEncoded)
+        byteArrays.forEach {
+          if (System.getenv("PCM_MODE").isNullOrEmpty()) {
+            val buffer = ByteArray(it.size)
+            val bytesEncoded = encoder.encodeBuffer(it, 0, it.size, buffer)
+            baos.write(buffer, 0, bytesEncoded)
+          } else {
+            baos.writeBytes(it)
+          }
         }
 
         Observable.fromArray(baos.toByteArray())
