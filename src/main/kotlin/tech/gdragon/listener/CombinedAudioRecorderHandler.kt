@@ -44,6 +44,7 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
   private val logger = KotlinLogging.logger { }
   private val datastore = DataStore.createDataStore(System.getenv("DS_BUCKET"))
   private val dataDirectory: String = System.getenv("DATA_DIR") ?: ""
+  private val pcmMode: Boolean = System.getenv("PCM_MODE").isNullOrEmpty().not()
 
   // State-licious
   private var subject: Subject<CombinedAudio>? = null
@@ -99,7 +100,8 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
 
     subject = PublishSubject.create()
     uuid = UUID.randomUUID()
-    filename = "$dataDirectory/recordings/$uuid.mp3"
+    val filenameExtension = if(pcmMode) "pcm" else "mp3"
+    filename = "$dataDirectory/recordings/$uuid.$filenameExtension"
     queueFilename = "$dataDirectory/recordings/$uuid.queue"
     queueFile = QueueFile(File(queueFilename))
     canReceive = true
@@ -110,13 +112,17 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
     return subject
       ?.map { it.getAudioData(volume) }
       ?.buffer(BUFFER_TIMEOUT, TimeUnit.MILLISECONDS, BUFFER_MAX_COUNT)
-      ?.flatMap { bytesArray ->
+      ?.flatMap { byteArrays ->
         val baos = ByteArrayOutputStream()
 
-        bytesArray.forEach {
-          val buffer = ByteArray(it.size)
-          val bytesEncoded = encoder.encodeBuffer(it, 0, it.size, buffer)
-          baos.write(buffer, 0, bytesEncoded)
+        byteArrays.forEach {
+          if (pcmMode) {
+            baos.writeBytes(it)
+          } else {
+            val buffer = ByteArray(it.size)
+            val bytesEncoded = encoder.encodeBuffer(it, 0, it.size, buffer)
+            baos.write(buffer, 0, bytesEncoded)
+          }
         }
 
         Observable.fromArray(baos.toByteArray())
