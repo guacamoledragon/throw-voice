@@ -5,6 +5,8 @@ import net.dv8tion.jda.core.AccountType
 import net.dv8tion.jda.core.JDA
 import net.dv8tion.jda.core.JDABuilder
 import net.dv8tion.jda.core.Permission
+import org.koin.core.KoinComponent
+import org.koin.dsl.module
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.audio.Clip
 import tech.gdragon.commands.audio.Save
@@ -15,7 +17,14 @@ import tech.gdragon.commands.settings.*
 import tech.gdragon.listener.EventListener
 import javax.security.auth.login.LoginException
 
-class Bot(config: BotConfig) {
+val discordBot = module {
+  single {
+    Bot()
+  }
+}
+
+class Bot : KoinComponent {
+  private val token: String = getKoin().getProperty("BOT_TOKEN", "")
   private val logger = KotlinLogging.logger {}
 
   companion object {
@@ -35,13 +44,13 @@ class Bot(config: BotConfig) {
     try {
       //create bot instance
       api = JDABuilder(AccountType.BOT)
-        .setToken(config.token)
-        .addEventListener(EventListener(config))
+        .setToken(token)
+        .addEventListener(EventListener())
         .build()
         .awaitReady()
     } catch (e: LoginException) {
       logger.error(e) {
-        "Could not authenticate using token: ${config.token}"
+        "Could not authenticate using token: $token"
       }
     } catch (e: InterruptedException) {
       logger.error(e) {
@@ -113,5 +122,3 @@ enum class Command {
 
   abstract val handler: CommandHandler
 }
-
-
