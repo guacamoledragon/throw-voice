@@ -22,7 +22,8 @@ buildNumber.properties
 settings.json
 settings.db
 recordings/
-data/
+# Slash needs to be there so that we don't ignore the data package in src/
+/data
 
 *.bat
 !build-docker.bat
