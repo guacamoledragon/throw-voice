@@ -15,14 +15,14 @@ import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent
 import net.dv8tion.jda.core.hooks.ListenerAdapter
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.koin.core.KoinComponent
 import tech.gdragon.BotUtils
 import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.commands.handleCommand
 import tech.gdragon.db.dao.Guild
-import tech.gdragon.discord.BotConfig
 import net.dv8tion.jda.core.entities.Guild as DiscordGuild
 
-class EventListener(private val config: BotConfig) : ListenerAdapter() {
+class EventListener : ListenerAdapter(), KoinComponent {
 
   private val logger = KotlinLogging.logger {}
 
@@ -146,8 +146,8 @@ class EventListener(private val config: BotConfig) : ListenerAdapter() {
   }
 
   override fun onReady(event: ReadyEvent) {
-    val version = config.version
-    val website = config.website
+    val version: String = getKoin().getProperty("VERSION", "dev")
+    val website: String = getKoin().getProperty("WEBSITE", "http://localhost:8080/")
     event
       .jda
       .presence.game = object : Game("$version | $website", website, Game.GameType.DEFAULT) {}
