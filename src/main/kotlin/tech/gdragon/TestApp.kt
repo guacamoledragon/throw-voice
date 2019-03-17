@@ -1,8 +1,5 @@
 package tech.gdragon
 
-import com.natpryce.konfig.Configuration
-import com.natpryce.konfig.ConfigurationProperties
-import com.natpryce.konfig.overriding
 import io.minio.MinioClient
 import net.dv8tion.jda.core.AccountType
 import net.dv8tion.jda.core.JDABuilder
@@ -146,6 +143,5 @@ fun main(args: Array<String>) {
 //  testAutoJoin()
 //  removeUnusedGuilds()
 //  minio()
-  val config: Configuration = ConfigurationProperties.systemProperties()
 }
 
