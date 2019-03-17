@@ -3,6 +3,7 @@ package tech.gdragon
 import mu.KotlinLogging
 import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
+import tech.gdragon.data.dataStore
 import tech.gdragon.db.initializeDatabase
 import tech.gdragon.discord.Bot
 import tech.gdragon.discord.discordBot
@@ -20,7 +21,7 @@ fun main(args: Array<String>) {
     printLogger(Level.INFO)
     fileProperties("/defaults.properties")
     environmentProperties()
-    modules(httpServer, discordBot)
+    modules(httpServer, discordBot, dataStore)
   }
 
   val dataDir = app.koin.getProperty("DATA_DIR", "./")

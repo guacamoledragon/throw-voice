@@ -10,11 +10,12 @@ import mu.KotlinLogging
 import net.dv8tion.jda.core.audio.AudioReceiveHandler
 import net.dv8tion.jda.core.audio.CombinedAudio
 import net.dv8tion.jda.core.audio.UserAudio
-import net.dv8tion.jda.core.entities.MessageChannel
 import net.dv8tion.jda.core.entities.TextChannel
 import net.dv8tion.jda.core.entities.VoiceChannel
 import org.apache.commons.io.FileUtils
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.koin.core.KoinComponent
+import org.koin.core.inject
 import tech.gdragon.BotUtils
 import tech.gdragon.data.DataStore
 import tech.gdragon.db.dao.Channel
@@ -30,7 +31,7 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
 
-class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceChannel, val defaultChannel: TextChannel?) : AudioReceiveHandler {
+class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceChannel, val defaultChannel: TextChannel?) : AudioReceiveHandler, KoinComponent {
   companion object {
     private const val AFK_LIMIT = (2 * 60 * 1000) / 20                      // 2 minutes in ms over 20ms increments
     private const val MAX_RECORDING_MB = 110
@@ -42,9 +43,9 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
   }
 
   private val logger = KotlinLogging.logger { }
-  private val datastore = DataStore.createDataStore(System.getenv("DS_BUCKET"))
-  private val dataDirectory: String = System.getenv("DATA_DIR") ?: ""
-  private val pcmMode: Boolean = System.getenv("PCM_MODE").isNullOrEmpty().not()
+  private val datastore: DataStore by inject()
+  private val dataDirectory: String = getKoin().getProperty("DATA_DIR", "./")
+  private val pcmMode: Boolean = getKoin().getProperty("PCM_MODE", "false").toBoolean()
 
   // State-licious
   private var subject: Subject<CombinedAudio>? = null
@@ -187,7 +188,8 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
     canReceive = true
 
     val queueFile = QueueFile(clipPath.toFile())
-    val recording = File(clipPath.toString().replace("queue", "mp3"))
+    val filenameExtension = if(pcmMode) "pcm" else "mp3"
+    val recording = File(clipPath.toString().replace("queue", filenameExtension))
     var clipRecordingSize = recordingSize.toLong()
 
     // Reduce the queue size until it's just over the expected clip size

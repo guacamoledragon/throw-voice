@@ -41,12 +41,15 @@ class EventListener : ListenerAdapter(), KoinComponent {
   }
 
   override fun onGuildJoin(event: GuildJoinEvent) {
+    val guild = event.guild
     transaction {
-      val guild = event.guild
-      Guild.findOrCreate(guild.idLong, guild.name, guild.region.name)
+      Guild
+        .findOrCreate(guild.idLong, guild.name, guild.region.name)
     }
 
-    logger.info { "Joined new server '${event.guild.name}', connected to ${event.jda.guilds.size} guilds." }
+    Guild.updateActivity(guild.idLong, guild.region.name)
+
+    logger.info { "Joined new server '${guild.name}', connected to ${event.jda.guilds.size} guilds." }
   }
 
   override fun onGuildLeave(event: GuildLeaveEvent) {
