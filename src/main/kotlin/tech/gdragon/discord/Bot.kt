@@ -5,6 +5,8 @@ import net.dv8tion.jda.core.AccountType
 import net.dv8tion.jda.core.JDA
 import net.dv8tion.jda.core.JDABuilder
 import net.dv8tion.jda.core.Permission
+import org.koin.core.KoinComponent
+import org.koin.dsl.module
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.audio.Clip
 import tech.gdragon.commands.audio.Save
@@ -15,7 +17,14 @@ import tech.gdragon.commands.settings.*
 import tech.gdragon.listener.EventListener
 import javax.security.auth.login.LoginException
 
-class Bot(token: String) {
+val discordBot = module {
+  single {
+    Bot()
+  }
+}
+
+class Bot : KoinComponent {
+  private val token: String = getKoin().getProperty("BOT_TOKEN", "")
   private val logger = KotlinLogging.logger {}
 
   companion object {
@@ -54,6 +63,21 @@ class Bot(token: String) {
     }
   }
 }
+
+data class BotConfig(
+  val token: String,
+  val version: String,
+  val website: String,
+  val datastore: DataStoreConfig
+)
+
+data class DataStoreConfig(
+  val bucketId: String,
+  val bucketName: String,
+  val accountId: String,
+  val accountKey: String,
+  val baseUrl: String
+)
 
 enum class Command {
   ALIAS {
@@ -98,5 +122,3 @@ enum class Command {
 
   abstract val handler: CommandHandler
 }
-
-

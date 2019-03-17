@@ -1,9 +1,12 @@
 package tech.gdragon
 
-import fi.iki.elonen.NanoHTTPD
 import mu.KotlinLogging
-import tech.gdragon.db.Shim
+import org.koin.core.context.startKoin
+import org.koin.core.logger.Level
+import tech.gdragon.data.dataStore
+import tech.gdragon.db.initializeDatabase
 import tech.gdragon.discord.Bot
+import tech.gdragon.discord.discordBot
 import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -11,64 +14,54 @@ import java.time.Duration
 import java.util.*
 import kotlin.concurrent.scheduleAtFixedRate
 
-class App private constructor(port: Int, val clientId: String, val inviteUrl: String) : NanoHTTPD(port) {
-  override fun serve(session: NanoHTTPD.IHTTPSession): NanoHTTPD.Response {
-    val uri = session.uri
+val logger = KotlinLogging.logger { }
 
-    return when (uri.toLowerCase()) {
-      "/ping" -> {
-        val response = newFixedLengthResponse("pong")
-        response
-      }
-      else -> {
-        val response = newFixedLengthResponse(Response.Status.REDIRECT, MIME_HTML, "")
-        response.addHeader("Location", inviteUrl)
-        response
-      }
-    }
+fun main(args: Array<String>) {
+  val app = startKoin {
+    printLogger(Level.INFO)
+    fileProperties("/defaults.properties")
+    environmentProperties()
+    modules(httpServer, discordBot, dataStore)
   }
 
-  companion object {
+  val dataDir = app.koin.getProperty("DATA_DIR", "./")
+  initializeDataDirectory(dataDir)
+  initializeDatabase("$dataDir/${app.koin.getProperty<String>("DB_NAME")}")
 
-    private val logger = KotlinLogging.logger { }
-
-    /**
-     * Starts a simple HTTP Service, whose only response is to redirect to the bot's page.
-     */
-    @JvmStatic
-    fun main(args: Array<String>) {
-      val token = System.getenv("BOT_TOKEN")
-      val port = System.getenv("PORT")
-      val clientId = System.getenv("CLIENT_ID") // TODO: Can we get rid of this w/o consequences?
-      val dataDirectory = System.getenv("DATA_DIR")
-
-      // Connect to database
-      Shim.initializeDatabase("$dataDirectory/settings.db")
-
-      val bot = Bot(token)
-      val inviteUrl = bot.api.asBot().getInviteUrl(Bot.PERMISSIONS)
-      val app = App(Integer.parseInt(port), clientId, inviteUrl)
-
-      try {
-        val recordingsDir = "$dataDirectory/recordings/"
-        logger.info { "Creating recordings directory: $recordingsDir" }
-        Files.createDirectories(Paths.get(recordingsDir))
-      } catch (e: IOException) {
-        logger.error(e) { "Could not create recordings directory" }
-      }
-
-      logger.info { "Start background process to remove unused Guilds." }
-      Timer("remove-old-guilds", true)
-        .scheduleAtFixedRate(0L, Duration.ofDays(1L).toMillis()) {
-          BotUtils.leaveAncientGuilds(bot.api)
-        }
-
-      try {
-        logger.info { "Starting HTTP Server: http://localhost:$port" }
-        app.start(NanoHTTPD.SOCKET_READ_TIMEOUT, false)
-      } catch (e: IOException) {
-        e.printStackTrace()
-      }
+  logger.info("Starting background process to remove unused Guilds.")
+  Timer("remove-old-guilds", true)
+    .scheduleAtFixedRate(0L, Duration.ofDays(1L).toMillis()) {
+      BotUtils.leaveAncientGuilds(app.koin.get<Bot>().api)
     }
+
+  HttpServer()
+    .also {
+      logger.info { "Starting HTTP Server: http://localhost:${it.port}" }
+      it.server.start()
+    }
+}
+
+/**
+ * Creates the data directory and cleans up any remnant MP3 files in there
+ */
+private fun initializeDataDirectory(dataDirectory: String) {
+  try {
+    val recordingsDir = "$dataDirectory/recordings/"
+    logger.info("Creating recordings directory: $recordingsDir")
+    val dir = Files.createDirectories(Paths.get(recordingsDir))
+
+    Files
+      .list(dir)
+      .filter { path -> Files.isRegularFile(path) && path.toString().toLowerCase().endsWith(".mp3") }
+      .forEach { path ->
+        try {
+          Files.delete(path)
+          logger.info("Deleting file $path...")
+        } catch (e: IOException) {
+          logger.error("Could not delete: $path", e)
+        }
+      }
+  } catch (e: IOException) {
+    logger.error("Could not create recordings directory", e)
   }
 }

@@ -15,16 +15,14 @@ import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent
 import net.dv8tion.jda.core.hooks.ListenerAdapter
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.koin.core.KoinComponent
 import tech.gdragon.BotUtils
 import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.commands.handleCommand
 import tech.gdragon.db.dao.Guild
-import java.io.IOException
-import java.nio.file.Files
-import java.nio.file.Paths
 import net.dv8tion.jda.core.entities.Guild as DiscordGuild
 
-class EventListener : ListenerAdapter() {
+class EventListener : ListenerAdapter(), KoinComponent {
 
   private val logger = KotlinLogging.logger {}
 
@@ -43,12 +41,15 @@ class EventListener : ListenerAdapter() {
   }
 
   override fun onGuildJoin(event: GuildJoinEvent) {
+    val guild = event.guild
     transaction {
-      val guild = event.guild
-      Guild.findOrCreate(guild.idLong, guild.name, guild.region.name)
+      Guild
+        .findOrCreate(guild.idLong, guild.name, guild.region.name)
     }
 
-    logger.info { "Joined new server '${event.guild.name}', connected to ${event.jda.guilds.size} guilds." }
+    Guild.updateActivity(guild.idLong, guild.region.name)
+
+    logger.info { "Joined new server '${guild.name}', connected to ${event.jda.guilds.size} guilds." }
   }
 
   override fun onGuildLeave(event: GuildLeaveEvent) {
@@ -148,12 +149,11 @@ class EventListener : ListenerAdapter() {
   }
 
   override fun onReady(event: ReadyEvent) {
-    val version = System.getenv("VERSION")
+    val version: String = getKoin().getProperty("VERSION", "dev")
+    val website: String = getKoin().getProperty("WEBSITE", "http://localhost:8080/")
     event
       .jda
-      .presence.game = object : Game("$version | https://www.pawa.im", "https://www.pawa.im", Game.GameType.DEFAULT) {
-
-    }
+      .presence.game = object : Game("$version | $website", website, Game.GameType.DEFAULT) {}
 
     logger.info { "ONLINE: Connected to ${event.jda.guilds.size} guilds!" }
 
@@ -165,38 +165,5 @@ class EventListener : ListenerAdapter() {
         tech.gdragon.db.dao.Guild.findOrCreate(it.idLong, it.name, it.region.name)
       }
     }
-
-    try {
-      // TODO Remove this var dubdubdub part we don't ever want to put stuff there
-      var dir = Paths.get("/var/www/html/")
-      if (Files.notExists(dir)) {
-        val dataDirectory = System.getenv("DATA_DIR")
-        dir = Files.createDirectories(Paths.get("$dataDirectory/recordings/"))
-        logger.info("Creating: " + dir.toString())
-      }
-
-      logger.info { "Performing audio file cleanup if necessary..." }
-      Files
-        .list(dir)
-        .filter { path -> Files.isRegularFile(path) && path.toString().toLowerCase().endsWith(".mp3") }
-        .forEach { path ->
-          try {
-            Files.delete(path)
-            logger.info { "Deleting file $path..." }
-          } catch (e: IOException) {
-            logger.error(e) { "Could not delete: $path" }
-          }
-        }
-    } catch (e: IOException) {
-      logger.error(e) { "Error preparing to read recordings" }
-    }
-
-    //check for servers to join
-/*    for (g in event.jda.guilds) {
-      val biggest = BotUtils.biggestChannel(g)
-      if (biggest != null) {
-        BotUtils.joinVoiceChannel(BotUtils.biggestChannel(g), false)
-      }
-    }*/
   }
 }

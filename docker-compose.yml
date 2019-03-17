@@ -66,8 +66,8 @@ services:
     ports:
       - 80:80
     depends_on:
-      - data
       - bot
+      - data
       - portainer
     logging:
       <<: *logging

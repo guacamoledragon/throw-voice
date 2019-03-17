@@ -1,6 +1,5 @@
 package tech.gdragon
 
-import io.minio.MinioClient
 import net.dv8tion.jda.core.AccountType
 import net.dv8tion.jda.core.JDABuilder
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceJoinEvent
@@ -13,14 +12,12 @@ import org.jetbrains.exposed.sql.not
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.joda.time.DateTime
-import tech.gdragon.data.DataStore
-import tech.gdragon.db.Shim
 import tech.gdragon.db.dao.Alias
 import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
+import tech.gdragon.db.initializeDatabase
 import tech.gdragon.db.table.Tables
 import tech.gdragon.db.table.Tables.Guilds
-import java.io.File
 import java.sql.Connection
 
 fun dropAllTables() {
@@ -61,7 +58,7 @@ fun basicTest() {
 }
 
 fun testBiggestChannel() {
-  Shim.initializeDatabase("settings.db")
+  initializeDatabase("settings.db")
   JDABuilder(AccountType.BOT)
     .setToken(System.getenv("TOKEN"))
     .addEventListener(object : ListenerAdapter() {
@@ -82,7 +79,7 @@ fun testBiggestChannel() {
 }
 
 fun testAlerts() {
-  Shim.initializeDatabase("settings.db")
+  initializeDatabase("settings.db")
   JDABuilder(AccountType.BOT)
     .setToken(System.getenv("TOKEN"))
     .addEventListener(object : ListenerAdapter() {
@@ -97,7 +94,7 @@ fun testAlerts() {
 }
 
 fun testAutoJoin() {
-  Shim.initializeDatabase("./data/settings.db")
+  initializeDatabase("./data/settings.db")
   transaction {
     val settings = Guild.findById(333055724198559745L)?.settings
 
@@ -109,8 +106,6 @@ fun testAutoJoin() {
 }
 
 fun removeUnusedGuilds() {
-  Shim.initializeDatabase("./data/settings.db")
-
   transaction {
     Guilds.deleteWhere {
       val now = DateTime.now()
@@ -119,31 +114,12 @@ fun removeUnusedGuilds() {
   }
 }
 
+
 fun main(args: Array<String>) {
 //  testAlerts()
 //  basicTest()
 //  dropAllTables()
 //  testAutoJoin()
 //  removeUnusedGuilds()
-  minio()
 }
 
-
-fun minio() {
-  val minioClient = MinioClient("http://localhost:9000", System.getenv("DS_ACCESS_KEY"), System.getenv("DS_SECRET_KEY"))
-  val file = File("./data/test-data/mp3-encoded/4ceeafa2-17ac-4d5f-9a7b-9903c6f11fa8.mp3")
-  val dataStore = DataStore.createDataStore("dev-recordings")
-  val result = dataStore.upload("/333055724198559745/4ceeafa2-17ac-4d5f-9a7b-9903c6f11fa9.mp3", file)
-  println("result = $result")
-  /*minioClient.listBuckets().forEach { bucket ->
-    println("bucket = ${bucket.name()}")
-  }
-
-  val objectUrl = minioClient.getObjectUrl("dev-recordings", "/333055724198559745/0245a36c-654a-4b3b-8718-4e9d99f21fc3.mp3")
-  println("recordingObject = $objectUrl")*/
-
-//  minioClient.putObject("dev-recordings", "/333055724198559745/4ceeafa2-17ac-4d5f-9a7b-9903c6f11fa8.mp3", "./data/test-data/mp3-encoded/4ceeafa2-17ac-4d5f-9a7b-9903c6f11fa8.mp3")
-
-  val statObject = minioClient.statObject("dev-recordings", "/333055724198559745/4ceeafa2-17ac-4d5f-9a7b-9903c6f11fa9.mp3")
-  println("statObject = $statObject")
-}

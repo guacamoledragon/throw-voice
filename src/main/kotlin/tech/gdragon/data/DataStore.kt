@@ -5,22 +5,27 @@ import io.minio.ObjectStat
 import mu.KotlinLogging
 import org.apache.commons.io.FileUtils
 import org.joda.time.DateTime
+import org.koin.core.KoinComponent
+import org.koin.dsl.module
 import java.io.File
 import java.io.InputStream
 
-class DataStore(endpoint: String, private val bucketName: String, accessKey: String = "", secretKey: String = "") {
-  companion object {
-    fun createDataStore(bucketName: String): DataStore = DataStore(
-      System.getenv("DS_HOST"),
-      bucketName,
-      System.getenv("DS_ACCESS_KEY"),
-      System.getenv("DS_SECRET_KEY")
-    )
+val dataStore = module {
+  single {
+    DataStore()
   }
+}
 
+class DataStore : KoinComponent {
   val logger = KotlinLogging.logger { }
+
+  private val accessKey: String? = getKoin().getProperty("DS_ACCESS_KEY")
+  private val bucketName: String? = getKoin().getProperty("DS_BUCKET")
+  private val endpoint: String? = getKoin().getProperty("DS_HOST")
+  private val secretKey: String? = getKoin().getProperty("DS_SECRET_KEY")
+  private val baseUrl: String = getKoin().getProperty("DS_BASEURL", "$endpoint/$bucketName")
+
   private val client: MinioClient = MinioClient(endpoint, accessKey, secretKey)
-  private val baseUrl: String = (System.getenv("DS_BASEURL") ?: "$endpoint/$bucketName")
 
   init {
     require(client.bucketExists(bucketName)) {

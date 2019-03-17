@@ -13,7 +13,6 @@
     </Console>
     <Discord name="Discord">
       <webhookUrl>${env:DISCORD_WEBHOOK}</webhookUrl>
-      <PatternLayout pattern="${globalPattern}"/>
     </Discord>
   </Appenders>
   <Loggers>
