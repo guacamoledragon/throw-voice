@@ -28,3 +28,7 @@ recordings/
 *.bat
 !build-docker.bat
 !start.bat
+.classpath
+.factorypath
+.project
+.settings/
