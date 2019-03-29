@@ -8,7 +8,7 @@ import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.listener.CombinedAudioRecorderHandler
 
-class Join : CommandHandler {
+class Record : CommandHandler {
   override fun action(args: Array<String>, event: GuildMessageReceivedEvent) {
     require(args.isEmpty()) {
       throw InvalidCommand(::usage, "Incorrect number of arguments: ${args.size}")
@@ -40,8 +40,8 @@ class Join : CommandHandler {
           }
 
           // We need to give something to the onError handler because sometimes life doesn't do what we want
-          BotUtils.joinVoiceChannel(voiceChannel, defaultChannel) { ex ->
-            val errorMessage = ":no_entry_sign: _Cannot join **<#${defaultChannel.id}>**, need permission:_ ```${ex.permission}```"
+          BotUtils.recordVoiceChannel(voiceChannel, defaultChannel) { ex ->
+            val errorMessage = ":no_entry_sign: _Cannot record on **<#${defaultChannel.id}>**, need permission:_ ```${ex.permission}```"
             BotUtils.sendMessage(defaultChannel, errorMessage)
           }
 

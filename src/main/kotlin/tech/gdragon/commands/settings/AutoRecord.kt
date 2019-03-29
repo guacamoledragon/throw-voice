@@ -9,8 +9,8 @@ import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
 import net.dv8tion.jda.core.entities.Channel as DiscordChannel
 
-class AutoJoin : CommandHandler {
-  private fun updateChannelAutoJoin(channel: DiscordChannel, autoJoin: Int?) {
+class AutoRecord : CommandHandler {
+  private fun updateChannelAutoJoin(channel: DiscordChannel, autoRecord: Int?) {
     transaction {
       val guild = channel.guild.run {
         Guild.findOrCreate(idLong, name, region.name)
@@ -18,12 +18,12 @@ class AutoJoin : CommandHandler {
 
       Channel
         .findOrCreate(channel.idLong, channel.name, guild)
-        .also { it.autoJoin = autoJoin }
+        .also { it.autoRecord = autoRecord }
     }
   }
 
   /**
-   * Sets the autoJoin value for a given voice channel. `null` represents autoJoin for that
+   * Sets the autoRecord value for a given voice channel. `null` represents autoRecord for that
    * channel is disabled.
    */
   override fun action(args: Array<String>, event: GuildMessageReceivedEvent) {
@@ -53,9 +53,9 @@ class AutoJoin : CommandHandler {
           channels.forEach { updateChannelAutoJoin(it, number) }
 
           if (number != null) {
-            "Will now automatically join any voice channel with $number or more people."
+            "Will now automatically record on any voice channel with $number or more people."
           } else {
-            "Will no longer automatically join any channel."
+            "Will no longer automatically record any channel."
           }
         } else {
           val channels = event.guild.getVoiceChannelsByName(channelName, true)
@@ -66,9 +66,9 @@ class AutoJoin : CommandHandler {
             channels.forEach { updateChannelAutoJoin(it, number) }
 
             if (number != null) {
-              "Will now automatically join '$channelName' when there are $number or more people."
+              "Will now automatically record on '$channelName' when there are $number or more people."
             } else {
-              "Will no longer automatically join '$channelName'."
+              "Will no longer automatically record '$channelName'."
             }
           }
         }
@@ -83,6 +83,6 @@ class AutoJoin : CommandHandler {
 
   override fun usage(prefix: String): String = "${prefix}autojoin [Voice Channel name | 'all'] [number | 'off']"
 
-  override fun description(): String = "Sets the number of players for the bot to auto-join a voice channel, or " +
-    "disables auto-joining. All will apply number to all voice channels."
+  override fun description(): String = "Sets the number of players for the bot to autorecord a voice channel, or " +
+    "disables auto recording. `All` will apply number to all voice channels."
 }

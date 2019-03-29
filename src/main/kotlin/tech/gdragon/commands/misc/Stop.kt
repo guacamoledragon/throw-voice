@@ -8,7 +8,7 @@ import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.listener.CombinedAudioRecorderHandler
 
-class Leave : CommandHandler {
+class Stop : CommandHandler {
   override fun action(args: Array<String>, event: GuildMessageReceivedEvent) {
     require(args.isEmpty()) {
       throw InvalidCommand(::usage, "Incorrect number of arguments: ${args.size}")
@@ -41,5 +41,5 @@ class Leave : CommandHandler {
 
   override fun usage(prefix: String): String = "${prefix}leave"
 
-  override fun description(): String = "Force the bot to leave it's current channel"
+  override fun description(): String = "Ask the bot to stop recording and leave its current channel"
 }

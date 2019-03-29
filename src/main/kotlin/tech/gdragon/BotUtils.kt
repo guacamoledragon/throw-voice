@@ -24,9 +24,9 @@ object BotUtils {
   private val logger = KotlinLogging.logger {}
 
   /**
-   * AutoJoin voice channel if it meets the autojoining criterion
+   * AutoRecord voice channel if it meets the auto record criterion
    */
-  fun autoJoin(guild: DiscordGuild, channel: VoiceChannel) {
+  fun autoRecord(guild: DiscordGuild, channel: VoiceChannel) {
     val channelMemberCount = voiceChannelSize(channel)
     logger.debug { "Channel member count: $channelMemberCount" }
 
@@ -37,14 +37,14 @@ object BotUtils {
         ?.channels
         ?.firstOrNull { it.id.value == channel.idLong }
         ?.let {
-          val autoJoin = it.autoJoin
-          BotUtils.logger.debug { "AutoJoin value: $autoJoin" }
+          val autoRecord = it.autoRecord
+          BotUtils.logger.debug { "AutoRecord value: $autoRecord" }
 
-          if (autoJoin != null && channelMemberCount >= autoJoin) {
+          if (autoRecord != null && channelMemberCount >= autoRecord) {
             val defaultChannel = defaultTextChannel(guild) ?: findPublicChannel(guild)
 
-            joinVoiceChannel(channel, defaultChannel) { ex ->
-              val message = ":no_entry_sign: _Cannot autojoin **<#${channel.id}>**, need permission:_ ```${ex.permission}```"
+            recordVoiceChannel(channel, defaultChannel) { ex ->
+              val message = ":no_entry_sign: _Cannot record on **<#${channel.id}>**, need permission:_ ```${ex.permission}```"
               BotUtils.sendMessage(defaultChannel, message)
             }
 
@@ -62,7 +62,7 @@ object BotUtils {
   }
 
   /**
-   * Find biggest voice chanel that surpasses the Guild's autoJoin minimum
+   * Find biggest voice chanel that surpasses the Guild's autoRecord minimum
    */
   @JvmStatic
   @Deprecated("This contains a bug, any code using this should stop for now", level = DeprecationLevel.WARNING)
@@ -76,7 +76,7 @@ object BotUtils {
         .filter { voiceChannel ->
           val channel = settings?.channels?.find { it.id.value == voiceChannel.idLong }
           val channelSize = voiceChannelSize(voiceChannel)
-          channel?.autoJoin?.let { it <= channelSize } ?: false
+          channel?.autoRecord?.let { it <= channelSize } ?: false
         }
         .maxBy(BotUtils::voiceChannelSize)
     }
@@ -101,18 +101,18 @@ object BotUtils {
     return user.isBot && jda.selfUser.idLong == user.idLong
   }
 
-  fun joinVoiceChannel(channel: VoiceChannel, defaultChannel: TextChannel?, onError: (InsufficientPermissionException) -> Unit = {}) {
+  fun recordVoiceChannel(channel: VoiceChannel, defaultChannel: TextChannel?, onError: (InsufficientPermissionException) -> Unit = {}) {
 
     /** Begin assertions **/
     require(defaultChannel != null && channel.guild.getTextChannelById(defaultChannel.id).canTalk()) {
-      val msg = "Attempted to join, but bot cannot write to any channel."
+      val msg = "Attempted to record, but bot cannot write to any channel."
       logger.warn(msg)
       msg
     }
 
     // Bot won't connect to AFK channels
     require(channel != channel.guild.afkChannel) {
-      val msg = ":no_entry_sign: _I'm not allowed to join AFK channels._"
+      val msg = ":no_entry_sign: _I'm not allowed to record AFK channels._"
       sendMessage(defaultChannel, msg)
       logger.warn(msg)
       msg

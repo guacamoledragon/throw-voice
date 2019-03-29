@@ -32,7 +32,7 @@ object Tables {
 
   object Channels : LongIdTable() {
     val name = text("name")
-    val autoJoin = integer("autoJoin").nullable()
+    val autoRecord = integer("autoRecord").nullable()
     val autoLeave = integer("autoLeave").default(1)
     val settings = reference("settings", Settings, ReferenceOption.CASCADE)
   }

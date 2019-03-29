@@ -11,8 +11,8 @@ import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.audio.Clip
 import tech.gdragon.commands.audio.Save
 import tech.gdragon.commands.misc.Help
-import tech.gdragon.commands.misc.Join
-import tech.gdragon.commands.misc.Leave
+import tech.gdragon.commands.misc.Record
+import tech.gdragon.commands.misc.Stop
 import tech.gdragon.commands.settings.*
 import tech.gdragon.listener.EventListener
 import javax.security.auth.login.LoginException
@@ -64,30 +64,15 @@ class Bot : KoinComponent {
   }
 }
 
-data class BotConfig(
-  val token: String,
-  val version: String,
-  val website: String,
-  val datastore: DataStoreConfig
-)
-
-data class DataStoreConfig(
-  val bucketId: String,
-  val bucketName: String,
-  val accountId: String,
-  val accountKey: String,
-  val baseUrl: String
-)
-
 enum class Command {
   ALIAS {
     override val handler: CommandHandler = Alias()
   },
-  AUTOJOIN {
-    override val handler: CommandHandler = AutoJoin()
+  AUTORECORD {
+    override val handler: CommandHandler = AutoRecord()
   },
-  AUTOLEAVE {
-    override val handler: CommandHandler = AutoLeave()
+  AUTOSTOP {
+    override val handler: CommandHandler = AutoStop()
   },
   AUTOSAVE {
     override val handler: CommandHandler = AutoSave()
@@ -98,11 +83,11 @@ enum class Command {
   HELP {
     override val handler: CommandHandler = Help()
   },
-  JOIN {
-    override val handler: CommandHandler = Join()
+  RECORD {
+    override val handler: CommandHandler = Record()
   },
-  LEAVE {
-    override val handler: CommandHandler = Leave()
+  STOP {
+    override val handler: CommandHandler = Stop()
   },
   PREFIX {
     override val handler: CommandHandler = Prefix()

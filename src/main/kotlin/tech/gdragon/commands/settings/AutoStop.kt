@@ -8,7 +8,7 @@ import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
 import net.dv8tion.jda.core.entities.Channel as DiscordChannel
 
-class AutoLeave : CommandHandler {
+class AutoStop : CommandHandler {
   private fun updateChannelAutoLeave(channel: DiscordChannel, autoLeave: Int) {
     transaction {
       val guild = channel.guild.run {

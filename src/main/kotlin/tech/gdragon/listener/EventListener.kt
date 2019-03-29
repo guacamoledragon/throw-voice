@@ -70,7 +70,7 @@ class EventListener : ListenerAdapter(), KoinComponent {
       return
     }
 
-    BotUtils.autoJoin(event.guild, event.channelJoined)
+    BotUtils.autoRecord(event.guild, event.channelJoined)
   }
 
   override fun onGuildVoiceLeave(event: GuildVoiceLeaveEvent) {
@@ -87,7 +87,7 @@ class EventListener : ListenerAdapter(), KoinComponent {
       return
     }
 
-    BotUtils.autoJoin(event.guild, event.channelJoined)
+    BotUtils.autoRecord(event.guild, event.channelJoined)
   }
 
   override fun onGuildMessageReceived(event: GuildMessageReceivedEvent) {
