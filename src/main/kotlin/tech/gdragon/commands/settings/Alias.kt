@@ -26,20 +26,19 @@ class Alias : CommandHandler {
       throw InvalidCommand(::usage, "Incorrect number of arguments: ${args.size}")
     }
 
-//    TODO: Cannot alias the alias
     val defaultChannel = BotUtils.defaultTextChannel(event.guild) ?: event.channel
     val command = args.first().toUpperCase()
 
     // Checks that command to alias exists
     if ("ALIAS" == command || Command.values().none { it.name == command }) {
-      BotUtils.sendMessage(defaultChannel, "Invalid command: '${command.toLowerCase()}'")
+      BotUtils.sendMessage(defaultChannel, "Invalid command: `${command.toLowerCase()}`")
     } else {
       val aliases = transaction { Guild.findById(event.guild.idLong)?.settings?.aliases?.toList() }
       val alias = args[1]
 
       // Checks that alias doesn't already exist
       if (aliases?.any { it.name == alias } == true) {
-        BotUtils.sendMessage(defaultChannel, "Alias '$alias' already exists.")
+        BotUtils.sendMessage(defaultChannel, "Alias `$alias` already exists.")
       } else {
         transaction {
           Guild.findById(event.guild.idLong)?.settings?.let {
@@ -49,7 +48,7 @@ class Alias : CommandHandler {
               settings = it
             }
 
-            BotUtils.sendMessage(defaultChannel, "New alias '$alias' set for command '${command.toLowerCase()}'.")
+            BotUtils.sendMessage(defaultChannel, "New alias `$alias` set for command `${command.toLowerCase()}`.")
           }
         }
       }
