@@ -81,7 +81,7 @@ class AutoRecord : CommandHandler {
     BotUtils.sendMessage(defaultChannel, message)
   }
 
-  override fun usage(prefix: String): String = "${prefix}autojoin [Voice Channel name | 'all'] [number | 'off']"
+  override fun usage(prefix: String): String = "${prefix}autorecord [Voice Channel name | 'all'] [number | 'off']"
 
   override fun description(): String = "Sets the number of players for the bot to autorecord a voice channel, or " +
     "disables auto recording. `All` will apply number to all voice channels."

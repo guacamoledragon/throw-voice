@@ -56,10 +56,10 @@ class AutoStop : CommandHandler {
       }*/
 
     val defaultChannel = BotUtils.defaultTextChannel(event.guild) ?: event.channel
-    BotUtils.sendMessage(defaultChannel, ":no_entry_sign: _AutoLeave is currently disabled due to some bugs_")
+    BotUtils.sendMessage(defaultChannel, ":no_entry_sign: _autostop is currently disabled due to some bugs_")
   }
 
-  override fun usage(prefix: String): String = "${prefix}autoleave [Voice Channel name | 'all'] [number]"
+  override fun usage(prefix: String): String = "${prefix}autostop [Voice Channel name | 'all'] [number]"
 
-  override fun description(): String = "Sets the number of players for the bot to auto-leave a voice channel. All will apply number to all voice channels."
+  override fun description(): String = "Sets the number of players for the bot to autostop a voice channel. All will apply number to all voice channels."
 }
