@@ -4,13 +4,17 @@
   <id>release</id>
   <includeBaseDirectory>false</includeBaseDirectory>
   <formats>
-    <format>zip</format>
+    <format>dir</format>
   </formats>
   <files>
     <file>
       <source>${project.basedir}/src/assembly/start.bat</source>
       <lineEnding>windows</lineEnding>
       <filtered>true</filtered>
+    </file>
+    <file>
+      <source>${project.basedir}/src/assembly/settings.db</source>
+      <filtered>false</filtered>
     </file>
     <file>
       <source>LICENSE</source>

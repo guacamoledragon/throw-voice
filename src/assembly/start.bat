@@ -3,7 +3,7 @@
 REM Bot variables, required
 SET BOT_TOKEN=
 SET CLIENT_ID=
-SET DATA_DIR=
+SET DATA_DIR=.
 SET DISCORD_WEBHOOK=
 SET PORT=
 
@@ -26,4 +26,4 @@ echo   Revision:  https://github.com/guacamoledragon/throw-voice/commit/${revisi
 echo ==========================================================================
 @echo.
 
-java -Xmx512m --add-modules java.xml.bind -cp ${name}-${version}.jar;lib\* tech.gdragon.App
+java -Xmx512m -cp ${name}-${version}.jar;lib\* tech.gdragon.App

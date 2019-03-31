@@ -25,6 +25,7 @@ import net.dv8tion.jda.core.entities.Guild as DiscordGuild
 class EventListener : ListenerAdapter(), KoinComponent {
 
   private val logger = KotlinLogging.logger {}
+  val website: String = getKoin().getProperty("WEBSITE", "http://localhost:8080/")
 
   override fun onGuildUpdateRegion(event: GuildUpdateRegionEvent) {
     withLoggingContext("guild" to event.guild.name) {
@@ -105,19 +106,27 @@ class EventListener : ListenerAdapter(), KoinComponent {
     }
 
     val rawContent = event.message.contentDisplay.toLowerCase()
-    if (rawContent.startsWith(prefix)) {
-      withLoggingContext("guild" to event.guild.name, "text-channel" to event.channel.name) {
-        try {
-          handleCommand(event, prefix, rawContent)
-        } catch (e: InvalidCommand) {
-          val defaultChannel = BotUtils.defaultTextChannel(event.guild) ?: event.channel
-          BotUtils.sendMessage(defaultChannel, ":no_entry_sign: _Usage: `${e.usage(prefix)}`_")
-          logger.warn { "[$rawContent] ${e.reason}" }
-        }
+    val hasPrefix = rawContent.startsWith(prefix)
+    val inMaintenance = getKoin().getProperty("MAINTENANCE", "false").toBoolean()
+    val defaultChannel = BotUtils.defaultTextChannel(event.guild) ?: event.channel
 
-        Guild.updateActivity(event.guild.idLong, event.guild.region.name)
+    withLoggingContext("guild" to event.guild.name, "text-channel" to event.channel.name) {
+      when {
+        hasPrefix && inMaintenance -> {
+          BotUtils.sendMessage(defaultChannel, ":poop: _Currently running an update...\n\nIf you have any questions please visit the support server: ${website}_")
+          logger.warn("Trying to use while running an update")
+        }
+        hasPrefix ->
+          try {
+            handleCommand(event, prefix, rawContent)
+          } catch (e: InvalidCommand) {
+            BotUtils.sendMessage(defaultChannel, ":no_entry_sign: _Usage: `${e.usage(prefix)}`_")
+            logger.warn { "[$rawContent] ${e.reason}" }
+          }
       }
     }
+
+    Guild.updateActivity(event.guild.idLong, event.guild.region.name)
   }
 
   override fun onPrivateMessageReceived(event: PrivateMessageReceivedEvent) {
@@ -150,7 +159,6 @@ class EventListener : ListenerAdapter(), KoinComponent {
 
   override fun onReady(event: ReadyEvent) {
     val version: String = getKoin().getProperty("VERSION", "dev")
-    val website: String = getKoin().getProperty("WEBSITE", "http://localhost:8080/")
     event
       .jda
       .presence.game = object : Game("$version | $website", website, Game.GameType.DEFAULT) {}

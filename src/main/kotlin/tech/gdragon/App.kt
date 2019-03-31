@@ -1,3 +1,4 @@
+@file:JvmName("App")
 package tech.gdragon
 
 import mu.KotlinLogging
