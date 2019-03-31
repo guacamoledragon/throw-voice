@@ -61,6 +61,28 @@ object BotUtils {
     }
   }
 
+  fun autoStop(guild: DiscordGuild, channel: VoiceChannel) {
+    val channelMemberCount = voiceChannelSize(channel)
+    logger.debug { "${guild.name}#${channel.name} - Channel member count: $channelMemberCount" }
+
+    transaction {
+      val settings = Guild.findById(guild.idLong)?.settings
+
+      settings
+        ?.channels
+        ?.firstOrNull { it.id.value == channel.idLong }
+        ?.let {
+          val autoStop = it.autoStop
+          BotUtils.logger.debug { "${guild.name}#${channel.name} - autostop value: $autoStop" }
+
+          if (channelMemberCount <= autoStop) {
+            val defaultChannel = defaultTextChannel(guild) ?: findPublicChannel(guild)
+            leaveVoiceChannel(channel, defaultChannel)
+          }
+        }
+    }
+  }
+
   /**
    * Obtain a reference to the default text channel one of these ways:
    * - Retrieve it based on the ID that the bot stores
@@ -76,30 +98,8 @@ object BotUtils {
     }
   }
 
-  fun autoLeave(guild: DiscordGuild, channel: VoiceChannel) {
-    val channelMemberCount = voiceChannelSize(channel)
-    logger.debug { "${guild.name}#${channel.name} - Channel member count: $channelMemberCount" }
-
-    transaction {
-      val settings = Guild.findById(guild.idLong)?.settings
-
-      settings
-        ?.channels
-        ?.firstOrNull { it.id.value == channel.idLong }
-        ?.let {
-          val autoLeave = it.autoLeave
-          BotUtils.logger.debug { "${guild.name}#${channel.name} - AutoLeave value: $autoLeave" }
-
-          if (channelMemberCount <= autoLeave) {
-            // val defaultChannel = guild.textChannels.find { it.canTalk() } // TODO: this is probably not the best way to go about this, but will prevent exceptions
-            leaveVoiceChannel(channel) // , defaultChannel!!, onError = onError)
-          }
-        }
-    }
-  }
-
-  fun isSelfBot(jda: JDA, user: User): Boolean {
-    return user.isBot && jda.selfUser.idLong == user.idLong
+  fun isSelfBot(user: User): Boolean {
+    return user.isBot && user.jda.selfUser.idLong == user.idLong
   }
 
   fun recordVoiceChannel(channel: VoiceChannel, defaultChannel: TextChannel?, onError: (InsufficientPermissionException) -> Unit = {}) {
@@ -161,13 +161,18 @@ object BotUtils {
   }
 
   @JvmStatic
-  fun leaveVoiceChannel(voiceChannel: VoiceChannel) {
+  fun leaveVoiceChannel(voiceChannel: VoiceChannel, textChannel: TextChannel?) {
     val guild = voiceChannel.guild
     val audioManager = guild?.audioManager
     val receiveHandler = audioManager?.receiveHandler as CombinedAudioRecorderHandler?
 
-    receiveHandler?.apply {
-      disconnect()
+    receiveHandler?.let {
+      if (autoSave(guild) && textChannel != null) {
+        sendMessage(textChannel, ":floppy_disk: **Saving <#${voiceChannel.id}>'s recording...**")
+        it.saveRecording(voiceChannel, textChannel)
+      }
+
+      it.disconnect()
     }
 
     logger.info("{}#{}: Leaving voice channel", guild?.name, voiceChannel.name)
@@ -285,13 +290,13 @@ object BotUtils {
   fun findPublicChannel(guild: DiscordGuild): TextChannel? {
     return guild
       .textChannels
-      .find(TextChannel::canTalk)
+      .find(TextChannel::canTalk)/*
       ?.also {
         val msg = """
                   :warning: _The save location hasn't been set, please use `<prefix>saveLocation` to set.
                   This channel will be used in the meantime._
                   """.trimIndent()
         sendMessage(it, msg)
-      }
+      }*/
   }
 }

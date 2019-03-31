@@ -66,7 +66,7 @@ class EventListener : ListenerAdapter(), KoinComponent {
     val user = event.member.user
     logger.debug { "${event.guild.name}#${event.channelJoined.name} - ${user.name} joined voice channel" }
 
-    if (BotUtils.isSelfBot(event.jda, user)) {
+    if (BotUtils.isSelfBot(user)) {
       logger.debug { "${event.guild.name}#${event.channelJoined.name} - ${user.name} is self-bot" }
       return
     }
@@ -76,7 +76,9 @@ class EventListener : ListenerAdapter(), KoinComponent {
 
   override fun onGuildVoiceLeave(event: GuildVoiceLeaveEvent) {
     logger.debug { "${event.guild.name}#${event.channelLeft.name} - ${event.member.effectiveName} left voice channel" }
-    BotUtils.autoLeave(event.guild, event.channelLeft)
+    if (BotUtils.isSelfBot(event.member.user).not()) {
+      BotUtils.autoStop(event.guild, event.channelLeft)
+    }
   }
 
   override fun onGuildVoiceMove(event: GuildVoiceMoveEvent) {
@@ -84,7 +86,7 @@ class EventListener : ListenerAdapter(), KoinComponent {
     logger.debug { "${event.guild.name}#${event.channelLeft.name} - ${user.name} left voice channel" }
     logger.debug { "${event.guild.name}#${event.channelJoined.name} - ${user.name} joined voice channel" }
 
-    if (BotUtils.isSelfBot(event.jda, user)) {
+    if (BotUtils.isSelfBot(user)) {
       logger.debug { "${event.guild.name}#${event.channelJoined.name} - ${user.name} is self-bot" }
       return
     }
@@ -147,7 +149,7 @@ class EventListener : ListenerAdapter(), KoinComponent {
    * Always add recording prefix when recording and if possible.
    */
   override fun onGuildMemberNickChange(event: GuildMemberNickChangeEvent) {
-    if (BotUtils.isSelfBot(event.jda, event.user)) {
+    if (BotUtils.isSelfBot(event.user)) {
       if (event.guild.audioManager.isConnected) {
         logger.debug {
           "${event.guild}#: Attempting to change nickname from ${event.prevNick} -> ${event.newNick}"
