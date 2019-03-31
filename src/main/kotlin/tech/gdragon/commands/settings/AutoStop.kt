@@ -10,6 +10,9 @@ import tech.gdragon.db.dao.Guild
 import net.dv8tion.jda.core.entities.Channel as DiscordChannel
 
 class AutoStop : CommandHandler {
+  val warningMessage = "\n\n:warning: _`autostop` is still a very new feature, so if you encounter any issues please " +
+    "report in the support server.\n**REMEMBER**: `autostop` does not imply `autosave`!_"
+
   private fun updateChannelAutoStop(channel: DiscordChannel, autoStop: Int) {
     transaction {
       val guild = channel.guild.run {
@@ -47,7 +50,7 @@ class AutoStop : CommandHandler {
             "Cannot find voice channel $channelName."
           } else {
             channels.forEach { updateChannelAutoStop(it, number) }
-            "Will now automatically leave '$channelName' when there are $number or less people."
+            "Will now automatically leave '$channelName' when there are $number or less people.${warningMessage}"
           }
         }
       } catch (e: NumberFormatException) {
