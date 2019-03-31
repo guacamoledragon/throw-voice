@@ -62,27 +62,6 @@ object BotUtils {
   }
 
   /**
-   * Find biggest voice chanel that surpasses the Guild's autoRecord minimum
-   */
-  @JvmStatic
-  @Deprecated("This contains a bug, any code using this should stop for now", level = DeprecationLevel.WARNING)
-  fun biggestChannel(guild: DiscordGuild): VoiceChannel? {
-    val voiceChannels = guild.voiceChannels
-
-    return transaction {
-      val settings = Guild.findById(guild.idLong)?.settings
-
-      voiceChannels
-        .filter { voiceChannel ->
-          val channel = settings?.channels?.find { it.id.value == voiceChannel.idLong }
-          val channelSize = voiceChannelSize(voiceChannel)
-          channel?.autoRecord?.let { it <= channelSize } ?: false
-        }
-        .maxBy(BotUtils::voiceChannelSize)
-    }
-  }
-
-  /**
    * Obtain a reference to the default text channel one of these ways:
    * - Retrieve it based on the ID that the bot stores
    * - Retrieve the first channel that the bot can talk to
