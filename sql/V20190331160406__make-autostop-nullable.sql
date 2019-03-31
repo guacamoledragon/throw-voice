@@ -1,0 +1,2 @@
+-- TODO: Remove all channel rows that autoRecord = null and autoStop = 1
+-- TODO: Allow autostop to be null, just like autorecord
