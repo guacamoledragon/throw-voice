@@ -9,7 +9,7 @@ import tech.gdragon.db.dao.Guild
 import net.dv8tion.jda.core.entities.Channel as DiscordChannel
 
 class AutoStop : CommandHandler {
-  private fun updateChannelAutoLeave(channel: DiscordChannel, autoLeave: Int) {
+  private fun updateChannelAutoStop(channel: DiscordChannel, autoStop: Int) {
     transaction {
       val guild = channel.guild.run {
         Guild.findOrCreate(idLong, name, region.name)
@@ -17,7 +17,7 @@ class AutoStop : CommandHandler {
 
       Channel
         .findOrCreate(channel.idLong, channel.name, guild)
-//        .forEach { it.autoLeave = autoLeave }
+//        .forEach { it.autoStop = autoStop }
     }
   }
 
@@ -37,7 +37,7 @@ class AutoStop : CommandHandler {
 
         if (channelName == "all") {
           val channels = event.guild.voiceChannels
-          channels.forEach { updateChannelAutoLeave(it, number) }
+          channels.forEach { updateChannelAutoStop(it, number) }
           "Will now automatically leave any voice channel with $number or less people."
         } else {
           val channels = event.guild.getVoiceChannelsByName(channelName, true)
@@ -45,7 +45,7 @@ class AutoStop : CommandHandler {
           if (channels.isEmpty()) {
             "Cannot find voice channel $channelName."
           } else {
-            channels.forEach { updateChannelAutoLeave(it, number) }
+            channels.forEach { updateChannelAutoStop(it, number) }
             "Will now automatically leave '$channelName' when there are $number or less people."
           }
         }
@@ -56,10 +56,10 @@ class AutoStop : CommandHandler {
       }*/
 
     val defaultChannel = BotUtils.defaultTextChannel(event.guild) ?: event.channel
-    BotUtils.sendMessage(defaultChannel, ":no_entry_sign: _AutoLeave is currently disabled due to some bugs_")
+    BotUtils.sendMessage(defaultChannel, ":no_entry_sign: _autostop is currently disabled due to some bugs_")
   }
 
-  override fun usage(prefix: String): String = "${prefix}autoleave [Voice Channel name | 'all'] [number]"
+  override fun usage(prefix: String): String = "${prefix}autostop [Voice Channel name | 'all'] [number]"
 
-  override fun description(): String = "Sets the number of players for the bot to auto-leave a voice channel. All will apply number to all voice channels."
+  override fun description(): String = "Sets the number of players for the bot to autostop a voice channel. All will apply number to all voice channels."
 }
