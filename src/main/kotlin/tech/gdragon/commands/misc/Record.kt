@@ -54,7 +54,7 @@ class Record : CommandHandler {
     }
   }
 
-  override fun usage(prefix: String): String = "${prefix}join"
+  override fun usage(prefix: String): String = "${prefix}record"
 
   override fun description(): String = "Ask the bot to join and record in your current channel."
 }

@@ -39,7 +39,7 @@ class Stop : CommandHandler {
     }
   }
 
-  override fun usage(prefix: String): String = "${prefix}leave"
+  override fun usage(prefix: String): String = "${prefix}stop"
 
   override fun description(): String = "Ask the bot to stop recording and leave its current channel"
 }

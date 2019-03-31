@@ -10,16 +10,6 @@ import tech.gdragon.db.dao.Guild
 import tech.gdragon.discord.Command
 
 class Alias : CommandHandler {
-  companion object {
-    val deprecationMap = mapOf(
-      "join" to "record",
-      "info" to "help",
-      "leave" to "stop",
-      "symbol" to "prefix",
-      "autojoin" to "autorecord",
-      "autoleave" to "autostop"
-    )
-  }
 
   override fun action(args: Array<String>, event: GuildMessageReceivedEvent) {
     require(args.size == 2) {
