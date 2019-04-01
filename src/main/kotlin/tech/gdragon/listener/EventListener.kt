@@ -86,12 +86,10 @@ class EventListener : ListenerAdapter(), KoinComponent {
     logger.debug { "${event.guild.name}#${event.channelLeft.name} - ${user.name} left voice channel" }
     logger.debug { "${event.guild.name}#${event.channelJoined.name} - ${user.name} joined voice channel" }
 
-    if (BotUtils.isSelfBot(user)) {
-      logger.debug { "${event.guild.name}#${event.channelJoined.name} - ${user.name} is self-bot" }
-      return
+    if (BotUtils.isSelfBot(user).not()) {
+      BotUtils.autoStop(event.guild, event.channelLeft)
+      BotUtils.autoRecord(event.guild, event.channelJoined)
     }
-
-    BotUtils.autoRecord(event.guild, event.channelJoined)
   }
 
   override fun onGuildMessageReceived(event: GuildMessageReceivedEvent) {
