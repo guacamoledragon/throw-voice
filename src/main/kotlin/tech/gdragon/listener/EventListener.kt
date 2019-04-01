@@ -92,7 +92,7 @@ class EventListener : ListenerAdapter(), KoinComponent {
   }
 
   override fun onGuildMessageReceived(event: GuildMessageReceivedEvent) {
-    if (event.member == null || event.member.user == null)
+    if (event.member == null || event.member.user == null || BotUtils.isSelfBot(event.jda, event.member.user))
       return
 
     val guildId = event.guild.idLong

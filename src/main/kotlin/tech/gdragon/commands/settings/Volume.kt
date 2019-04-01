@@ -14,31 +14,31 @@ class Volume : CommandHandler {
       throw InvalidCommand(::usage, "Incorrect number of arguments: ${args.size}")
     }
 
-    transaction {
-      val guild = Guild.findById(event.guild.idLong)
-      val defaultChannel = BotUtils.defaultTextChannel(event.guild) ?: event.channel
-      val prefix = guild?.settings?.prefix ?: "!"
 
-      val message: String =
-        try {
-          val volume = args.first().toInt()
+    val defaultChannel = BotUtils.defaultTextChannel(event.guild) ?: event.channel
 
-          if (volume in 1..100) {
-            val percentage = volume.toDouble() / 100f
+    val message: String =
+      try {
+        val volume = args.first().toInt()
 
+        if (volume in 1..100) {
+          val percentage = volume.toDouble() / 100f
+
+          transaction {
+            val guild = Guild.findById(event.guild.idLong)
             guild?.settings?.let {
               it.volume = BigDecimal.valueOf(percentage)
               "Volume set to $volume% for next recording!"
             } ?: "Volume could not be set to $volume%."
-          } else {
-            usage(prefix)
           }
-        } catch (e: NumberFormatException) {
-          usage(prefix)
+        } else {
+          throw InvalidCommand(::usage, "Volume must be a number between 1-100: ${args.first()}")
         }
+      } catch (e: NumberFormatException) {
+        throw InvalidCommand(::usage, "Volume must be a positive number: ${args.first()}")
+      }
 
-      BotUtils.sendMessage(defaultChannel, message)
-    }
+    BotUtils.sendMessage(defaultChannel, message)
   }
 
   override fun usage(prefix: String): String = "${prefix}volume [1-100]"
