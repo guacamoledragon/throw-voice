@@ -66,7 +66,7 @@ class EventListener : ListenerAdapter(), KoinComponent {
     val user = event.member.user
     logger.debug { "${event.guild.name}#${event.channelJoined.name} - ${user.name} joined voice channel" }
 
-    if (BotUtils.isSelfBot(event.jda, user)) {
+    if (BotUtils.isSelfBot(user)) {
       logger.debug { "${event.guild.name}#${event.channelJoined.name} - ${user.name} is self-bot" }
       return
     }
@@ -76,6 +76,9 @@ class EventListener : ListenerAdapter(), KoinComponent {
 
   override fun onGuildVoiceLeave(event: GuildVoiceLeaveEvent) {
     logger.debug { "${event.guild.name}#${event.channelLeft.name} - ${event.member.effectiveName} left voice channel" }
+    if (BotUtils.isSelfBot(event.member.user).not()) {
+      BotUtils.autoStop(event.guild, event.channelLeft)
+    }
   }
 
   override fun onGuildVoiceMove(event: GuildVoiceMoveEvent) {
@@ -83,16 +86,14 @@ class EventListener : ListenerAdapter(), KoinComponent {
     logger.debug { "${event.guild.name}#${event.channelLeft.name} - ${user.name} left voice channel" }
     logger.debug { "${event.guild.name}#${event.channelJoined.name} - ${user.name} joined voice channel" }
 
-    if (BotUtils.isSelfBot(event.jda, user)) {
-      logger.debug { "${event.guild.name}#${event.channelJoined.name} - ${user.name} is self-bot" }
-      return
+    if (BotUtils.isSelfBot(user).not()) {
+      BotUtils.autoStop(event.guild, event.channelLeft)
+      BotUtils.autoRecord(event.guild, event.channelJoined)
     }
-
-    BotUtils.autoRecord(event.guild, event.channelJoined)
   }
 
   override fun onGuildMessageReceived(event: GuildMessageReceivedEvent) {
-    if (event.member == null || event.member.user == null || BotUtils.isSelfBot(event.jda, event.member.user))
+    if (event.member == null || event.member.user == null || BotUtils.isSelfBot(event.member.user))
       return
 
     val guildId = event.guild.idLong
@@ -146,7 +147,7 @@ class EventListener : ListenerAdapter(), KoinComponent {
    * Always add recording prefix when recording and if possible.
    */
   override fun onGuildMemberNickChange(event: GuildMemberNickChangeEvent) {
-    if (BotUtils.isSelfBot(event.jda, event.user)) {
+    if (BotUtils.isSelfBot(event.user)) {
       if (event.guild.audioManager.isConnected) {
         logger.debug {
           "${event.guild}#: Attempting to change nickname from ${event.prevNick} -> ${event.newNick}"

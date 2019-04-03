@@ -61,24 +61,25 @@ object BotUtils {
     }
   }
 
-  /**
-   * Find biggest voice chanel that surpasses the Guild's autoRecord minimum
-   */
-  @JvmStatic
-  @Deprecated("This contains a bug, any code using this should stop for now", level = DeprecationLevel.WARNING)
-  fun biggestChannel(guild: DiscordGuild): VoiceChannel? {
-    val voiceChannels = guild.voiceChannels
+  fun autoStop(guild: DiscordGuild, channel: VoiceChannel) {
+    val channelMemberCount = voiceChannelSize(channel)
+    logger.debug { "${guild.name}#${channel.name} - Channel member count: $channelMemberCount" }
 
-    return transaction {
+    transaction {
       val settings = Guild.findById(guild.idLong)?.settings
 
-      voiceChannels
-        .filter { voiceChannel ->
-          val channel = settings?.channels?.find { it.id.value == voiceChannel.idLong }
-          val channelSize = voiceChannelSize(voiceChannel)
-          channel?.autoRecord?.let { it <= channelSize } ?: false
+      settings
+        ?.channels
+        ?.firstOrNull { it.id.value == channel.idLong }
+        ?.let {
+          val autoStop = it.autoStop
+          BotUtils.logger.debug { "${guild.name}#${channel.name} - autostop value: $autoStop" }
+
+          if (autoStop != null && channelMemberCount <= autoStop) {
+            val defaultChannel = defaultTextChannel(guild) ?: findPublicChannel(guild)
+            leaveVoiceChannel(channel, defaultChannel)
+          }
         }
-        .maxBy(BotUtils::voiceChannelSize)
     }
   }
 
@@ -97,8 +98,8 @@ object BotUtils {
     }
   }
 
-  fun isSelfBot(jda: JDA, user: User): Boolean {
-    return user.isBot && jda.selfUser.idLong == user.idLong
+  fun isSelfBot(user: User): Boolean {
+    return user.isBot && user.jda.selfUser.idLong == user.idLong
   }
 
   fun recordVoiceChannel(channel: VoiceChannel, defaultChannel: TextChannel?, onError: (InsufficientPermissionException) -> Unit = {}) {
@@ -160,13 +161,18 @@ object BotUtils {
   }
 
   @JvmStatic
-  fun leaveVoiceChannel(voiceChannel: VoiceChannel) {
+  fun leaveVoiceChannel(voiceChannel: VoiceChannel, textChannel: TextChannel?) {
     val guild = voiceChannel.guild
     val audioManager = guild?.audioManager
     val receiveHandler = audioManager?.receiveHandler as CombinedAudioRecorderHandler?
 
-    receiveHandler?.apply {
-      disconnect()
+    receiveHandler?.let {
+      if (autoSave(guild) && textChannel != null) {
+        sendMessage(textChannel, ":floppy_disk: **Saving <#${voiceChannel.id}>'s recording...**")
+        it.saveRecording(voiceChannel, textChannel)
+      }
+
+      it.disconnect()
     }
 
     logger.info("{}#{}: Leaving voice channel", guild?.name, voiceChannel.name)
@@ -284,13 +290,13 @@ object BotUtils {
   fun findPublicChannel(guild: DiscordGuild): TextChannel? {
     return guild
       .textChannels
-      .find(TextChannel::canTalk)
+      .find(TextChannel::canTalk)/*
       ?.also {
         val msg = """
                   :warning: _The save location hasn't been set, please use `<prefix>saveLocation` to set.
                   This channel will be used in the meantime._
                   """.trimIndent()
         sendMessage(it, msg)
-      }
+      }*/
   }
 }

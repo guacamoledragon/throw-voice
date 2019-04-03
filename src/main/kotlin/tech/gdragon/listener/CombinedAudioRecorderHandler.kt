@@ -31,7 +31,7 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
 
-class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceChannel, val defaultChannel: TextChannel?) : AudioReceiveHandler, KoinComponent {
+class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceChannel, val defaultChannel: TextChannel) : AudioReceiveHandler, KoinComponent {
   companion object {
     private const val AFK_LIMIT = (2 * 60 * 1000) / 20                      // 2 minutes in ms over 20ms increments
     private const val MAX_RECORDING_MB = 110
@@ -80,9 +80,7 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
       BotUtils.sendMessage(defaultChannel, "_:sleeping: No audio detected in the last 2 minutes, leaving <#${voiceChannel.id}>._")
 
       thread(start = true) {
-        if (BotUtils.autoSave(voiceChannel.guild))
-          saveRecording(voiceChannel, defaultChannel)
-        BotUtils.leaveVoiceChannel(voiceChannel)
+        BotUtils.leaveVoiceChannel(voiceChannel, defaultChannel)
       }
     }
 
@@ -144,7 +142,7 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
       }
   }
 
-  fun saveRecording(voiceChannel: VoiceChannel?, textChannel: TextChannel?) {
+  fun saveRecording(voiceChannel: VoiceChannel?, textChannel: TextChannel) {
     canReceive = false
     subscription?.dispose()
 
@@ -176,7 +174,7 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
     subscription = createRecording()
   }
 
-  fun saveClip(seconds: Long, voiceChannel: VoiceChannel?, channel: TextChannel?) {
+  fun saveClip(seconds: Long, voiceChannel: VoiceChannel?, channel: TextChannel) {
     // Stop recording so that we can copy Queue File
     canReceive = false
 
@@ -215,9 +213,9 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
     uploadRecording(recording, voiceChannel, channel)
   }
 
-  private fun uploadRecording(recording: File, voiceChannel: VoiceChannel?, channel: TextChannel?) {
+  private fun uploadRecording(recording: File, voiceChannel: VoiceChannel?, channel: TextChannel) {
     if (recording.length() < MAX_RECORDING_SIZE) {
-      val recordingKey = "/${channel?.guild?.id}/${recording.name}"
+      val recordingKey = "/${channel.guild?.id}/${recording.name}"
       val result = datastore.upload(recordingKey, recording)
 
       val message = """|:microphone2: **Recording for <#${voiceChannel?.id}> has been uploaded!**
