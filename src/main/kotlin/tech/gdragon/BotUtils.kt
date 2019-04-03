@@ -75,7 +75,7 @@ object BotUtils {
           val autoStop = it.autoStop
           BotUtils.logger.debug { "${guild.name}#${channel.name} - autostop value: $autoStop" }
 
-          if (channelMemberCount <= autoStop) {
+          if (autoStop != null && channelMemberCount <= autoStop) {
             val defaultChannel = defaultTextChannel(guild) ?: findPublicChannel(guild)
             leaveVoiceChannel(channel, defaultChannel)
           }

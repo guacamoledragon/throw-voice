@@ -42,7 +42,7 @@ class AutoRecord : CommandHandler {
             val lastArg = args.last().toInt()
 
             if (lastArg < 0)
-              throw IllegalArgumentException("Number must be positive!")
+              throw InvalidCommand(::usage, "Number must be positive: $lastArg")
             else
               lastArg
           }
@@ -74,8 +74,6 @@ class AutoRecord : CommandHandler {
         }
       } catch (e: NumberFormatException) {
         throw InvalidCommand(::usage, "Could not parse number argument: ${e.message}")
-      } catch (e: IllegalArgumentException) {
-        throw InvalidCommand(::usage, "Number must be positive: ${e.message}")
       }
 
     BotUtils.sendMessage(defaultChannel, message)

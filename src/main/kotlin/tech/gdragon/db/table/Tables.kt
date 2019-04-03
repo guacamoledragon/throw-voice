@@ -2,6 +2,7 @@ package tech.gdragon.db.table
 
 import org.jetbrains.exposed.dao.IntIdTable
 import org.jetbrains.exposed.dao.LongIdTable
+import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.ReferenceOption
 import org.joda.time.DateTime
 import tech.gdragon.db.DateColumnType
@@ -33,7 +34,7 @@ object Tables {
   object Channels : LongIdTable() {
     val name = text("name")
     val autoRecord = integer("autoRecord").nullable()
-    val autoStop = integer("autoStop").default(1)
+    val autoStop = integer("autoStop").nullable()
     val settings = reference("settings", Settings, ReferenceOption.CASCADE)
   }
 
