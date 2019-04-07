@@ -4,11 +4,6 @@ from Channels
 where autoStop is 1
   and autoRecord isnull;
 
--- Reset autoStop to null to prevent accidental leaves
-update Channels
-set autoStop = null
-where autoStop is 1;
-
 --  Allow autostop to be null, just like autorecord
 create table Channels_dg_tmp
 (
@@ -31,3 +26,7 @@ drop table Channels;
 alter table Channels_dg_tmp
   rename to Channels;
 
+-- Reset autoStop to null to prevent accidental leaves
+update Channels
+set autoStop = null
+where autoStop is 1;
