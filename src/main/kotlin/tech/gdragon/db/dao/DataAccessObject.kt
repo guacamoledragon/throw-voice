@@ -10,7 +10,6 @@ import tech.gdragon.db.table.Tables.Aliases
 import tech.gdragon.db.table.Tables.Channels
 import tech.gdragon.db.table.Tables.Guilds
 import tech.gdragon.db.table.Tables.Recordings
-import tech.gdragon.db.table.Tables.Users
 import tech.gdragon.db.table.Tables.Settings as SettingsTable
 
 class Alias(id: EntityID<Int>) : IntEntity(id) {
@@ -95,30 +94,6 @@ class Settings(id: EntityID<Long>) : LongEntity(id) {
   var volume by SettingsTable.volume
   var guild by Guild referencedOn SettingsTable.guild
 
-  val alertBlacklist by User referrersOn Users.settings
   val channels by Channel referrersOn Channels.settings
   val aliases by Alias referrersOn Aliases.settings
-}
-
-class User(id: EntityID<Long>) : LongEntity(id) {
-  companion object : LongEntityClass<User>(Users) {
-    @JvmStatic
-    fun findOrCreate(id: String, settings: Settings): User = transaction {
-      val users = User.find {
-        (Users.name eq id) and (Users.settings eq settings.id)
-      }
-
-      if (users.empty()) {
-        User.new {
-          this.name = id
-          this.settings = settings
-        }
-      } else {
-        users.first()
-      }
-    }
-  }
-
-  var name by Users.name
-  var settings by Settings referencedOn Users.settings
 }

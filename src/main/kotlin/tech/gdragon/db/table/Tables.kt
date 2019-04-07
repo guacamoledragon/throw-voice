@@ -2,7 +2,6 @@ package tech.gdragon.db.table
 
 import org.jetbrains.exposed.dao.IntIdTable
 import org.jetbrains.exposed.dao.LongIdTable
-import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.ReferenceOption
 import org.joda.time.DateTime
 import tech.gdragon.db.DateColumnType
@@ -38,15 +37,6 @@ object Tables {
     val settings = reference("settings", Settings, ReferenceOption.CASCADE)
   }
 
-  object Users : LongIdTable() {
-    val name = text("name")
-    val settings = reference("settings", Settings, ReferenceOption.CASCADE)
-
-    init {
-      index(true, name, settings)
-    }
-  }
-
   object Recordings : LongIdTable() {
     val channel = reference("channel", Channels)
     val size = long("size").default(0)
@@ -56,5 +46,5 @@ object Tables {
     val guild = reference("guild", Guilds, ReferenceOption.CASCADE)
   }
 
-  val allTables = arrayOf(Aliases, Channels, Guilds, Recordings, Settings, Users)
+  val allTables = arrayOf(Aliases, Channels, Guilds, Recordings, Settings)
 }
