@@ -1,5 +1,6 @@
 package tech.gdragon.db.table
 
+import net.dv8tion.jda.core.entities.Guild
 import org.jetbrains.exposed.dao.IntIdTable
 import org.jetbrains.exposed.dao.LongIdTable
 import org.jetbrains.exposed.sql.Column
@@ -40,11 +41,9 @@ object Tables {
 
   object Users : LongIdTable() {
     val name = text("name")
-    val settings = reference("settings", Settings, ReferenceOption.CASCADE)
-
-    init {
-      index(true, name, settings)
-    }
+    val votedOn = registerColumn<DateTime>("voted_on", DateColumnType(true)).nullable()
+    val supporter = text("supporter")
+    val activatedGuild = reference("activated_guild", Guilds)
   }
 
   object Recordings : LongIdTable() {
