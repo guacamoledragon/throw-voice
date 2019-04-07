@@ -30,7 +30,7 @@ class Record : CommandHandler {
 
           // We need to give something to the onError handler because sometimes life doesn't do what we want
           BotUtils.recordVoiceChannel(voiceChannel, defaultChannel) { ex ->
-            val errorMessage = ":no_entry_sign: _Cannot record on **<#${defaultChannel.id}>**, need permission:_ ```${ex.permission}```"
+            val errorMessage = ":no_entry_sign: _Cannot record on **<#${voiceChannel.id}>**, need permission:_ ```${ex.permission}```"
             BotUtils.sendMessage(defaultChannel, errorMessage)
           }
 

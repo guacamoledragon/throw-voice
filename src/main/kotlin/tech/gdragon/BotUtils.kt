@@ -124,14 +124,14 @@ object BotUtils {
     val audioManager = channel.guild.audioManager
 
     if (audioManager?.isConnected == true) {
-      logger.debug { "${channel.guild.name}#${channel.name} - Already connected to ${audioManager.connectedChannel.name}" }
+      logger.debug { "vc:${channel.name} - Already connected to ${audioManager.connectedChannel.name}" }
     } else {
 
       try {
         audioManager?.openAudioConnection(channel)
-        logger.info { "${channel.guild.name}#${channel.name} - Connected to voice channel" }
+        logger.info { "vc:${channel.name} - Connected to voice channel" }
       } catch (e: InsufficientPermissionException) {
-        logger.warn { "${channel.guild.name}#${channel.name} - Need permission: ${e.permission}" }
+        logger.warn { "vc:${channel.name} - Need permission: ${e.permission}" }
         onError(e)
         return
       }
