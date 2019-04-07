@@ -95,7 +95,6 @@ class Settings(id: EntityID<Long>) : LongEntity(id) {
   var volume by SettingsTable.volume
   var guild by Guild referencedOn SettingsTable.guild
 
-  val alertBlacklist by User referrersOn Users.settings
   val channels by Channel referrersOn Channels.settings
   val aliases by Alias referrersOn Aliases.settings
 }
