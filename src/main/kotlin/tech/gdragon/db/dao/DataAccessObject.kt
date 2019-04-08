@@ -66,6 +66,7 @@ class Guild(id: EntityID<Long>) : LongEntity(id) {
     }
   }
 
+  var active by Guilds.active
   val createdOn by Guilds.createdOn
   var name by Guilds.name
   var lastActiveOn by Guilds.lastActiveOn
