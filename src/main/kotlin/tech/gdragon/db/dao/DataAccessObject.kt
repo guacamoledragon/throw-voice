@@ -4,8 +4,6 @@ import org.jetbrains.exposed.dao.*
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.exposedLogger
 import org.jetbrains.exposed.sql.transactions.TransactionManager
-import org.jetbrains.exposed.sql.transactions.transaction
-import tech.gdragon.db.nowUTC
 import tech.gdragon.db.table.Tables.Aliases
 import tech.gdragon.db.table.Tables.Channels
 import tech.gdragon.db.table.Tables.Guilds
@@ -52,16 +50,6 @@ class Guild(id: EntityID<Long>) : LongEntity(id) {
         TransactionManager.current().commit()
 
         Settings.new { this.guild = guild }
-      }
-    }
-
-    // TODO: Remove region from the method signature
-    fun updateActivity(guildId: Long, region: String) {
-      transaction {
-        Guild.findById(guildId)?.let {
-          it.lastActiveOn = nowUTC()
-          it.region = region
-        }
       }
     }
   }
