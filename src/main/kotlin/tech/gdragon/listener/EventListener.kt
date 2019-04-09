@@ -20,6 +20,7 @@ import tech.gdragon.BotUtils
 import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.commands.handleCommand
 import tech.gdragon.db.dao.Guild
+import tech.gdragon.db.nowUTC
 import net.dv8tion.jda.core.entities.Guild as DiscordGuild
 
 class EventListener : ListenerAdapter(), KoinComponent {
@@ -29,66 +30,105 @@ class EventListener : ListenerAdapter(), KoinComponent {
 
   override fun onGuildUpdateRegion(event: GuildUpdateRegionEvent) {
     withLoggingContext("guild" to event.guild.name) {
-      transaction {
-        this@EventListener.logger.info {
-          "Changed region ${event.oldRegion} -> ${event.newRegion}"
+      event.run {
+        transaction {
+          Guild.findOrCreate(guild.idLong, guild.name, event.oldRegion.name)
+            .also {
+              it.region = newRegion.name
+            }
         }
-        event.guild.run {
-          val guild = Guild.findOrCreate(idLong, name, event.oldRegion.name)
-          guild.region = event.newRegion.name
+        logger.info {
+          "Changed region $oldRegion -> $newRegion"
         }
       }
     }
   }
 
   override fun onGuildJoin(event: GuildJoinEvent) {
-    val guild = event.guild
-    transaction {
-      Guild
-        .findOrCreate(guild.idLong, guild.name, guild.region.name)
+    withLoggingContext("guild" to event.guild.name) {
+      val guild = event.guild
+      transaction {
+        Guild
+          .findOrCreate(guild.idLong, guild.name, guild.region.name)
+          .also {
+            it.active = true
+            it.lastActiveOn = nowUTC()
+          }
+      }
+
+      logger.info { "Joined new server '${guild.name}', connected to ${event.jda.guilds.size} guilds." }
     }
-
-    Guild.updateActivity(guild.idLong, guild.region.name)
-
-    logger.info { "Joined new server '${guild.name}', connected to ${event.jda.guilds.size} guilds." }
   }
 
   override fun onGuildLeave(event: GuildLeaveEvent) {
-    /*transaction {
-      val guild = Guild.findById(event.guild.idLong)
-      guild?.delete()
-    }*/
+    withLoggingContext("guild" to event.guild.name) {
+      transaction {
+        Guild
+          .findById(event.guild.idLong)
+          ?.let {
+            it.active = false
+          }
+      }
 
-    logger.info { "Left server '${event.guild.name}', connected to ${event.jda.guilds.size} guilds." }
+      logger.info { "Left server '${event.guild.name}', connected to ${event.jda.guilds.size} guilds." }
+    }
   }
 
   override fun onGuildVoiceJoin(event: GuildVoiceJoinEvent) {
-    val user = event.member.user
-    logger.debug { "${event.guild.name}#${event.channelJoined.name} - ${user.name} joined voice channel" }
+    withLoggingContext("guild" to event.guild.name) {
+      val user = event.member.user
+      logger.debug { "${event.guild.name}#${event.channelJoined.name} - ${user.name} joined voice channel" }
 
-    if (BotUtils.isSelfBot(user)) {
-      logger.debug { "${event.guild.name}#${event.channelJoined.name} - ${user.name} is self-bot" }
-      return
+      if (BotUtils.isSelfBot(user)) {
+        logger.debug { "${event.guild.name}#${event.channelJoined.name} - ${user.name} is self-bot" }
+        return
+      }
+
+      // Update activity
+      transaction {
+        event.guild.run {
+          Guild
+            .findOrCreate(idLong, name, region.name)
+            .also {
+              it.lastActiveOn = nowUTC()
+            }
+        }
+      }
+
+      BotUtils.autoRecord(event.guild, event.channelJoined)
     }
-
-    BotUtils.autoRecord(event.guild, event.channelJoined)
   }
 
   override fun onGuildVoiceLeave(event: GuildVoiceLeaveEvent) {
-    logger.debug { "${event.guild.name}#${event.channelLeft.name} - ${event.member.effectiveName} left voice channel" }
-    if (BotUtils.isSelfBot(event.member.user).not()) {
-      BotUtils.autoStop(event.guild, event.channelLeft)
+    withLoggingContext("guild" to event.guild.name) {
+      logger.debug { "${event.guild.name}#${event.channelLeft.name} - ${event.member.effectiveName} left voice channel" }
+      if (BotUtils.isSelfBot(event.member.user).not()) {
+        BotUtils.autoStop(event.guild, event.channelLeft)
+      }
     }
   }
 
   override fun onGuildVoiceMove(event: GuildVoiceMoveEvent) {
-    val user = event.member.user
-    logger.debug { "${event.guild.name}#${event.channelLeft.name} - ${user.name} left voice channel" }
-    logger.debug { "${event.guild.name}#${event.channelJoined.name} - ${user.name} joined voice channel" }
+    withLoggingContext("guild" to event.guild.name) {
+      val user = event.member.user
+      logger.debug { "${event.guild.name}#${event.channelLeft.name} - ${user.name} left voice channel" }
+      logger.debug { "${event.guild.name}#${event.channelJoined.name} - ${user.name} joined voice channel" }
 
-    if (BotUtils.isSelfBot(user).not()) {
-      BotUtils.autoStop(event.guild, event.channelLeft)
-      BotUtils.autoRecord(event.guild, event.channelJoined)
+      // Update activity
+      transaction {
+        event.guild.run {
+          Guild
+            .findOrCreate(idLong, name, region.name)
+            .also {
+              it.lastActiveOn = nowUTC()
+            }
+        }
+      }
+
+      if (BotUtils.isSelfBot(user).not()) {
+        BotUtils.autoStop(event.guild, event.channelLeft)
+        BotUtils.autoRecord(event.guild, event.channelJoined)
+      }
     }
   }
 
@@ -102,6 +142,9 @@ class EventListener : ListenerAdapter(), KoinComponent {
       // HACK: Create settings for a guild that needs to be accessed. This is a problem when restarting bot.
       // TODO: On bot initialization, I should be able to check which Guilds the bot is connected to and purge/add respectively
       val guild = Guild.findById(guildId) ?: Guild.findOrCreate(guildId, event.guild.name, event.guild.region.name)
+
+      // Update activity
+      guild.lastActiveOn = nowUTC()
 
       guild.settings.prefix
     }
@@ -126,8 +169,6 @@ class EventListener : ListenerAdapter(), KoinComponent {
           }
       }
     }
-
-    Guild.updateActivity(event.guild.idLong, event.guild.region.name)
   }
 
   override fun onPrivateMessageReceived(event: PrivateMessageReceivedEvent) {
