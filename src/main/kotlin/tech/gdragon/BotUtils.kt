@@ -47,8 +47,6 @@ object BotUtils {
               val message = ":no_entry_sign: _Cannot record on **<#${channel.id}>**, need permission:_ ```${ex.permission}```"
               BotUtils.sendMessage(defaultChannel, message)
             }
-
-            Guild.updateActivity(guild.idLong, guild.region.name)
           }
         }
     }

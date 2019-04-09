@@ -12,12 +12,15 @@ import org.jetbrains.exposed.sql.not
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.joda.time.DateTime
+import org.koin.core.context.startKoin
+import org.koin.core.logger.Level
 import tech.gdragon.db.dao.Alias
 import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.initializeDatabase
 import tech.gdragon.db.table.Tables
 import tech.gdragon.db.table.Tables.Guilds
+import tech.gdragon.discord.discordBot
 import java.sql.Connection
 
 fun dropAllTables() {
@@ -114,6 +117,12 @@ fun removeUnusedGuilds() {
   }
 }
 
+fun initializeKoin() = startKoin {
+  printLogger(Level.INFO)
+  fileProperties("/defaults.properties")
+  environmentProperties()
+  modules(discordBot)
+}
 
 fun main(args: Array<String>) {
 //  testAlerts()

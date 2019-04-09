@@ -10,6 +10,7 @@ import java.math.BigDecimal
 
 object Tables {
   object Guilds : LongIdTable() {
+    val active = bool("active").default(true)
     val name = text("name")
     val region = text("region")
     val createdOn = registerColumn<DateTime>("created_on", DateColumnType(true)).clientDefault(::nowUTC)
