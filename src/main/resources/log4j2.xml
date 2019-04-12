@@ -9,9 +9,9 @@
     <Console name="Console">
       <PatternLayout pattern="${globalPattern}"/>
       <Filters>
-        <RegexFilter regex=".*Found an unexpected key.*" onMatch="DENY" onMismatch="ACCEPT"/>
+        <RegexFilter regex=".*Found an unexpected key.*" onMatch="DENY" onMismatch="NEUTRAL"/>
         <RegexFilter regex=".*There was some unexpected exception in the combinedAudioExecutor.*" onMatch="DENY"
-                     onMismatch="ACCEPT"/>
+                     onMismatch="NEUTRAL"/>
       </Filters>
     </Console>
   </Appenders>

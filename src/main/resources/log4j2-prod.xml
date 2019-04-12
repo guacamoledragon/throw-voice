@@ -17,16 +17,21 @@
       <language>kotlin</language>
       <PatternLayout pattern="${globalPattern}"/>
       <Filters>
-        <RegexFilter regex=".*Found an unexpected key.*" onMatch="DENY" onMismatch="ACCEPT"/>
+        <RegexFilter regex=".*Found an unexpected key.*" onMatch="DENY" onMismatch="NEUTRAL"/>
         <RegexFilter regex=".*There was some unexpected exception in the combinedAudioExecutor.*" onMatch="DENY"
-                     onMismatch="ACCEPT"/>
+                     onMismatch="NEUTRAL"/>
+        <RegexFilter regex=".*There was some random exception.*" onMatch="DENY" onMismatch="NEUTRAL"/>
       </Filters>
     </Rollbar>
     <Discord name="Discord">
       <webhookUrl>${env:DISCORD_WEBHOOK}</webhookUrl>
       <PatternLayout pattern="${globalPattern}"/>
-      <RegexFilter regex=".*There was some unexpected exception in the combinedAudioExecutor.*" onMatch="DENY"
-                   onMismatch="ACCEPT"/>
+      <Filters>
+        <RegexFilter regex=".*Found an unexpected key.*" onMatch="DENY" onMismatch="NEUTRAL"/>
+        <RegexFilter regex=".*There was some unexpected exception in the combinedAudioExecutor.*" onMatch="DENY"
+                     onMismatch="NEUTRAL"/>
+        <RegexFilter regex=".*There was some random exception.*" onMatch="DENY" onMismatch="NEUTRAL"/>
+      </Filters>
     </Discord>
   </Appenders>
   <Loggers>
