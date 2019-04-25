@@ -99,7 +99,7 @@
     <dependency>
       <groupId>io.github.microutils</groupId>
       <artifactId>kotlin-logging</artifactId>
-      <version>1.6.25</version>
+      <version>1.6.26</version>
     </dependency>
     <dependency>
       <groupId>org.xerial</groupId>
