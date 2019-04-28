@@ -28,8 +28,8 @@ class Volume : CommandHandler {
             val guild = Guild.findById(event.guild.idLong)
             guild?.settings?.let {
               it.volume = BigDecimal.valueOf(percentage)
-              "Volume set to $volume% for next recording!"
-            } ?: "Volume could not be set to $volume%."
+              ":loud_sound: _Recording at **$volume%** volume._"
+            } ?: ":no_entry_sign: _Could not set recording volume._"
           }
         } else {
           throw InvalidCommand(::usage, "Volume must be a number between 1-100: ${args.first()}")
