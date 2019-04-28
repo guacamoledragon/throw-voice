@@ -50,9 +50,9 @@ class AutoStop : CommandHandler {
           channels.forEach { updateChannelAutoStop(it, number) }
 
           if (number != null) {
-            "Will now automatically leave any voice channel with **$number** or less people."
+            ":vibration_mode::wave: _Will automatically leave any voice channel with **$number** or less people._"
           } else {
-            "Will no longer automatically stop recording any channel."
+            ":mobile_phone_off::wave: _Will not automatically stop recording any channel._"
           }
         } else {
           val channels = event.guild.getVoiceChannelsByName(channelName, true)
@@ -61,10 +61,12 @@ class AutoStop : CommandHandler {
             "Cannot find voice channel `$channelName`."
           } else {
             channels.forEach { updateChannelAutoStop(it, number) }
+            val voiceChannel = channels.first()
+
             if (number != null) {
-              "Will now automatically stop recording `$channelName` when there are **$number** or less people."
+              ":vibration_mode::wave: _Will automatically stop recording **<#${voiceChannel.id}>** when there are **$number** or less people._"
             } else {
-              "Will no longer automatically stop recording `$channelName`."
+              ":mobile_phone_off::wave: _Will no not automatically stop recording **<#${voiceChannel.id}>**._"
             }
           }
         }
