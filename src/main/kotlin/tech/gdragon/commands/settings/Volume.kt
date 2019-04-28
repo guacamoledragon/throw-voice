@@ -28,6 +28,7 @@ class Volume : CommandHandler {
             val guild = Guild.findById(event.guild.idLong)
             guild?.settings?.let {
               it.volume = BigDecimal.valueOf(percentage)
+              BotUtils.updateVolume(event.guild, percentage)
               ":loud_sound: _Recording at **$volume%** volume._"
             } ?: ":no_entry_sign: _Could not set recording volume._"
           }

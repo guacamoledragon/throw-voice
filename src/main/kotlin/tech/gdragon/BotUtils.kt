@@ -297,4 +297,15 @@ object BotUtils {
         sendMessage(it, msg)
       }*/
   }
+
+  /**
+   * Update audio manager's receive volume if present
+   */
+  fun updateVolume(guild: DiscordGuild, volume: Double) {
+    val handler =
+      guild.audioManager
+        ?.receiveHandler as CombinedAudioRecorderHandler?
+
+    handler?.volume = volume
+  }
 }
