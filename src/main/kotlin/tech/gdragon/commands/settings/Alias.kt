@@ -21,14 +21,14 @@ class Alias : CommandHandler {
 
     // Checks that command to alias exists
     if ("ALIAS" == command || Command.values().none { it.name == command }) {
-      BotUtils.sendMessage(defaultChannel, "Invalid command: `${command.toLowerCase()}`")
+      BotUtils.sendMessage(defaultChannel, ":no_entry_sign: _Invalid command: **`${command.toLowerCase()}`**_")
     } else {
       val aliases = transaction { Guild.findById(event.guild.idLong)?.settings?.aliases?.toList() }
       val alias = args[1]
 
       // Checks that alias doesn't already exist
       if (aliases?.any { it.name == alias } == true) {
-        BotUtils.sendMessage(defaultChannel, "Alias `$alias` already exists.")
+        BotUtils.sendMessage(defaultChannel, ":no_entry_sign: _Alias **`$alias`** already exists._")
       } else {
         transaction {
           Guild.findById(event.guild.idLong)?.settings?.let {
@@ -38,7 +38,7 @@ class Alias : CommandHandler {
               settings = it
             }
 
-            BotUtils.sendMessage(defaultChannel, "New alias `$alias` set for command `${command.toLowerCase()}`.")
+            BotUtils.sendMessage(defaultChannel, ":dancers: _New alias: **`$alias -> ${command.toLowerCase()}`**_")
           }
         }
       }
