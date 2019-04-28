@@ -55,7 +55,7 @@ class AutoRecord : CommandHandler {
           if (number != null) {
             ":vibration_mode::red_circle: _Will automatically record any voice channel with **$number** or more people._"
           } else {
-            ":mobile_phone_off::red_circle: _Will no longer automatically record any channel._"
+            ":mobile_phone_off::red_circle: _Will not automatically record any channel._"
           }
         } else {
           val channels = event.guild.getVoiceChannelsByName(channelName, true)
@@ -69,7 +69,7 @@ class AutoRecord : CommandHandler {
             if (number != null) {
               ":vibration_mode::red_circle: _Will automatically record on **<#${voiceChannel.id}>** when there are **$number** or more people._"
             } else {
-              ":mobile_phone_off::red_circle: _Will no longer automatically record **<#${voiceChannel.id}>**._"
+              ":mobile_phone_off::red_circle: _Will not automatically record **<#${voiceChannel.id}>**._"
             }
           }
         }

@@ -66,7 +66,7 @@ class AutoStop : CommandHandler {
             if (number != null) {
               ":vibration_mode::wave: _Will automatically stop recording **<#${voiceChannel.id}>** when there are **$number** or less people._"
             } else {
-              ":mobile_phone_off::wave: _Will no not automatically stop recording **<#${voiceChannel.id}>**._"
+              ":mobile_phone_off::wave: _Will not automatically stop recording **<#${voiceChannel.id}>**._"
             }
           }
         }
