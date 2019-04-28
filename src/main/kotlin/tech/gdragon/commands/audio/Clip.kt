@@ -15,7 +15,7 @@ class Clip : CommandHandler {
     val defaultChannel = BotUtils.defaultTextChannel(event.guild) ?: event.channel
     val message =
       if (event.guild.audioManager.connectedChannel == null) {
-        "I wasn't recording!"
+        ":no_entry_sign: _I am not currently recording._"
       } else {
         val voiceChannel = event.guild.audioManager.connectedChannel
         val audioReceiveHandler = event.guild.audioManager.receiveHandler as CombinedAudioRecorderHandler
@@ -31,9 +31,9 @@ class Clip : CommandHandler {
             val channels = event.guild.getTextChannelsByName(channelName, true)
 
             if (channels.isEmpty()) {
-              "Cannot find $channelName."
+              ":no_entry_sign: _Cannot find $channelName._"
             } else {
-              channels.forEach { audioReceiveHandler.saveClip(seconds, voiceChannel, defaultChannel) }
+              channels.forEach { audioReceiveHandler.saveClip(seconds, voiceChannel, it) }
               ""
             }
           }
