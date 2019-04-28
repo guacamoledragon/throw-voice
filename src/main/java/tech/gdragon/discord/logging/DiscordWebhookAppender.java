@@ -26,7 +26,7 @@ public class DiscordWebhookAppender extends AbstractAppender {
   private OkHttpClient client;
 
   protected DiscordWebhookAppender(String name, Filter filter, Layout<? extends Serializable> layout, boolean ignoreExceptions, String webhookUrl) {
-    super(name, filter, layout, ignoreExceptions);
+    super(name, filter, layout, ignoreExceptions, null);
     this.webhookUrl = webhookUrl;
     this.client = new OkHttpClient();
   }

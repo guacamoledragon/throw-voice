@@ -10,7 +10,6 @@ this bot, it can be self-hosted without any issues in one of the following ways.
 - [Pre-Requisites](#pre-requisites)
   - [Local (or VPS)](#local-or-vps)
   - [Docker](#docker)
-  - [Heroku Button](#heroku-button)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -27,7 +26,7 @@ this bot, it can be self-hosted without any issues in one of the following ways.
 ## Local (or VPS)
 
 These instructions are for those who want to run the bot either on their computer or on a server, for this you'll need to
-have [install Java 9 JRE](http://www.oracle.com/technetwork/java/javase/downloads/index.html).
+have [install Java 9+ JRE](http://www.oracle.com/technetwork/java/javase/downloads/index.html).
 
 - Download the [latest release](https://github.com/guacamoledragon/throw-voice/releases) of the bot and extract it,
   you're looking for `throw-voice-<version>-release.zip`.
@@ -57,19 +56,3 @@ This repo also contains a [`docker-compose.yml`](../docker-compose.yml) that can
 for my deployment purposes.
 
 See the [Docker Hub](https://hub.docker.com/r/gdragon/throw-voice/) registry for more details on the container.
-
-## Heroku Button
-
-_Currently not working, see [#17](https://github.com/guacamoledragon/throw-voice/issues/17)_
-
-You can deploy on Heroku by clicking on the button below and entering the `CLIENT_ID` and `BOT_TOKEN`.
-
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
-
-If using the Hobby tier on Heroku, one big caveat is that the Heroku Dyno will sleep after 30 minutes
-of inactivity. This will also make your bot go to sleep and will not respond to any of your commands.
-To make waking up a bit easier, I've added an endpoint `/ping` that should respond with `pong` when the
-Dyno wakes up.
-
-Simply, visit `https://<heroku-app-name>.herokuapp.com/ping` to wake the bot before you start issuing
-commands.
