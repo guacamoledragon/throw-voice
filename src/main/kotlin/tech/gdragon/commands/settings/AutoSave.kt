@@ -23,10 +23,10 @@ class AutoSave : CommandHandler {
           it.autoSave = !it.autoSave
 
           if (it.autoSave)
-            "Now saving at the end of each session!"
+            ":vibration_mode::floppy_disk: _Automatically saving at the end of each session._"
           else
-            "No longer saving at the end of each session!"
-        } ?: "Could not toggle autosave option."
+            ":mobile_phone_off::floppy_disk: _Not saving at the end of each session._"
+        } ?: ":no_entry_sign: _Could not toggle autosave option._"
 
       BotUtils.sendMessage(defaultChannel, message)
     }
