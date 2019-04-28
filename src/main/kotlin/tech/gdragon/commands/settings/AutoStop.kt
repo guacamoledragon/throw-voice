@@ -10,8 +10,6 @@ import tech.gdragon.db.dao.Guild
 import net.dv8tion.jda.core.entities.Channel as DiscordChannel
 
 class AutoStop : CommandHandler {
-  private val warningMessage = "\n\n:warning: _`autostop` is still a very new feature, so if you encounter any issues please " +
-    "report in the support server.\n**REMEMBER**: `autostop` does not imply `autosave`!_"
 
   private fun updateChannelAutoStop(channel: DiscordChannel, autoStop: Int?) {
     transaction {
@@ -76,7 +74,7 @@ class AutoStop : CommandHandler {
         throw InvalidCommand(::usage, "Number must be positive: ${e.message}")
       }
 
-    BotUtils.sendMessage(event.channel, message + warningMessage)
+    BotUtils.sendMessage(event.channel, message)
   }
 
   override fun usage(prefix: String): String = "${prefix}autostop [Voice Channel name | 'all'] [number | 'off']"
