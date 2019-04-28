@@ -31,9 +31,10 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
 
-class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceChannel, val defaultChannel: TextChannel) : AudioReceiveHandler, KoinComponent {
+class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceChannel, val defaultChannel: TextChannel) : AudioReceiveHandler, KoinComponent {
   companion object {
-    private const val AFK_LIMIT = (2 * 60 * 1000) / 20                      // 2 minutes in ms over 20ms increments
+    private const val AFK_MINUTES = 2
+    private const val AFK_LIMIT = (AFK_MINUTES * 60 * 1000) / 20                      // 2 minutes in ms over 20ms increments
     private const val MAX_RECORDING_MB = 110
     private const val MAX_RECORDING_SIZE = MAX_RECORDING_MB * 1024 * 1024   // 8MB
     private const val BUFFER_TIMEOUT = 200L                                 // 200 milliseconds
@@ -77,7 +78,7 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
     if (isAfk) {
       logger.info("{}#{}: AFK detected.", voiceChannel.guild.name, voiceChannel.name)
 
-      BotUtils.sendMessage(defaultChannel, "_:sleeping: No audio detected in the last 2 minutes, leaving <#${voiceChannel.id}>._")
+      BotUtils.sendMessage(defaultChannel, ":sleeping: _No audio detected in the last **$AFK_MINUTES** minutes, leaving **<#${voiceChannel.id}>**._")
 
       thread(start = true) {
         BotUtils.leaveVoiceChannel(voiceChannel, defaultChannel)
@@ -238,7 +239,7 @@ class CombinedAudioRecorderHandler(val volume: Double, val voiceChannel: VoiceCh
 
     } else {
       val recordingSize = FileUtils.byteCountToDisplaySize(recording.length())
-      BotUtils.sendMessage(channel, "Could not upload, file too large: $recordingSize.")
+      BotUtils.sendMessage(channel, ":no_entry_sign: _Could not upload, file too large: **$recordingSize**._")
     }
   }
 

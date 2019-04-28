@@ -53,22 +53,23 @@ class AutoRecord : CommandHandler {
           channels.forEach { updateChannelAutoJoin(it, number) }
 
           if (number != null) {
-            "Will now automatically record on any voice channel with $number or more people."
+            ":vibration_mode::red_circle: _Will automatically record any voice channel with **$number** or more people._"
           } else {
-            "Will no longer automatically record any channel."
+            ":mobile_phone_off::red_circle: _Will not automatically record any channel._"
           }
         } else {
           val channels = event.guild.getVoiceChannelsByName(channelName, true)
 
           if (channels.isEmpty()) {
-            "Cannot find voice channel $channelName."
+            ":no_entry_sign: _Cannot find voice channel **#$channelName**._"
           } else {
             channels.forEach { updateChannelAutoJoin(it, number) }
+            val voiceChannel = channels.first()
 
             if (number != null) {
-              "Will now automatically record on '$channelName' when there are $number or more people."
+              ":vibration_mode::red_circle: _Will automatically record on **<#${voiceChannel.id}>** when there are **$number** or more people._"
             } else {
-              "Will no longer automatically record '$channelName'."
+              ":mobile_phone_off::red_circle: _Will not automatically record **<#${voiceChannel.id}>**._"
             }
           }
         }

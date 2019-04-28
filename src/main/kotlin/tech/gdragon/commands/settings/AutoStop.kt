@@ -10,8 +10,6 @@ import tech.gdragon.db.dao.Guild
 import net.dv8tion.jda.core.entities.Channel as DiscordChannel
 
 class AutoStop : CommandHandler {
-  private val warningMessage = "\n\n:warning: _`autostop` is still a very new feature, so if you encounter any issues please " +
-    "report in the support server.\n**REMEMBER**: `autostop` does not imply `autosave`!_"
 
   private fun updateChannelAutoStop(channel: DiscordChannel, autoStop: Int?) {
     transaction {
@@ -52,9 +50,9 @@ class AutoStop : CommandHandler {
           channels.forEach { updateChannelAutoStop(it, number) }
 
           if (number != null) {
-            "Will now automatically leave any voice channel with **$number** or less people."
+            ":vibration_mode::wave: _Will automatically leave any voice channel with **$number** or less people._"
           } else {
-            "Will no longer automatically stop recording any channel."
+            ":mobile_phone_off::wave: _Will not automatically stop recording any channel._"
           }
         } else {
           val channels = event.guild.getVoiceChannelsByName(channelName, true)
@@ -63,10 +61,12 @@ class AutoStop : CommandHandler {
             "Cannot find voice channel `$channelName`."
           } else {
             channels.forEach { updateChannelAutoStop(it, number) }
+            val voiceChannel = channels.first()
+
             if (number != null) {
-              "Will now automatically stop recording `$channelName` when there are **$number** or less people."
+              ":vibration_mode::wave: _Will automatically stop recording **<#${voiceChannel.id}>** when there are **$number** or less people._"
             } else {
-              "Will no longer automatically stop recording `$channelName`."
+              ":mobile_phone_off::wave: _Will not automatically stop recording **<#${voiceChannel.id}>**._"
             }
           }
         }
@@ -76,7 +76,7 @@ class AutoStop : CommandHandler {
         throw InvalidCommand(::usage, "Number must be positive: ${e.message}")
       }
 
-    BotUtils.sendMessage(event.channel, message + warningMessage)
+    BotUtils.sendMessage(event.channel, message)
   }
 
   override fun usage(prefix: String): String = "${prefix}autostop [Voice Channel name | 'all'] [number | 'off']"

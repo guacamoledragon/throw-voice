@@ -21,8 +21,8 @@ class Prefix : CommandHandler {
       val message =
         guild?.settings?.let {
           it.prefix = newPrefix
-          "Command prefix now set to ${it.prefix}."
-        } ?: "Could not set to prefix $newPrefix."
+          ":twisted_rightwards_arrows: _Command prefix now set to **`${it.prefix}`**._"
+        } ?: ":no_entry_sign: _Could not set to prefix **`$newPrefix`**._"
 
       BotUtils.sendMessage(defaultChannel, message)
     }
