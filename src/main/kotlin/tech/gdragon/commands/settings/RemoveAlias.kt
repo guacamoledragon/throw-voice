@@ -19,13 +19,22 @@ class RemoveAlias : CommandHandler {
       val alias = args.first().toLowerCase()
 
       guild?.settings?.let { settings ->
-        settings.aliases.find { it.alias == alias }?.delete()
-        BotUtils.sendMessage(defaultChannel, "Alias '$alias' has been removed.")
+        val targetAlias = settings.aliases.find { it.alias == alias }
+
+        val message =
+          if (targetAlias == null) {
+            ":no_entry_sign: _Alias **`$alias`** does not exist._"
+          } else {
+            targetAlias.delete()
+            ":dancer: _Alias **`$alias`** has been removed._"
+          }
+
+        BotUtils.sendMessage(defaultChannel, message)
       }
     }
   }
 
   override fun usage(prefix: String): String = "${prefix}removeAlias [alias name]"
 
-  override fun description(): String = "Removes an alias from a command."
+  override fun description(): String = "Removes an alias for a command."
 }
