@@ -203,7 +203,7 @@ class EventListener : ListenerAdapter(), KoinComponent {
     val version: String = getKoin().getProperty("VERSION", "dev")
     event
       .jda
-      .presence.game = object : Game("$version | $website", website, Game.GameType.DEFAULT) {}
+      .presence.game = object : Game("$version | $website", website, GameType.DEFAULT) {}
 
     logger.info { "ONLINE: Connected to ${event.jda.guilds.size} guilds!" }
 
@@ -212,7 +212,7 @@ class EventListener : ListenerAdapter(), KoinComponent {
     logger.info { "Add any missing Guilds to the Database..." }
     event.jda.guilds.forEach {
       transaction {
-        tech.gdragon.db.dao.Guild.findOrCreate(it.idLong, it.name, it.region.name)
+        Guild.findOrCreate(it.idLong, it.name, it.region.name)
       }
     }
   }

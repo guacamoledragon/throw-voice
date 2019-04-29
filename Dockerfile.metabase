@@ -1,6 +1,6 @@
 FROM openjdk:8-jre-slim
 
-ENV VERSION 0.32.1
+ENV VERSION 0.32.5
 
 WORKDIR /app
 

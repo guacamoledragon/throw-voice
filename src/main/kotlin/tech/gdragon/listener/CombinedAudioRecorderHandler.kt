@@ -7,6 +7,7 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import mu.KotlinLogging
+import mu.withLoggingContext
 import net.dv8tion.jda.core.audio.AudioReceiveHandler
 import net.dv8tion.jda.core.audio.CombinedAudio
 import net.dv8tion.jda.core.audio.UserAudio
@@ -24,12 +25,12 @@ import tech.gdragon.db.dao.Recording
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
+import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
 import java.util.*
 import java.util.concurrent.TimeUnit
-import kotlin.concurrent.thread
 
 class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceChannel, val defaultChannel: TextChannel) : AudioReceiveHandler, KoinComponent {
   companion object {
@@ -79,10 +80,7 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
       logger.info("{}#{}: AFK detected.", voiceChannel.guild.name, voiceChannel.name)
 
       BotUtils.sendMessage(defaultChannel, ":sleeping: _No audio detected in the last **$AFK_MINUTES** minutes, leaving **<#${voiceChannel.id}>**._")
-
-      thread(start = true) {
-        BotUtils.leaveVoiceChannel(voiceChannel, defaultChannel)
-      }
+      BotUtils.leaveVoiceChannel(voiceChannel, defaultChannel)
     }
 
     return isAfk
@@ -100,7 +98,7 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
 
     subject = PublishSubject.create()
     uuid = UUID.randomUUID()
-    val filenameExtension = if(pcmMode) "pcm" else "mp3"
+    val filenameExtension = if (pcmMode) "pcm" else "mp3"
     filename = "$dataDirectory/recordings/$uuid.$filenameExtension"
     queueFilename = "$dataDirectory/recordings/$uuid.queue"
     queueFile = QueueFile(File(queueFilename))
@@ -138,7 +136,12 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
       }
       ?.subscribe { _, e ->
         e?.let {
-          logger.error("An error occurred in the recording pipeline: ${it.message}", it)
+          withLoggingContext("guild" to voiceChannel.guild.name, "voice-channel" to voiceChannel.name) {
+            when (e) {
+              is IOException -> logger.warn(it) { "Error with queue file: $queueFilename" }
+              else -> logger.error(it) { "An error occurred in the recording pipeline" }
+            }
+          }
         }
       }
   }
@@ -155,9 +158,17 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
           stream.transferTo(it)
         }
 
-        clear()
-        close()
-        File(queueFilename).delete()
+        try {
+          // TODO: Why clear file? It's gonna get deleted anyway
+          clear()
+        } catch (e: IOException) {
+          logger.warn(e) {
+            "Issue clearing queue file: $queueFilename"
+          }
+        } finally {
+          close()
+          File(queueFilename).delete()
+        }
       }
     }
 
@@ -187,7 +198,7 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
     canReceive = true
 
     val queueFile = QueueFile(clipPath.toFile())
-    val filenameExtension = if(pcmMode) "pcm" else "mp3"
+    val filenameExtension = if (pcmMode) "pcm" else "mp3"
     val recording = File(clipPath.toString().replace("queue", filenameExtension))
     var clipRecordingSize = recordingSize.toLong()
 
@@ -256,9 +267,17 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
 
     subscription?.dispose()
     queueFile?.apply {
-      clear()
-      close()
-      File(queueFilename).delete()
+      try {
+        // TODO: Why clear file? It's gonna get deleted anyway
+        clear()
+      } catch (e: IOException) {
+        logger.warn(e) {
+          "Issue clearing queue file: $queueFilename"
+        }
+      } finally {
+        close()
+        File(queueFilename).delete()
+      }
     }
 
     transaction {
