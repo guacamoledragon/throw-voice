@@ -4,7 +4,6 @@ import mu.KotlinLogging
 import net.dv8tion.jda.core.JDA
 import net.dv8tion.jda.core.entities.*
 import net.dv8tion.jda.core.exceptions.InsufficientPermissionException
-import net.dv8tion.jda.core.exceptions.RateLimitedException
 import org.jetbrains.exposed.sql.Between
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.SqlExpressionBuilder
@@ -232,14 +231,14 @@ object BotUtils {
       try {
         bot.guild.controller
           .setNickname(bot, newNick)
-          .complete(true)
+          .queue(null, { t ->
+            logger.error(t) {
+              "Could not change nickname: $prevNick -> $newNick"
+            }
+          })
       } catch (e: InsufficientPermissionException) {
-        logger.warn {
+        logger.warn(e) {
           "Missing ${e.permission} permission to change $prevNick -> $newNick"
-        }
-      } catch (e: RateLimitedException) {
-        logger.error(e) {
-          "Could not change nickname: $prevNick -> $newNick"
         }
       }
     }
