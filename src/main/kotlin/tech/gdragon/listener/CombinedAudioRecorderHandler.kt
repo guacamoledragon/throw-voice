@@ -158,9 +158,17 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
           stream.transferTo(it)
         }
 
-        clear()
-        close()
-        File(queueFilename).delete()
+        try {
+          // TODO: Why clear file? It's gonna get deleted anyway
+          clear()
+        } catch (e: IOException) {
+          logger.warn(e) {
+            "Issue clearing queue file: $queueFilename"
+          }
+        } finally {
+          close()
+          File(queueFilename).delete()
+        }
       }
     }
 
