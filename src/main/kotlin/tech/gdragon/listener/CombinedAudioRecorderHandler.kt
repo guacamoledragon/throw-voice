@@ -79,10 +79,7 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
       logger.info("{}#{}: AFK detected.", voiceChannel.guild.name, voiceChannel.name)
 
       BotUtils.sendMessage(defaultChannel, ":sleeping: _No audio detected in the last **$AFK_MINUTES** minutes, leaving **<#${voiceChannel.id}>**._")
-
-      thread(start = true) {
-        BotUtils.leaveVoiceChannel(voiceChannel, defaultChannel)
-      }
+      BotUtils.leaveVoiceChannel(voiceChannel, defaultChannel)
     }
 
     return isAfk
