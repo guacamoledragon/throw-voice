@@ -1,6 +1,7 @@
 package tech.gdragon
 
 import mu.KotlinLogging
+import mu.withLoggingContext
 import net.dv8tion.jda.core.JDA
 import net.dv8tion.jda.core.entities.*
 import net.dv8tion.jda.core.exceptions.InsufficientPermissionException
@@ -42,9 +43,17 @@ object BotUtils {
           if (autoRecord != null && channelMemberCount >= autoRecord) {
             val defaultChannel = defaultTextChannel(guild) ?: findPublicChannel(guild)
 
-            recordVoiceChannel(channel, defaultChannel) { ex ->
-              val message = ":no_entry_sign: _Cannot record on **<#${channel.id}>**, need permission:_ ```${ex.permission}```"
-              BotUtils.sendMessage(defaultChannel, message)
+            withLoggingContext("guild" to guild.name, "voice-channel" to channel.name) {
+              try {
+                recordVoiceChannel(channel, defaultChannel) { ex ->
+                  val message = ":no_entry_sign: _Cannot record on **<#${channel.id}>**, need permission:_ ```${ex.permission}```"
+                  sendMessage(defaultChannel, message)
+                }
+              } catch (e: IllegalArgumentException) {
+                BotUtils.logger.error(e) {
+                  e.message
+                }
+              }
             }
           }
         }
@@ -287,14 +296,7 @@ object BotUtils {
   fun findPublicChannel(guild: DiscordGuild): TextChannel? {
     return guild
       .textChannels
-      .find(TextChannel::canTalk)/*
-      ?.also {
-        val msg = """
-                  :warning: _The save location hasn't been set, please use `<prefix>saveLocation` to set.
-                  This channel will be used in the meantime._
-                  """.trimIndent()
-        sendMessage(it, msg)
-      }*/
+      .find(TextChannel::canTalk)
   }
 
   /**
