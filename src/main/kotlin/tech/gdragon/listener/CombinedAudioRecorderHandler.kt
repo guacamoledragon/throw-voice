@@ -7,6 +7,7 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import mu.KotlinLogging
+import mu.withLoggingContext
 import net.dv8tion.jda.core.audio.AudioReceiveHandler
 import net.dv8tion.jda.core.audio.CombinedAudio
 import net.dv8tion.jda.core.audio.UserAudio
@@ -135,7 +136,12 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
       }
       ?.subscribe { _, e ->
         e?.let {
-          logger.error("An error occurred in the recording pipeline: ${it.message}", it)
+          withLoggingContext("guild" to voiceChannel.guild.name, "voice-channel" to voiceChannel.name) {
+            when (e) {
+              is IOException -> logger.warn(it) { "Error with queue file: $queueFilename" }
+              else -> logger.error(it) { "An error occurred in the recording pipeline" }
+            }
+          }
         }
       }
   }
