@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+
+cp $PWD/data/settings.db $PWD/data/settings-$(date +%Y-%m-%dT%H:%M%::z).db
+
 docker run \
     --rm \
     -v $PWD/sql:/flyway/sql \
