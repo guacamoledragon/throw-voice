@@ -3,6 +3,7 @@ package tech.gdragon
 import mu.KotlinLogging
 import mu.withLoggingContext
 import net.dv8tion.jda.core.JDA
+import net.dv8tion.jda.core.MessageBuilder
 import net.dv8tion.jda.core.entities.*
 import net.dv8tion.jda.core.exceptions.InsufficientPermissionException
 import org.jetbrains.exposed.sql.Between
@@ -16,6 +17,7 @@ import tech.gdragon.db.dateTimeLiteral
 import tech.gdragon.db.table.Tables
 import tech.gdragon.listener.CombinedAudioRecorderHandler
 import tech.gdragon.listener.SilenceAudioSendHandler
+import java.io.File
 import java.util.*
 import kotlin.concurrent.schedule
 import net.dv8tion.jda.core.entities.Guild as DiscordGuild
@@ -308,5 +310,15 @@ object BotUtils {
         ?.receiveHandler as CombinedAudioRecorderHandler?
 
     handler?.volume = volume
+  }
+
+  fun uploadFile(textChannel: TextChannel, file: File) {
+    val message = MessageBuilder()
+      .append(":arrow_up: **Upload complete!**")
+      .build()
+
+    textChannel
+      .sendFile(file, message)
+      .queue()
   }
 }
