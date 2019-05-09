@@ -319,6 +319,6 @@ object BotUtils {
 
     textChannel
       .sendFile(file, message)
-      .queue()
+      .complete()
   }
 }
