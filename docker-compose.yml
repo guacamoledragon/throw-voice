@@ -46,7 +46,7 @@ services:
     logging:
       <<: *logging
   datastore:
-    image: minio/minio:RELEASE.2019-04-23T23-50-36Z
+    image: minio/minio:RELEASE.RELEASE.2019-05-02T19-07-09Z
     command: -c "MINIO_SECRET_KEY=$$DS_SECRET_KEY MINIO_ACCESS_KEY=$$DS_ACCESS_KEY minio gateway b2"
     entrypoint: sh
     env_file:

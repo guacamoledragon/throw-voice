@@ -37,7 +37,8 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
     private const val AFK_MINUTES = 2
     private const val AFK_LIMIT = (AFK_MINUTES * 60 * 1000) / 20                      // 2 minutes in ms over 20ms increments
     private const val MAX_RECORDING_MB = 110
-    private const val MAX_RECORDING_SIZE = MAX_RECORDING_MB * 1024 * 1024   // 8MB
+    private const val MAX_RECORDING_SIZE = MAX_RECORDING_MB * 1024 * 1024   // 110MB
+    private const val DISCORD_MAX_RECORDING_SIZE = 8 * 1024 * 1024          // 8MB
     private const val BUFFER_TIMEOUT = 200L                                 // 200 milliseconds
     private const val BUFFER_MAX_COUNT = 8
     private const val BITRATE = 128                                         // 128 kbps
@@ -226,6 +227,10 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
   }
 
   private fun uploadRecording(recording: File, voiceChannel: VoiceChannel?, channel: TextChannel) {
+    if (recording.length() < DISCORD_MAX_RECORDING_SIZE) {
+      BotUtils.uploadFile(channel, recording)
+    }
+
     if (recording.length() < MAX_RECORDING_SIZE) {
       val recordingKey = "/${channel.guild?.id}/${recording.name}"
       val result = datastore.upload(recordingKey, recording)
