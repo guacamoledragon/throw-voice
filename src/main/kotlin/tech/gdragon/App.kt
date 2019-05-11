@@ -17,7 +17,7 @@ import kotlin.concurrent.scheduleAtFixedRate
 
 val logger = KotlinLogging.logger { }
 
-fun main(args: Array<String>) {
+fun main() {
   val app = startKoin {
     printLogger(Level.INFO)
     fileProperties("/defaults.properties")
