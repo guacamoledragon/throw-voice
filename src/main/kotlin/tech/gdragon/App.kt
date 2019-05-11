@@ -34,7 +34,13 @@ fun main(args: Array<String>) {
     .scheduleAtFixedRate(0L, Duration.ofDays(1L).toMillis()) {
       val jda = app.koin.get<Bot>().api
       val afterDays = app.koin.getProperty("BOT_LEAVE_GUILD_AFTER", 30)
-      BotUtils.leaveAncientGuilds(jda, afterDays)
+
+      if(afterDays <= 0) {
+        logger.info { "Disabling remove-old-guilds Timer." }
+        this.cancel()
+      } else {
+        BotUtils.leaveAncientGuilds(jda, afterDays)
+      }
     }
 
   HttpServer()
