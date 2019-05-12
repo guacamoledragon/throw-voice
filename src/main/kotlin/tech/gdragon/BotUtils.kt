@@ -6,15 +6,15 @@ import net.dv8tion.jda.core.JDA
 import net.dv8tion.jda.core.MessageBuilder
 import net.dv8tion.jda.core.entities.*
 import net.dv8tion.jda.core.exceptions.InsufficientPermissionException
-import org.jetbrains.exposed.sql.Between
+import org.jetbrains.exposed.dao.EntityID
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.SqlExpressionBuilder
-import org.jetbrains.exposed.sql.not
+import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.joda.time.DateTime
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.dateTimeLiteral
-import tech.gdragon.db.table.Tables
+import tech.gdragon.db.table.Tables.Guilds
 import tech.gdragon.listener.CombinedAudioRecorderHandler
 import tech.gdragon.listener.SilenceAudioSendHandler
 import java.io.File
@@ -266,25 +266,40 @@ object BotUtils {
    * In the past, I've been deleting the Guild from the database, but that makes things annoying when you rejoin.
    * For now, we'll just be leaving a Guild, but keeping the settings.
    */
-  fun leaveAncientGuilds(jda: JDA, afterDays: Int) {
+  fun leaveAncientGuilds(jda: JDA, afterDays: Int, whitelist: Array<Long>) {
     logger.info { "Leaving all Guilds that haven't been active in the past $afterDays days." }
     val op: SqlExpressionBuilder.() -> Op<Boolean> = {
       val now = DateTime.now()
-      not(Between(Tables.Guilds.lastActiveOn, dateTimeLiteral(now.minusDays(afterDays)), dateTimeLiteral(now)))
+      val from = now.minusDays(afterDays)
+      val inactiveGuildOp = Guilds.active.eq(true).and(Guilds.lastActiveOn.less(from))
+
+      if (whitelist.isNotEmpty()) {
+        val whitelistEntityIDs = whitelist.map { EntityID(it, Guilds) }
+        inactiveGuildOp.and(Guilds.id.notInList(whitelistEntityIDs))
+      } else {
+        inactiveGuildOp
+      }
     }
 
-    // Find all ancient guilds and ask the Bot to leave them
+    // Find all ancient guilds and ask the Bot to leave them, or mark them as inactive if already gone
     transaction {
-      Guild.find(op).toList()
-    }.forEach {
-      val guild = jda.getGuildById(it.id.value)
-      guild
-        ?.leave()
-        ?.queue({
-          logger.info { "Left server '$guild', reached inactivity period." }
-        }, { e ->
-          logger.error(e) { "Could not leave server '$guild'!" }
-        })
+      val guilds = Guild.find(op).toList()
+
+      guilds
+        .forEach {
+          val guild = jda.getGuildById(it.id.value)
+          guild
+            ?.leave()
+            ?.queue({
+              BotUtils.logger.info { "Left server '$guild', reached inactivity period." }
+            }, { e ->
+              BotUtils.logger.error(e) { "Could not leave server '$guild'!" }
+            })
+            ?: BotUtils.logger.warn {
+              it.active = false
+              "No longer in this guild ${it.name}, but marking as inactive"
+            }
+        }
     }
 
     // Delete all ancient guilds using the same query as above
