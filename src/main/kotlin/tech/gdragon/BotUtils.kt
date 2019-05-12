@@ -261,15 +261,16 @@ object BotUtils {
   fun voiceChannelSize(voiceChannel: VoiceChannel?): Int = voiceChannel?.members?.count() ?: 0
 
   /**
-   * Leaves any Guild that hasn't been active in the past 30 days.
+   * Leaves any Guild that hasn't been active in the past `afterDays` days.
    *
    * In the past, I've been deleting the Guild from the database, but that makes things annoying when you rejoin.
    * For now, we'll just be leaving a Guild, but keeping the settings.
    */
-  fun leaveAncientGuilds(jda: JDA) {
+  fun leaveAncientGuilds(jda: JDA, afterDays: Int) {
+    logger.info { "Leaving all Guilds that haven't been active in the past $afterDays days." }
     val op: SqlExpressionBuilder.() -> Op<Boolean> = {
       val now = DateTime.now()
-      not(Between(Tables.Guilds.lastActiveOn, dateTimeLiteral(now.minusDays(30)), dateTimeLiteral(now)))
+      not(Between(Tables.Guilds.lastActiveOn, dateTimeLiteral(now.minusDays(afterDays)), dateTimeLiteral(now)))
     }
 
     // Find all ancient guilds and ask the Bot to leave them

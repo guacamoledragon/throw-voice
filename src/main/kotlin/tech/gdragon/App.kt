@@ -17,7 +17,7 @@ import kotlin.concurrent.scheduleAtFixedRate
 
 val logger = KotlinLogging.logger { }
 
-fun main(args: Array<String>) {
+fun main() {
   val app = startKoin {
     printLogger(Level.INFO)
     fileProperties("/defaults.properties")
@@ -32,7 +32,15 @@ fun main(args: Array<String>) {
   logger.info("Starting background process to remove unused Guilds.")
   Timer("remove-old-guilds", true)
     .scheduleAtFixedRate(0L, Duration.ofDays(1L).toMillis()) {
-      BotUtils.leaveAncientGuilds(app.koin.get<Bot>().api)
+      val jda = app.koin.get<Bot>().api
+      val afterDays = app.koin.getProperty("BOT_LEAVE_GUILD_AFTER", 30)
+
+      if(afterDays <= 0) {
+        logger.info { "Disabling remove-old-guilds Timer." }
+        this.cancel()
+      } else {
+        BotUtils.leaveAncientGuilds(jda, afterDays)
+      }
     }
 
   HttpServer()
