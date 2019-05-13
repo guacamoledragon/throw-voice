@@ -7,6 +7,7 @@ import net.dv8tion.jda.core.events.ReadyEvent
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent
 import net.dv8tion.jda.core.events.guild.GuildLeaveEvent
 import net.dv8tion.jda.core.events.guild.member.GuildMemberNickChangeEvent
+import net.dv8tion.jda.core.events.guild.update.GuildUpdateNameEvent
 import net.dv8tion.jda.core.events.guild.update.GuildUpdateRegionEvent
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceJoinEvent
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent
@@ -27,22 +28,6 @@ class EventListener : ListenerAdapter(), KoinComponent {
 
   private val logger = KotlinLogging.logger {}
   val website: String = getKoin().getProperty("WEBSITE", "http://localhost:8080/")
-
-  override fun onGuildUpdateRegion(event: GuildUpdateRegionEvent) {
-    withLoggingContext("guild" to event.guild.name) {
-      event.run {
-        transaction {
-          Guild.findOrCreate(guild.idLong, guild.name, event.oldRegion.name)
-            .also {
-              it.region = newRegion.name
-            }
-        }
-        logger.info {
-          "Changed region $oldRegion -> $newRegion"
-        }
-      }
-    }
-  }
 
   override fun onGuildJoin(event: GuildJoinEvent) {
     withLoggingContext("guild" to event.guild.name) {
@@ -71,6 +56,38 @@ class EventListener : ListenerAdapter(), KoinComponent {
       }
 
       logger.info { "Left server '${event.guild.name}', connected to ${event.jda.guilds.size} guilds." }
+    }
+  }
+
+  override fun onGuildUpdateName(event: GuildUpdateNameEvent) {
+    withLoggingContext("guild" to event.guild.name) {
+      event.run {
+        transaction {
+          Guild.findById(guild.idLong)
+            .also {
+              it?.name = newName
+            }
+        }
+        logger.info {
+          "Changed region $oldName -> $newName"
+        }
+      }
+    }
+  }
+
+  override fun onGuildUpdateRegion(event: GuildUpdateRegionEvent) {
+    withLoggingContext("guild" to event.guild.name) {
+      event.run {
+        transaction {
+          Guild.findOrCreate(guild.idLong, guild.name, event.oldRegion.name)
+            .also {
+              it.region = newRegion.name
+            }
+        }
+        logger.info {
+          "Changed region $oldRegion -> $newRegion"
+        }
+      }
     }
   }
 
