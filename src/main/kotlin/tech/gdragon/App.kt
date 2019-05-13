@@ -1,4 +1,5 @@
 @file:JvmName("App")
+
 package tech.gdragon
 
 import mu.KotlinLogging
@@ -35,11 +36,16 @@ fun main() {
       val jda = app.koin.get<Bot>().api
       val afterDays = app.koin.getProperty("BOT_LEAVE_GUILD_AFTER", 30)
 
-      if(afterDays <= 0) {
+      if (afterDays <= 0) {
         logger.info { "Disabling remove-old-guilds Timer." }
         this.cancel()
       } else {
-        BotUtils.leaveAncientGuilds(jda, afterDays)
+        val whitelist = app.koin.getProperty("BOT_GUILD_WHITELIST", "")
+          .split(",")
+          .filter(String::isNotEmpty)
+          .map(String::toLong)
+
+        BotUtils.leaveInactiveGuilds(jda, afterDays, whitelist)
       }
     }
 
