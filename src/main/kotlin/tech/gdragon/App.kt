@@ -45,7 +45,7 @@ fun main() {
           .filter(String::isNotEmpty)
           .map(String::toLong)
 
-        BotUtils.leaveAncientGuilds(jda, afterDays, whitelist)
+        BotUtils.leaveInactiveGuilds(jda, afterDays, whitelist)
       }
     }
 
