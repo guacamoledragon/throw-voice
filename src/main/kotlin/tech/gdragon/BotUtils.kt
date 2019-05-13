@@ -13,7 +13,6 @@ import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.joda.time.DateTime
 import tech.gdragon.db.dao.Guild
-import tech.gdragon.db.dateTimeLiteral
 import tech.gdragon.db.table.Tables.Guilds
 import tech.gdragon.listener.CombinedAudioRecorderHandler
 import tech.gdragon.listener.SilenceAudioSendHandler
@@ -266,7 +265,7 @@ object BotUtils {
    * In the past, I've been deleting the Guild from the database, but that makes things annoying when you rejoin.
    * For now, we'll just be leaving a Guild, but keeping the settings.
    */
-  fun leaveAncientGuilds(jda: JDA, afterDays: Int, whitelist: Array<Long>) {
+  fun leaveAncientGuilds(jda: JDA, afterDays: Int, whitelist: List<Long>) {
     logger.info { "Leaving all Guilds that haven't been active in the past $afterDays days." }
     val op: SqlExpressionBuilder.() -> Op<Boolean> = {
       val now = DateTime.now()
