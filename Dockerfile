@@ -4,6 +4,13 @@ COPY . /app
 
 RUN mvn package
 
+FROM boxfuse/flyway as database
+
+COPY sql /flyway/sql
+COPY conf /flyway/conf
+
+RUN ["flyway", "-url=jdbc:sqlite:/tmp/settings.db", "migrate"]
+
 FROM openjdk:11-jre-slim
 MAINTAINER Jose V. Trigueros <jose@gdragon.tech>
 
