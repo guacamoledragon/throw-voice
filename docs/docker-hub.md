@@ -27,7 +27,6 @@ The following environment variables are necessary:
 ## Bot variables, **_required_**
 
 - `BOT_TOKEN`: Discord Bot Token
-- `CLIENT_ID`: Discord Client ID
 - `DATA_DIR`: Directory path to store bot files
 - `DISCORD_WEBHOOK` _(optional)_: The location of the Discord webhook where error logs will be sent
 - `PORT`: Port on which the bot will run it's HTTP server on and redirect to bot's invite URL
