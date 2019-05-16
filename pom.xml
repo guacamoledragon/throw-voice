@@ -169,9 +169,6 @@
         <artifactId>maven-assembly-plugin</artifactId>
         <version>3.1.0</version>
         <configuration>
-          <filters>
-            <filter>${project.build.directory}/classes/build.properties</filter>
-          </filters>
           <descriptors>
             <descriptor>src/assembly/src.xml</descriptor>
           </descriptors>
@@ -237,24 +234,6 @@
             </goals>
           </execution>
         </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>buildnumber-maven-plugin</artifactId>
-        <version>1.4</version>
-        <executions>
-          <execution>
-            <phase>generate-resources</phase>
-            <goals>
-              <goal>create-metadata</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <addOutputDirectoryToResources>true</addOutputDirectoryToResources>
-          <attach>true</attach>
-          <shortRevisionLength>7</shortRevisionLength>
-        </configuration>
       </plugin>
     </plugins>
   </build>
