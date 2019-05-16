@@ -55,7 +55,7 @@ jobs:
       - run: |
           VCS_REF=$(git rev-parse --short HEAD)
           [[ -v CIRCLE_TAG ]] && VERSION=${CIRCLE_TAG#"v"} || VERSION=1.2.0-beta.${CIRCLE_BUILD_NUM}
-          BUILD_DATE=$(date +%FT%T.%z)
+          BUILD_DATE=$(date +%FT%T%z)
           docker build --quiet --cache-from gdragon/throw-voice:latest -t gdragon/throw-voice:${VERSION} -t gdragon/throw-voice:latest --build-arg VCS_REF=${VCS_REF} --build-arg BUILD_DATE=${BUILD_DATE} --build-arg VERSION=${VERSION} .
           docker login -u $DOCKER_LOGIN -p $DOCKER_PASSWORD
           docker push gdragon/throw-voice:${VERSION}
