@@ -4,7 +4,7 @@
   <id>release</id>
   <includeBaseDirectory>false</includeBaseDirectory>
   <formats>
-    <format>zip</format>
+    <format>dir</format>
   </formats>
   <files>
     <file>
