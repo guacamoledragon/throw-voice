@@ -1,8 +1,10 @@
 *
 !conf/flyway.conf
 !conf/nginx.conf
+!docs
 !scripts
 !sql
 !src
+!LICENSE
 !pom.xml
-!*.md
+!README.md
