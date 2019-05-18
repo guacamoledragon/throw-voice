@@ -227,36 +227,42 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
   }
 
   private fun uploadRecording(recording: File, voiceChannel: VoiceChannel?, channel: TextChannel) {
-    if (recording.length() < DISCORD_MAX_RECORDING_SIZE) {
-      BotUtils.uploadFile(channel, recording)
-    }
-
-    if (recording.length() < MAX_RECORDING_SIZE) {
-      val recordingKey = "/${channel.guild?.id}/${recording.name}"
-      val result = datastore.upload(recordingKey, recording)
-
-      val message = """|:microphone2: **Recording for <#${voiceChannel?.id}> has been uploaded!**
-                       |${result.url}
-                       |
-                       |_Recording will only be available for 24hrs_
-                       |""".trimMargin()
-
+    if (recording.length() <= 0) {
+      val message = ":no_entry_sign: _Recording is empty, not uploading._"
       BotUtils.sendMessage(channel, message)
-
-      transaction {
-        recordingRecord?.apply {
-          size = result.size
-          modifiedOn = result.timestamp
-          url = result.url
-        }
+    } else {
+      // Upload to Discord
+      if (recording.length() < DISCORD_MAX_RECORDING_SIZE) {
+        BotUtils.uploadFile(channel, recording)
       }
 
-      cleanup(recording)
+      // Upload to Minio
+      if (recording.length() < MAX_RECORDING_SIZE) {
+        val recordingKey = "/${channel.guild?.id}/${recording.name}"
+        val result = datastore.upload(recordingKey, recording)
 
-    } else {
-      val recordingSize = FileUtils.byteCountToDisplaySize(recording.length())
-      BotUtils.sendMessage(channel, ":no_entry_sign: _Could not upload, file too large: **$recordingSize**._")
+        val message = """|:microphone2: **Recording for <#${voiceChannel?.id}> has been uploaded!**
+                         |${result.url}
+                         |
+                         |_Recording will only be available for 24hrs_
+                         |""".trimMargin()
+
+        BotUtils.sendMessage(channel, message)
+
+        transaction {
+          recordingRecord?.apply {
+            size = result.size
+            modifiedOn = result.timestamp
+            url = result.url
+          }
+        }
+      } else {
+        val recordingSize = FileUtils.byteCountToDisplaySize(recording.length())
+        BotUtils.sendMessage(channel, ":no_entry_sign: _Could not upload, file too large: **$recordingSize**._")
+      }
     }
+
+    cleanup(recording)
   }
 
   fun disconnect() {
