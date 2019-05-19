@@ -15,6 +15,7 @@ import net.dv8tion.jda.core.entities.TextChannel
 import net.dv8tion.jda.core.entities.VoiceChannel
 import org.apache.commons.io.FileUtils
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.joda.time.DateTime
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 import tech.gdragon.BotUtils
@@ -230,6 +231,14 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
     if (recording.length() <= 0) {
       val message = ":no_entry_sign: _Recording is empty, not uploading._"
       BotUtils.sendMessage(channel, message)
+
+      transaction {
+        recordingRecord?.apply {
+          size = 0
+          modifiedOn = DateTime.now()
+          url = "N/A"
+        }
+      }
     } else {
       // Upload to Discord
       if (recording.length() < DISCORD_MAX_RECORDING_SIZE) {
