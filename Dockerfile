@@ -3,14 +3,14 @@ FROM maven:3.6-jdk-11 as builder
 WORKDIR /app
 
 COPY pom.xml .
-RUN mvn dependency:go-offline
+RUN mvn de.qaware.maven:go-offline-maven-plugin:resolve-dependencies
 
 COPY . .
 
 ARG BUILD_DATE
 ARG VCS_REF
 ARG VERSION
-RUN mvn -Dversion="${VERSION}" -Dtimestamp="${BUILD_DATE}" -Drevision="${VCS_REF}" package
+RUN mvn -Dversion="${VERSION}" -Dtimestamp="${BUILD_DATE}" -Drevision="${VCS_REF}" package -o
 
 FROM boxfuse/flyway as database
 
