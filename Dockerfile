@@ -20,7 +20,7 @@ COPY conf /flyway/conf
 RUN ["flyway", "-url=jdbc:sqlite:/tmp/settings.db", "migrate"]
 
 FROM gcr.io/distroless/java:11
-MAINTAINER Jose V. Trigueros <jose@gdragon.tech>
+LABEL maintainer="Jose V. Trigueros <jose@gdragon.tech>"
 
 ARG BUILD_DATE
 ARG VCS_REF
