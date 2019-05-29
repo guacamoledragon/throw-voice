@@ -13,6 +13,11 @@
       <filtered>true</filtered>
     </file>
     <file>
+      <source>${project.basedir}/src/assembly/start.sh</source>
+      <lineEnding>unix</lineEnding>
+      <filtered>true</filtered>
+    </file>
+    <file>
       <source>${project.basedir}/src/assembly/settings.db</source>
       <filtered>false</filtered>
     </file>
