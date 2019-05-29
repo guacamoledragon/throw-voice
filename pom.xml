@@ -12,7 +12,7 @@
   <properties>
     <jda.version>3.8.3_462</jda.version>
     <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
-    <kotlin.version>1.3.30</kotlin.version>
+    <kotlin.version>1.3.31</kotlin.version>
     <main.class>tech.gdragon.App</main.class>
     <maven.compiler.source>1.9</maven.compiler.source>
     <maven.compiler.target>1.9</maven.compiler.target>
@@ -172,6 +172,7 @@
           <descriptors>
             <descriptor>src/assembly/src.xml</descriptor>
           </descriptors>
+          <finalName>throw-voice</finalName>
         </configuration>
         <executions>
           <execution>

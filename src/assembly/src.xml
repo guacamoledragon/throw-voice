@@ -24,6 +24,11 @@
     <file>
       <source>LICENSE</source>
     </file>
+    <file>
+      <source>${project.basedir}/target/${artifactId}-${project.version}.${packaging}</source>
+      <outputDirectory>./</outputDirectory>
+      <destName>${artifactId}-${version}.jar</destName>
+    </file>
   </files>
   <fileSets>
     <fileSet>
@@ -32,11 +37,6 @@
     </fileSet>
   </fileSets>
   <dependencySets>
-    <dependencySet>
-      <includes>
-        <include>tech.gdragon:throw-voice</include>
-      </includes>
-    </dependencySet>
     <dependencySet>
       <useProjectArtifact>false</useProjectArtifact>
       <outputDirectory>./lib</outputDirectory>
