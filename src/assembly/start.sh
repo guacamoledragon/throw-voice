@@ -23,4 +23,4 @@ echo Build Date:  ${timestamp}
 echo   Revision:  https://github.com/guacamoledragon/throw-voice/commit/${revision}
 echo ==========================================================================
 
-java -Xmx512m -cp ${name}-${version}.jar:lib\* tech.gdragon.App
+java -Xmx512m -cp ${name}-${version}.jar:lib/* tech.gdragon.App
