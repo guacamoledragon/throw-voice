@@ -22,7 +22,7 @@ jobs:
           paths:
             - ~/.m2
           key: pawa-{{ checksum "pom.xml" }}
-      - run: mvn integration-test
+      - run: mvn test
       - persist_to_workspace:
           root: .
           paths:
