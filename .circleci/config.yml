@@ -17,7 +17,7 @@ jobs:
           - pawa-{{ checksum "pom.xml" }}
           # fallback to using the latest cache if no exact match is found
           - pawa-
-      - run: mvn de.qaware.maven:go-offline-maven-plugin:resolve-dependencies
+      - run: mvn -B -ntp de.qaware.maven:go-offline-maven-plugin:resolve-dependencies
       - save_cache:
           paths:
             - ~/.m2
@@ -51,7 +51,7 @@ jobs:
             - pawa-
       - run: |
           [[ -v CIRCLE_TAG ]] && VERSION=${CIRCLE_TAG#"v"} || VERSION=${CIRCLE_BUILD_NUM}
-          mvn package -Dtimestamp=$(date -u +%FT%TZ) -Dversion=${VERSION} -Drevision=$(git rev-parse --short)
+          mvn package -B -ntp -Dtimestamp=$(date -u +%FT%TZ) -Dversion=${VERSION} -Drevision=$(git rev-parse --short)
       - attach_workspace:
           at: ~/pawa
       - store_artifacts:
