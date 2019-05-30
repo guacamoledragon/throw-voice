@@ -49,7 +49,9 @@ jobs:
             - pawa-{{ checksum "pom.xml" }}
             # fallback to using the latest cache if no exact match is found
             - pawa-
-      - run: mvn package -Dtimestamp=$(date -u +%FT%TZ) -Dversion=${CIRCLE_TAG#"v"} -Drevision=$(git rev-parse --short)
+      - run: |
+          [[ -v CIRCLE_TAG ]] && VERSION=${CIRCLE_TAG#"v"} || VERSION=${CIRCLE_BUILD_NUM}
+          mvn package -Dtimestamp=$(date -u +%FT%TZ) -Dversion=${VERSION} -Drevision=$(git rev-parse --short)
       - attach_workspace:
           at: ~/pawa
       - store_artifacts:
@@ -82,7 +84,7 @@ workflows:
             - build
           filters:
             branches:
-              only: master
+              only: /.*/
       - container:
           requires:
             - build
