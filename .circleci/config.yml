@@ -17,7 +17,7 @@ jobs:
           - pawa-{{ checksum "pom.xml" }}
           # fallback to using the latest cache if no exact match is found
           - pawa-
-      - run: mvn dependency:go-offline
+      - run: mvn de.qaware.maven:go-offline-maven-plugin:resolve-dependencies
       - save_cache:
           paths:
             - ~/.m2
