@@ -49,13 +49,14 @@ jobs:
             - pawa-{{ checksum "pom.xml" }}
             # fallback to using the latest cache if no exact match is found
             - pawa-
+      - attach_workspace:
+          at: ~/pawa
       - run: |
           [[ -v CIRCLE_TAG ]] && VERSION=${CIRCLE_TAG#"v"} || VERSION=${CIRCLE_BUILD_NUM}
           mvn package -B -Dtimestamp=$(date -u +%FT%TZ) -Dversion=${VERSION} -Drevision=$(git rev-parse --short HEAD)
-      - attach_workspace:
-          at: ~/pawa
-      - store_artifacts:
-          path: target/throw-voice-release
+
+#      - store_artifacts:
+#          path: target/throw-voice-release
 
   container:
     <<: *defaults
