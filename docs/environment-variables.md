@@ -23,10 +23,8 @@ These are the environment configuration variables used by the bot.
 
 For more information on this see [Minio](https://www.minio.io/).
 
-> In the past, I used BackBlaze B2, but with Minio the user can provide their own data store.
-
-- `DS_ACCESS_KEY` _(optional)_: Access Key
-- `DS_SECRET_KEY` _(optional)_: Application Key
+- `DS_ACCESS_KEY`: Access Key
+- `DS_SECRET_KEY`: Application Key
 - `DS_BASEURL` _(optional)_: Only useful if you're choosing a custom URL, don't set otherwise.
 - `DS_BUCKET`: Bucket Name
 - `DS_HOST`: Minio host url e.g _http://localhost:9000_
