@@ -15,6 +15,7 @@
     <file>
       <source>${project.basedir}/src/assembly/start.sh</source>
       <lineEnding>unix</lineEnding>
+      <fileMode>755</fileMode>
       <filtered>true</filtered>
     </file>
     <file>
