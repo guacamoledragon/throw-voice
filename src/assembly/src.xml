@@ -19,6 +19,14 @@
       <filtered>true</filtered>
     </file>
     <file>
+      <source>${project.basedir}/src/assembly/docker-compose.yml</source>
+      <filtered>true</filtered>
+    </file>
+    <file>
+      <source>${project.basedir}/src/assembly/.env</source>
+      <filtered>false</filtered>
+    </file>
+    <file>
       <source>${project.basedir}/src/assembly/settings.db</source>
       <filtered>false</filtered>
     </file>
