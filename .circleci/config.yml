@@ -18,11 +18,11 @@ jobs:
           # fallback to using the latest cache if no exact match is found
           - pawa-
       - run: mvn -B de.qaware.maven:go-offline-maven-plugin:resolve-dependencies
+      - run: mvn test
       - save_cache:
           paths:
             - ~/.m2
           key: pawa-{{ checksum "pom.xml" }}
-      - run: mvn test
       - persist_to_workspace:
           root: .
           paths:
@@ -55,10 +55,6 @@ jobs:
           [[ -v CIRCLE_TAG ]] && VERSION=${CIRCLE_TAG#"v"} || VERSION=${CIRCLE_BUILD_NUM}
           mvn package -B -Dtimestamp=$(date -u +%FT%TZ) -Dversion=${VERSION} -Drevision=$(git rev-parse --short HEAD)
           zip -r -9 -q /tmp/throw-voice.zip target/throw-voice-release
-      - save_cache:
-          paths:
-            - ~/.m2
-          key: pawa-{{ checksum "pom.xml" }}
       - store_artifacts:
           path: /tmp/throw-voice.zip
 
