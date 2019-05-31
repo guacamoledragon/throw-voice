@@ -54,9 +54,9 @@ jobs:
       - run: |
           [[ -v CIRCLE_TAG ]] && VERSION=${CIRCLE_TAG#"v"} || VERSION=${CIRCLE_BUILD_NUM}
           mvn package -B -Dtimestamp=$(date -u +%FT%TZ) -Dversion=${VERSION} -Drevision=$(git rev-parse --short HEAD)
-          zip -r -9 -q /tmp/throw-voice-${VERSION}.zip target/throw-voice-release
+          zip -r -9 -q /tmp/throw-voice.zip target/throw-voice-release
       - store_artifacts:
-          path: /tmp/throw-voice-*.zip
+          path: /tmp/throw-voice.zip
 
   container:
     <<: *defaults
