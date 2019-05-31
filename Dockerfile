@@ -10,7 +10,7 @@ COPY . .
 ARG BUILD_DATE
 ARG VCS_REF
 ARG VERSION
-RUN mvn -Dversion="${VERSION}" -Dtimestamp="${BUILD_DATE}" -Drevision="${VCS_REF}" package -o
+RUN mvn -Dversion="${VERSION}" -Dtimestamp="${BUILD_DATE}" -Drevision="${VCS_REF}" package
 
 FROM boxfuse/flyway as database
 
@@ -45,8 +45,8 @@ ENV VERSION $VERSION
 
 WORKDIR $APP_DIR
 
-COPY --from=builder /app/target/throw-voice-*-release/lib lib
-COPY --from=builder /app/target/throw-voice-*-release/* .
+COPY --from=builder /app/target/throw-voice-release/lib lib
+COPY --from=builder /app/target/throw-voice-release/* .
 COPY --from=database /tmp/settings.db $DATA_DIR/settings.db
 
 CMD ["java", "-cp", "*:lib/*", "tech.gdragon.App"]
