@@ -17,8 +17,9 @@ buildNumber.properties
 *.iml
 .idea/*
 
-*.env
-!conf/sample-*.env
+/*.env
+conf/*.env
+!conf/sample.env
 settings.json
 settings.db
 recordings/

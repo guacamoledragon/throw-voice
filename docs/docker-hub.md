@@ -1,3 +1,17 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+
+- [throw-voice](#throw-voice)
+- [Supported tags and respective `Dockerfile` links](#supported-tags-and-respective-dockerfile-links)
+- [How to use this image](#how-to-use-this-image)
+  - [Bot variables, **_required_**](#bot-variables-_required_)
+  - [Bot variables, additional configs _optional_](#bot-variables-additional-configs-_optional_)
+  - [Minio Storage variables, **_required_**](#minio-storage-variables-_required_)
+  - [Rollbar variables, _optional_](#rollbar-variables-_optional_)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # throw-voice
 > A voice channel recording bot for Discord.
 
@@ -27,19 +41,26 @@ The following environment variables are necessary:
 ## Bot variables, **_required_**
 
 - `BOT_TOKEN`: Discord Bot Token
-- `CLIENT_ID`: Discord Client ID
 - `DATA_DIR`: Directory path to store bot files
-- `DISCORD_WEBHOOK` _(optional)_: The location of the Discord webhook where error logs will be sent
 - `PORT`: Port on which the bot will run it's HTTP server on and redirect to bot's invite URL
+
+## Bot variables, additional configs _optional_
+
+- `DISCORD_WEBHOOK`: The location of the Discord webhook where error logs will be sent
+- `BOT_LEAVE_GUILD_AFTER`: Number, in days, before bot leaves a server for inactivity
+  - Defaults to `30`
+  - Set to `0` to disable
+- `PCM_MODE`: Save recordings as RAW PCM files instead of MP3
+  - Defaults to `false`
+- `VERSION`: The version to display as the bot's _Playing ..._ status
+- `WEBSITE`: The website to display as the bot's _Playing ..._ status
 
 ## Minio Storage variables, **_required_**
 
 For more information on this see [Minio](https://www.minio.io/).
 
-> In the past, I used BackBlaze B2, but with Minio the user can provide their own data store.
-
-- `DS_ACCESS_KEY` _(optional)_: Access Key
-- `DS_SECRET_KEY` _(optional)_: Application Key
+- `DS_ACCESS_KEY`: Access Key
+- `DS_SECRET_KEY`: Application Key
 - `DS_BASEURL` _(optional)_: Only useful if you're choosing a custom URL, don't set otherwise.
 - `DS_BUCKET`: Bucket Name
 - `DS_HOST`: Minio host url e.g _http://localhost:9000_
@@ -52,10 +73,4 @@ All of these are optional, but if you want to upload your logs to Rollbar, creat
 - `ROLLBAR_ENV`: Logging environment
 - `ROLLBAR_TOKEN`: Application Token
 
-The easiest thing to do is to create a `.env` file with all the environment variables:
-
-    docker run -it --env-file .env --env JAVA_OPTS="-Xmx512m --add-modules java.xml.bind" -p 8080:8080 gdragon/throw-voice
-
-The bot will automatically connect to your Guild if it has connected before, otherwise visit `http://localhost:8080` to
-add to your Guild.
 

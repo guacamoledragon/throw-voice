@@ -1,11 +1,26 @@
 FROM maven:3.6-jdk-11 as builder
+
 WORKDIR /app
-COPY . /app
 
-RUN mvn package
+COPY pom.xml .
+RUN mvn -B de.qaware.maven:go-offline-maven-plugin:resolve-dependencies
 
-FROM openjdk:11-jre-slim
-MAINTAINER Jose V. Trigueros <jose@gdragon.tech>
+COPY . .
+
+ARG BUILD_DATE
+ARG VCS_REF
+ARG VERSION
+RUN mvn -B -Dversion="${VERSION}" -Dtimestamp="${BUILD_DATE}" -Drevision="${VCS_REF}" package
+
+FROM boxfuse/flyway as database
+
+COPY sql /flyway/sql
+COPY conf /flyway/conf
+
+RUN ["flyway", "-url=jdbc:sqlite:/tmp/settings.db", "migrate"]
+
+FROM gcr.io/distroless/java:11
+LABEL maintainer="Jose V. Trigueros <jose@gdragon.tech>"
 
 ARG BUILD_DATE
 ARG VCS_REF
@@ -20,15 +35,18 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.version=$VERSION \
       org.label-schema.schema-version="1.0"
 
+ENTRYPOINT []
+
+EXPOSE 8080
+
 ENV APP_DIR /app
 ENV DATA_DIR $APP_DIR/data
-
-ENV JAVA_LIB_DIR lib/*
-ENV JAVA_MAIN_CLASS tech.gdragon.App
+ENV VERSION $VERSION
 
 WORKDIR $APP_DIR
 
-COPY --from=builder /app/target/throw-voice-*-release.zip /tmp/throw-voice-release.zip
-RUN unzip -d $APP_DIR /tmp/throw-voice-release.zip
+COPY --from=builder /app/target/throw-voice-release/lib lib
+COPY --from=builder /app/target/throw-voice-release/* .
+COPY --from=database /tmp/settings.db $DATA_DIR/settings.db
 
-CMD java ${JAVA_OPTS} -cp *:$JAVA_LIB_DIR $JAVA_MAIN_CLASS
+CMD ["java", "-cp", "*:lib/*", "tech.gdragon.App"]

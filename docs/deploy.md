@@ -1,3 +1,12 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+
+- [Release Checklist](#release-checklist)
+- [Deploy Checklist](#deploy-checklist)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 ## Release Checklist
 - [ ] Create `release` branch
 - [ ] Update version in all source and documentation

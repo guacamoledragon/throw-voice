@@ -12,13 +12,10 @@ services:
     depends_on:
       - datastore
     env_file:
-      - ${ENV:-sample}-bot.env
-      - ${ENV:-sample}-ds.env
-      - ${ENV:-sample}-rollbar.env
+      - ${ENV:-sample}.env
     environment:
       - TZ=America/Los_Angeles
-      - VERSION=${VERSION}
-      - JAVA_OPTS=-Dlog4j.configurationFile=log4j2-prod.xml
+      - JAVA_TOOL_OPTIONS=-Dlog4j.configurationFile=log4j2-prod.xml
     volumes:
       - ./data:/app/data
     restart: on-failure:5
@@ -50,7 +47,7 @@ services:
     command: -c "MINIO_SECRET_KEY=$$DS_SECRET_KEY MINIO_ACCESS_KEY=$$DS_ACCESS_KEY minio gateway b2"
     entrypoint: sh
     env_file:
-      - ${ENV:-sample}-ds.env
+      - ${ENV:-sample}.env
     environment:
       - TZ=America/Los_Angeles
     logging:

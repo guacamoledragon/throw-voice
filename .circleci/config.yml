@@ -17,12 +17,12 @@ jobs:
           - pawa-{{ checksum "pom.xml" }}
           # fallback to using the latest cache if no exact match is found
           - pawa-
-      - run: mvn dependency:go-offline
+      - run: mvn -B de.qaware.maven:go-offline-maven-plugin:resolve-dependencies
+      - run: mvn test
       - save_cache:
           paths:
             - ~/.m2
           key: pawa-{{ checksum "pom.xml" }}
-      - run: mvn integration-test
       - persist_to_workspace:
           root: .
           paths:
@@ -38,14 +38,25 @@ jobs:
             at: ~/pawa
         - run: bash <(curl -s https://codecov.io/bash) -s ~/pawa/target -X gcov
 
-  upload-artifact:
+  package:
     <<: *defaults
-    machine: true
+    docker:
+      - image: circleci/openjdk:11-jdk
     steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - pawa-{{ checksum "pom.xml" }}
+            # fallback to using the latest cache if no exact match is found
+            - pawa-
       - attach_workspace:
           at: ~/pawa
+      - run: |
+          [[ -v CIRCLE_TAG ]] && VERSION=${CIRCLE_TAG#"v"} || VERSION=${CIRCLE_BUILD_NUM}
+          mvn package -B -Dtimestamp=$(date -u +%FT%TZ) -Dversion=${VERSION} -Drevision=$(git rev-parse --short HEAD)
+          zip -r -9 -q /tmp/throw-voice.zip target/throw-voice-release
       - store_artifacts:
-          path: target/throw-voice-1.2.0-SNAPSHOT-release.zip
+          path: /tmp/throw-voice.zip
 
   container:
     <<: *defaults
@@ -55,7 +66,7 @@ jobs:
       - run: |
           VCS_REF=$(git rev-parse --short HEAD)
           [[ -v CIRCLE_TAG ]] && VERSION=${CIRCLE_TAG#"v"} || VERSION=1.2.0-beta.${CIRCLE_BUILD_NUM}
-          BUILD_DATE=$(date +%FT%T.%z)
+          BUILD_DATE=$(date -u +%FT%TZ)
           docker build --quiet --cache-from gdragon/throw-voice:latest -t gdragon/throw-voice:${VERSION} -t gdragon/throw-voice:latest --build-arg VCS_REF=${VCS_REF} --build-arg BUILD_DATE=${BUILD_DATE} --build-arg VERSION=${VERSION} .
           docker login -u $DOCKER_LOGIN -p $DOCKER_PASSWORD
           docker push gdragon/throw-voice:${VERSION}
@@ -69,12 +80,14 @@ workflows:
       - coverage:
           requires:
             - build
-      - upload-artifact:
+      - package:
           requires:
             - build
           filters:
+            tags:
+              only: /^v.*/
             branches:
-              only: master
+              ignore: /.*/
       - container:
           requires:
             - build

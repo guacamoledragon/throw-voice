@@ -4,7 +4,7 @@
   <id>release</id>
   <includeBaseDirectory>false</includeBaseDirectory>
   <formats>
-    <format>zip</format>
+    <format>dir</format>
   </formats>
   <files>
     <file>
@@ -13,11 +13,30 @@
       <filtered>true</filtered>
     </file>
     <file>
+      <source>${project.basedir}/src/assembly/start.sh</source>
+      <lineEnding>unix</lineEnding>
+      <fileMode>755</fileMode>
+      <filtered>true</filtered>
+    </file>
+    <file>
+      <source>${project.basedir}/src/assembly/docker-compose.yml</source>
+      <filtered>true</filtered>
+    </file>
+    <file>
+      <source>${project.basedir}/src/assembly/.env</source>
+      <filtered>false</filtered>
+    </file>
+    <file>
       <source>${project.basedir}/src/assembly/settings.db</source>
       <filtered>false</filtered>
     </file>
     <file>
       <source>LICENSE</source>
+    </file>
+    <file>
+      <source>${project.basedir}/target/${artifactId}-${project.version}.${packaging}</source>
+      <outputDirectory>./</outputDirectory>
+      <destName>${artifactId}-${version}.jar</destName>
     </file>
   </files>
   <fileSets>
@@ -27,11 +46,6 @@
     </fileSet>
   </fileSets>
   <dependencySets>
-    <dependencySet>
-      <includes>
-        <include>tech.gdragon:throw-voice</include>
-      </includes>
-    </dependencySet>
     <dependencySet>
       <useProjectArtifact>false</useProjectArtifact>
       <outputDirectory>./lib</outputDirectory>
