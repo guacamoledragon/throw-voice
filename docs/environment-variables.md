@@ -7,6 +7,7 @@ These are the environment configuration variables used by the bot.
 ## Contents
 
 - [Bot variables, **_required_**](#bot-variables-_required_)
+- [Bot variables, additional configs _optional_](#bot-variables-additional-configs-_optional_)
 - [Minio Storage variables, **_required_**](#minio-storage-variables-_required_)
 - [Rollbar variables, _optional_](#rollbar-variables-_optional_)
 
