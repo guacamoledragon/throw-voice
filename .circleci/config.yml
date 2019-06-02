@@ -84,8 +84,8 @@ workflows:
           requires:
             - build
           filters:
-            branches:
-              only: /.*/
+            tags:
+              only: /^v.*/
       - container:
           requires:
             - build
