@@ -8,8 +8,9 @@ this bot, it can be self-hosted without any issues in one of the following ways.
 ## Contents
 
 - [Pre-Requisites](#pre-requisites)
-  - [Local (or VPS)](#local-or-vps)
-  - [Docker](#docker)
+    - [Minio](#minio)
+  - [Local](#local)
+  - [Docker Compose](#docker-compose)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -20,11 +21,18 @@ this bot, it can be self-hosted without any issues in one of the following ways.
 - A running instance of [Minio Cloud Storage](https://www.minio.io/)
   - Using Minio allows you to use whatever cloud storage solution you want (or none), but you'll need:
     - Bucket Name
-      - **Make sure the bucket you choose for `DS_BUCKET` exists**
     - Access Key _(may be optional if your store does not require it)_
     - Secret Key _(may be optional if your store does not require it)_
 
-## Local (or VPS)
+**If any of the URLs that the bot spits out are `localhost`, only the person running the bot will be able to access the recordings.**
+
+### Minio
+
+After you start Minio, please create the bucket set as the `DS_BUCKET` environment variable. The Access and Secret keys
+can either be made up, if running locally, or need to be specific values if using Minio as a gateway to a different store.
+Please consult the Minio documentation for more details.
+
+## Local
 
 These instructions are for those who want to run the bot either on their computer or on a server, for this you'll need to
 have [install Java 11+](https://adoptopenjdk.net/).
@@ -47,11 +55,13 @@ Done!
 
 _Note: If you're deploying on your own VPS, then you'll need a bit more setup as you may be using NGINX or Apache._
 
-## Docker
+## Docker Compose
 
 If Docker is your jam, the easiest thing to do is to modify the `.env` file included with only the variables already included,
 for reference see [environment variables](./environment-variables.md). Then use [`docker-compose`](https://docs.docker.com/compose/):
 
     docker-compose up # optionally, --detach
 
-This will start both the bot and minio, and that's really all there is.
+This will start both the bot on http://localhost:3000 and minio on http://localhost:9000, and that's really all there is.
+The recordings will be saved under `DATA_DIR\recordings` on your local machine, and can also be accessed through the Minio
+web interface.
