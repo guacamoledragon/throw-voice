@@ -6,15 +6,8 @@ import mu.KotlinLogging
 import org.apache.commons.io.FileUtils
 import org.joda.time.DateTime
 import org.koin.core.KoinComponent
-import org.koin.dsl.module
 import java.io.File
 import java.io.InputStream
-
-val dataStore = module {
-  single {
-    DataStore()
-  }
-}
 
 class DataStore : KoinComponent {
   val logger = KotlinLogging.logger { }

@@ -6,7 +6,6 @@ import net.dv8tion.jda.core.JDA
 import net.dv8tion.jda.core.JDABuilder
 import net.dv8tion.jda.core.Permission
 import org.koin.core.KoinComponent
-import org.koin.dsl.module
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.audio.Clip
 import tech.gdragon.commands.audio.Save
@@ -16,12 +15,6 @@ import tech.gdragon.commands.misc.Stop
 import tech.gdragon.commands.settings.*
 import tech.gdragon.listener.EventListener
 import javax.security.auth.login.LoginException
-
-val discordBot = module {
-  single {
-    Bot()
-  }
-}
 
 class Bot : KoinComponent {
   private val token: String = getKoin().getProperty("BOT_TOKEN", "")

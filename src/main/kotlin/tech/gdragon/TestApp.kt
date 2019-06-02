@@ -20,7 +20,6 @@ import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.initializeDatabase
 import tech.gdragon.db.table.Tables
 import tech.gdragon.db.table.Tables.Guilds
-import tech.gdragon.discord.discordBot
 import java.sql.Connection
 
 fun dropAllTables() {
@@ -121,7 +120,6 @@ fun initializeKoin() = startKoin {
   printLogger(Level.INFO)
   fileProperties("/defaults.properties")
   environmentProperties()
-  modules(discordBot)
 }
 
 fun main(args: Array<String>) {

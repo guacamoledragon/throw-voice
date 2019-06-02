@@ -1,24 +1,9 @@
 package tech.gdragon
 
 import fi.iki.elonen.NanoHTTPD
-import org.koin.core.KoinComponent
-import org.koin.core.get
-import org.koin.dsl.module
 import tech.gdragon.discord.Bot
 
-/**
- * Starts a simple HTTP Service, whose only response is to redirect to the bot's page.
- */
-val httpServer = module {
-  single {
-    HttpServer()
-  }
-}
-
-class HttpServer : KoinComponent {
-  val port: Int = getKoin().getProperty("PORT", 8080)
-  val bot: Bot = get()
-
+class HttpServer(bot: Bot, val port: Int = 8080) {
   val inviteUrl: String = bot.api.asBot().getInviteUrl(Bot.PERMISSIONS)
 
   val server = object : NanoHTTPD(port) {
