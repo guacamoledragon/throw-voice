@@ -3,19 +3,11 @@
 # top-most EditorConfig file
 root = true
 
-# Unix-style newlines with a newline ending every file
 [*]
 end_of_line = lf
 insert_final_newline = true
 indent_style = space
-
-[*.kt]
 indent_size = 2
 
-# Tab indentation (no size specified)
 [Makefile]
 indent_style = tab
-
-# Matches the exact files either package.json or .travis.yml
-[config.yml]
-indent_size = 2

@@ -2,7 +2,7 @@
 
 REM Bot variables, required
 SET BOT_TOKEN=
-SET DATA_DIR=.
+SET DATA_DIR=./data
 SET DISCORD_WEBHOOK=
 SET PORT=
 

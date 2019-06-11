@@ -1,5 +1,6 @@
 package tech.gdragon
 
+import com.squareup.tape.QueueFile
 import net.dv8tion.jda.core.AccountType
 import net.dv8tion.jda.core.JDABuilder
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceJoinEvent
@@ -20,6 +21,8 @@ import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.initializeDatabase
 import tech.gdragon.db.table.Tables
 import tech.gdragon.db.table.Tables.Guilds
+import java.io.File
+import java.io.FileOutputStream
 import java.sql.Connection
 
 fun dropAllTables() {
@@ -112,6 +115,18 @@ fun removeUnusedGuilds() {
     Guilds.deleteWhere {
       val now = DateTime.now()
       not(Guilds.lastActiveOn.between(now.minusDays(30), now))
+    }
+  }
+}
+
+fun queue2mp3(qFile: String) {
+  println("qFile = $qFile")
+  val recording = File(qFile.replace("queue", "mp3"))
+  val queueFile = QueueFile(File(qFile))
+
+  FileOutputStream(recording).use { fos ->
+    queueFile.forEach { stream, _ ->
+      stream.transferTo(fos)
     }
   }
 }

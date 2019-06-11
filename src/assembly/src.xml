@@ -29,12 +29,13 @@
     <file>
       <source>${project.basedir}/src/assembly/settings.db</source>
       <filtered>false</filtered>
+      <outputDirectory>./data</outputDirectory>
     </file>
     <file>
       <source>LICENSE</source>
     </file>
     <file>
-      <source>${project.basedir}/target/${artifactId}-${project.version}.${packaging}</source>
+      <source>${project.build.directory}/${artifactId}-${project.version}.${packaging}</source>
       <outputDirectory>./</outputDirectory>
       <destName>${artifactId}-${version}.jar</destName>
     </file>

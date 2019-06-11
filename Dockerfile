@@ -5,7 +5,9 @@ WORKDIR /app
 COPY pom.xml .
 RUN mvn -B de.qaware.maven:go-offline-maven-plugin:resolve-dependencies
 
-COPY . .
+COPY LICENSE .
+COPY docs docs
+COPY src src
 
 ARG BUILD_DATE
 ARG VCS_REF
@@ -40,13 +42,12 @@ ENTRYPOINT []
 EXPOSE 8080
 
 ENV APP_DIR /app
-ENV DATA_DIR $APP_DIR/data
 ENV VERSION $VERSION
 
 WORKDIR $APP_DIR
 
 COPY --from=builder /app/target/throw-voice-release/lib lib
-COPY --from=builder /app/target/throw-voice-release/* .
-COPY --from=database /tmp/settings.db $DATA_DIR/settings.db
+COPY --from=builder /app/target/throw-voice-release/*.jar .
+COPY --from=database /tmp/settings.db .
 
 CMD ["java", "-cp", "*:lib/*", "tech.gdragon.App"]

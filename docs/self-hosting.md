@@ -57,11 +57,14 @@ _Note: If you're deploying on your own VPS, then you'll need a bit more setup as
 
 ## Docker Compose
 
-If Docker is your jam, the easiest thing to do is to modify the `.env` file included with only the variables already included,
-for reference see [environment variables](./environment-variables.md). Then use [`docker-compose`](https://docs.docker.com/compose/):
+If Docker is your jam, go into the `docker` folder and modify the variables in the `.env`, the rest are in the `docker-compose.yml`
+file itself. For reference see [environment variables](./environment-variables.md). Then use
+[`docker-compose`](https://docs.docker.com/compose/):
 
     docker-compose up # optionally, --detach
 
 This will start both the bot on http://localhost:3000 and minio on http://localhost:9000, and that's really all there is.
 The recordings will be saved under `DATA_DIR\recordings` on your local machine, and can also be accessed through the Minio
 web interface.
+
+These are the defaults I set for packaging convenience, but tweak as much or as little as you want.

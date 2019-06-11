@@ -2,7 +2,7 @@
 
 # Bot variables, required
 BOT_TOKEN=
-DATA_DIR=.
+DATA_DIR=./data
 DISCORD_WEBHOOK=
 PORT=
 
