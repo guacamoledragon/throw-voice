@@ -43,7 +43,7 @@ services:
     logging:
       <<: *logging
   datastore:
-    image: minio/minio:RELEASE.RELEASE.2019-05-02T19-07-09Z
+    image: minio/minio:RELEASE.2019-06-11T00-44-33Z
     command: -c "MINIO_SECRET_KEY=$$DS_SECRET_KEY MINIO_ACCESS_KEY=$$DS_ACCESS_KEY minio gateway b2"
     entrypoint: sh
     env_file:
@@ -53,7 +53,7 @@ services:
     logging:
       <<: *logging
   nginx:
-    image: nginx:1.15-alpine
+    image: nginx:1.17-alpine
     command: /bin/sh -c "envsubst '$${BOT_HOST},$${DATA_HOST},$${DATA_WHITELIST_IP}' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && exec nginx -g 'daemon off;'"
     environment:
       - BOT_HOST=${BOT_HOST:-localhost}
