@@ -76,7 +76,10 @@ workflows:
   version: 2
   build-with-coverage-and-docker-deploy:
     jobs:
-      - build
+      - build:
+          filters:
+            tags:
+              only: /.*/
       - coverage:
           requires:
             - build
