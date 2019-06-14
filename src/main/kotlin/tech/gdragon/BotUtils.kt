@@ -332,8 +332,16 @@ object BotUtils {
       .append(":arrow_up: **Upload complete!**")
       .build()
 
-    textChannel
-      .sendFile(file, message)
-      .complete()
+    try {
+      textChannel
+        .sendFile(file, message)
+        .complete()
+    } catch (e: InsufficientPermissionException) {
+      withLoggingContext("guild" to textChannel.guild.name, "text-channel" to textChannel.name) {
+        logger.warn(e) {
+          "Couldn't upload recording: ${file.name}"
+        }
+      }
+    }
   }
 }
