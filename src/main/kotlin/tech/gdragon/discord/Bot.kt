@@ -22,12 +22,13 @@ class Bot : KoinComponent {
 
   companion object {
     val PERMISSIONS = listOf(
+      Permission.MESSAGE_ATTACH_FILES,
       Permission.MESSAGE_READ,
       Permission.MESSAGE_WRITE,
+      Permission.NICKNAME_CHANGE,
       Permission.VOICE_CONNECT,
-      Permission.VOICE_USE_VAD,
       Permission.VOICE_SPEAK,
-      Permission.NICKNAME_CHANGE
+      Permission.VOICE_USE_VAD
     )
   }
 
