@@ -1,4 +1,4 @@
-# throw-voice
+# pawa
 > A voice channel recording bot for Discord.
 
 <p align="center">
