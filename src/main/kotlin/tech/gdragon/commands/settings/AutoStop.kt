@@ -1,17 +1,17 @@
 package tech.gdragon.commands.settings
 
-import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.BotUtils
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
-import net.dv8tion.jda.core.entities.Channel as DiscordChannel
+import net.dv8tion.jda.api.entities.GuildChannel
 
 class AutoStop : CommandHandler {
 
-  private fun updateChannelAutoStop(channel: DiscordChannel, autoStop: Int?) {
+  private fun updateChannelAutoStop(channel: GuildChannel, autoStop: Int?) {
     transaction {
       val guild = channel.guild.run {
         Guild.findOrCreate(idLong, name, region.name)

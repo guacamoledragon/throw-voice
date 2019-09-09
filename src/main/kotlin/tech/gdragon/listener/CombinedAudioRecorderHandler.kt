@@ -8,11 +8,11 @@ import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import mu.KotlinLogging
 import mu.withLoggingContext
-import net.dv8tion.jda.core.audio.AudioReceiveHandler
-import net.dv8tion.jda.core.audio.CombinedAudio
-import net.dv8tion.jda.core.audio.UserAudio
-import net.dv8tion.jda.core.entities.TextChannel
-import net.dv8tion.jda.core.entities.VoiceChannel
+import net.dv8tion.jda.api.audio.AudioReceiveHandler
+import net.dv8tion.jda.api.audio.CombinedAudio
+import net.dv8tion.jda.api.audio.UserAudio
+import net.dv8tion.jda.api.entities.TextChannel
+import net.dv8tion.jda.api.entities.VoiceChannel
 import org.apache.commons.io.FileUtils
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.joda.time.DateTime
@@ -247,7 +247,7 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
 
       // Upload to Minio
       if (recording.length() < MAX_RECORDING_SIZE) {
-        val recordingKey = "/${channel.guild?.id}/${recording.name}"
+        val recordingKey = "${channel.guild.id}/${recording.name}"
         val result = datastore.upload(recordingKey, recording)
 
         val message = """|:microphone2: **Recording for <#${voiceChannel?.id}> has been uploaded!**
@@ -328,5 +328,5 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
     }
   }
 
-  override fun handleUserAudio(userAudio: UserAudio?) = TODO("Not implemented.")
+  override fun handleUserAudio(userAudio: UserAudio) = TODO("Not implemented.")
 }

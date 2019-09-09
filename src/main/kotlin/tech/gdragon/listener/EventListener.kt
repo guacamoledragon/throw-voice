@@ -2,19 +2,19 @@ package tech.gdragon.listener
 
 import mu.KotlinLogging
 import mu.withLoggingContext
-import net.dv8tion.jda.core.entities.Game
-import net.dv8tion.jda.core.events.ReadyEvent
-import net.dv8tion.jda.core.events.guild.GuildJoinEvent
-import net.dv8tion.jda.core.events.guild.GuildLeaveEvent
-import net.dv8tion.jda.core.events.guild.member.GuildMemberNickChangeEvent
-import net.dv8tion.jda.core.events.guild.update.GuildUpdateNameEvent
-import net.dv8tion.jda.core.events.guild.update.GuildUpdateRegionEvent
-import net.dv8tion.jda.core.events.guild.voice.GuildVoiceJoinEvent
-import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent
-import net.dv8tion.jda.core.events.guild.voice.GuildVoiceMoveEvent
-import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
-import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent
-import net.dv8tion.jda.core.hooks.ListenerAdapter
+import net.dv8tion.jda.api.entities.Activity
+import net.dv8tion.jda.api.events.ReadyEvent
+import net.dv8tion.jda.api.events.guild.GuildJoinEvent
+import net.dv8tion.jda.api.events.guild.GuildLeaveEvent
+import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateNicknameEvent
+import net.dv8tion.jda.api.events.guild.update.GuildUpdateNameEvent
+import net.dv8tion.jda.api.events.guild.update.GuildUpdateRegionEvent
+import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent
+import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent
+import net.dv8tion.jda.api.events.guild.voice.GuildVoiceMoveEvent
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
+import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent
+import net.dv8tion.jda.api.hooks.ListenerAdapter
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.KoinComponent
 import tech.gdragon.BotUtils
@@ -22,7 +22,6 @@ import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.commands.handleCommand
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.nowUTC
-import net.dv8tion.jda.core.entities.Guild as DiscordGuild
 
 class EventListener : ListenerAdapter(), KoinComponent {
 
@@ -150,8 +149,9 @@ class EventListener : ListenerAdapter(), KoinComponent {
   }
 
   override fun onGuildMessageReceived(event: GuildMessageReceivedEvent) {
-    if (event.member == null || event.member.user == null || BotUtils.isSelfBot(event.member.user))
-      return
+    event.member?.let {
+      if (BotUtils.isSelfBot(it.user)) return
+    } ?: return
 
     val guildId = event.guild.idLong
 
@@ -204,11 +204,11 @@ class EventListener : ListenerAdapter(), KoinComponent {
   /**
    * Always add recording prefix when recording and if possible.
    */
-  override fun onGuildMemberNickChange(event: GuildMemberNickChangeEvent) {
+  override fun onGuildMemberUpdateNickname(event: GuildMemberUpdateNicknameEvent) {
     if (BotUtils.isSelfBot(event.user)) {
       if (event.guild.audioManager.isConnected) {
         logger.debug {
-          "${event.guild}#: Attempting to change nickname from ${event.prevNick} -> ${event.newNick}"
+          "${event.guild}#: Attempting to change nickname from ${event.oldNickname} -> ${event.newNickname}"
         }
 
         BotUtils.recordingStatus(event.member, true)
@@ -220,7 +220,8 @@ class EventListener : ListenerAdapter(), KoinComponent {
     val version: String = getKoin().getProperty("VERSION", "dev")
     event
       .jda
-      .presence.game = object : Game("$version | $website", website, GameType.DEFAULT) {}
+      .presence
+      .activity = Activity.of(Activity.ActivityType.DEFAULT, "$version | $website", website)
 
     logger.info { "ONLINE: Connected to ${event.jda.guilds.size} guilds!" }
 

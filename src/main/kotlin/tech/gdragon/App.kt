@@ -22,6 +22,12 @@ fun main() {
   val app = startKoin {
     printLogger(Level.INFO)
     fileProperties("/defaults.properties")
+    System.getenv("ENV")
+      ?.let {
+        if (it == "dev") {
+          fileProperties("/dev.properties")
+        }
+      }
     environmentProperties()
     modules(
       module {
@@ -36,8 +42,7 @@ fun main() {
   initializeDatabase("$dataDir/${app.koin.getProperty<String>("DB_NAME")}")
 
   val bot =
-    Bot()
-    .also {
+    Bot().also {
       logger.info("Starting background process to remove unused Guilds.")
       Timer("remove-old-guilds", true)
         .scheduleAtFixedRate(0L, Duration.ofDays(1L).toMillis()) {

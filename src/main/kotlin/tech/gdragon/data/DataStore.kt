@@ -48,6 +48,6 @@ class DataStore : KoinComponent {
 
 data class UploadResult(val key: String, val timestamp: DateTime, val size: Long, val url: String) {
   companion object {
-    fun from(baseUrl: String, stat: ObjectStat) = UploadResult(stat.name(), DateTime(stat.createdTime()), stat.length(), "$baseUrl${stat.name()}")
+    fun from(baseUrl: String, stat: ObjectStat) = UploadResult(stat.name(), DateTime(stat.createdTime()), stat.length(), "$baseUrl/${stat.name()}")
   }
 }

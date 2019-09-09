@@ -1,10 +1,10 @@
 package tech.gdragon.listener
 
 import mu.KotlinLogging
-import net.dv8tion.jda.core.events.channel.voice.VoiceChannelCreateEvent
-import net.dv8tion.jda.core.events.channel.voice.VoiceChannelDeleteEvent
-import net.dv8tion.jda.core.events.channel.voice.update.VoiceChannelUpdateNameEvent
-import net.dv8tion.jda.core.hooks.ListenerAdapter
+import net.dv8tion.jda.api.events.channel.voice.VoiceChannelCreateEvent
+import net.dv8tion.jda.api.events.channel.voice.VoiceChannelDeleteEvent
+import net.dv8tion.jda.api.events.channel.voice.update.VoiceChannelUpdateNameEvent
+import net.dv8tion.jda.api.hooks.ListenerAdapter
 
 class VoiceChannelListener : ListenerAdapter() {
   private val logger = KotlinLogging.logger {}

@@ -2,10 +2,9 @@ package tech.gdragon
 
 import mu.KotlinLogging
 import mu.withLoggingContext
-import net.dv8tion.jda.core.JDA
-import net.dv8tion.jda.core.MessageBuilder
-import net.dv8tion.jda.core.entities.*
-import net.dv8tion.jda.core.exceptions.InsufficientPermissionException
+import net.dv8tion.jda.api.JDA
+import net.dv8tion.jda.api.entities.*
+import net.dv8tion.jda.api.exceptions.InsufficientPermissionException
 import org.jetbrains.exposed.dao.EntityID
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.SqlExpressionBuilder
@@ -19,7 +18,7 @@ import tech.gdragon.listener.SilenceAudioSendHandler
 import java.io.File
 import java.util.*
 import kotlin.concurrent.schedule
-import net.dv8tion.jda.core.entities.Guild as DiscordGuild
+import net.dv8tion.jda.api.entities.Guild as DiscordGuild
 
 object BotUtils {
   private val logger = KotlinLogging.logger {}
@@ -61,7 +60,7 @@ object BotUtils {
     }
   }
 
-  fun autoSave(discordGuild: DiscordGuild): Boolean {
+  private fun autoSave(discordGuild: DiscordGuild): Boolean {
     return transaction {
       val guild = Guild.findById(discordGuild.idLong)
       guild?.settings?.autoSave ?: false
@@ -112,7 +111,7 @@ object BotUtils {
   fun recordVoiceChannel(channel: VoiceChannel, defaultChannel: TextChannel?, onError: (InsufficientPermissionException) -> Unit = {}) {
 
     /** Begin assertions **/
-    require(defaultChannel != null && channel.guild.getTextChannelById(defaultChannel.id).canTalk()) {
+    require(defaultChannel != null && channel.guild.getTextChannelById(defaultChannel.id)?.canTalk() ?: false) {
       val msg = "Attempted to record, but bot cannot write to any channel."
       logger.warn(msg)
       msg
@@ -130,12 +129,12 @@ object BotUtils {
 
     val audioManager = channel.guild.audioManager
 
-    if (audioManager?.isConnected == true) {
-      logger.debug { "vc:${channel.name} - Already connected to ${audioManager.connectedChannel.name}" }
+    if (audioManager.isConnected) {
+      logger.debug { "vc:${channel.name} - Already connected to ${audioManager.connectedChannel?.name}" }
     } else {
 
       try {
-        audioManager?.openAudioConnection(channel)
+        audioManager.openAudioConnection(channel)
         logger.info { "vc:${channel.name} - Connected to voice channel" }
       } catch (e: InsufficientPermissionException) {
         logger.warn { "vc:${channel.name} - Need permission: ${e.permission}" }
@@ -159,8 +158,8 @@ object BotUtils {
         audioSendHandler.canProvide = false
       }
 
-      audioManager?.setReceivingHandler(recorder)
-      audioManager?.sendingHandler = audioSendHandler
+      audioManager.receivingHandler = recorder
+      audioManager.sendingHandler = audioSendHandler
 
       recordingStatus(channel.guild.selfMember, true)
       sendMessage(defaultChannel, ":red_circle: **Audio is being recorded on <#${channel.id}>**")
@@ -170,10 +169,10 @@ object BotUtils {
   @JvmStatic
   fun leaveVoiceChannel(voiceChannel: VoiceChannel, textChannel: TextChannel?) {
     val guild = voiceChannel.guild
-    val audioManager = guild?.audioManager
-    val receiveHandler = audioManager?.receiveHandler as CombinedAudioRecorderHandler?
+    val audioManager = guild.audioManager
+    val audioRecorderHandler = audioManager.receivingHandler as CombinedAudioRecorderHandler?
 
-    receiveHandler?.let {
+    audioRecorderHandler?.let {
       if (autoSave(guild) && textChannel != null) {
         sendMessage(textChannel, ":floppy_disk: **Saving <#${voiceChannel.id}>'s recording...**")
         it.saveRecording(voiceChannel, textChannel)
@@ -182,9 +181,9 @@ object BotUtils {
       it.disconnect()
     }
 
-    logger.info("{}#{}: Leaving voice channel", guild?.name, voiceChannel.name)
-    audioManager?.apply {
-      setReceivingHandler(null)
+    logger.info("{}#{}: Leaving voice channel", guild.name, voiceChannel.name)
+    audioManager.apply {
+      receivingHandler = null
       sendingHandler = null
       closeAudioConnection()
       logger.info("{}#{}: Destroyed audio handlers", guild.name, voiceChannel.name)
@@ -239,8 +238,8 @@ object BotUtils {
 
     if (newNick != prevNick && (newNick.length <= 32)) {
       try {
-        bot.guild.controller
-          .setNickname(bot, newNick)
+        bot.guild
+          .modifyNickname(bot, newNick)
           .queue(null, { t ->
             logger.error(t) {
               "Could not change nickname: $prevNick -> $newNick"
@@ -257,7 +256,7 @@ object BotUtils {
   /**
    * Returns the effective size of the voice channel, excluding bots.
    */
-  fun voiceChannelSize(voiceChannel: VoiceChannel?): Int = voiceChannel?.members?.count() ?: 0
+  private fun voiceChannelSize(voiceChannel: VoiceChannel?): Int = voiceChannel?.members?.count() ?: 0
 
   /**
    * Leaves any Guild that hasn't been active in the past `afterDays` days.
@@ -310,7 +309,7 @@ object BotUtils {
   /**
    * Finds an open channel where messages can be sent.
    */
-  fun findPublicChannel(guild: DiscordGuild): TextChannel? {
+  private fun findPublicChannel(guild: DiscordGuild): TextChannel? {
     return guild
       .textChannels
       .find(TextChannel::canTalk)
@@ -321,20 +320,15 @@ object BotUtils {
    */
   fun updateVolume(guild: DiscordGuild, volume: Double) {
     val handler =
-      guild.audioManager
-        ?.receiveHandler as CombinedAudioRecorderHandler?
+      guild.audioManager.receivingHandler as CombinedAudioRecorderHandler?
 
     handler?.volume = volume
   }
 
   fun uploadFile(textChannel: TextChannel, file: File) {
-    val message = MessageBuilder()
-      .append(":arrow_up: **Upload complete!**")
-      .build()
-
     try {
       textChannel
-        .sendFile(file, message)
+        .sendFile(file)
         .complete()
     } catch (e: InsufficientPermissionException) {
       withLoggingContext("guild" to textChannel.guild.name, "text-channel" to textChannel.name) {

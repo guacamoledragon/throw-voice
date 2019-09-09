@@ -34,3 +34,5 @@ recordings/
 .factorypath
 .project
 .settings/
+src/main/resources/dev.properties
+

@@ -1,30 +1,31 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>tech.gdragon</groupId>
-  <artifactId>throw-voice</artifactId>
-  <version>1.2.1-SNAPSHOT</version>
+  <groupId>tech.gdragon.pawabot</groupId>
+  <artifactId>pawa</artifactId>
+  <version>2.0.0-SNAPSHOT</version>
   <scm>
-    <connection>scm:git:https://github.com/guacamoledragon/throw-voice.git</connection>
-    <url>https://github.com/guacamoledragon/throw-voice</url>
+    <connection>scm:git:https://gitlab.com/pawabot/pawa.git</connection>
+    <url>https://gitlab.com/pawabot/pawa</url>
   </scm>
 
   <properties>
-    <jda.version>3.8.3_462</jda.version>
+    <jda.version>4.0.0_46</jda.version>
     <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
-    <kotlin.version>1.3.31</kotlin.version>
+    <kotlin.compiler.jvmTarget>11</kotlin.compiler.jvmTarget>
+    <kotlin.version>1.3.50</kotlin.version>
     <main.class>tech.gdragon.App</main.class>
     <maven.compiler.source>1.9</maven.compiler.source>
     <maven.compiler.target>1.9</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <slf4j.version>1.8.0-beta4</slf4j.version>
+    <slf4j.version>2.0.0-alpha0</slf4j.version>
   </properties>
 
   <dependencies>
     <dependency>
       <groupId>com.rollbar</groupId>
       <artifactId>rollbar-log4j2</artifactId>
-      <version>1.4.1</version>
+      <version>1.5.2</version>
     </dependency>
     <dependency>
       <groupId>com.squareup</groupId>
@@ -42,14 +43,19 @@
       <version>1.0.5</version>
     </dependency>
     <dependency>
+      <groupId>io.github.microutils</groupId>
+      <artifactId>kotlin-logging</artifactId>
+      <version>1.7.6</version>
+    </dependency>
+    <dependency>
       <groupId>io.minio</groupId>
       <artifactId>minio</artifactId>
-      <version>6.0.6</version>
+      <version>6.0.10</version>
     </dependency>
     <dependency>
       <groupId>io.reactivex.rxjava2</groupId>
       <artifactId>rxjava</artifactId>
-      <version>2.2.8</version>
+      <version>2.2.12</version>
     </dependency>
     <dependency>
       <groupId>net.dv8tion</groupId>
@@ -59,17 +65,17 @@
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-core</artifactId>
-      <version>2.11.2</version>
+      <version>2.12.1</version>
     </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-slf4j18-impl</artifactId>
-      <version>2.11.2</version>
+      <version>2.12.1</version>
     </dependency>
     <dependency>
       <groupId>org.jetbrains.exposed</groupId>
       <artifactId>exposed</artifactId>
-      <version>0.13.6</version>
+      <version>0.17.3</version>
     </dependency>
     <dependency>
       <groupId>org.jetbrains.kotlin</groupId>
@@ -97,14 +103,9 @@
       <version>${slf4j.version}</version>
     </dependency>
     <dependency>
-      <groupId>io.github.microutils</groupId>
-      <artifactId>kotlin-logging</artifactId>
-      <version>1.6.26</version>
-    </dependency>
-    <dependency>
       <groupId>org.xerial</groupId>
       <artifactId>sqlite-jdbc</artifactId>
-      <version>3.27.2.1</version>
+      <version>3.28.0</version>
     </dependency>
   </dependencies>
 
