@@ -1,6 +1,6 @@
 package tech.gdragon.commands.audio
 
-import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import tech.gdragon.BotUtils
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
@@ -18,9 +18,9 @@ class Save : CommandHandler {
         ":no_entry_sign: _I am not currently recording._"
       } else {
         val voiceChannel = event.guild.audioManager.connectedChannel
-        val audioReceiveHandler = event.guild.audioManager.receiveHandler as CombinedAudioRecorderHandler
+        val audioReceiveHandler = event.guild.audioManager.receivingHandler as CombinedAudioRecorderHandler
 
-        BotUtils.sendMessage(defaultChannel, ":floppy_disk: **Saving <#${voiceChannel.id}>'s recording...**")
+        BotUtils.sendMessage(defaultChannel, ":floppy_disk: **Saving <#${voiceChannel?.id}>'s recording...**")
         if (args.isEmpty()) {
           audioReceiveHandler.saveRecording(voiceChannel, defaultChannel)
           ""

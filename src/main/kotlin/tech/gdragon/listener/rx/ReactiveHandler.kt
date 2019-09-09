@@ -1,10 +1,10 @@
 package tech.gdragon.listener.rx
 
 import io.reactivex.Observable
-import net.dv8tion.jda.core.audio.AudioReceiveHandler
-import net.dv8tion.jda.core.audio.CombinedAudio
-import net.dv8tion.jda.core.audio.UserAudio
-import net.dv8tion.jda.core.managers.AudioManager
+import net.dv8tion.jda.api.audio.AudioReceiveHandler
+import net.dv8tion.jda.api.audio.CombinedAudio
+import net.dv8tion.jda.api.audio.UserAudio
+import net.dv8tion.jda.api.managers.AudioManager
 
 fun audioReceiveObservable(audioManager: AudioManager): Observable<CombinedAudio> {
   return Observable.create { subscriber ->
@@ -26,7 +26,7 @@ fun audioReceiveObservable(audioManager: AudioManager): Observable<CombinedAudio
         }
       }
 
-      override fun handleUserAudio(userAudio: UserAudio?) {
+      override fun handleUserAudio(userAudio: UserAudio) {
         TODO("Not supported.")
       }
 

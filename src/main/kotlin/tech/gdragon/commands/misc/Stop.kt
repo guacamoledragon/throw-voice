@@ -1,6 +1,6 @@
 package tech.gdragon.commands.misc
 
-import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import tech.gdragon.BotUtils
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
@@ -15,10 +15,11 @@ class Stop : CommandHandler {
 
     val message =
       if (event.guild.audioManager.isConnected) {
-        val voiceChannel = event.guild.audioManager.connectedChannel
+        event.guild.audioManager.connectedChannel?.let {
+          BotUtils.leaveVoiceChannel(it, defaultChannel)
+          ":wave: _Leaving **<#${it.id}>**_"
+        } ?: ":no_entry_sign: _I am not in a channel_"
 
-        BotUtils.leaveVoiceChannel(voiceChannel, defaultChannel)
-        ":wave: _Leaving **<#${voiceChannel.id}>**_"
       } else {
         ":no_entry_sign: _I am not in a channel_"
       }

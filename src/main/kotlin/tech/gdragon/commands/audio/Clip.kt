@@ -1,6 +1,6 @@
 package tech.gdragon.commands.audio
 
-import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import tech.gdragon.BotUtils
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
@@ -18,7 +18,7 @@ class Clip : CommandHandler {
         ":no_entry_sign: _I am not currently recording._"
       } else {
         val voiceChannel = event.guild.audioManager.connectedChannel
-        val audioReceiveHandler = event.guild.audioManager.receiveHandler as CombinedAudioRecorderHandler
+        val audioReceiveHandler = event.guild.audioManager.receivingHandler as CombinedAudioRecorderHandler
 
         try {
           val seconds = args.first().toLong()

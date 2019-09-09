@@ -1,6 +1,6 @@
 package tech.gdragon.commands.misc
 
-import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import tech.gdragon.BotUtils
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
@@ -12,7 +12,7 @@ class Record : CommandHandler {
     }
 
     val defaultChannel = BotUtils.defaultTextChannel(event.guild) ?: event.channel
-    val voiceChannel = event.member.voiceState.channel
+    val voiceChannel = event.member?.voiceState?.channel
     val message: String? =
       if (voiceChannel == null) {
         ":no_entry_sign: _Please join a voice channel before using this command._"
@@ -25,7 +25,9 @@ class Record : CommandHandler {
 
           // Leave a previous voice channel
           if (event.guild.audioManager.isConnected) {
-            BotUtils.leaveVoiceChannel(connectedChannel, defaultChannel)
+            connectedChannel?.let {
+              BotUtils.leaveVoiceChannel(it, defaultChannel)
+            }
           }
 
           // We need to give something to the onError handler because sometimes life doesn't do what we want

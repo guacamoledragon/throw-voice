@@ -1,11 +1,11 @@
 package tech.gdragon
 
 import com.squareup.tape.QueueFile
-import net.dv8tion.jda.core.AccountType
-import net.dv8tion.jda.core.JDABuilder
-import net.dv8tion.jda.core.events.guild.voice.GuildVoiceJoinEvent
-import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent
-import net.dv8tion.jda.core.hooks.ListenerAdapter
+import net.dv8tion.jda.api.AccountType
+import net.dv8tion.jda.api.JDABuilder
+import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent
+import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent
+import net.dv8tion.jda.api.hooks.ListenerAdapter
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.deleteWhere
@@ -66,7 +66,7 @@ fun testBiggestChannel() {
   initializeDatabase("settings.db")
   JDABuilder(AccountType.BOT)
     .setToken(System.getenv("TOKEN"))
-    .addEventListener(object : ListenerAdapter() {
+    .addEventListeners(object : ListenerAdapter() {
       override fun onGuildVoiceJoin(event: GuildVoiceJoinEvent) {
         println("event.guild = ${event.guild}")
         println("Joined ${event.channelJoined}")
@@ -87,7 +87,7 @@ fun testAlerts() {
   initializeDatabase("settings.db")
   JDABuilder(AccountType.BOT)
     .setToken(System.getenv("TOKEN"))
-    .addEventListener(object : ListenerAdapter() {
+    .addEventListeners(object : ListenerAdapter() {
       override fun onGuildVoiceJoin(event: GuildVoiceJoinEvent) {
         println("Sending alerts to users that joined ${event.channelJoined}.")
         BotUtils.sendMessage(null, "")

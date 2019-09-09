@@ -1,9 +1,10 @@
 package tech.gdragon.listener
 
 import mu.KotlinLogging
-import net.dv8tion.jda.core.audio.AudioSendHandler
+import net.dv8tion.jda.api.audio.AudioSendHandler
+import java.nio.ByteBuffer
 
-class SilenceAudioSendHandler: AudioSendHandler {
+class SilenceAudioSendHandler : AudioSendHandler {
   private val logger = KotlinLogging.logger { }
   var canProvide = true
     set(value) {
@@ -11,9 +12,9 @@ class SilenceAudioSendHandler: AudioSendHandler {
       field = value
     }
 
-  override fun provide20MsAudio(): ByteArray {
+  override fun provide20MsAudio(): ByteBuffer? {
     val silence = arrayOf(0xF8.toByte(), 0xFF.toByte(), 0xFE.toByte())
-    return silence.toByteArray()
+    return ByteBuffer.wrap(silence.toByteArray())
   }
 
   override fun canProvide(): Boolean {
