@@ -28,11 +28,11 @@ ARG BUILD_DATE
 ARG VCS_REF
 ARG VERSION
 LABEL org.label-schema.build-date=$BUILD_DATE \
-      org.label-schema.name="throw-voice" \
+      org.label-schema.name="pawa" \
       org.label-schema.description="A voice channel recording bot for Discord." \
       org.label-schema.url="https://www.pawa.im" \
       org.label-schema.vcs-ref=$VCS_REF \
-      org.label-schema.vcs-url="https://github.com/guacamoledragon/throw-voice" \
+      org.label-schema.vcs-url="https://gitlab.com/pawabot/pawa" \
       org.label-schema.vendor="Guacamole Dragon, LLC" \
       org.label-schema.version=$VERSION \
       org.label-schema.schema-version="1.0"
@@ -46,8 +46,8 @@ ENV VERSION $VERSION
 
 WORKDIR $APP_DIR
 
-COPY --from=builder /app/target/throw-voice-release/lib lib
-COPY --from=builder /app/target/throw-voice-release/*.jar .
+COPY --from=builder /app/target/pawa-release/lib lib
+COPY --from=builder /app/target/pawa-release/*.jar .
 COPY --from=database /tmp/settings.db .
 
 CMD ["java", "-cp", "*:lib/*", "tech.gdragon.App"]

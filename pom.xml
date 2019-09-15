@@ -107,6 +107,12 @@
       <artifactId>sqlite-jdbc</artifactId>
       <version>3.28.0</version>
     </dependency>
+
+    <dependency>
+      <groupId>org.jetbrains.kotlin</groupId>
+      <artifactId>kotlin-test-junit</artifactId>
+      <version>${kotlin.version}</version>
+    </dependency>
   </dependencies>
 
   <build>
@@ -173,7 +179,7 @@
           <descriptors>
             <descriptor>src/assembly/src.xml</descriptor>
           </descriptors>
-          <finalName>throw-voice</finalName>
+          <finalName>pawa</finalName>
         </configuration>
         <executions>
           <execution>

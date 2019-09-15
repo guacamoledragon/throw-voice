@@ -1,17 +1,17 @@
 # pawa
 > A voice channel recording bot for Discord.
 
-<p align="center">
+<div align="center">
   <a href="https://discordbots.org/bot/338897906524225538">
     <img src="https://discordbots.org/api/widget/338897906524225538.png" alt="Discord Bots" />
   </a>
-</p>
+</div>
 
 [![Discord](https://discordapp.com/api/guilds/408795211901173762/widget.png)](https://discord.gg/gkvsNw8)
-[![CircleCI](https://circleci.com/gh/guacamoledragon/throw-voice.svg?style=svg)](https://circleci.com/gh/guacamoledragon/throw-voice)
-[![codecov](https://codecov.io/gh/guacamoledragon/throw-voice/branch/master/graph/badge.svg)](https://codecov.io/gh/guacamoledragon/throw-voice)
+[![pipeline status](https://gitlab.com/pawabot/pawa/badges/master/pipeline.svg)](https://gitlab.com/pawabot/pawa/commits/master)
+[![codecov](https://codecov.io/gl/pawabot/pawa/branch/master/graph/badge.svg)](https://codecov.io/gl/pawabot/pawa)
 [![Get your own version badge on microbadger.com](https://images.microbadger.com/badges/version/gdragon/throw-voice.svg)](https://microbadger.com/images/gdragon/throw-voice)
-[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fguacamoledragon%2Fthrow-voice.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fguacamoledragon%2Fthrow-voice?ref=badge_shield)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgitlab.com%2Fpawabot%2Fpawa.svg?type=shield)](https://app.fossa.io/projects/git%2Bgitlab.com%2Fpawabot%2Fpawa?ref=badge_shield)
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
@@ -71,5 +71,4 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ```
 
-
-[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fguacamoledragon%2Fthrow-voice.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fguacamoledragon%2Fthrow-voice?ref=badge_large)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgitlab.com%2Fpawabot%2Fpawa.svg?type=large)](https://app.fossa.io/projects/git%2Bgitlab.com%2Fpawabot%2Fpawa?ref=badge_large)
