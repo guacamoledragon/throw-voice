@@ -270,7 +270,6 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
         BotUtils.sendMessage(channel, ":no_entry_sign: _Could not upload, file too large: **$recordingSize**._")
       }
     }
-
     cleanup(recording)
   }
 
@@ -310,12 +309,12 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
 
   private fun cleanup(recording: File) {
     val isDeleteSuccess = recording.delete()
-    logger.info("Deleting file {}...", recording.name)
+    logger.info { "Deleting file ${recording.name}..." }
 
     if (isDeleteSuccess)
-      logger.info("Successfully deleted file {}.", recording.name)
+      logger.info { "Successfully deleted file ${recording.name}." }
     else
-      logger.error("Could not delete file {}.", recording.name)
+      logger.warn { "Could not delete file ${recording.name}." }
   }
 
   override fun canReceiveUser(): Boolean = false

@@ -36,3 +36,10 @@ recordings/
 .settings/
 src/main/resources/dev.properties
 
+hosts.yml
+.venv
+ansible/roles/geerlingguy.*
+*.pyc
+*.log
+
+src/main/resources/dev.properties

@@ -16,6 +16,7 @@ import tech.gdragon.db.table.Tables.Guilds
 import tech.gdragon.listener.CombinedAudioRecorderHandler
 import tech.gdragon.listener.SilenceAudioSendHandler
 import java.io.File
+import java.io.FileInputStream
 import java.util.*
 import kotlin.concurrent.schedule
 import net.dv8tion.jda.api.entities.Guild as DiscordGuild
@@ -326,14 +327,17 @@ object BotUtils {
   }
 
   fun uploadFile(textChannel: TextChannel, file: File) {
-    try {
-      textChannel
-        .sendFile(file)
-        .complete()
-    } catch (e: InsufficientPermissionException) {
-      withLoggingContext("guild" to textChannel.guild.name, "text-channel" to textChannel.name) {
-        logger.warn(e) {
-          "Couldn't upload recording: ${file.name}"
+    FileInputStream(file).use {
+      try {
+        textChannel
+          .sendFile(it, file.name)
+          .complete()
+      } catch (e: InsufficientPermissionException) {
+        withLoggingContext("guild" to textChannel.guild.name, "text-channel" to textChannel.name) {
+          sendMessage(textChannel, ":no_entry_sign: _Couldn't upload recording directly to <#${textChannel.id}>, to enable this give `Attach Files` permissions._")
+          logger.warn(e) {
+            "Couldn't upload recording: ${file.name}"
+          }
         }
       }
     }
