@@ -21,11 +21,20 @@ build:
     - mvn test
   stage: build
 
+coverage:
+  dependencies:
+    - build
+  image: circleci/buildpack-deps:curl
+  script:
+    - bash <(curl -s https://codecov.io/bash) -s ./target -X gcov
+  stage: test
+
 package:
   artifacts:
-    expire_in: 1 day
+    name: pawa
+    expire_in: 30 days
     paths:
-      - pawa.zip
+      - target/pawa-release
   dependencies:
     - build
   image: circleci/openjdk:11-jdk
@@ -35,7 +44,6 @@ package:
   script:
     - '[[ -v CI_COMMIT_TAG ]] && VERSION=${CI_COMMIT_TAG#"v"} || VERSION=${CI_JOB_ID}'
     - mvn package -B -Dtimestamp=$(date -u +%FT%TZ) -Dversion=${VERSION} -Drevision=$(git rev-parse --short HEAD)
-    - zip -r -9 -q pawa.zip target/pawa-release
   stage: deploy
   variables:
     GITLAB_FEATURES: dependency_scanning
