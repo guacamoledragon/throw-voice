@@ -7,7 +7,6 @@ cache:
 
 variables:
   DS_DEFAULT_ANALYZERS: "gemnasium-maven"
-  DEPENDENCY_SCANNING_DISABLED: 1
   MAVEN_OPTS: -Dmaven.repo.local=.m2
 
 build:
@@ -22,6 +21,7 @@ build:
   stage: build
 
 coverage:
+  cache: {}
   dependencies:
     - build
   image: circleci/buildpack-deps:curl
@@ -45,8 +45,6 @@ package:
     - '[[ -v CI_COMMIT_TAG ]] && VERSION=${CI_COMMIT_TAG#"v"} || VERSION=${CI_JOB_ID}'
     - mvn package -B -Dtimestamp=$(date -u +%FT%TZ) -Dversion=${VERSION} -Drevision=$(git rev-parse --short HEAD)
   stage: deploy
-  variables:
-    GITLAB_FEATURES: dependency_scanning
 
 container:
   image: docker:19.03.2
