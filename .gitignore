@@ -43,3 +43,4 @@ ansible/roles/geerlingguy.*
 *.log
 
 src/main/resources/dev.properties
+restic/
