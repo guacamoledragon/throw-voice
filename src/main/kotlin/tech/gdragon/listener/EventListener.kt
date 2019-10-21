@@ -68,7 +68,7 @@ class EventListener : ListenerAdapter(), KoinComponent {
             }
         }
         logger.info {
-          "Changed region $oldName -> $newName"
+          "Changed name $oldName -> $newName"
         }
       }
     }

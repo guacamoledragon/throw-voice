@@ -31,6 +31,7 @@
         <RegexFilter regex=".*There was some unexpected exception in the combinedAudioExecutor.*" onMatch="DENY"
                      onMismatch="NEUTRAL"/>
         <RegexFilter regex=".*There was some random exception.*" onMatch="DENY" onMismatch="NEUTRAL"/>
+        <RegexFilter regex=".*Transaction attempt.*" onMatch="DENY" onMismatch="NEUTRAL"/>
       </Filters>
     </Discord>
   </Appenders>

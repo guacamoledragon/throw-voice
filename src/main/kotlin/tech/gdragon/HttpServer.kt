@@ -7,7 +7,7 @@ class HttpServer(bot: Bot, val port: Int = 8080) {
   val inviteUrl: String = bot.api.getInviteUrl(Bot.PERMISSIONS)
 
   val server = object : NanoHTTPD(port) {
-    override fun serve(session: NanoHTTPD.IHTTPSession): NanoHTTPD.Response {
+    override fun serve(session: IHTTPSession): Response {
       val uri = session.uri
 
       return when (uri.toLowerCase()) {

@@ -28,7 +28,7 @@ class DataStore : KoinComponent {
 
   fun upload(key: String, file: File): UploadResult {
     logger.info {
-      "Ready to upload recording to - $baseUrl$key"
+      "Ready to upload recording to - $baseUrl/$key"
     }
 
     client.putObject(bucketName, key, file.path)

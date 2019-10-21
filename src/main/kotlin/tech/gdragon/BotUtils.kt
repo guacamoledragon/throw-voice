@@ -51,7 +51,7 @@ object BotUtils {
                   sendMessage(defaultChannel, message)
                 }
               } catch (e: IllegalArgumentException) {
-                BotUtils.logger.error(e) {
+                logger.error(e) {
                   e.message
                 }
               }
@@ -122,7 +122,6 @@ object BotUtils {
     require(channel != channel.guild.afkChannel) {
       val msg = ":no_entry_sign: _I'm not allowed to record AFK channels._"
       sendMessage(defaultChannel, msg)
-      logger.warn(msg)
       msg
     }
 
@@ -281,25 +280,23 @@ object BotUtils {
     }
 
     // Find all ancient guilds and ask the Bot to leave them, or mark them as inactive if already gone
-    transaction {
-      val guilds = Guild.find(op).toList()
+    val guilds = transaction { Guild.find(op).toList() }
 
-      guilds
-        .forEach {
-          val guild = jda.getGuildById(it.id.value)
-          guild
-            ?.leave()
-            ?.queue({
-              BotUtils.logger.info { "Left server '$guild', reached inactivity period." }
-            }, { e ->
-              BotUtils.logger.error(e) { "Could not leave server '$guild'!" }
-            })
-            ?: BotUtils.logger.warn {
-              it.active = false
-              "No longer in this guild ${it.name}, but marking as inactive"
-            }
-        }
-    }
+    guilds
+      .forEach {
+        val guild = jda.getGuildById(it.id.value)
+        guild
+          ?.leave()
+          ?.queue({
+            logger.info { "Left server '$guild', reached inactivity period." }
+          }, { e ->
+            logger.error(e) { "Could not leave server '$guild'!" }
+          })
+          ?: logger.warn {
+            it.active = false
+            "No longer in this guild ${it.name}, but marking as inactive"
+          }
+      }
 
     // Delete all ancient guilds using the same query as above
     /*transaction {

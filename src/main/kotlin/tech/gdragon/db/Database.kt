@@ -9,9 +9,12 @@ fun initializeDatabase(database: String) {
   // Ensure that Joda Time deals with time as UTC
   DateTimeZone.setDefault(DateTimeZone.UTC)
 
-  Database.connect("jdbc:sqlite:$database", driver = "org.sqlite.JDBC", setupConnection = {
+  val setupConnection: (Connection) -> Unit = {
     val statement = it.createStatement()
     statement.executeUpdate("PRAGMA foreign_keys = ON")
-  })
+  }
+
+  Database.connect("jdbc:sqlite:$database", driver = "org.sqlite.JDBC", setupConnection = setupConnection)
+  // Override default isolation level
   TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_READ_UNCOMMITTED
 }

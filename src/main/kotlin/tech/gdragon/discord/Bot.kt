@@ -1,10 +1,9 @@
 package tech.gdragon.discord
 
 import mu.KotlinLogging
-import net.dv8tion.jda.api.AccountType
 import net.dv8tion.jda.api.JDA
-import net.dv8tion.jda.api.JDABuilder
 import net.dv8tion.jda.api.Permission
+import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder
 import org.koin.core.KoinComponent
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.audio.Clip
@@ -36,12 +35,16 @@ class Bot : KoinComponent {
 
   init {
     try {
-      //create bot instance
-      api = JDABuilder(AccountType.BOT)
-        .setToken(token)
+      // create shard manager
+      val shardManager = DefaultShardManagerBuilder(token)
         .addEventListeners(EventListener())
         .build()
-        .awaitReady()
+
+      while (!shardManager.statuses.all { it.value == JDA.Status.CONNECTED }) {
+        Thread.sleep(50)
+      }
+
+      api = shardManager.shards.first()
     } catch (e: LoginException) {
       logger.error(e) {
         "Could not authenticate using token: $token"

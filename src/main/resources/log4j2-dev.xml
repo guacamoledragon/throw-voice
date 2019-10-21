@@ -10,6 +10,9 @@
   <Appenders>
     <Console name="Console">
       <PatternLayout pattern="${globalPattern}"/>
+      <Filters>
+        <RegexFilter regex=".*Transaction attempt.*" onMatch="DENY" onMismatch="NEUTRAL"/>
+      </Filters>
     </Console>
     <Discord name="Discord">
       <webhookUrl>${env:DISCORD_WEBHOOK}</webhookUrl>
