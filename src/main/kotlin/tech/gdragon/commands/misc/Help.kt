@@ -4,7 +4,6 @@ import mu.KotlinLogging
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.koin.core.KoinComponent
 import tech.gdragon.BotUtils
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
@@ -12,7 +11,7 @@ import tech.gdragon.db.dao.Guild
 import tech.gdragon.discord.Command
 import java.awt.Color
 
-class Help : CommandHandler, KoinComponent {
+class Help : CommandHandler() {
   private val logger = KotlinLogging.logger {}
 
   override fun action(args: Array<String>, event: GuildMessageReceivedEvent) {
@@ -27,6 +26,8 @@ class Help : CommandHandler, KoinComponent {
     require(args.isEmpty()) {
       throw InvalidCommand(::usage, "Empty arguments")
     }
+
+    usageCounter.add(1)
 
     val disclaimer = """|**Depending on where you live, it _may_ be illegal to record without everyone's consent. Please
                           |check your local laws.**

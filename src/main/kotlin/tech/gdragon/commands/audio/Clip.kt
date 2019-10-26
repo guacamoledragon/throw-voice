@@ -6,11 +6,13 @@ import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.listener.CombinedAudioRecorderHandler
 
-class Clip : CommandHandler {
+class Clip : CommandHandler() {
   override fun action(args: Array<String>, event: GuildMessageReceivedEvent) {
     require(args.size in 1..2) {
       throw InvalidCommand(::usage, "Incorrect number of arguments: ${args.size}")
     }
+
+    usageCounter.add(1)
 
     val defaultChannel = BotUtils.defaultTextChannel(event.guild) ?: event.channel
     val message =

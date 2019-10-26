@@ -5,11 +5,13 @@ import tech.gdragon.BotUtils
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
 
-class Stop : CommandHandler {
+class Stop : CommandHandler() {
   override fun action(args: Array<String>, event: GuildMessageReceivedEvent) {
     require(args.isEmpty()) {
       throw InvalidCommand(::usage, "Incorrect number of arguments: ${args.size}")
     }
+
+    usageCounter.add(1)
 
     val defaultChannel = BotUtils.defaultTextChannel(event.guild) ?: event.channel
 

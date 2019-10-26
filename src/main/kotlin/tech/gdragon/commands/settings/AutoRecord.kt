@@ -9,13 +9,15 @@ import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
 
-class AutoRecord : CommandHandler {
+class AutoRecord : CommandHandler() {
   private fun updateChannelAutoJoin(channel: GuildChannel, autoRecord: Int?) {
-    transaction {
-      val guild = channel.guild.run {
+    val guild = channel.guild.run {
+      transaction {
         Guild.findOrCreate(idLong, name, region.name)
       }
-
+    }
+    
+    transaction {
       Channel
         .findOrCreate(channel.idLong, channel.name, guild)
         .also { it.autoRecord = autoRecord }
@@ -30,6 +32,8 @@ class AutoRecord : CommandHandler {
     require(args.size >= 2) {
       throw InvalidCommand(::usage, "Incorrect number of arguments: ${args.size}")
     }
+
+    usageCounter.add(1)
 
     val defaultChannel = BotUtils.defaultTextChannel(event.guild) ?: event.channel
     val message: String =

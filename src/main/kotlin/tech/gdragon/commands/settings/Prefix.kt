@@ -7,25 +7,29 @@ import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.db.dao.Guild
 
-class Prefix : CommandHandler {
+class Prefix : CommandHandler() {
   override fun action(args: Array<String>, event: GuildMessageReceivedEvent) {
     require(args.size == 1) {
       throw InvalidCommand(::usage, "Incorrect number of arguments: ${args.size}")
     }
 
-    transaction {
-      val guild = Guild.findById(event.guild.idLong)
-      val defaultChannel = BotUtils.defaultTextChannel(event.guild) ?: event.channel
-      val newPrefix = args.first()
+    usageCounter.add(1)
 
-      val message =
-        guild?.settings?.let {
-          it.prefix = newPrefix
-          ":twisted_rightwards_arrows: _Command prefix now set to **`${it.prefix}`**._"
-        } ?: ":no_entry_sign: _Could not set to prefix **`$newPrefix`**._"
-
-      BotUtils.sendMessage(defaultChannel, message)
+    val newPrefix = args.first()
+    val prefix = transaction {
+      Guild
+        .findById(event.guild.idLong)
+        ?.settings
+        ?.apply { prefix = newPrefix }
+        ?.prefix
     }
+
+    val message =
+      if (prefix == newPrefix) ":twisted_rightwards_arrows: _Command prefix now set to **`${prefix}`**._"
+      else ":no_entry_sign: _Could not set to prefix **`$newPrefix`**._"
+
+    val defaultChannel = BotUtils.defaultTextChannel(event.guild) ?: event.channel
+    BotUtils.sendMessage(defaultChannel, message)
   }
 
   override fun usage(prefix: String): String = "${prefix}prefix [character]"

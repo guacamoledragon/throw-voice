@@ -9,12 +9,14 @@ import tech.gdragon.db.dao.Alias
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.discord.Command
 
-class Alias : CommandHandler {
+class Alias : CommandHandler() {
 
   override fun action(args: Array<String>, event: GuildMessageReceivedEvent) {
     require(args.size == 2) {
       throw InvalidCommand(::usage, "Incorrect number of arguments: ${args.size}")
     }
+
+    usageCounter.add(1)
 
     val defaultChannel = BotUtils.defaultTextChannel(event.guild) ?: event.channel
     val command = args.first().toUpperCase()

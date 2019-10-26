@@ -153,16 +153,16 @@ class EventListener : ListenerAdapter(), KoinComponent {
       if (BotUtils.isSelfBot(it.user)) return
     } ?: return
 
-    val guildId = event.guild.idLong
+    val guild =
+      event.guild.run {
+        transaction {
+          // HACK: Create settings for a guild that needs to be accessed. This is a problem when restarting bot.
+          // TODO: On bot initialization, I should be able to check which Guilds the bot is connected to and purge/add respectively
+          Guild.findOrCreate(idLong, name, region.name)
+        }
+      }
 
     val prefix = transaction {
-      // HACK: Create settings for a guild that needs to be accessed. This is a problem when restarting bot.
-      // TODO: On bot initialization, I should be able to check which Guilds the bot is connected to and purge/add respectively
-      val guild = Guild.findById(guildId) ?: Guild.findOrCreate(guildId, event.guild.name, event.guild.region.name)
-
-      // Update activity
-      guild.lastActiveOn = nowUTC()
-
       guild.settings.prefix
     }
 
@@ -180,6 +180,8 @@ class EventListener : ListenerAdapter(), KoinComponent {
         hasPrefix ->
           try {
             handleCommand(event, prefix, rawContent)
+            // Update activity
+            transaction { guild.lastActiveOn = nowUTC() }
           } catch (e: InvalidCommand) {
             BotUtils.sendMessage(defaultChannel, ":no_entry_sign: _Usage: `${e.usage(prefix)}`_")
             logger.warn { "[$rawContent] ${e.reason}" }
@@ -223,15 +225,14 @@ class EventListener : ListenerAdapter(), KoinComponent {
       .presence
       .activity = Activity.of(Activity.ActivityType.DEFAULT, "$version | $website", website)
 
-    logger.info { "ONLINE: Connected to ${event.jda.guilds.size} guilds!" }
-
     // Add guild if not present
-
     logger.info { "Add any missing Guilds to the Database..." }
-    event.jda.guilds.forEach {
+    event.jda.shardManager?.guilds?.forEach {
       transaction {
         Guild.findOrCreate(it.idLong, it.name, it.region.name)
       }
     }
+
+    logger.info { "ONLINE: Connected to ${event.jda.shardManager?.guilds?.size} guilds!" }
   }
 }

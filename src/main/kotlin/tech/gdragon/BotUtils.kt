@@ -31,34 +31,38 @@ object BotUtils {
     val channelMemberCount = voiceChannelSize(channel)
     logger.debug { "Channel member count: $channelMemberCount" }
 
-    return transaction {
-      val settings = Guild.findById(guild.idLong)?.settings
-
-      settings
-        ?.channels
-        ?.firstOrNull { it.id.value == channel.idLong }
-        ?.let {
+    val channels = transaction {
+      Guild.findById(guild.idLong)?.settings?.channels?.map {
+        object {
+          val id = it.id.value
           val autoRecord = it.autoRecord
-          BotUtils.logger.debug { "AutoRecord value: $autoRecord" }
+        }
+      }
+    }
 
-          if (autoRecord != null && channelMemberCount >= autoRecord) {
-            val defaultChannel = defaultTextChannel(guild) ?: findPublicChannel(guild)
+    channels
+      ?.firstOrNull { it.id == channel.idLong }
+      ?.let {
+        val autoRecord = it.autoRecord
+        logger.debug { "AutoRecord value: $autoRecord" }
 
-            withLoggingContext("guild" to guild.name, "voice-channel" to channel.name) {
-              try {
-                recordVoiceChannel(channel, defaultChannel) { ex ->
-                  val message = ":no_entry_sign: _Cannot record on **<#${channel.id}>**, need permission:_ ```${ex.permission}```"
-                  sendMessage(defaultChannel, message)
-                }
-              } catch (e: IllegalArgumentException) {
-                logger.error(e) {
-                  e.message
-                }
+        if (autoRecord != null && channelMemberCount >= autoRecord) {
+          val defaultChannel = defaultTextChannel(guild) ?: findPublicChannel(guild)
+
+          withLoggingContext("guild" to guild.name, "voice-channel" to channel.name) {
+            try {
+              recordVoiceChannel(channel, defaultChannel) { ex ->
+                val message = ":no_entry_sign: _Cannot record on **<#${channel.id}>**, need permission:_ ```${ex.permission}```"
+                sendMessage(defaultChannel, message)
+              }
+            } catch (e: IllegalArgumentException) {
+              logger.error(e) {
+                e.message
               }
             }
           }
         }
-    }
+      }
   }
 
   private fun autoSave(discordGuild: DiscordGuild): Boolean {
@@ -72,22 +76,26 @@ object BotUtils {
     val channelMemberCount = voiceChannelSize(channel)
     logger.debug { "${guild.name}#${channel.name} - Channel member count: $channelMemberCount" }
 
-    transaction {
-      val settings = Guild.findById(guild.idLong)?.settings
-
-      settings
-        ?.channels
-        ?.firstOrNull { it.id.value == channel.idLong }
-        ?.let {
+    val channels = transaction {
+      Guild.findById(guild.idLong)?.settings?.channels?.map {
+        object {
+          val id = it.id.value
           val autoStop = it.autoStop
-          BotUtils.logger.debug { "${guild.name}#${channel.name} - autostop value: $autoStop" }
-
-          if (autoStop != null && channelMemberCount <= autoStop) {
-            val defaultChannel = defaultTextChannel(guild) ?: findPublicChannel(guild)
-            leaveVoiceChannel(channel, defaultChannel)
-          }
         }
+      }
     }
+
+    channels
+      ?.firstOrNull { it.id == channel.idLong }
+      ?.let {
+        val autoStop = it.autoStop
+        logger.debug { "${guild.name}#${channel.name} - autostop value: $autoStop" }
+
+        if (autoStop != null && channelMemberCount <= autoStop) {
+          val defaultChannel = defaultTextChannel(guild) ?: findPublicChannel(guild)
+          leaveVoiceChannel(channel, defaultChannel)
+        }
+      }
   }
 
   /**
@@ -280,11 +288,18 @@ object BotUtils {
     }
 
     // Find all ancient guilds and ask the Bot to leave them, or mark them as inactive if already gone
-    val guilds = transaction { Guild.find(op).toList() }
+    val guilds = transaction {
+      Guild.find(op).map {
+        object {
+          val id = it.id.value
+          val name = it.name
+        }
+      }
+    }
 
     guilds
       .forEach {
-        val guild = jda.getGuildById(it.id.value)
+        val guild = jda.shardManager?.getGuildById(it.id)
         guild
           ?.leave()
           ?.queue({
@@ -293,7 +308,9 @@ object BotUtils {
             logger.error(e) { "Could not leave server '$guild'!" }
           })
           ?: logger.warn {
-            it.active = false
+            transaction {
+              Guild[it.id].active = false
+            }
             "No longer in this guild ${it.name}, but marking as inactive"
           }
       }

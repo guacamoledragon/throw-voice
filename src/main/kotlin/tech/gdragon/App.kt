@@ -9,6 +9,7 @@ import org.koin.dsl.module
 import tech.gdragon.data.DataStore
 import tech.gdragon.db.initializeDatabase
 import tech.gdragon.discord.Bot
+import tech.gdragon.metrics.Metrics
 import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -33,6 +34,7 @@ fun main() {
       module {
         single { Bot() }
         single { DataStore() }
+        single { Metrics() }
       }
     )
   }

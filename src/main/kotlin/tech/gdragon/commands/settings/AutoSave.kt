@@ -7,29 +7,33 @@ import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.db.dao.Guild
 
-class AutoSave : CommandHandler {
+class AutoSave : CommandHandler() {
   override fun action(args: Array<String>, event: GuildMessageReceivedEvent) {
 
-      require(args.isEmpty()) {
-        throw InvalidCommand(::usage, "Incorrect number of arguments: ${args.size}")
+    require(args.isEmpty()) {
+      throw InvalidCommand(::usage, "Incorrect number of arguments: ${args.size}")
+    }
+
+    usageCounter.add(1)
+
+    val autoSave: Boolean? = transaction {
+      Guild
+        .findById(event.guild.idLong)
+        ?.settings
+        ?.apply { autoSave = !autoSave } // Toggle AutoSave
+        ?.autoSave
+    }
+
+    val defaultChannel = BotUtils.defaultTextChannel(event.guild) ?: event.channel
+
+    val message =
+      when (autoSave) {
+        true -> ":vibration_mode::floppy_disk: _Automatically saving at the end of each session._"
+        false -> ":mobile_phone_off::floppy_disk: _Not saving at the end of each session._"
+        else -> ":no_entry_sign: _Could not toggle autosave option._"
       }
 
-    transaction {
-      val guild = Guild.findById(event.guild.idLong)
-      val defaultChannel = BotUtils.defaultTextChannel(event.guild) ?: event.channel
-
-      val message =
-        guild?.settings?.let {
-          it.autoSave = !it.autoSave
-
-          if (it.autoSave)
-            ":vibration_mode::floppy_disk: _Automatically saving at the end of each session._"
-          else
-            ":mobile_phone_off::floppy_disk: _Not saving at the end of each session._"
-        } ?: ":no_entry_sign: _Could not toggle autosave option._"
-
-      BotUtils.sendMessage(defaultChannel, message)
-    }
+    BotUtils.sendMessage(defaultChannel, message)
   }
 
   override fun usage(prefix: String): String = "${prefix}autosave"

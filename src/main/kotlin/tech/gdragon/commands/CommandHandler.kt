@@ -1,16 +1,31 @@
 package tech.gdragon.commands
 
+import com.codahale.metrics.Gauge
+import com.codahale.metrics.MetricRegistry
+import com.github.rollingmetrics.counter.ResetPeriodicallyCounter
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.koin.core.KoinComponent
+import org.koin.core.inject
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.discord.Command
+import tech.gdragon.metrics.Metrics
+import java.time.Duration
 
-interface CommandHandler {
+abstract class CommandHandler : KoinComponent {
+  private val metrics: Metrics by inject()
+  protected val usageCounter = ResetPeriodicallyCounter(Duration.ofDays(1))
+
+  init {
+    val gauge = Gauge<Long> { usageCounter.sum }
+    metrics.registry.register(MetricRegistry.name(this::class.java), gauge)
+  }
+
   @Throws(InvalidCommand::class)
-  fun action(args: Array<String>, event: GuildMessageReceivedEvent)
+  abstract fun action(args: Array<String>, event: GuildMessageReceivedEvent)
 
-  fun usage(prefix: String): String
-  fun description(): String
+  abstract fun usage(prefix: String): String
+  abstract fun description(): String
 }
 
 data class InvalidCommand(val usage: (String) -> String, val reason: String) : Throwable()

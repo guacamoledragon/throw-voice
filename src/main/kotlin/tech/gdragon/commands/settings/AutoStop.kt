@@ -9,14 +9,16 @@ import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
 import net.dv8tion.jda.api.entities.GuildChannel
 
-class AutoStop : CommandHandler {
+class AutoStop : CommandHandler() {
 
   private fun updateChannelAutoStop(channel: GuildChannel, autoStop: Int?) {
-    transaction {
-      val guild = channel.guild.run {
+    val guild = channel.guild.run {
+      transaction {
         Guild.findOrCreate(idLong, name, region.name)
       }
+    }
 
+    transaction {
       Channel
         .findOrCreate(channel.idLong, channel.name, guild)
         .also { it.autoStop = autoStop }
@@ -27,6 +29,8 @@ class AutoStop : CommandHandler {
     require(args.size >= 2) {
       throw InvalidCommand(::usage, "Incorrect number of arguments: ${args.size}")
     }
+
+    usageCounter.add(1)
 
     val message =
       try {
