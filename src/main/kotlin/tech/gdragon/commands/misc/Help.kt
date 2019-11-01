@@ -1,6 +1,5 @@
 package tech.gdragon.commands.misc
 
-import mu.KotlinLogging
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -12,8 +11,6 @@ import tech.gdragon.discord.Command
 import java.awt.Color
 
 class Help : CommandHandler() {
-  private val logger = KotlinLogging.logger {}
-
   override fun action(args: Array<String>, event: GuildMessageReceivedEvent) {
     val prefix = transaction { Guild.findById(event.guild.idLong)?.settings?.prefix ?: "!" }
     val aliases = transaction {

@@ -3,6 +3,7 @@ package tech.gdragon.commands
 import com.codahale.metrics.Gauge
 import com.codahale.metrics.MetricRegistry
 import com.github.rollingmetrics.counter.ResetPeriodicallyCounter
+import mu.KotlinLogging
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.KoinComponent
@@ -15,6 +16,7 @@ import java.time.Duration
 abstract class CommandHandler : KoinComponent {
   private val metrics: Metrics by inject()
   protected val usageCounter = ResetPeriodicallyCounter(Duration.ofDays(1))
+  protected val logger = KotlinLogging.logger {}
 
   init {
     val gauge = Gauge<Long> { usageCounter.sum }

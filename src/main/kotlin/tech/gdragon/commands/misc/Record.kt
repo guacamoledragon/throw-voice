@@ -1,9 +1,11 @@
 package tech.gdragon.commands.misc
 
+import mu.withLoggingContext
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import tech.gdragon.BotUtils
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
+import java.lang.IllegalArgumentException
 
 class Record : CommandHandler() {
   override fun action(args: Array<String>, event: GuildMessageReceivedEvent) {
@@ -33,11 +35,16 @@ class Record : CommandHandler() {
           }
 
           // We need to give something to the onError handler because sometimes life doesn't do what we want
-          BotUtils.recordVoiceChannel(voiceChannel, defaultChannel) { ex ->
-            val errorMessage = ":no_entry_sign: _Cannot record on **<#${voiceChannel.id}>**, need permission:_ ```${ex.permission}```"
-            BotUtils.sendMessage(defaultChannel, errorMessage)
+          withLoggingContext("guild" to event.guild.name, "voice-channel" to voiceChannel.name) {
+            try {
+              BotUtils.recordVoiceChannel(voiceChannel, defaultChannel) { ex ->
+                val errorMessage = ":no_entry_sign: _Cannot record on **<#${voiceChannel.id}>**, need permission:_ ```${ex.permission}```"
+                BotUtils.sendMessage(defaultChannel, errorMessage)
+              }
+            } catch (e: IllegalArgumentException) {
+              logger.warn(e::message)
+            }
           }
-
           null // TODO: This is weird, but the problem is probably with the way the logic is structured
         }
       }

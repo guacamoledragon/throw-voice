@@ -56,9 +56,7 @@ object BotUtils {
                 sendMessage(defaultChannel, message)
               }
             } catch (e: IllegalArgumentException) {
-              logger.error(e) {
-                e.message
-              }
+              logger.warn(e::message)
             }
           }
         }
@@ -117,12 +115,13 @@ object BotUtils {
     return user.isBot && user.jda.selfUser.idLong == user.idLong
   }
 
+  // TODO: I don't think there's a need for the callback for exception handling, just throw
   fun recordVoiceChannel(channel: VoiceChannel, defaultChannel: TextChannel?, onError: (InsufficientPermissionException) -> Unit = {}) {
 
     /** Begin assertions **/
     require(defaultChannel != null && channel.guild.getTextChannelById(defaultChannel.id)?.canTalk() ?: false) {
       val msg = "Attempted to record, but bot cannot write to any channel."
-      logger.warn(msg)
+      updateNickname(channel.guild.selfMember, "FIX ME")
       msg
     }
 
@@ -143,9 +142,9 @@ object BotUtils {
 
       try {
         audioManager.openAudioConnection(channel)
-        logger.info { "vc:${channel.name} - Connected to voice channel" }
+        logger.info { "Connected to voice channel" }
       } catch (e: InsufficientPermissionException) {
-        logger.warn { "vc:${channel.name} - Need permission: ${e.permission}" }
+        logger.warn { "Need permission: ${e.permission}" }
         onError(e)
         return
       }
@@ -245,19 +244,7 @@ object BotUtils {
     }
 
     if (newNick != prevNick && (newNick.length <= 32)) {
-      try {
-        bot.guild
-          .modifyNickname(bot, newNick)
-          .queue(null, { t ->
-            logger.error(t) {
-              "Could not change nickname: $prevNick -> $newNick"
-            }
-          })
-      } catch (e: InsufficientPermissionException) {
-        logger.warn(e) {
-          "Missing ${e.permission} permission to change $prevNick -> $newNick"
-        }
-      }
+      updateNickname(bot, newNick)
     }
   }
 
@@ -328,6 +315,23 @@ object BotUtils {
     return guild
       .textChannels
       .find(TextChannel::canTalk)
+  }
+
+  private fun updateNickname(bot: Member, nickname: String) {
+    val prevNick = bot.effectiveName
+    try {
+      bot.guild
+        .modifyNickname(bot, nickname)
+        .queue(null, { t ->
+          logger.error(t) {
+            "Could not change nickname: $prevNick -> $nickname"
+          }
+        })
+    } catch (e: InsufficientPermissionException) {
+      logger.warn {
+        "Missing ${e.permission} permission to change $prevNick -> $nickname"
+      }
+    }
   }
 
   /**
