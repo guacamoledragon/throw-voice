@@ -1,15 +1,16 @@
 -- Recordings that have been made in the last day
-select datetime(created_on)                                                as timestamp,
-       round((julianday(modified_on) - julianday(created_on)) * 1440.0, 2) as duration,
+select datetime(r.created_on, '-8 hours')                                    as timestamp,
+       round((julianday(modified_on) - julianday(r.created_on)) * 1440.0, 2) as duration,
        url,
-       guilds.name                                                         as guild,
-       channels.name                                                       as channel
-from Recordings
-       join Guilds guilds on Recordings.guild = guilds.id
-       join Channels channels on Recordings.channel = channels.id
+       guilds.name                                                           as guild,
+       channels.name                                                         as channel,
+       guilds.region                                                         as region
+from Recordings r
+         join Guilds guilds on r.guild = guilds.id
+         join Channels channels on r.channel = channels.id
 where url notnull
-  and (julianday('now', 'localtime') - julianday(created_on)) < 1.12
-order by created_on desc;
+  and julianday(r.created_on) between julianday('now', '-2 days') and julianday('now')
+order by r.created_on desc;
 
 
 select guilds.name as Guild,
@@ -17,7 +18,7 @@ select guilds.name as Guild,
 from Recordings
        left join Guilds guilds on Recordings.guild = guilds.id
 where Recordings.modified_on IS NULL
-  and (julianday('now') - julianday(created_on)) < 1.5
+  and (julianday('now') - julianday(created_on)) < 0.02
 order by Count desc;
 
 

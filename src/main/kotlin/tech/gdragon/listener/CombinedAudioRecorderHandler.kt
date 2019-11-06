@@ -14,7 +14,6 @@ import net.dv8tion.jda.api.audio.UserAudio
 import net.dv8tion.jda.api.entities.TextChannel
 import net.dv8tion.jda.api.entities.VoiceChannel
 import org.apache.commons.io.FileUtils
-import org.jetbrains.exposed.sql.transactions.transaction
 import org.joda.time.DateTime
 import org.koin.core.KoinComponent
 import org.koin.core.inject
@@ -23,6 +22,7 @@ import tech.gdragon.data.DataStore
 import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.dao.Recording
+import tech.gdragon.db.transaction
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream

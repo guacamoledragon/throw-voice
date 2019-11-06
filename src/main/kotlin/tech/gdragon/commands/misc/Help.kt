@@ -2,17 +2,17 @@ package tech.gdragon.commands.misc
 
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
-import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.BotUtils
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.db.dao.Guild
+import tech.gdragon.db.transaction
 import tech.gdragon.discord.Command
 import java.awt.Color
 
 class Help : CommandHandler() {
   override fun action(args: Array<String>, event: GuildMessageReceivedEvent) {
-    val prefix = transaction { Guild.findById(event.guild.idLong)?.settings?.prefix ?: "!" }
+    val prefix = transaction { Guild.findById(event.guild.idLong)?.settings?.prefix } ?: "!"
     val aliases = transaction {
       Guild.findById(event.guild.idLong)
         ?.settings

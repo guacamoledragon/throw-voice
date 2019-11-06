@@ -15,13 +15,13 @@ import net.dv8tion.jda.api.events.guild.voice.GuildVoiceMoveEvent
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
-import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.KoinComponent
 import tech.gdragon.BotUtils
 import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.commands.handleCommand
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.nowUTC
+import tech.gdragon.db.transaction
 
 class EventListener : ListenerAdapter(), KoinComponent {
 
@@ -163,29 +163,31 @@ class EventListener : ListenerAdapter(), KoinComponent {
       }
 
     val prefix = transaction {
-      guild.settings.prefix
+      guild?.settings?.prefix
     }
 
-    val rawContent = event.message.contentDisplay.toLowerCase()
-    val hasPrefix = rawContent.startsWith(prefix)
-    val inMaintenance = getKoin().getProperty("MAINTENANCE", "false").toBoolean()
-    val defaultChannel = BotUtils.defaultTextChannel(event.guild) ?: event.channel
-
     withLoggingContext("guild" to event.guild.name, "text-channel" to event.channel.name) {
-      when {
-        hasPrefix && inMaintenance -> {
-          BotUtils.sendMessage(defaultChannel, ":poop: _Currently running an update...\n\nIf you have any questions please visit the support server: ${website}_")
-          logger.warn("Trying to use while running an update")
-        }
-        hasPrefix ->
-          try {
-            handleCommand(event, prefix, rawContent)
-            // Update activity
-            transaction { guild.lastActiveOn = nowUTC() }
-          } catch (e: InvalidCommand) {
-            BotUtils.sendMessage(defaultChannel, ":no_entry_sign: _Usage: `${e.usage(prefix)}`_")
-            logger.warn { "[$rawContent] ${e.reason}" }
+      if (prefix != null) {
+        val rawContent = event.message.contentDisplay.toLowerCase()
+        val inMaintenance = getKoin().getProperty("MAINTENANCE", "false").toBoolean()
+        val defaultChannel = BotUtils.defaultTextChannel(event.guild) ?: event.channel
+        val hasPrefix = rawContent.startsWith(prefix)
+
+        when {
+          hasPrefix && inMaintenance -> {
+            BotUtils.sendMessage(defaultChannel, ":poop: _Currently running an update...\n\nIf you have any questions please visit the support server: ${website}_")
+            logger.warn("Trying to use while running an update")
           }
+          hasPrefix ->
+            try {
+              handleCommand(event, prefix, rawContent)
+              // Update activity
+              transaction { guild?.lastActiveOn = nowUTC() }
+            } catch (e: InvalidCommand) {
+              BotUtils.sendMessage(defaultChannel, ":no_entry_sign: _Usage: `${e.usage(prefix)}`_")
+              logger.warn { "[$rawContent] ${e.reason}" }
+            }
+        }
       }
     }
   }

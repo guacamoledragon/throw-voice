@@ -9,10 +9,10 @@ import org.jetbrains.exposed.dao.EntityID
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.SqlExpressionBuilder
 import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.transactions.transaction
 import org.joda.time.DateTime
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.table.Tables.Guilds
+import tech.gdragon.db.transaction
 import tech.gdragon.listener.CombinedAudioRecorderHandler
 import tech.gdragon.listener.SilenceAudioSendHandler
 import java.io.File
@@ -65,9 +65,11 @@ object BotUtils {
 
   private fun autoSave(discordGuild: DiscordGuild): Boolean {
     return transaction {
-      val guild = Guild.findById(discordGuild.idLong)
-      guild?.settings?.autoSave ?: false
-    }
+      Guild
+        .findById(discordGuild.idLong)
+        ?.settings
+        ?.autoSave
+    } ?: false
   }
 
   fun autoStop(guild: DiscordGuild, channel: VoiceChannel) {
@@ -154,8 +156,7 @@ object BotUtils {
           ?.settings
           ?.volume
           ?.toDouble()
-          ?: 1.0
-      }
+      } ?: 1.0
 
       val recorder = CombinedAudioRecorderHandler(volume, channel, defaultChannel)
       val audioSendHandler = SilenceAudioSendHandler()
@@ -179,24 +180,26 @@ object BotUtils {
     val audioManager = guild.audioManager
     val audioRecorderHandler = audioManager.receivingHandler as CombinedAudioRecorderHandler?
 
-    audioRecorderHandler?.let {
-      if (autoSave(guild) && textChannel != null) {
-        sendMessage(textChannel, ":floppy_disk: **Saving <#${voiceChannel.id}>'s recording...**")
-        it.saveRecording(voiceChannel, textChannel)
+    withLoggingContext("guild" to voiceChannel.guild.name, "text-channel" to textChannel?.name.orEmpty()) {
+      audioRecorderHandler?.let {
+        if (autoSave(guild) && textChannel != null) {
+          sendMessage(textChannel, ":floppy_disk: **Saving <#${voiceChannel.id}>'s recording...**")
+          it.saveRecording(voiceChannel, textChannel)
+        }
+
+        it.disconnect()
       }
 
-      it.disconnect()
-    }
+      logger.info("Leaving voice channel", guild.name, voiceChannel.name)
+      audioManager.apply {
+        receivingHandler = null
+        sendingHandler = null
+        closeAudioConnection()
+        logger.info("Destroyed audio handlers", guild.name, voiceChannel.name)
+      }
 
-    logger.info("{}#{}: Leaving voice channel", guild.name, voiceChannel.name)
-    audioManager.apply {
-      receivingHandler = null
-      sendingHandler = null
-      closeAudioConnection()
-      logger.info("{}#{}: Destroyed audio handlers", guild.name, voiceChannel.name)
+      recordingStatus(voiceChannel.guild.selfMember, false)
     }
-
-    recordingStatus(voiceChannel.guild.selfMember, false)
   }
 
   /**
@@ -208,7 +211,7 @@ object BotUtils {
         ?.sendMessage(msg)
         ?.queue(
           { m -> logger.debug { "Send message - ${m.contentDisplay}" } },
-          { logger.error { "Error sending message - $msg" } }
+          { t -> logger.error { "Error sending message - $msg: ${t.message}" } }
         )
     } catch (e: InsufficientPermissionException) {
       logger.warn(e) {
@@ -285,7 +288,7 @@ object BotUtils {
     }
 
     guilds
-      .forEach {
+      ?.forEach {
         val guild = jda.shardManager?.getGuildById(it.id)
         guild
           ?.leave()

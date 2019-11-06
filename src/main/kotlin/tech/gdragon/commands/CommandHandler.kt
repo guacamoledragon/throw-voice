@@ -5,10 +5,10 @@ import com.codahale.metrics.MetricRegistry
 import com.github.rollingmetrics.counter.ResetPeriodicallyCounter
 import mu.KotlinLogging
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
-import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 import tech.gdragon.db.dao.Guild
+import tech.gdragon.db.transaction
 import tech.gdragon.discord.Command
 import tech.gdragon.metrics.Metrics
 import java.time.Duration

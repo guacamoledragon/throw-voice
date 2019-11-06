@@ -1,12 +1,12 @@
 package tech.gdragon.commands.settings
 
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
-import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.BotUtils
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.db.dao.Alias
 import tech.gdragon.db.dao.Guild
+import tech.gdragon.db.transaction
 import tech.gdragon.discord.Command
 
 class Alias : CommandHandler() {
@@ -44,7 +44,7 @@ class Alias : CommandHandler() {
             }
 
             ":dancers: _New alias: **`$alias -> ${command.toLowerCase()}`**_"
-          }
+          } ?: ":no_entry_sign: _Couldn't create alias, try again._"
         }
 
       BotUtils.sendMessage(defaultChannel, message)

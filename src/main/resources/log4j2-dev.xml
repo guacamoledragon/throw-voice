@@ -9,7 +9,7 @@
   </Properties>
   <Appenders>
     <Console name="Console">
-      <PatternLayout pattern="${globalPattern}"/>
+      <PatternLayout pattern="${globalPattern}" charset="UTF-8"/>
       <Filters>
         <RegexFilter regex=".*Transaction attempt.*" onMatch="DENY" onMismatch="NEUTRAL"/>
       </Filters>

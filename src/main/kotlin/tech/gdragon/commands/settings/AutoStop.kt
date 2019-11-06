@@ -1,28 +1,31 @@
 package tech.gdragon.commands.settings
 
+import mu.withLoggingContext
+import net.dv8tion.jda.api.entities.GuildChannel
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
-import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.BotUtils
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
-import net.dv8tion.jda.api.entities.GuildChannel
+import tech.gdragon.db.transaction
 
 class AutoStop : CommandHandler() {
 
   private fun updateChannelAutoStop(channel: GuildChannel, autoStop: Int?) {
-    val guild = channel.guild.run {
-      transaction {
-        Guild.findOrCreate(idLong, name, region.name)
+    withLoggingContext("guild" to channel.guild.name, "text-channel" to channel.name) {
+      channel.guild.run {
+        transaction {
+          Guild.findOrCreate(idLong, name, region.name)
+        }
+      }?.let { guild ->
+        transaction {
+          Channel
+            .findOrCreate(channel.idLong, channel.name, guild)
+            .also { it.autoStop = autoStop }
+        }
       }
-    }
-
-    transaction {
-      Channel
-        .findOrCreate(channel.idLong, channel.name, guild)
-        .also { it.autoStop = autoStop }
-    }
+    } ?: logger.warn("Couldn't set autostop.")
   }
 
   override fun action(args: Array<String>, event: GuildMessageReceivedEvent) {

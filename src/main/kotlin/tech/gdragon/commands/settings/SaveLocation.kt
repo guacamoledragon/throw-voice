@@ -2,12 +2,12 @@ package tech.gdragon.commands.settings
 
 import net.dv8tion.jda.api.entities.TextChannel
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
-import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.BotUtils
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.dao.Settings
+import tech.gdragon.db.transaction
 
 class SaveLocation : CommandHandler() {
   private fun setSaveLocation(settings: Settings, channel: TextChannel?): String {

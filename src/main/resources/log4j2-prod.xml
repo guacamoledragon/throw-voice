@@ -9,7 +9,7 @@
   </Properties>
   <Appenders>
     <Console name="Console">
-      <PatternLayout pattern="${globalPattern}"/>
+      <PatternLayout pattern="${globalPattern}" charset="UTF-8"/>
     </Console>
     <Rollbar name="Rollbar">
       <accessToken>${env:ROLLBAR_TOKEN}</accessToken>

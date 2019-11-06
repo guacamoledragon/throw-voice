@@ -1,11 +1,11 @@
 package tech.gdragon.commands.settings
 
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
-import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.BotUtils
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.db.dao.Guild
+import tech.gdragon.db.transaction
 
 class RemoveAlias : CommandHandler() {
   override fun action(args: Array<String>, event: GuildMessageReceivedEvent) {
@@ -23,8 +23,7 @@ class RemoveAlias : CommandHandler() {
         ?.aliases
         ?.find { it.alias == alias }
         ?.run { delete(); true }
-        ?: false
-    }
+    } ?: false
 
     val message =
       if (aliasDeleted) ":dancer: _Alias **`$alias`** has been removed._"
