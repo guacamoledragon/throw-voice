@@ -102,7 +102,7 @@ class EventListener : ListenerAdapter(), KoinComponent {
       }
 
       // Update activity
-      transaction {
+      asyncTransaction {
         event.guild.run {
           Guild
             .findOrCreate(idLong, name, region.name)
@@ -132,7 +132,7 @@ class EventListener : ListenerAdapter(), KoinComponent {
       logger.debug { "${event.guild.name}#${event.channelJoined.name} - ${user.name} joined voice channel" }
 
       // Update activity
-      transaction {
+      asyncTransaction {
         event.guild.run {
           Guild
             .findOrCreate(idLong, name, region.name)
