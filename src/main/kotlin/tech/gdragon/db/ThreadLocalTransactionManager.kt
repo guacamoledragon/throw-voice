@@ -1,29 +1,27 @@
+@file:JvmName("ThreadLocalTransactionManager")
+
 package tech.gdragon.db
 
 import mu.KotlinLogging
-import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.Transaction
-import org.jetbrains.exposed.sql.statements.expandArgs
 import org.jetbrains.exposed.sql.transactions.transactionManager
-import java.sql.SQLException
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.Future
 import org.jetbrains.exposed.sql.transactions.transaction as txn
 
 val logger = KotlinLogging.logger { }
 
-fun <T> transaction(db: Database? = null, statement: Transaction.() -> T): T? {
-  return try {
-    txn(db.transactionManager.defaultIsolationLevel, db.transactionManager.defaultRepetitionAttempts, db, statement)
-  } catch (e: SQLException) {
-    val exposedSQLException = e as? ExposedSQLException
-    val transaction = db.transactionManager.newTransaction(db.transactionManager.defaultIsolationLevel, null)
+val lock = Object()
 
-    val queriesToLog = exposedSQLException?.contexts?.joinToString("\n") {
-      it.expandArgs(transaction)
+fun <T> asyncTransaction(db: Database? = null, statement: Transaction.() -> T): Future<T> {
+  return CompletableFuture.supplyAsync {
+    synchronized(lock) {
+      txn(db.transactionManager.defaultIsolationLevel, db.transactionManager.defaultRepetitionAttempts, db, statement)
     }
-
-    logger.error(e) {
-      "Failed to run transaction: $queriesToLog"
+  }.exceptionally { t ->
+    logger.error(t) {
+      "Failed to run asyncTransaction"
     }
 
     null

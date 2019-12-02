@@ -19,10 +19,10 @@ import org.koin.core.KoinComponent
 import org.koin.core.inject
 import tech.gdragon.BotUtils
 import tech.gdragon.data.DataStore
+import tech.gdragon.db.asyncTransaction
 import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.dao.Recording
-import tech.gdragon.db.transaction
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -31,6 +31,8 @@ import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
 import java.util.*
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
 
 class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceChannel, val defaultChannel: TextChannel) : AudioReceiveHandler, KoinComponent {
@@ -56,7 +58,7 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
   private var subscription: Disposable? = null
   private var uuid: UUID? = null
   private var queueFile: QueueFile? = null
-  private var recordingRecord: Recording? = null
+  private var recordingRecord: Future<Recording?> = CompletableFuture.completedFuture(null)
 
   private var canReceive = true
   private var afkCounter = 0
@@ -64,6 +66,9 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
   private var filename: String? = null
   private var queueFilename: String? = null
   private var recordingSize: Int = 0
+
+  val session: String
+    get() = uuid.toString()
 
   init {
     subscription = createRecording()
@@ -89,7 +94,7 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
   }
 
   private fun createRecording(): Disposable? {
-    recordingRecord = transaction {
+    recordingRecord = asyncTransaction {
       Guild.findById(voiceChannel.guild.idLong)?.let {
         Recording.new {
           channel = Channel.findOrCreate(voiceChannel.idLong, voiceChannel.name, it)
@@ -232,8 +237,8 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
       val message = ":no_entry_sign: _Recording is empty, not uploading._"
       BotUtils.sendMessage(channel, message)
 
-      transaction {
-        recordingRecord?.apply {
+      asyncTransaction {
+        recordingRecord.get()?.apply {
           size = 0
           modifiedOn = DateTime.now()
           url = "N/A"
@@ -248,22 +253,34 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
       // Upload to Minio
       if (recording.length() < MAX_RECORDING_SIZE) {
         val recordingKey = "${channel.guild.id}/${recording.name}"
-        val result = datastore.upload(recordingKey, recording)
+        try {
+          val result = datastore.upload(recordingKey, recording)
 
-        val message = """|:microphone2: **Recording for <#${voiceChannel?.id}> has been uploaded!**
-                         |${result.url}
-                         |
-                         |_Recording will only be available for 24hrs_
-                         |""".trimMargin()
+          val message = """|:microphone2: **Recording for <#${voiceChannel?.id}> has been uploaded!**
+                           |${result.url}
+                           |
+                           |_Recording will only be available for 24hrs_
+                           |""".trimMargin()
 
-        BotUtils.sendMessage(channel, message)
+          BotUtils.sendMessage(channel, message)
 
-        transaction {
-          recordingRecord?.apply {
-            size = result.size
-            modifiedOn = result.timestamp
-            url = result.url
+          asyncTransaction {
+            recordingRecord.get()?.apply {
+              size = result.size
+              modifiedOn = result.timestamp
+              url = result.url
+            }
           }
+        } catch (e: Exception) {
+          logger.error(e) {
+            "Error uploading recording."
+          }
+
+          val errorMessage = """|:no_entry_sign: _Error uploading recording, please visit support server and provide Session ID._
+                                |_Session ID: `$session`_
+                                |""".trimMargin()
+
+          BotUtils.sendMessage(channel, errorMessage)
         }
       } else {
         val recordingSize = FileUtils.byteCountToDisplaySize(recording.length())
@@ -299,8 +316,8 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
       }
     }
 
-    transaction {
-      recordingRecord?.apply {
+    asyncTransaction {
+      recordingRecord.get()?.apply {
         if (url.isNullOrEmpty())
           delete()
       }

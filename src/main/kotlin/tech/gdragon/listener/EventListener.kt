@@ -15,13 +15,14 @@ import net.dv8tion.jda.api.events.guild.voice.GuildVoiceMoveEvent
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
+import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.KoinComponent
 import tech.gdragon.BotUtils
 import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.commands.handleCommand
+import tech.gdragon.db.asyncTransaction
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.nowUTC
-import tech.gdragon.db.transaction
 
 class EventListener : ListenerAdapter(), KoinComponent {
 
@@ -31,7 +32,7 @@ class EventListener : ListenerAdapter(), KoinComponent {
   override fun onGuildJoin(event: GuildJoinEvent) {
     withLoggingContext("guild" to event.guild.name) {
       val guild = event.guild
-      transaction {
+      asyncTransaction {
         Guild
           .findOrCreate(guild.idLong, guild.name, guild.region.name)
           .also {
@@ -46,7 +47,7 @@ class EventListener : ListenerAdapter(), KoinComponent {
 
   override fun onGuildLeave(event: GuildLeaveEvent) {
     withLoggingContext("guild" to event.guild.name) {
-      transaction {
+      asyncTransaction {
         Guild
           .findById(event.guild.idLong)
           ?.let {
@@ -61,7 +62,7 @@ class EventListener : ListenerAdapter(), KoinComponent {
   override fun onGuildUpdateName(event: GuildUpdateNameEvent) {
     withLoggingContext("guild" to event.guild.name) {
       event.run {
-        transaction {
+        asyncTransaction {
           Guild.findById(guild.idLong)
             .also {
               it?.name = newName
@@ -77,7 +78,7 @@ class EventListener : ListenerAdapter(), KoinComponent {
   override fun onGuildUpdateRegion(event: GuildUpdateRegionEvent) {
     withLoggingContext("guild" to event.guild.name) {
       event.run {
-        transaction {
+        asyncTransaction {
           Guild.findOrCreate(guild.idLong, guild.name, event.oldRegion.name)
             .also {
               it.region = newRegion.name
@@ -163,32 +164,27 @@ class EventListener : ListenerAdapter(), KoinComponent {
       }
 
     val prefix = transaction {
-      guild?.settings?.prefix
+      guild.settings.prefix
     }
 
     withLoggingContext("guild" to event.guild.name, "text-channel" to event.channel.name) {
-      if (prefix != null) {
-        val rawContent = event.message.contentDisplay.toLowerCase()
-        val inMaintenance = getKoin().getProperty("MAINTENANCE", "false").toBoolean()
-        val defaultChannel = BotUtils.defaultTextChannel(event.guild) ?: event.channel
-        val hasPrefix = rawContent.startsWith(prefix)
+      val rawContent = event.message.contentDisplay.toLowerCase()
+      val inMaintenance = getKoin().getProperty("MAINTENANCE", "false").toBoolean()
+      val defaultChannel = BotUtils.defaultTextChannel(event.guild) ?: event.channel
+      val hasPrefix = rawContent.startsWith(prefix)
 
-        when {
-          hasPrefix && inMaintenance -> {
-            BotUtils.sendMessage(defaultChannel, ":poop: _Currently running an update...\n\nIf you have any questions please visit the support server: ${website}_")
-            logger.warn("Trying to use while running an update")
-          }
-          hasPrefix ->
-            try {
-              handleCommand(event, prefix, rawContent)
-              // Update activity
-              transaction { guild?.lastActiveOn = nowUTC() }
-            } catch (e: InvalidCommand) {
-              BotUtils.sendMessage(defaultChannel, ":no_entry_sign: _Usage: `${e.usage(prefix)}`_")
-              logger.warn { "[$rawContent] ${e.reason}" }
-            }
+      if (hasPrefix && inMaintenance) {
+        BotUtils.sendMessage(defaultChannel, ":poop: _Currently running an update...\n\nIf you have any questions please visit the support server: ${website}_")
+        logger.warn("Trying to use while running an update")
+      } else if (hasPrefix)
+        try {
+          handleCommand(event, prefix, rawContent)
+          // Update activity
+          asyncTransaction { guild.lastActiveOn = nowUTC() }
+        } catch (e: InvalidCommand) {
+          BotUtils.sendMessage(defaultChannel, ":no_entry_sign: _Usage: `${e.usage(prefix)}`_")
+          logger.warn { "[$rawContent] ${e.reason}" }
         }
-      }
     }
   }
 

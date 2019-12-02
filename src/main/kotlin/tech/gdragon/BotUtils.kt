@@ -9,10 +9,11 @@ import org.jetbrains.exposed.dao.EntityID
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.SqlExpressionBuilder
 import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.transactions.transaction
 import org.joda.time.DateTime
+import tech.gdragon.db.asyncTransaction
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.table.Tables.Guilds
-import tech.gdragon.db.transaction
 import tech.gdragon.listener.CombinedAudioRecorderHandler
 import tech.gdragon.listener.SilenceAudioSendHandler
 import java.io.File
@@ -170,7 +171,9 @@ object BotUtils {
       audioManager.sendingHandler = audioSendHandler
 
       recordingStatus(channel.guild.selfMember, true)
-      sendMessage(defaultChannel, ":red_circle: **Audio is being recorded on <#${channel.id}>**")
+      sendMessage(defaultChannel, """:red_circle: **Recording audio on <#${channel.id}>**
+        |_Session ID: `${recorder.session}`_
+      """.trimMargin())
     }
   }
 
@@ -288,7 +291,7 @@ object BotUtils {
     }
 
     guilds
-      ?.forEach {
+      .forEach {
         val guild = jda.shardManager?.getGuildById(it.id)
         guild
           ?.leave()
@@ -298,7 +301,7 @@ object BotUtils {
             logger.error(e) { "Could not leave server '$guild'!" }
           })
           ?: logger.warn {
-            transaction {
+            asyncTransaction {
               Guild[it.id].active = false
             }
             "No longer in this guild ${it.name}, but marking as inactive"

@@ -5,7 +5,7 @@ import tech.gdragon.BotUtils
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.db.dao.Guild
-import tech.gdragon.db.transaction
+import org.jetbrains.exposed.sql.transactions.transaction
 import java.math.BigDecimal
 
 class Volume : CommandHandler() {

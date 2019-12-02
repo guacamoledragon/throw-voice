@@ -1,12 +1,13 @@
 package tech.gdragon.commands.settings
 
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
+import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.BotUtils
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
+import tech.gdragon.db.asyncTransaction
 import tech.gdragon.db.dao.Alias
 import tech.gdragon.db.dao.Guild
-import tech.gdragon.db.transaction
 import tech.gdragon.discord.Command
 
 class Alias : CommandHandler() {
@@ -34,17 +35,18 @@ class Alias : CommandHandler() {
           aliases?.any { it.alias == alias } == true -> ":no_entry_sign: _Alias **`$alias`** already exists._"
           // Checks that alias isn't a command
           command == alias.toUpperCase() -> ":no_entry_sign: _Alias cannot be a command: **`$alias`**_"
-          else -> transaction {
-            Guild.findById(event.guild.idLong)?.settings?.let {
-              Alias.new {
-                name = command
-                this.alias = alias
-                settings = it
+          else -> {
+            asyncTransaction {
+              Guild.findById(event.guild.idLong)?.settings?.let {
+                Alias.new {
+                          name = command
+                          this.alias = alias
+                          settings = it
+                }
               }
             }
-
-            ":dancers: _New alias: **`$alias -> ${command.toLowerCase()}`**_"
-          } ?: ":no_entry_sign: _Couldn't create alias, try again._"
+          ":dancers: _New alias: **`$alias -> ${command.toLowerCase()}`**_"
+          }
         }
 
       BotUtils.sendMessage(defaultChannel, message)

@@ -3,10 +3,11 @@ package tech.gdragon.commands.settings
 import mu.withLoggingContext
 import net.dv8tion.jda.api.entities.GuildChannel
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
-import tech.gdragon.db.transaction
+import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.BotUtils
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
+import tech.gdragon.db.asyncTransaction
 import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
 
@@ -17,13 +18,13 @@ class AutoRecord : CommandHandler() {
         transaction {
           Guild.findOrCreate(idLong, name, region.name)
         }
-      }?.let { guild ->
-        transaction {
+      }.let { guild ->
+        asyncTransaction {
           Channel
             .findOrCreate(channel.idLong, channel.name, guild)
             .also { it.autoRecord = autoRecord }
         }
-      } ?: logger.warn("Couldn't set autorecord.")
+      }
     }
   }
 

@@ -2,8 +2,8 @@ package tech.gdragon.discord.logging
 
 fun parseGuildInfo(body: String): Map<String, Any> {
   val (guild, channel) = body.substringBefore(':', "#").split('#').let {
-    if(it.count() != 2)
-      listOf("","")
+    if (it.count() != 2)
+      listOf("", "")
     else
       it
   }
@@ -11,7 +11,7 @@ fun parseGuildInfo(body: String): Map<String, Any> {
 }
 
 fun parseAudioFile(body: String): Map<String, Any> {
-  val (f,s) = body.split(" - ")
+  val (f, s) = body.split(" - ")
   val filename = f.split(' ').last()
   val size = s.slice(0 until 10).toDouble()
 

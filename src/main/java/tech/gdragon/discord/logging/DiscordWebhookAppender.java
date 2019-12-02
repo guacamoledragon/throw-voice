@@ -66,13 +66,13 @@ public class DiscordWebhookAppender extends AbstractAppender {
     Response response = null;
     try {
       response = client.newCall(request).execute();
-      if(!response.isSuccessful()) {
+      if (!response.isSuccessful()) {
         LOGGER.error("Could not send log message to Discord, error code: " + response.code());
       }
     } catch (IOException e) {
       LOGGER.error("Could not send log message to Discord", e);
     } finally {
-      if(response != null && response.body() != null) {
+      if (response != null && response.body() != null) {
         response.body().close();
       }
     }

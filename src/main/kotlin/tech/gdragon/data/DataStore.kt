@@ -7,7 +7,6 @@ import org.apache.commons.io.FileUtils
 import org.joda.time.DateTime
 import org.koin.core.KoinComponent
 import java.io.File
-import java.io.InputStream
 
 class DataStore : KoinComponent {
   val logger = KotlinLogging.logger { }
@@ -31,7 +30,7 @@ class DataStore : KoinComponent {
       "Ready to upload recording to - $baseUrl/$key"
     }
 
-    client.putObject(bucketName, key, file.path)
+    client.putObject(bucketName, key, file.path, null, null, null, null)
     val stat = UploadResult.from(baseUrl, client.statObject(bucketName, key))
 
     logger.info {
@@ -39,10 +38,6 @@ class DataStore : KoinComponent {
     }
 
     return stat
-  }
-
-  fun upload(key: String, stream: InputStream, contentType: String = "audio/mpeg") {
-    client.putObject(bucketName, key, stream, contentType)
   }
 }
 

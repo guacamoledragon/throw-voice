@@ -34,6 +34,16 @@
         <RegexFilter regex=".*Transaction attempt.*" onMatch="DENY" onMismatch="NEUTRAL"/>
       </Filters>
     </Discord>
+    <RollingRandomAccessFile
+      name="RollingRandomAccessFile"
+      fileName="logs/database.log"
+      filePattern="logs/$${date:yyyy-MM}/app-%d{MM-dd-yyyy}-%i.log.gz">
+      <PatternLayout pattern="${globalPattern}" charset="UTF-8"/>
+      <Policies>
+        <TimeBasedTriggeringPolicy interval="1"/>
+      </Policies>
+      <DefaultRolloverStrategy max="5"/>
+    </RollingRandomAccessFile>
   </Appenders>
   <Loggers>
     <Root level="info">
@@ -41,5 +51,11 @@
       <AppenderRef level="error" ref="Discord"/>
       <AppenderRef ref="Console"/>
     </Root>
+    <Logger name="tech.gdragon.db.ThreadLocalTransactionManager" level="debug" additivity="false">
+      <AppenderRef ref="RollingRandomAccessFile"/>
+    </Logger>
+    <Logger name="Exposed" level="debug" additivity="false">
+      <AppenderRef ref="RollingRandomAccessFile"/>
+    </Logger>
   </Loggers>
 </Configuration>

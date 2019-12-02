@@ -5,7 +5,7 @@ import kotlin.test.assertEquals
 
 class AppTest {
   @Test
-  fun testAssert() : Unit {
+  fun testAssert(): Unit {
     assertEquals("hello", "hello")
   }
 }
