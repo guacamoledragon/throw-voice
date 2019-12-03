@@ -12,6 +12,7 @@ import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.joda.time.DateTime
 import tech.gdragon.db.asyncTransaction
+import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.table.Tables.Guilds
 import tech.gdragon.listener.CombinedAudioRecorderHandler
@@ -32,22 +33,12 @@ object BotUtils {
     val channelMemberCount = voiceChannelSize(channel)
     logger.debug { "Channel member count: $channelMemberCount" }
 
-    val channels = transaction {
-      Guild.findById(guild.idLong)?.settings?.channels?.map {
-        object {
-          val id = it.id.value
-          val autoRecord = it.autoRecord
-        }
-      }
-    }
-
-    channels
-      ?.firstOrNull { it.id == channel.idLong }
+    transaction { Channel.findById(channel.idLong)?.autoRecord }
       ?.let {
-        val autoRecord = it.autoRecord
+        val autoRecord = it
         logger.debug { "AutoRecord value: $autoRecord" }
 
-        if (autoRecord != null && channelMemberCount >= autoRecord) {
+        if (channelMemberCount >= autoRecord) {
           val defaultChannel = defaultTextChannel(guild) ?: findPublicChannel(guild)
 
           withLoggingContext("guild" to guild.name, "voice-channel" to channel.name) {
@@ -77,22 +68,12 @@ object BotUtils {
     val channelMemberCount = voiceChannelSize(channel)
     logger.debug { "${guild.name}#${channel.name} - Channel member count: $channelMemberCount" }
 
-    val channels = transaction {
-      Guild.findById(guild.idLong)?.settings?.channels?.map {
-        object {
-          val id = it.id.value
-          val autoStop = it.autoStop
-        }
-      }
-    }
-
-    channels
-      ?.firstOrNull { it.id == channel.idLong }
+    transaction { Channel.findById(channel.idLong)?.autoStop }
       ?.let {
-        val autoStop = it.autoStop
+        val autoStop = it
         logger.debug { "${guild.name}#${channel.name} - autostop value: $autoStop" }
 
-        if (autoStop != null && channelMemberCount <= autoStop) {
+        if (channelMemberCount <= autoStop) {
           val defaultChannel = defaultTextChannel(guild) ?: findPublicChannel(guild)
           leaveVoiceChannel(channel, defaultChannel)
         }
