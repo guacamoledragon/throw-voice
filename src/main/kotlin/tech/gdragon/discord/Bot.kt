@@ -4,6 +4,8 @@ import mu.KotlinLogging
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder
+import net.dv8tion.jda.api.utils.ChunkingFilter
+import net.dv8tion.jda.api.utils.cache.CacheFlag
 import org.koin.core.KoinComponent
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.audio.Clip
@@ -13,6 +15,7 @@ import tech.gdragon.commands.misc.Record
 import tech.gdragon.commands.misc.Stop
 import tech.gdragon.commands.settings.*
 import tech.gdragon.listener.EventListener
+import java.util.*
 import javax.security.auth.login.LoginException
 
 class Bot : KoinComponent {
@@ -37,6 +40,8 @@ class Bot : KoinComponent {
     try {
       // create shard manager
       val shardManager = DefaultShardManagerBuilder(token)
+        .setDisabledCacheFlags(EnumSet.of(CacheFlag.ACTIVITY, CacheFlag.EMOTE, CacheFlag.CLIENT_STATUS))
+        .setChunkingFilter(ChunkingFilter.NONE)
         .addEventListeners(EventListener())
         .build()
 
