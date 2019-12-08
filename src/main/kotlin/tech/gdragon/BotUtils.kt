@@ -16,11 +16,8 @@ import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.table.Tables.Guilds
 import tech.gdragon.listener.CombinedAudioRecorderHandler
-import tech.gdragon.listener.SilenceAudioSendHandler
 import java.io.File
 import java.io.FileInputStream
-import java.util.*
-import kotlin.concurrent.schedule
 import net.dv8tion.jda.api.entities.Guild as DiscordGuild
 
 object BotUtils {
@@ -141,15 +138,7 @@ object BotUtils {
       } ?: 1.0
 
       val recorder = CombinedAudioRecorderHandler(volume, channel, defaultChannel)
-      val audioSendHandler = SilenceAudioSendHandler()
-
-      // Only send 5 seconds of audio at the beginning of the recording see: https://github.com/DV8FromTheWorld/JDA/issues/653
-      Timer().schedule(5 * 1000) {
-        audioSendHandler.canProvide = false
-      }
-
       audioManager.receivingHandler = recorder
-      audioManager.sendingHandler = audioSendHandler
 
       recordingStatus(channel.guild.selfMember, true)
       sendMessage(defaultChannel, """:red_circle: **Recording audio on <#${channel.id}>**

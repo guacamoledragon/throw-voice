@@ -1,11 +1,14 @@
 package tech.gdragon
 
 import com.squareup.tape.QueueFile
+import de.sciss.jump3r.lowlevel.LameEncoder
 import net.dv8tion.jda.api.AccountType
 import net.dv8tion.jda.api.JDABuilder
+import net.dv8tion.jda.api.audio.AudioReceiveHandler
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
+import org.apache.commons.io.FileUtils
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -18,6 +21,8 @@ import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.initializeDatabase
 import tech.gdragon.db.table.Tables
 import tech.gdragon.db.table.Tables.Guilds
+import tech.gdragon.listener.CombinedAudioRecorderHandler
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.sql.Connection
@@ -126,6 +131,15 @@ fun queue2mp3(qFile: String) {
       stream.transferTo(fos)
     }
   }
+}
+
+fun pcm2mp3(pcm: String) {
+  val pcmBytes = FileUtils.readFileToByteArray(File(pcm))
+  val encoder = LameEncoder(AudioReceiveHandler.OUTPUT_FORMAT, 128, LameEncoder.CHANNEL_MODE_AUTO, LameEncoder.QUALITY_HIGHEST, true)
+  val buffer = ByteArray(pcmBytes.size)
+  val encodedCount = encoder.encodeBuffer(pcmBytes, 0, pcmBytes.size, buffer)
+
+  FileUtils.writeByteArrayToFile(File("$pcm.mp3"), buffer)
 }
 
 fun initializeKoin() = startKoin {
