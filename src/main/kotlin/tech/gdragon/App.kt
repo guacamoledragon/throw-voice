@@ -73,25 +73,12 @@ fun main() {
 }
 
 /**
- * Creates the data directory and cleans up any remnant MP3 files in there
+ * Creates the data directory
  */
 private fun initializeDataDirectory(dataDirectory: String) {
   try {
     val recordingsDir = "$dataDirectory/recordings/"
     logger.info("Creating recordings directory: $recordingsDir")
-    val dir = Files.createDirectories(Paths.get(recordingsDir))
-
-    Files
-      .list(dir)
-      .filter { path -> Files.isRegularFile(path) && path.toString().toLowerCase().endsWith(".mp3") }
-      .forEach { path ->
-        try {
-          Files.delete(path)
-          logger.info("Deleting file $path...")
-        } catch (e: IOException) {
-          logger.error("Could not delete: $path", e)
-        }
-      }
   } catch (e: IOException) {
     logger.error("Could not create recordings directory", e)
   }

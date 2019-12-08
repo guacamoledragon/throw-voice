@@ -271,6 +271,8 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
               url = result.url
             }
           }
+
+          cleanup(recording)
         } catch (e: Exception) {
           logger.error(e) {
             "Error uploading recording."
@@ -287,7 +289,6 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
         BotUtils.sendMessage(channel, ":no_entry_sign: _Could not upload, file too large: **$recordingSize**._")
       }
     }
-    cleanup(recording)
   }
 
   fun disconnect() {
