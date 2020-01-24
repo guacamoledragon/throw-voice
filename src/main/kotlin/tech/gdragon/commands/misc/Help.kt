@@ -68,19 +68,11 @@ class Help : CommandHandler() {
         embed.addField(commandHandler.usage(prefix), description, false)
       }
 
-    event.author.openPrivateChannel().queue { channel ->
-      try {
-        channel
-          .sendMessage(embed.build())
-          .queue {
-            BotUtils.sendMessage(defaultChannel, ":information_source: _**<@${event.author.id}>** check your DMs!_")
-          }
-      } catch (ex: UnsupportedOperationException) {
-        logger.warn(ex) {
-          "Couldn't send DM to ${event.author.name}"
-        }
-      }
-    }
+    event.author.openPrivateChannel()
+      .flatMap { it.sendMessage(embed.build()) }
+      .queue(
+        { BotUtils.sendMessage(defaultChannel, ":information_source: _**<@${event.author.id}>** check your DMs!_") },
+        { ex -> logger.warn(ex) { "Couldn't send DM to ${event.author.name}" } })
   }
 
   override fun usage(prefix: String): String = "${prefix}help"
