@@ -187,7 +187,9 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
       "Recording size in bytes: $recordingSize"
     }
 
-    uploadRecording(recording, voiceChannel, textChannel)
+    withLoggingContext("sessionId" to session) {
+      uploadRecording(recording, voiceChannel, textChannel)
+    }
 
     // Resume recording
     subscription = createRecording()
@@ -227,9 +229,13 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
     }
 
     val recordingSizeInMB = FileUtils.byteCountToDisplaySize(recording.length())
-    logger.info("{}#{}: Saving audio clip {} - {}.", voiceChannel?.guild?.name, voiceChannel?.name, recording.name, recordingSizeInMB)
+    logger.info {
+      "Saving audio clip ${recording.name} - $recordingSizeInMB."
+    }
 
-    uploadRecording(recording, voiceChannel, channel)
+    withLoggingContext("sessionId" to session) {
+      uploadRecording(recording, voiceChannel, channel)
+    }
   }
 
   private fun uploadRecording(recording: File, voiceChannel: VoiceChannel?, channel: TextChannel) {

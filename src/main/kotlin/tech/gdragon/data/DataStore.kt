@@ -3,10 +3,14 @@ package tech.gdragon.data
 import io.minio.MinioClient
 import io.minio.ObjectStat
 import mu.KotlinLogging
+import net.jodah.failsafe.ExecutionContext
+import net.jodah.failsafe.Failsafe
+import net.jodah.failsafe.RetryPolicy
 import org.apache.commons.io.FileUtils
 import org.joda.time.DateTime
 import org.koin.core.KoinComponent
 import java.io.File
+import java.time.temporal.ChronoUnit
 
 class DataStore : KoinComponent {
   val logger = KotlinLogging.logger { }
@@ -19,6 +23,11 @@ class DataStore : KoinComponent {
 
   private val client: MinioClient = MinioClient(endpoint, accessKey, secretKey)
 
+  private val retryPolicy: RetryPolicy<Unit> = RetryPolicy<Unit>()
+    .withBackoff(2, 30, ChronoUnit.SECONDS)
+    .withJitter(.25)
+    .onRetry { ex -> logger.warn { "Failure #${ex.attemptCount}. Retrying!" } }
+
   init {
     require(client.bucketExists(bucketName)) {
       "$bucketName bucket does not exist!"
@@ -27,10 +36,13 @@ class DataStore : KoinComponent {
 
   fun upload(key: String, file: File): UploadResult {
     logger.info {
-      "Ready to upload recording to - $baseUrl/$key"
+      "Uploading: $baseUrl/$key"
     }
 
-    client.putObject(bucketName, key, file.path, null, null, null, null)
+    Failsafe.with(retryPolicy).run { ->
+      client.putObject(bucketName, key, file.path, null, null, null, null)
+    }
+
     val stat = UploadResult.from(baseUrl, client.statObject(bucketName, key))
 
     logger.info {
