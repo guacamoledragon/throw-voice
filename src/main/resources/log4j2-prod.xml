@@ -9,7 +9,10 @@
   </Properties>
   <Appenders>
     <Console name="Console">
-      <PatternLayout pattern="${globalPattern}" charset="UTF-8"/>
+      <PatternLayout pattern="${globalPattern}" charset="UTF-8" />
+      <Filters>
+        <RegexFilter regex=".*Transaction attempt.*" onMatch="DENY" onMismatch="NEUTRAL"/>
+      </Filters>
     </Console>
     <Rollbar name="Rollbar">
       <accessToken>${env:ROLLBAR_TOKEN}</accessToken>
@@ -21,6 +24,8 @@
         <RegexFilter regex=".*There was some unexpected exception in the combinedAudioExecutor.*" onMatch="DENY"
                      onMismatch="NEUTRAL"/>
         <RegexFilter regex=".*There was some random exception.*" onMatch="DENY" onMismatch="NEUTRAL"/>
+        <RegexFilter regex=".*Failed to run transaction.*" onMatch="DENY" onMismatch="NEUTRAL"/>
+        <RegexFilter regex=".*One of the EventListeners had an uncaught exception.*" onMatch="DENY" onMismatch="NEUTRAL"/>
       </Filters>
     </Rollbar>
     <Discord name="Discord">
@@ -32,6 +37,7 @@
                      onMismatch="NEUTRAL"/>
         <RegexFilter regex=".*There was some random exception.*" onMatch="DENY" onMismatch="NEUTRAL"/>
         <RegexFilter regex=".*Transaction attempt.*" onMatch="DENY" onMismatch="NEUTRAL"/>
+        <RegexFilter regex=".*One of the EventListeners had an uncaught exception.*" onMatch="DENY" onMismatch="NEUTRAL"/>
       </Filters>
     </Discord>
     <RollingRandomAccessFile
@@ -51,10 +57,10 @@
       <AppenderRef level="error" ref="Discord"/>
       <AppenderRef ref="Console"/>
     </Root>
-    <Logger name="tech.gdragon.db.ThreadLocalTransactionManager" level="debug" additivity="false">
+    <Logger name="tech.gdragon.db.ThreadLocalTransactionManager" level="info" additivity="false">
       <AppenderRef ref="RollingRandomAccessFile"/>
     </Logger>
-    <Logger name="Exposed" level="debug" additivity="false">
+    <Logger name="Exposed" level="info" additivity="false">
       <AppenderRef ref="RollingRandomAccessFile"/>
     </Logger>
   </Loggers>
