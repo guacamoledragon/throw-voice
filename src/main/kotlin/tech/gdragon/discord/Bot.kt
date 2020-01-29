@@ -15,6 +15,7 @@ import tech.gdragon.commands.misc.Record
 import tech.gdragon.commands.misc.Stop
 import tech.gdragon.commands.settings.*
 import tech.gdragon.listener.EventListener
+import tech.gdragon.listener.SystemEventListener
 import java.util.*
 import javax.security.auth.login.LoginException
 
@@ -42,7 +43,7 @@ class Bot : KoinComponent {
       val shardManager = DefaultShardManagerBuilder(token)
         .setDisabledCacheFlags(EnumSet.of(CacheFlag.ACTIVITY, CacheFlag.EMOTE, CacheFlag.CLIENT_STATUS))
         .setChunkingFilter(ChunkingFilter.NONE)
-        .addEventListeners(EventListener())
+        .addEventListeners(EventListener(), SystemEventListener())
         .build()
 
       while (!shardManager.statuses.all { it.value == JDA.Status.CONNECTED }) {
@@ -56,7 +57,7 @@ class Bot : KoinComponent {
       }
     } catch (e: InterruptedException) {
       logger.error(e) {
-        "Interrupted Exception when attempting to create bot."
+        "Interrupted Exception when attempting to create the bot."
       }
     } catch (e: Exception) {
       logger.error(e) {

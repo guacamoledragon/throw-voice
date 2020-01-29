@@ -1,13 +1,15 @@
 include:
   template: Dependency-Scanning.gitlab-ci.yml
 
-cache:
+cache: &global_cache
   paths:
     - .m2/
 
 variables:
-  DS_DEFAULT_ANALYZERS: "gemnasium-maven"
   MAVEN_OPTS: -Dmaven.repo.local=.m2
+  # This is for Dependency Scanning
+  DS_DEFAULT_ANALYZERS: "gemnasium-maven"
+  MAVEN_CLI_OPTS: -Dmaven.repo.local=.m2
 
 build:
   artifacts:
@@ -35,6 +37,9 @@ package:
     expire_in: 30 days
     paths:
       - target/pawa-release
+  cache:
+    <<: *global_cache
+    policy: pull
   dependencies:
     - build
   image: circleci/openjdk:11-jdk
@@ -75,3 +80,17 @@ container:
     BOT_VERSION: 2.0.0
     DOCKER_DRIVER: overlay2
     DOCKER_TLS_CERTDIR: /certs
+
+pages:
+  artifacts:
+    expire_in: 30 days
+    paths:
+      - public
+  cache: {}
+  dependencies:
+    - build
+  script:
+    - mv target/site/jacoco public/
+  stage: deploy
+  only:
+    - master

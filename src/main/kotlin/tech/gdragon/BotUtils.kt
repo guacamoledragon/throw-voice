@@ -141,9 +141,6 @@ object BotUtils {
       audioManager.receivingHandler = recorder
 
       recordingStatus(channel.guild.selfMember, true)
-      sendMessage(defaultChannel, """:red_circle: **Recording audio on <#${channel.id}>**
-        |_Session ID: `${recorder.session}`_
-      """.trimMargin())
     }
   }
 

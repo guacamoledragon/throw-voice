@@ -113,7 +113,11 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
 
     val encoder = LameEncoder(AudioReceiveHandler.OUTPUT_FORMAT, BITRATE, LameEncoder.CHANNEL_MODE_AUTO, LameEncoder.QUALITY_HIGHEST, true)
 
+    BotUtils.sendMessage(defaultChannel, """:red_circle: **Recording audio on <#${voiceChannel.id}>**
+        |_Session ID: `${session}`_
+      """.trimMargin())
     logger.info("{}#{}: Creating recording file - {}", voiceChannel.guild.name, voiceChannel.name, queueFilename)
+
     return subject
       ?.map { it.getAudioData(volume) }
       ?.buffer(BUFFER_TIMEOUT, TimeUnit.MILLISECONDS, BUFFER_MAX_COUNT)
@@ -266,6 +270,7 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
                            |${result.url}
                            |
                            |_Recording will only be available for 24hrs_
+                           |---
                            |""".trimMargin()
 
           BotUtils.sendMessage(channel, message)
