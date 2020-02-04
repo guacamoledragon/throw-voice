@@ -20,6 +20,8 @@ import kotlin.concurrent.scheduleAtFixedRate
 val logger = KotlinLogging.logger { }
 
 fun main() {
+  shutdownHook()
+
   val app = startKoin {
     printLogger(Level.INFO)
     fileProperties("/defaults.properties")
@@ -82,4 +84,15 @@ private fun initializeDataDirectory(dataDirectory: String) {
   } catch (e: IOException) {
     logger.error("Could not create recordings directory", e)
   }
+}
+
+fun shutdownHook() {
+  Runtime.getRuntime().addShutdownHook(Thread() {
+    val stacktraces = Thread.getAllStackTraces()
+    stacktraces.forEach { (t, stacktrace) ->
+      logger.error {
+        "${t.name}: ${stacktrace.joinToString("\n")}"
+      }
+    }
+  })
 }
