@@ -121,18 +121,6 @@ fun removeUnusedGuilds() {
   }
 }
 
-fun queue2mp3(qFile: String) {
-  println("qFile = $qFile")
-  val recording = File(qFile.replace("queue", "mp3"))
-  val queueFile = QueueFile(File(qFile))
-
-  FileOutputStream(recording).use { fos ->
-    queueFile.forEach { stream, _ ->
-      stream.transferTo(fos)
-    }
-  }
-}
-
 fun pcm2mp3(pcm: String) {
   val pcmBytes = FileUtils.readFileToByteArray(File(pcm))
   val encoder = LameEncoder(AudioReceiveHandler.OUTPUT_FORMAT, 128, LameEncoder.CHANNEL_MODE_AUTO, LameEncoder.QUALITY_HIGHEST, true)

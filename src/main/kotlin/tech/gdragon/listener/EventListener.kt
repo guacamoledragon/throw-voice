@@ -23,6 +23,7 @@ import tech.gdragon.commands.handleCommand
 import tech.gdragon.db.asyncTransaction
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.nowUTC
+import tech.gdragon.metrics.Rollbar
 
 class EventListener : ListenerAdapter(), KoinComponent {
 
@@ -232,5 +233,7 @@ class EventListener : ListenerAdapter(), KoinComponent {
     }
 
     logger.info { "ONLINE: Connected to ${event.jda.shardManager?.guilds?.size} guilds!" }
+    val rollbar = Rollbar()
+    rollbar.deploy()
   }
 }
