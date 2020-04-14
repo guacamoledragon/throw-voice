@@ -21,8 +21,6 @@
       <PatternLayout pattern="${globalPattern}"/>
       <Filters>
         <RegexFilter regex=".*Found an unexpected key.*" onMatch="DENY" onMismatch="NEUTRAL"/>
-        <RegexFilter regex=".*There was some unexpected exception in the combinedAudioExecutor.*" onMatch="DENY"
-                     onMismatch="NEUTRAL"/>
         <RegexFilter regex=".*There was some random exception.*" onMatch="DENY" onMismatch="NEUTRAL"/>
         <RegexFilter regex=".*Failed to run transaction.*" onMatch="DENY" onMismatch="NEUTRAL"/>
         <RegexFilter regex=".*One of the EventListeners had an uncaught exception.*" onMatch="DENY" onMismatch="NEUTRAL"/>
@@ -33,8 +31,6 @@
       <PatternLayout pattern="${globalPattern}"/>
       <Filters>
         <RegexFilter regex=".*Found an unexpected key.*" onMatch="DENY" onMismatch="NEUTRAL"/>
-        <RegexFilter regex=".*There was some unexpected exception in the combinedAudioExecutor.*" onMatch="DENY"
-                     onMismatch="NEUTRAL"/>
         <RegexFilter regex=".*There was some random exception.*" onMatch="DENY" onMismatch="NEUTRAL"/>
         <RegexFilter regex=".*Transaction attempt.*" onMatch="DENY" onMismatch="NEUTRAL"/>
         <RegexFilter regex=".*One of the EventListeners had an uncaught exception.*" onMatch="DENY" onMismatch="NEUTRAL"/>

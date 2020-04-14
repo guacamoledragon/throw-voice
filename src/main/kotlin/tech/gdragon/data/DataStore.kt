@@ -40,7 +40,7 @@ class DataStore : KoinComponent {
     }
 
     Failsafe.with(retryPolicy).run { ->
-      client.putObject(bucketName, key, file.path, null, null, null, null)
+      client.putObject(bucketName, key, file.path, null)
     }
 
     val stat = UploadResult.from(baseUrl, client.statObject(bucketName, key))

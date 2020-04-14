@@ -9,11 +9,8 @@ import org.koin.dsl.module
 import tech.gdragon.data.DataStore
 import tech.gdragon.db.initializeDatabase
 import tech.gdragon.discord.Bot
-import tech.gdragon.metrics.Metrics
 import tech.gdragon.metrics.Rollbar
 import java.io.IOException
-import java.nio.file.Files
-import java.nio.file.Paths
 import java.time.Duration
 import java.util.*
 import kotlin.concurrent.scheduleAtFixedRate
@@ -37,7 +34,6 @@ fun main() {
       module {
         single { Bot() }
         single { DataStore() }
-        single { Metrics() }
         single { Rollbar() }
       }
     )
