@@ -38,8 +38,9 @@ import java.util.concurrent.TimeUnit
 class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceChannel, val defaultChannel: TextChannel) : AudioReceiveHandler, KoinComponent {
   companion object {
     private const val AFK_MINUTES = 2
-    private const val AFK_LIMIT = (AFK_MINUTES * 60 * 1000) / 20                      // 2 minutes in ms over 20ms increments
+    private const val AFK_LIMIT = (AFK_MINUTES * 60 * 1000) / 20            // 2 minutes in ms over 20ms increments
     private const val MAX_RECORDING_MB = 110
+    private const val MIN_RECORDING_SIZE = 5 * 1024 * 1024                  // 5MB
     private const val MAX_RECORDING_SIZE = MAX_RECORDING_MB * 1024 * 1024   // 110MB
     private const val DISCORD_MAX_RECORDING_SIZE = 8 * 1024 * 1024          // 8MB
     private const val BUFFER_TIMEOUT = 200L                                 // 200 milliseconds
@@ -261,7 +262,7 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
       }
 
       // Upload to Minio
-      if (recording.length() < MAX_RECORDING_SIZE) {
+      if (recording.length() in MIN_RECORDING_SIZE until MAX_RECORDING_SIZE) {
         val recordingKey = "${channel.guild.id}/${recording.name}"
         try {
           val result = datastore.upload(recordingKey, recording)
@@ -296,8 +297,7 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
           BotUtils.sendMessage(channel, errorMessage)
         }
       } else {
-        val recordingSize = FileUtils.byteCountToDisplaySize(recording.length())
-        BotUtils.sendMessage(channel, ":no_entry_sign: _Could not upload, file too large: **$recordingSize**._")
+        cleanup(recording)
       }
     }
   }
