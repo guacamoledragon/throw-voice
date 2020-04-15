@@ -4,7 +4,7 @@ import fi.iki.elonen.NanoHTTPD
 import tech.gdragon.discord.Bot
 
 class HttpServer(bot: Bot, val port: Int = 8080) {
-  val inviteUrl: String = bot.api.getInviteUrl(Bot.PERMISSIONS)
+  val inviteUrl: String = bot.api().getInviteUrl(Bot.PERMISSIONS)
 
   val server = object : NanoHTTPD(port) {
     override fun serve(session: IHTTPSession): Response {

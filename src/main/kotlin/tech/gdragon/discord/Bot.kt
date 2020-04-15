@@ -3,8 +3,11 @@ package tech.gdragon.discord
 import mu.KotlinLogging
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.Permission
+import net.dv8tion.jda.api.requests.GatewayIntent
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder
+import net.dv8tion.jda.api.sharding.ShardManager
 import net.dv8tion.jda.api.utils.ChunkingFilter
+import net.dv8tion.jda.api.utils.MemberCachePolicy
 import net.dv8tion.jda.api.utils.cache.CacheFlag
 import org.koin.core.KoinComponent
 import tech.gdragon.commands.CommandHandler
@@ -35,22 +38,26 @@ class Bot : KoinComponent {
     )
   }
 
-  lateinit var api: JDA
+  lateinit var shardManager: ShardManager
+
+  fun api(): JDA {
+    while (!shardManager.statuses.any { it.value == JDA.Status.CONNECTED }) {
+      Thread.sleep(50)
+    }
+
+    return shardManager.shards.find { shard -> shard.status == JDA.Status.CONNECTED }!!
+  }
 
   init {
     try {
       // create shard manager
-      val shardManager = DefaultShardManagerBuilder(token)
-        .setDisabledCacheFlags(EnumSet.of(CacheFlag.ACTIVITY, CacheFlag.EMOTE, CacheFlag.CLIENT_STATUS))
+      shardManager = DefaultShardManagerBuilder
+        .create(token, GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_VOICE_STATES)
+        .disableCache(CacheFlag.ACTIVITY, CacheFlag.EMOTE, CacheFlag.CLIENT_STATUS)
         .setChunkingFilter(ChunkingFilter.NONE)
+        .setMemberCachePolicy(MemberCachePolicy.VOICE)
         .addEventListeners(EventListener(), SystemEventListener())
         .build()
-
-      while (!shardManager.statuses.all { it.value == JDA.Status.CONNECTED }) {
-        Thread.sleep(50)
-      }
-
-      api = shardManager.shards.first()
     } catch (e: LoginException) {
       logger.error(e) {
         "Could not authenticate using token: $token"

@@ -48,7 +48,7 @@ fun main() {
       logger.info("Starting background process to remove unused Guilds.")
       Timer("remove-old-guilds", true)
         .scheduleAtFixedRate(0L, Duration.ofDays(1L).toMillis()) {
-          val jda = it.api
+          val jda = it.api()
           val afterDays = app.koin.getProperty("BOT_LEAVE_GUILD_AFTER", 30)
 
           if (afterDays <= 0) {
