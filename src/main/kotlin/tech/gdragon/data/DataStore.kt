@@ -3,14 +3,15 @@ package tech.gdragon.data
 import io.minio.MinioClient
 import io.minio.ObjectStat
 import mu.KotlinLogging
-import net.jodah.failsafe.ExecutionContext
 import net.jodah.failsafe.Failsafe
 import net.jodah.failsafe.RetryPolicy
 import org.apache.commons.io.FileUtils
 import org.joda.time.DateTime
+import org.joda.time.DateTimeZone
 import org.koin.core.KoinComponent
 import java.io.File
 import java.time.temporal.ChronoUnit
+import java.util.*
 
 class DataStore : KoinComponent {
   val logger = KotlinLogging.logger { }
@@ -55,6 +56,11 @@ class DataStore : KoinComponent {
 
 data class UploadResult(val key: String, val timestamp: DateTime, val size: Long, val url: String) {
   companion object {
-    fun from(baseUrl: String, stat: ObjectStat) = UploadResult(stat.name(), DateTime(stat.createdTime()), stat.length(), "$baseUrl/${stat.name()}")
+    fun from(baseUrl: String, stat: ObjectStat): UploadResult {
+      val createdTime = stat.createdTime().toInstant().toEpochMilli()
+      val tz = DateTimeZone.forTimeZone(TimeZone.getTimeZone(stat.createdTime().zone))
+
+      return UploadResult(stat.name(), DateTime(createdTime, tz), stat.length(), "$baseUrl/${stat.name()}")
+    }
   }
 }
