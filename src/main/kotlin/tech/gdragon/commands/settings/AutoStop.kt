@@ -34,8 +34,6 @@ class AutoStop : CommandHandler() {
       throw InvalidCommand(::usage, "Incorrect number of arguments: ${args.size}")
     }
 
-    usageCounter.add(1)
-
     val message =
       try {
         val channelName = args.dropLast(1).joinToString(" ")

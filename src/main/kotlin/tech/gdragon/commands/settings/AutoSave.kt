@@ -14,8 +14,6 @@ class AutoSave : CommandHandler() {
       throw InvalidCommand(::usage, "Incorrect number of arguments: ${args.size}")
     }
 
-    usageCounter.add(1)
-
     val autoSave: Boolean? = transaction {
       Guild
         .findById(event.guild.idLong)

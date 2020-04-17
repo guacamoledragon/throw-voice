@@ -11,8 +11,6 @@ class Stop : CommandHandler() {
       throw InvalidCommand(::usage, "Incorrect number of arguments: ${args.size}")
     }
 
-    usageCounter.add(1)
-
     val defaultChannel = BotUtils.defaultTextChannel(event.guild) ?: event.channel
 
     val message =

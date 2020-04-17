@@ -1,6 +1,5 @@
 package tech.gdragon
 
-import com.squareup.tape.QueueFile
 import de.sciss.jump3r.lowlevel.LameEncoder
 import net.dv8tion.jda.api.AccountType
 import net.dv8tion.jda.api.JDABuilder
@@ -9,7 +8,10 @@ import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import org.apache.commons.io.FileUtils
-import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.deleteWhere
+import org.jetbrains.exposed.sql.not
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.joda.time.DateTime
@@ -21,10 +23,7 @@ import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.initializeDatabase
 import tech.gdragon.db.table.Tables
 import tech.gdragon.db.table.Tables.Guilds
-import tech.gdragon.listener.CombinedAudioRecorderHandler
-import java.io.ByteArrayOutputStream
 import java.io.File
-import java.io.FileOutputStream
 import java.sql.Connection
 
 fun dropAllTables() {

@@ -13,8 +13,6 @@ class Prefix : CommandHandler() {
       throw InvalidCommand(::usage, "Incorrect number of arguments: ${args.size}")
     }
 
-    usageCounter.add(1)
-
     val newPrefix = args.first()
     val prefix = transaction {
       Guild

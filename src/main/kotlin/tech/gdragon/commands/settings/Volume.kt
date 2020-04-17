@@ -14,8 +14,6 @@ class Volume : CommandHandler() {
       throw InvalidCommand(::usage, "Incorrect number of arguments: ${args.size}")
     }
 
-    usageCounter.add(1)
-
     val message: String =
       try {
         val volume = args.first().toInt()
@@ -28,7 +26,9 @@ class Volume : CommandHandler() {
           }
 
           settings?.let {
-            it.volume = BigDecimal.valueOf(percentage)
+            transaction {
+              it.volume = BigDecimal.valueOf(percentage)
+            }
             BotUtils.updateVolume(event.guild, percentage)
             ":loud_sound: _Recording at **$volume%** volume._"
           } ?: ":no_entry_sign: _Could not set recording volume._"

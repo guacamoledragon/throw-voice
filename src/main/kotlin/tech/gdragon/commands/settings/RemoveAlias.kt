@@ -13,8 +13,6 @@ class RemoveAlias : CommandHandler() {
       throw InvalidCommand(::usage, "Incorrect number of arguments: ${args.size}")
     }
 
-    usageCounter.add(1)
-
     val alias = args.first().toLowerCase()
     val aliasDeleted = transaction {
       Guild

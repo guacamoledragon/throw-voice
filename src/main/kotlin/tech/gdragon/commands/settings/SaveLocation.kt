@@ -30,8 +30,6 @@ class SaveLocation : CommandHandler() {
       throw InvalidCommand(::usage, "Incorrect number of arguments: ${args.size}")
     }
 
-    usageCounter.add(1)
-
     val settings = transaction {
       Guild.findById(event.guild.idLong)?.settings
     }

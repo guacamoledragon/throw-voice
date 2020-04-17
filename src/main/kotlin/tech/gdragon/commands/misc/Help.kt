@@ -24,8 +24,6 @@ class Help : CommandHandler() {
       throw InvalidCommand(::usage, "Empty arguments")
     }
 
-    usageCounter.add(1)
-
     val disclaimer = """|**Depending on where you live, it _may_ be illegal to record without everyone's consent. Please
                           |check your local laws.**
                           |

@@ -1,16 +1,13 @@
 package tech.gdragon.commands
 
-import com.github.rollingmetrics.counter.ResetPeriodicallyCounter
 import mu.KotlinLogging
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.KoinComponent
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.discord.Command
-import java.time.Duration
 
 abstract class CommandHandler : KoinComponent {
-  protected val usageCounter = ResetPeriodicallyCounter(Duration.ofDays(1))
   protected val logger = KotlinLogging.logger {}
 
   @Throws(InvalidCommand::class)
