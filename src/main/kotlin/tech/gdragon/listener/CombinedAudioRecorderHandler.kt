@@ -28,12 +28,14 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.nio.file.Files
+import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
+import kotlin.concurrent.thread
 
 class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceChannel, val defaultChannel: TextChannel) : AudioReceiveHandler, KoinComponent {
   companion object {
@@ -85,10 +87,14 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
     val isAfk = afkCounter >= AFK_LIMIT
 
     if (isAfk) {
-      logger.info("{}#{}: AFK detected.", voiceChannel.guild.name, voiceChannel.name)
+      withLoggingContext("guild" to voiceChannel.guild.name, "voice-channel" to voiceChannel.name) {
+        logger.debug { "AFK detected." }
+      }
 
       BotUtils.sendMessage(defaultChannel, ":sleeping: _No audio detected in the last **$AFK_MINUTES** minutes, leaving **<#${voiceChannel.id}>**._")
-      BotUtils.leaveVoiceChannel(voiceChannel, defaultChannel)
+      thread {
+        BotUtils.leaveVoiceChannel(voiceChannel, defaultChannel)
+      }
     }
 
     return isAfk
@@ -117,9 +123,10 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
     BotUtils.sendMessage(defaultChannel, """:red_circle: **Recording audio on <#${voiceChannel.id}>**
         |_Session ID: `${session}`_
       """.trimMargin())
-    logger.info("{}#{}: Creating recording file - {}", voiceChannel.guild.name, voiceChannel.name, queueFilename)
+    logger.info { "Creating recording session - $queueFilename" }
 
     return subject
+      ?.doOnNext { isAfk(it.users.size) }
       ?.map { it.getAudioData(volume) }
       ?.buffer(BUFFER_TIMEOUT, TimeUnit.MILLISECONDS, BUFFER_MAX_COUNT)
       ?.flatMap { byteArrays ->
@@ -137,13 +144,13 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
 
         Observable.fromArray(baos.toByteArray())
       }
-      ?.collectInto(queueFile!!) { queue, bytes ->
+      ?.collectInto(queueFile) { queue, bytes ->
 
         while (recordingSize + bytes.size > MAX_RECORDING_SIZE) {
-          recordingSize -= queue.peek()?.size ?: 0
-          queue.remove()
+          recordingSize -= queue?.peek()?.size ?: 0
+          queue?.remove()
         }
-        queue.add(bytes)
+        queue?.add(bytes)
         recordingSize += bytes.size
       }
       ?.subscribe { _, e ->
@@ -249,11 +256,7 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
       BotUtils.sendMessage(channel, message)
 
       asyncTransaction {
-        recordingRecord.get()?.apply {
-          size = 0
-          modifiedOn = DateTime.now()
-          url = "N/A"
-        }
+        recordingRecord.get()?.delete()
       }
     } else {
       // Upload to Discord
@@ -297,36 +300,32 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
           BotUtils.sendMessage(channel, errorMessage)
         }
       } else {
+        asyncTransaction {
+          recordingRecord.get()?.apply {
+            size = recording.length()
+            modifiedOn = DateTime.now()
+            url = "Discord Only"
+          }
+        }
         cleanup(recording)
       }
     }
   }
 
   fun disconnect() {
+    // Stop accepting audio from Discord
     canReceive = false
 
-    try {
-      subject?.onComplete()
-    } catch (e: Exception) {
-      logger.warn(e) {
-        "Issue calling `onComplete` on CombinedAudioRecorderHandler: ${e.message}"
-      }
-    }
+    // Shut off the Observable
+    subject?.onComplete()
 
+    // Terminate subscription to Observable
     subscription?.dispose()
-    queueFile?.apply {
-      try {
-        // TODO: Why clear file? It's gonna get deleted anyway
-        clear()
-      } catch (e: IOException) {
-        logger.warn(e) {
-          "Issue clearing queue file: $queueFilename"
-        }
-      } finally {
-        close()
-        File(queueFilename).delete()
-      }
-    }
+
+    //
+    queueFile?.close()
+    queueFile = null
+    Files.deleteIfExists(Path.of(queueFilename))
 
     asyncTransaction {
       recordingRecord.get()?.apply {
@@ -351,9 +350,7 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
   override fun canReceiveCombined(): Boolean = canReceive
 
   override fun handleCombinedAudio(combinedAudio: CombinedAudio) {
-    if (!isAfk(combinedAudio.users.size)) {
-      subject?.onNext(combinedAudio)
-    }
+    subject?.onNext(combinedAudio)
   }
 
   override fun handleUserAudio(userAudio: UserAudio) = TODO("Not implemented.")

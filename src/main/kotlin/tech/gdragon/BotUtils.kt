@@ -151,6 +151,7 @@ object BotUtils {
     val audioRecorderHandler = audioManager.receivingHandler as CombinedAudioRecorderHandler?
 
     withLoggingContext("guild" to voiceChannel.guild.name, "text-channel" to textChannel?.name.orEmpty()) {
+
       audioRecorderHandler?.let {
         if (autoSave(guild) && textChannel != null) {
           sendMessage(textChannel, ":floppy_disk: **Saving <#${voiceChannel.id}>'s recording...**")
@@ -160,12 +161,12 @@ object BotUtils {
         it.disconnect()
       }
 
-      logger.info("Leaving voice channel", guild.name, voiceChannel.name)
+      logger.debug { "Leaving voice channel" }
       audioManager.apply {
         receivingHandler = null
         sendingHandler = null
         closeAudioConnection()
-        logger.info("Destroyed audio handlers", guild.name, voiceChannel.name)
+        logger.debug { "Destroyed audio handlers" }
       }
 
       recordingStatus(voiceChannel.guild.selfMember, false)
@@ -295,6 +296,7 @@ object BotUtils {
     try {
       bot.guild
         .modifyNickname(bot, nickname)
+        .reason("Represent bot's recording state.")
         .queue(null, { t ->
           logger.error(t) {
             "Could not change nickname: $prevNick -> $nickname"
