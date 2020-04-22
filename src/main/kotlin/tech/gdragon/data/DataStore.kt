@@ -30,8 +30,11 @@ class DataStore : KoinComponent {
     .onRetry { ex -> logger.warn { "Failure #${ex.attemptCount}. Retrying!" } }
 
   init {
-    require(client.bucketExists(bucketName)) {
-      "$bucketName bucket does not exist!"
+    if (!client.bucketExists(bucketName)) {
+      logger.warn {
+        "$bucketName bucket does not exist! Creating..."
+      }
+      client.makeBucket(bucketName)
     }
   }
 

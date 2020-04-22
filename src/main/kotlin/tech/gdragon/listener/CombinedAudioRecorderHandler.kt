@@ -14,12 +14,12 @@ import net.dv8tion.jda.api.audio.UserAudio
 import net.dv8tion.jda.api.entities.TextChannel
 import net.dv8tion.jda.api.entities.VoiceChannel
 import org.apache.commons.io.FileUtils
+import org.jetbrains.exposed.sql.transactions.transaction
 import org.joda.time.DateTime
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 import tech.gdragon.BotUtils
 import tech.gdragon.data.DataStore
-import tech.gdragon.db.asyncTransaction
 import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.dao.Recording
@@ -32,8 +32,6 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
 import java.util.*
-import java.util.concurrent.CompletableFuture
-import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
 
@@ -61,7 +59,7 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
   private var subscription: Disposable? = null
   private var uuid: UUID? = null
   private var queueFile: QueueFile? = null
-  private var recordingRecord: Future<Recording?> = CompletableFuture.completedFuture(null)
+  private var recordingRecord: Recording? = null
 
   private var canReceive = true
   private var afkCounter = 0
@@ -101,7 +99,7 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
   }
 
   private fun createRecording(): Disposable? {
-    recordingRecord = asyncTransaction {
+    recordingRecord = transaction {
       Guild.findById(voiceChannel.guild.idLong)?.let {
         Recording.new {
           channel = Channel.findOrCreate(voiceChannel.idLong, voiceChannel.name, it)
@@ -255,8 +253,8 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
       val message = ":no_entry_sign: _Recording is empty, not uploading._"
       BotUtils.sendMessage(channel, message)
 
-      asyncTransaction {
-        recordingRecord.get()?.delete()
+      transaction {
+        recordingRecord?.delete()
       }
     } else {
       // Upload to Discord
@@ -279,8 +277,8 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
 
           BotUtils.sendMessage(channel, message)
 
-          asyncTransaction {
-            recordingRecord.get()?.apply {
+          transaction {
+            recordingRecord?.apply {
               size = result.size
               modifiedOn = result.timestamp
               url = result.url
@@ -300,8 +298,8 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
           BotUtils.sendMessage(channel, errorMessage)
         }
       } else {
-        asyncTransaction {
-          recordingRecord.get()?.apply {
+        transaction {
+          recordingRecord?.apply {
             size = recording.length()
             modifiedOn = DateTime.now()
             url = "Discord Only"
@@ -327,8 +325,8 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
     queueFile = null
     Files.deleteIfExists(Path.of(queueFilename))
 
-    asyncTransaction {
-      recordingRecord.get()?.apply {
+    transaction {
+      recordingRecord?.apply {
         if (url.isNullOrEmpty())
           delete()
       }
