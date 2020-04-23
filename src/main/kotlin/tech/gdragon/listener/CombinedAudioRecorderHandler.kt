@@ -39,10 +39,10 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
   companion object {
     private const val AFK_MINUTES = 2
     private const val AFK_LIMIT = (AFK_MINUTES * 60 * 1000) / 20            // 2 minutes in ms over 20ms increments
-    private const val MAX_RECORDING_MB = 110
-    private const val MIN_RECORDING_SIZE = 5 * 1024 * 1024                  // 5MB
+    private const val MAX_RECORDING_MB = 110L
+    private const val MIN_RECORDING_SIZE = 5L * 1024 * 1024                 // 5MB
     private const val MAX_RECORDING_SIZE = MAX_RECORDING_MB * 1024 * 1024   // 110MB
-    private const val DISCORD_MAX_RECORDING_SIZE = 8 * 1024 * 1024          // 8MB
+    private const val DISCORD_MAX_RECORDING_SIZE = 8L * 1024 * 1024         // 8MB
     private const val BUFFER_TIMEOUT = 200L                                 // 200 milliseconds
     private const val BUFFER_MAX_COUNT = 8
     private const val BITRATE = 128                                         // 128 kbps
@@ -66,7 +66,8 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
 
   private var filename: String? = null
   private var queueFilename: String? = null
-  private var recordingSize: Int = 0
+  private var recordingSize: Long = 0
+  private var limitWarning: Boolean = false
 
   val session: String
     get() = uuid.toString()
@@ -141,6 +142,13 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
         }
 
         Observable.fromArray(baos.toByteArray())
+      }
+      ?.doOnNext {
+        val percentage = recordingSize * 100 / MAX_RECORDING_SIZE
+        if (percentage >= 90 && !limitWarning) {
+          BotUtils.sendMessage(defaultChannel, ":warning:_You've reached $percentage% of your recording limit, please save to start a new session._")
+          limitWarning = true
+        }
       }
       ?.collectInto(queueFile) { queue, bytes ->
 
