@@ -306,11 +306,6 @@ object BotUtils {
       asyncTransaction {
         Guild[guild.idLong].lastActiveOn = guildActivity[guild.idLong]!!
       }
-    } else {
-      // TODO: Leaving this just to see how much crap we ignore, then remove later
-      logger.info {
-        "Ignoring updates to ${guild.name}"
-      }
     }
   }
 
