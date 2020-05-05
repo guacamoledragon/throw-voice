@@ -5,6 +5,7 @@ import mu.withLoggingContext
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.*
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException
+import org.apache.commons.collections4.map.PassiveExpiringMap
 import org.jetbrains.exposed.dao.EntityID
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.SqlExpressionBuilder
@@ -14,14 +15,18 @@ import org.joda.time.DateTime
 import tech.gdragon.db.asyncTransaction
 import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
+import tech.gdragon.db.nowUTC
 import tech.gdragon.db.table.Tables.Guilds
 import tech.gdragon.listener.CombinedAudioRecorderHandler
 import java.io.File
 import java.io.FileInputStream
+import java.util.concurrent.TimeUnit
 import net.dv8tion.jda.api.entities.Guild as DiscordGuild
 
 object BotUtils {
   private val logger = KotlinLogging.logger {}
+
+  private val guildActivity = PassiveExpiringMap<Long, DateTime>(1L, TimeUnit.HOURS)
 
   /**
    * AutoRecord voice channel if it meets the auto record criterion
@@ -92,56 +97,17 @@ object BotUtils {
     }
   }
 
-  fun isSelfBot(user: User): Boolean {
-    return user.isBot && user.jda.selfUser.idLong == user.idLong
+  /**
+   * Finds an open channel where messages can be sent.
+   */
+  private fun findPublicChannel(guild: DiscordGuild): TextChannel? {
+    return guild
+      .textChannels
+      .find(TextChannel::canTalk)
   }
 
-  // TODO: I don't think there's a need for the callback for exception handling, just throw
-  fun recordVoiceChannel(channel: VoiceChannel, defaultChannel: TextChannel?, onError: (InsufficientPermissionException) -> Unit = {}) {
-
-    /** Begin assertions **/
-    require(defaultChannel != null && channel.guild.getTextChannelById(defaultChannel.id)?.canTalk() ?: false) {
-      val msg = "Attempted to record, but bot cannot write to any channel."
-      updateNickname(channel.guild.selfMember, "FIX ME")
-      msg
-    }
-
-    // Bot won't connect to AFK channels
-    require(channel != channel.guild.afkChannel) {
-      val msg = ":no_entry_sign: _I'm not allowed to record AFK channels._"
-      sendMessage(defaultChannel, msg)
-      msg
-    }
-
-    /** End assertions **/
-
-    val audioManager = channel.guild.audioManager
-
-    if (audioManager.isConnected) {
-      logger.debug { "vc:${channel.name} - Already connected to ${audioManager.connectedChannel?.name}" }
-    } else {
-
-      try {
-        audioManager.openAudioConnection(channel)
-        logger.info { "Connected to voice channel" }
-      } catch (e: InsufficientPermissionException) {
-        logger.warn { "Need permission: ${e.permission}" }
-        onError(e)
-        return
-      }
-
-      val volume = transaction {
-        Guild.findById(channel.guild.idLong)
-          ?.settings
-          ?.volume
-          ?.toDouble()
-      } ?: 1.0
-
-      val recorder = CombinedAudioRecorderHandler(volume, channel, defaultChannel)
-      audioManager.receivingHandler = recorder
-
-      recordingStatus(channel.guild.selfMember, true)
-    }
+  fun isSelfBot(user: User): Boolean {
+    return user.isBot && user.jda.selfUser.idLong == user.idLong
   }
 
   @JvmStatic
@@ -172,60 +138,6 @@ object BotUtils {
       recordingStatus(voiceChannel.guild.selfMember, false)
     }
   }
-
-  /**
-   * General message sending utility with error logging
-   */
-  fun sendMessage(textChannel: MessageChannel?, msg: String) {
-    try {
-      textChannel
-        ?.sendMessage(msg)
-        ?.queue(
-          { m -> logger.debug { "Send message - ${m.contentDisplay}" } },
-          { t -> logger.error { "Error sending message - $msg: ${t.message}" } }
-        )
-    } catch (e: InsufficientPermissionException) {
-      logger.warn(e) {
-        "Missing permission ${e.permission}"
-      }
-    }
-  }
-
-  /**
-   * Change the bot's nickname depending on it's recording status.
-   *
-   * There are a few edge cases that I don't feel like fixing, for instance
-   * if the nickname exceeds 32 characters, then it's just not renamed. Additionally,
-   * if the blocking call to change the nick fails, it'll just leave it as it was as
-   * set by the user.
-   */
-  fun recordingStatus(bot: Member, isRecording: Boolean) {
-    val prefix = "[REC]"
-    val prevNick = bot.effectiveName
-
-    val newNick = if (isRecording) {
-      if (prevNick.startsWith(prefix).not()) {
-        prefix + prevNick
-      } else {
-        prevNick
-      }
-    } else {
-      if (prevNick.startsWith(prefix)) {
-        prevNick.removePrefix(prefix)
-      } else {
-        prevNick
-      }
-    }
-
-    if (newNick != prevNick && (newNick.length <= 32)) {
-      updateNickname(bot, newNick)
-    }
-  }
-
-  /**
-   * Returns the effective size of the voice channel, excluding bots.
-   */
-  private fun voiceChannelSize(voiceChannel: VoiceChannel?): Int = voiceChannel?.members?.count() ?: 0
 
   /**
    * Leaves any Guild that hasn't been active in the past `afterDays` days.
@@ -283,12 +195,157 @@ object BotUtils {
   }
 
   /**
-   * Finds an open channel where messages can be sent.
+   * Change the bot's nickname depending on it's recording status.
+   *
+   * There are a few edge cases that I don't feel like fixing, for instance
+   * if the nickname exceeds 32 characters, then it's just not renamed. Additionally,
+   * if the blocking call to change the nick fails, it'll just leave it as it was as
+   * set by the user.
    */
-  private fun findPublicChannel(guild: DiscordGuild): TextChannel? {
-    return guild
-      .textChannels
-      .find(TextChannel::canTalk)
+  fun recordingStatus(bot: Member, isRecording: Boolean) {
+    val prefix = "[REC]"
+    val prevNick = bot.effectiveName
+
+    val newNick = if (isRecording) {
+      if (prevNick.startsWith(prefix).not()) {
+        prefix + prevNick
+      } else {
+        prevNick
+      }
+    } else {
+      if (prevNick.startsWith(prefix)) {
+        prevNick.removePrefix(prefix)
+      } else {
+        prevNick
+      }
+    }
+
+    if (newNick != prevNick && (newNick.length <= 32)) {
+      updateNickname(bot, newNick)
+    }
+  }
+
+  // TODO: I don't think there's a need for the callback for exception handling, just throw
+  fun recordVoiceChannel(channel: VoiceChannel, defaultChannel: TextChannel?, onError: (InsufficientPermissionException) -> Unit = {}) {
+
+    /** Begin assertions **/
+    require(defaultChannel != null && channel.guild.getTextChannelById(defaultChannel.id)?.canTalk() ?: false) {
+      val msg = "Attempted to record, but bot cannot write to any channel."
+      updateNickname(channel.guild.selfMember, "FIX ME")
+      msg
+    }
+
+    // Bot won't connect to AFK channels
+    require(channel != channel.guild.afkChannel) {
+      val msg = ":no_entry_sign: _I'm not allowed to record AFK channels._"
+      sendMessage(defaultChannel, msg)
+      msg
+    }
+
+    /** End assertions **/
+
+    val audioManager = channel.guild.audioManager
+
+    if (audioManager.isConnected) {
+      logger.debug { "vc:${channel.name} - Already connected to ${audioManager.connectedChannel?.name}" }
+    } else {
+
+      try {
+        audioManager.openAudioConnection(channel)
+        logger.info { "Connected to voice channel" }
+      } catch (e: InsufficientPermissionException) {
+        logger.warn { "Need permission: ${e.permission}" }
+        onError(e)
+        return
+      }
+
+      val volume = transaction {
+        Guild.findById(channel.guild.idLong)
+          ?.settings
+          ?.volume
+          ?.toDouble()
+      } ?: 1.0
+
+      val recorder = CombinedAudioRecorderHandler(volume, channel, defaultChannel)
+      audioManager.receivingHandler = recorder
+
+      recordingStatus(channel.guild.selfMember, true)
+    }
+  }
+
+  /**
+   * General message sending utility with error logging
+   */
+  fun sendMessage(textChannel: MessageChannel?, msg: String) {
+    try {
+      textChannel
+        ?.sendMessage(msg)
+        ?.queue(
+          { m -> logger.debug { "Send message - ${m.contentDisplay}" } },
+          { t -> logger.error { "Error sending message - $msg: ${t.message}" } }
+        )
+    } catch (e: InsufficientPermissionException) {
+      logger.warn(e) {
+        "Missing permission ${e.permission}"
+      }
+    }
+  }
+
+  /**
+   * Using an LRU cache, update activity if not in cache, this is not thread safe but also non-critical so wutevs
+   */
+  fun updateActivity(guild: DiscordGuild): Unit {
+    if (guildActivity[guild.idLong] == null) {
+      // Update Guild name if necessary
+      updateGuildName(guild)
+
+      // Update LRU
+      guildActivity[guild.idLong] = nowUTC()
+
+      // Update active on timestamp
+      asyncTransaction {
+        Guild[guild.idLong].lastActiveOn = guildActivity[guild.idLong]!!
+      }
+    } else {
+      // TODO: Leaving this just to see how much crap we ignore, then remove later
+      logger.info {
+        "Ignoring updates to ${guild.name}"
+      }
+    }
+  }
+
+  fun uploadFile(textChannel: TextChannel, file: File) {
+    FileInputStream(file).use {
+      try {
+        textChannel
+          .sendFile(it, file.name)
+          .complete()
+      } catch (e: InsufficientPermissionException) {
+        withLoggingContext("guild" to textChannel.guild.name, "text-channel" to textChannel.name) {
+          sendMessage(textChannel, ":no_entry_sign: _Couldn't upload recording directly to <#${textChannel.id}>, to enable this give `Attach Files` permissions._")
+          logger.warn(e) {
+            "Couldn't upload recording: ${file.name}"
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * Update Guild name if different than what's on the database
+   */
+  private fun updateGuildName(guild: DiscordGuild): Unit {
+    val newName = guild.name
+    val oldName = transaction { Guild[guild.idLong].name }
+
+    if (oldName != newName) {
+      asyncTransaction {
+        Guild[guild.idLong].name = newName
+        logger.info {
+          "Changed name $oldName -> $newName"
+        }
+      }
+    }
   }
 
   private fun updateNickname(bot: Member, nickname: String) {
@@ -319,20 +376,8 @@ object BotUtils {
     handler?.volume = volume
   }
 
-  fun uploadFile(textChannel: TextChannel, file: File) {
-    FileInputStream(file).use {
-      try {
-        textChannel
-          .sendFile(it, file.name)
-          .complete()
-      } catch (e: InsufficientPermissionException) {
-        withLoggingContext("guild" to textChannel.guild.name, "text-channel" to textChannel.name) {
-          sendMessage(textChannel, ":no_entry_sign: _Couldn't upload recording directly to <#${textChannel.id}>, to enable this give `Attach Files` permissions._")
-          logger.warn(e) {
-            "Couldn't upload recording: ${file.name}"
-          }
-        }
-      }
-    }
-  }
+  /**
+   * Returns the effective size of the voice channel, excluding bots.
+   */
+  private fun voiceChannelSize(voiceChannel: VoiceChannel?): Int = voiceChannel?.members?.count() ?: 0
 }

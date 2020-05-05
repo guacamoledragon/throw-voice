@@ -23,6 +23,7 @@ import tech.gdragon.commands.handleCommand
 import tech.gdragon.db.asyncTransaction
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.nowUTC
+import tech.gdragon.discord.Bot
 import tech.gdragon.metrics.Rollbar
 
 class EventListener : ListenerAdapter(), KoinComponent {
@@ -38,9 +39,9 @@ class EventListener : ListenerAdapter(), KoinComponent {
           .findOrCreate(guild.idLong, guild.name, guild.region.name)
           .also {
             it.active = true
-            it.lastActiveOn = nowUTC()
           }
       }
+      BotUtils.updateActivity(event.guild)
 
       logger.info { "Joined new server '${guild.name}', connected to ${event.jda.guilds.size} guilds." }
     }
@@ -57,22 +58,6 @@ class EventListener : ListenerAdapter(), KoinComponent {
       }
 
       logger.info { "Left server '${event.guild.name}', connected to ${event.jda.guilds.size} guilds." }
-    }
-  }
-
-  override fun onGuildUpdateName(event: GuildUpdateNameEvent) {
-    withLoggingContext("guild" to event.guild.name) {
-      event.run {
-        asyncTransaction {
-          Guild.findById(guild.idLong)
-            .also {
-              it?.name = newName
-            }
-        }
-        logger.info {
-          "Changed name $oldName -> $newName"
-        }
-      }
     }
   }
 
@@ -103,15 +88,7 @@ class EventListener : ListenerAdapter(), KoinComponent {
       }
 
       // Update activity
-      asyncTransaction {
-        event.guild.run {
-          Guild
-            .findOrCreate(idLong, name, region.name)
-            .also {
-              it.lastActiveOn = nowUTC()
-            }
-        }
-      }
+      BotUtils.updateActivity(event.guild)
 
       BotUtils.autoRecord(event.guild, event.channelJoined)
     }
@@ -133,15 +110,7 @@ class EventListener : ListenerAdapter(), KoinComponent {
       logger.debug { "${event.guild.name}#${event.channelJoined.name} - ${user.name} joined voice channel" }
 
       // Update activity
-      asyncTransaction {
-        event.guild.run {
-          Guild
-            .findOrCreate(idLong, name, region.name)
-            .also {
-              it.lastActiveOn = nowUTC()
-            }
-        }
-      }
+      BotUtils.updateActivity(event.guild)
 
       if (BotUtils.isSelfBot(user).not()) {
         BotUtils.autoStop(event.guild, event.channelLeft)
@@ -181,7 +150,7 @@ class EventListener : ListenerAdapter(), KoinComponent {
         try {
           handleCommand(event, prefix, rawContent)
           // Update activity
-          asyncTransaction { guild.lastActiveOn = nowUTC() }
+          BotUtils.updateActivity(event.guild)
         } catch (e: InvalidCommand) {
           BotUtils.sendMessage(defaultChannel, ":no_entry_sign: _Usage: `${e.usage(prefix)}`_")
           logger.warn { "[$rawContent] ${e.reason}" }
