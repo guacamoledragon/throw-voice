@@ -12,13 +12,14 @@ class HttpServer(bot: Bot, val port: Int = 8080) {
 
       return when (uri.toLowerCase()) {
         "/ping" -> {
-          val response = newFixedLengthResponse("pong")
-          response
+          newFixedLengthResponse("pong")
+        }
+        "/invite" -> {
+          newFixedLengthResponse(Response.Status.REDIRECT, MIME_HTML, "")
+            .apply { addHeader("Location", inviteUrl) }
         }
         else -> {
-          val response = newFixedLengthResponse(Response.Status.REDIRECT, MIME_HTML, "")
-          response.addHeader("Location", inviteUrl)
-          response
+          newFixedLengthResponse(Response.Status.NOT_FOUND, NanoHTTPD.MIME_PLAINTEXT, "Error 404, file not found.")
         }
       }
     }

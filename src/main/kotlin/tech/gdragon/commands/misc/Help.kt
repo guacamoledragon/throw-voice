@@ -24,30 +24,18 @@ class Help : CommandHandler() {
       throw InvalidCommand(::usage, "Empty arguments")
     }
 
-    val disclaimer = """|**Depending on where you live, it _may_ be illegal to record without everyone's consent. Please
-                          |check your local laws.**
-                          |
-                          |https://en.wikipedia.org/wiki/Telephone_recording_laws
-                          |_This is not legal advice._
-                          |""".trimMargin()
-
     val website: String = getKoin().getProperty("WEBSITE", "http://localhost:8080/")
 
     // TODO must be configurable
     val embed = EmbedBuilder().apply {
       setAuthor("pawa", website, event.jda.selfUser.avatarUrl)
       setColor(Color.decode("#596800"))
-      setTitle("Currently in beta, being actively developed and tested. Expect bugs. All settings get cleared on every beta release")
-      setDescription("**pawa** is an implementation of _throw-voice_, check out [GitHub](https://github.com/guacamoledragon/throw-voice) for updates!\n\n")
-      appendDescription(disclaimer)
+      setTitle("Full documentation can be found at $website")
       setThumbnail(event.jda.selfUser.avatarUrl)
-      setFooter("Replace brackets [] with item specified. Vertical bar | means 'or', either side of bar is valid choice.", null)
-      addBlankField(false)
     }
 
     val defaultChannel = BotUtils.defaultTextChannel(event.guild) ?: event.channel
     val commands = Command.values()
-
     commands
       .sorted()
       .forEach { command ->
@@ -55,15 +43,14 @@ class Help : CommandHandler() {
 
         val aliasDescription =
           aliases
-            ?.filter { alias -> alias.name == command.name.toLowerCase() }
+            ?.filter { alias -> alias.name == command.name }
             ?.let {
               if (it.isNotEmpty()) {
                 "\nAliases: " + it.joinToString(",") { alias -> "`${alias.alias}`" }
               } else ""
             } ?: ""
 
-        val description = commandHandler.description() + aliasDescription
-        embed.addField(commandHandler.usage(prefix), description, false)
+        embed.addField(commandHandler.usage(prefix), aliasDescription, false)
       }
 
     event.author.openPrivateChannel()

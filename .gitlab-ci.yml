@@ -11,11 +11,15 @@ variables:
   DS_DEFAULT_ANALYZERS: "gemnasium-maven"
   MAVEN_CLI_OPTS: -Dmaven.repo.local=.m2
 
+dependency_scanning:
+  rules:
+    - if: $CI_COMMIT_REF_NAME == 'master'
+
 build:
   artifacts:
     expire_in: 1 hour
     paths:
-      - ./target/site
+      - ./target/html
   image: circleci/openjdk:11-jdk
   script:
     - mvn -B de.qaware.maven:go-offline-maven-plugin:resolve-dependencies
@@ -43,9 +47,9 @@ package:
   dependencies:
     - build
   image: circleci/openjdk:11-jdk
-  only:
-    - master
-    - tags
+  rules:
+    - if: $CI_COMMIT_REF_NAME == 'master'
+    - if: $CI_COMMIT_TAG
   script:
     - '[[ -v CI_COMMIT_TAG ]] && VERSION=${CI_COMMIT_TAG#"v"} || VERSION=${CI_JOB_ID}'
     - mvn package -B -Dtimestamp=$(date -u +%FT%TZ) -Dversion=${VERSION} -Drevision=$(git rev-parse --short HEAD)
@@ -53,9 +57,9 @@ package:
 
 container:
   image: docker:19.03.2
-  only:
-    - master
-    - tags
+  rules:
+    - if: $CI_COMMIT_REF_NAME == 'master'
+    - if: $CI_COMMIT_TAG
   services:
     - docker:19.03.2-dind
   script:
@@ -90,7 +94,9 @@ pages:
   dependencies:
     - build
   script:
-    - mv target/site/jacoco public/
+    - mv target/html/ public/
+    - mv public/{README,index}.html
   stage: deploy
-  only:
-    - master
+  rules:
+    - if: $CI_COMMIT_REF_NAME == 'master'
+    - if: $CI_COMMIT_TAG

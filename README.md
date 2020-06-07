@@ -1,47 +1,266 @@
 # pawa
-> A voice channel recording bot for Discord.
+> Simple voice recording for Discord
 
 <div align="center">
   <a href="https://discordbots.org/bot/338897906524225538">
     <img src="https://discordbots.org/api/widget/338897906524225538.png" alt="Discord Bots" />
   </a>
+
+  [![Discord](https://discordapp.com/api/guilds/408795211901173762/widget.png)](https://discord.gg/gkvsNw8)
+  [![pipeline status](https://gitlab.com/pawabot/pawa/badges/master/pipeline.svg)](https://gitlab.com/pawabot/pawa/commits/master)
+  [![Get your own version badge on microbadger.com](https://images.microbadger.com/badges/version/gdragon/throw-voice.svg)](https://microbadger.com/images/gdragon/throw-voice)
+  [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgitlab.com%2Fpawabot%2Fpawa.svg?type=shield)](https://app.fossa.io/projects/git%2Bgitlab.com%2Fpawabot%2Fpawa?ref=badge_shield)
+
 </div>
 
-[![Discord](https://discordapp.com/api/guilds/408795211901173762/widget.png)](https://discord.gg/gkvsNw8)
-[![pipeline status](https://gitlab.com/pawabot/pawa/badges/master/pipeline.svg)](https://gitlab.com/pawabot/pawa/commits/master)
-[![codecov](https://codecov.io/gl/pawabot/pawa/branch/master/graph/badge.svg)](https://codecov.io/gl/pawabot/pawa)
-[![Get your own version badge on microbadger.com](https://images.microbadger.com/badges/version/gdragon/throw-voice.svg)](https://microbadger.com/images/gdragon/throw-voice)
-[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgitlab.com%2Fpawabot%2Fpawa.svg?type=shield)](https://app.fossa.io/projects/git%2Bgitlab.com%2Fpawabot%2Fpawa?ref=badge_shield)
+# Usage
+
+`pawa` is a Discord bot that allows you to record a voice channel with ease. Follow this recipe:
+
+1. Join a voice channel, then type `!record`
+1. Create and upload recording, type `!save`
+1. Stop recording voice channel, type `!stop`
+
+<video loop muted controls>
+  <source src="./assets/features/pawa-howto.webm" type="video/webm">
+  <source src="./assets/features/pawa-howto.mp4" type="video/mp4">
+</video>
+
+# Support
+
+You can support `pawa` development in any of these ways:
+
+**Free**
+
+* 🐤 Follow the [Twitter account](https://twitter.com/pawa_bot) and retweet
+* 🗳️ Vote on [top.gg](https://top.gg/bot/pawa/vote)
+* ⭐ Leave a review on [bots.ondiscord.xyz](https://bots.ondiscord.xyz/bots/338897906524225538)
+* 🔄 Share with others!
+
+**Affiliates**
+
+If you want to try hosting your own bot, or website. I've used these hosting platforms in the past, use my referral links:
+
+* **Limited Time** [Vultr](https://www.vultr.com/?ref=8483036-6G): $100 credit to spend over 30 days
+* [Linode](https://www.linode.com/?r=e655d87b0d382f2922e75de841b2f19d7403e2ca)
+* [ServerCheap](https://servercheap.net/crm/aff.php?aff=324)
+    * Current Provider
+* We collect anonymous basic analytics using [Simple Analytics](https://referral.simpleanalytics.com/pawa), see them live here: [https://simpleanalytics.com/pawa.im](https://simpleanalytics.com/pawa.im)
+
+**Non-Free**
+
+_There is no obligation to do any of this, but this is a way to express your gratitude towards `pawa`_
+
+* [Buy me a coffee](https://ko-fi.com/L3L215SZC)
+* [Github Sponsor](https://github.com/sponsors/jvtrigueros)
+* [Donate Bot](https://donatebot.io/checkout/408795211901173762)
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-# Contents
+# Documentation
 
-- [Commands](#commands)
+- [Full Command List](#full-command-list)
+    - [alias](#alias)
+    - [autorecord](#autorecord)
+    - [autostop](#autostop)
+    - [autosave](#autosave)
+    - [clip](#clip)
+    - [record](#record)
+    - [stop](#stop)
+    - [prefix](#prefix)
+    - [removeAlias](#removealias)
+    - [save](#save)
+    - [saveLocation](#savelocation)
+    - [volume](#volume)
 - [Self-hosting](#self-hosting)
 - [Attributions](#attributions)
 - [License](#license)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-## Commands
+## Full Command List
 
-|                            Command                            |                                                                  Description                                                                    |
-|:--------------------------------------------------------------|:------------------------------------------------------------------------------------------------------------------------------------------------|
-| `!alias [command name] [new command alias]`                   | Creates an alias, or alternate name, to a command for customization.                                                                            |
-| `!autorecord [Voice Channel name \| 'all'] [number \| 'off']` | Sets the number of players for the bot to autorecord a voice channel, or disables autorecord-ing. 'all' will apply number to all voice channels.|
-| `!autostop [Voice Channel name \| 'all'] [number]`            | Sets the number of players for the bot to autostop a voice channel, or disables autostop-ing. 'all' will apply number to all voice channels.    |
-| `!autosave`                                                   | Toggles the option to automatically save and send all files at the end of each session - not just saved or clipped files                        |
-| `!clip [seconds] \| !clip [seconds] [text channel]`           | Saves a clip of the specified length and outputs it in the current or specified text channel (max 120 seconds)                                  |
-| `!record`                                                     | Ask the bot to record your current channel                                                                                             |
-| `!stop`                                                       | Ask the bot to stop recording it's current channel                                                                                                       |
-| `!prefix [character]`                                         | Sets the prefix for each command to avoid conflict with other bots _(Default is '!')_                                                           |
-| `!removeAlias [alias name]`                                   | Removes an alias from a command.                                                                                                                |
-| `!save \| !save [text channel]`                               | Saves the current recording and outputs it to the current or specified text chats (caps at 16MB)                                                |
-| `!saveLocation \| !saveLocation [text channel \| 'off']`      | Sets the text channel to send all messages to, use `off` to restore default behaviour.                                                          |
-| `!volume [1-100]`                                             | Sets the percentage volume to record at, from 1-100%                                                                                            |
+These commands aren't necessary for the functionality of `pawa` but they do provide some quality of life improvements.
 
-_Replace brackets [] with item specified. Vertical bar | means 'or', either side of bar is valid choice._
+**Note: _Anything between <> is mandatory. Anything in [] is optional. Vertical bar | means 'or', either side of bar is valid choice._**
+
+### alias
+> Creates an alias, or alternate name, to a command for customization.
+
+```
+!alias <command> <custom alias>
+```
+<details>
+  <summary>Example</summary>
+
+  ```
+  !alias record r
+  ```
+</details>
+
+### autorecord
+> Sets the number of players for the bot to autorecord a voice channel, or disables autorecord-ing. 'all' will apply number to all voice channels.
+
+```
+!autorecord <voice-channel | all> <number | off>`
+```
+<details>
+  <summary>Example</summary>
+
+  ```
+  !autorecord bot-testing 10
+  !autorecord bot-testing off
+  !autorecord all 3
+  !autorecord all off
+  ```
+</details>
+
+### autostop
+> Sets the number of players for the bot to autostop a voice channel, or disables autostop-ing. 'all' will apply number to all voice channels.    
+
+```
+!autostop <voice-channel | all> <number>
+```
+<details>
+  <summary>Example</summary>
+
+  ```
+  !autostop bot-testing 10
+  !autostop bot-testing off
+  !autostop all 3
+  !autostop all off
+  ```
+</details>
+
+### autosave
+> Toggles the option to automatically save and send all files at the end of each session - not just saved or clipped files
+
+```
+!autosave
+```
+<details>
+  <summary>Example</summary>
+
+  ```
+  !autosave
+  ```
+</details>
+
+### clip
+> Saves a clip of the specified length and outputs it in the current or specified text channel (max 120 seconds)
+
+```
+!clip <seconds> [text-channel]
+```
+<details>
+  <summary>Example</summary>
+
+  ```
+  !clip 10
+  !clip 10 bot-testing
+  ```
+</details>
+
+### record
+> Record voice channel
+
+```
+!record
+```
+<details>
+  <summary>Example</summary>
+
+  ```
+  !record
+  ```
+</details>
+
+### stop
+> Stop recording voice channel
+
+```
+!stop
+```
+<details>
+  <summary>Example</summary>
+
+  ```
+  !stop
+  ```
+</details>
+
+### prefix
+> Change prefix _(Default is '!')_
+
+```
+!prefix <new-prefix>
+```
+<details>
+  <summary>Example</summary>
+
+  ```
+  !prefix $
+  ```
+</details>
+
+### removeAlias
+> Removes an alias from a command.
+
+```
+!removeAlias <alias-name>
+```
+<details>
+  <summary>Example</summary>
+
+  ```
+  !removeAlias r
+  ```
+</details>
+
+### save
+> Saves the current recording and uploads it to current, `saveLocation`, or specified text channel. _(Max recording is 110MB)_
+
+```
+!save [text-channel]
+```
+<details>
+  <summary>Example</summary>
+
+  ```
+  !save
+  !save bot-testing
+  ```
+</details>
+
+### saveLocation
+> Default text channel for all messages. Use `off` to restore default behaviour.
+
+```
+!saveLocation [text-channel | off]
+```
+<details>
+  <summary>Example</summary>
+
+  ```
+  !saveLocation
+  !saveLocation bot-testing
+  !saveLocation off
+  ```
+</details>
+
+### volume
+> Set recording volume, range 1-100%. _(default 100%)_
+
+```
+!volume <1-100>
+```
+<details>
+<summary>Example</summary>
+
+```
+!volume 80
+```
+</details>
 
 ## Self-hosting
 
@@ -56,7 +275,7 @@ you can deploy the bot.
 ## License
 
 ```
-Copyright (c) 2017-2019 Guacamole Dragon, LLC
+Copyright (c) 2017-2020 Guacamole Dragon, LLC
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -70,5 +289,3 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ```
-
-[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgitlab.com%2Fpawabot%2Fpawa.svg?type=large)](https://app.fossa.io/projects/git%2Bgitlab.com%2Fpawabot%2Fpawa?ref=badge_large)

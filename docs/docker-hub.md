@@ -13,7 +13,7 @@
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 # pawa
-> A voice channel recording bot for Discord.
+> Simple voice recording for Discord
 
 <div align="center">
   <a href="https://discordbots.org/bot/338897906524225538">

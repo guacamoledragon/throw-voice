@@ -4,6 +4,7 @@
   <groupId>tech.gdragon.pawabot</groupId>
   <artifactId>pawa</artifactId>
   <version>2.0.0-SNAPSHOT</version>
+  <description>Simple voice recording for Discord</description>
   <scm>
     <connection>scm:git:https://gitlab.com/pawabot/pawa.git</connection>
     <url>https://gitlab.com/pawabot/pawa</url>
@@ -140,14 +141,17 @@
       <plugin>
         <groupId>com.ruleoftech</groupId>
         <artifactId>markdown-page-generator-plugin</artifactId>
-        <version>2.1.0</version>
+        <version>2.2.0</version>
         <configuration>
+          <alwaysUseDefaultTitle>true</alwaysUseDefaultTitle>
+          <copyDirectories>assets/features</copyDirectories>
+          <defaultTitle>${project.name} - ${project.description}</defaultTitle>
           <inputDirectory>${project.basedir}</inputDirectory>
           <recursiveInput>true</recursiveInput>
           <transformRelativeMarkdownLinks>true</transformRelativeMarkdownLinks>
           <headerHtmlFile>${project.basedir}/src/main/resources/markdown/html/header.html</headerHtmlFile>
           <footerHtmlFile>${project.basedir}/src/main/resources/markdown/html/footer.html</footerHtmlFile>
-          <pegdownExtensions>TABLES, FENCED_CODE_BLOCKS</pegdownExtensions>
+          <pegdownExtensions>TABLES, FENCED_CODE_BLOCKS, TOC</pegdownExtensions>
         </configuration>
         <executions>
           <execution>
