@@ -144,7 +144,7 @@
         <version>2.2.0</version>
         <configuration>
           <alwaysUseDefaultTitle>true</alwaysUseDefaultTitle>
-          <copyDirectories>assets/features</copyDirectories>
+          <copyDirectories>assets/features,assets/favicon</copyDirectories>
           <defaultTitle>${project.name} - ${project.description}</defaultTitle>
           <inputDirectory>${project.basedir}</inputDirectory>
           <recursiveInput>true</recursiveInput>
