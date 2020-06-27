@@ -98,6 +98,26 @@
       <artifactId>exposed</artifactId>
       <version>0.17.7</version>
     </dependency>
+<!--    <dependency>
+      <groupId>org.jetbrains.exposed</groupId>
+      <artifactId>exposed-core</artifactId>
+      <version>0.25.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jetbrains.exposed</groupId>
+      <artifactId>exposed-dao</artifactId>
+      <version>0.25.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jetbrains.exposed</groupId>
+      <artifactId>exposed-jodatime</artifactId>
+      <version>0.25.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jetbrains.exposed</groupId>
+      <artifactId>exposed-jdbc</artifactId>
+      <version>0.25.1</version>
+    </dependency>-->
     <dependency>
       <groupId>org.jetbrains.kotlin</groupId>
       <artifactId>kotlin-reflect</artifactId>
@@ -128,11 +148,22 @@
       <artifactId>sqlite-jdbc</artifactId>
       <version>3.31.1</version>
     </dependency>
+    <dependency>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <version>42.2.14</version>
+    </dependency>
+<!--    <dependency>
+      <groupId>com.impossibl.pgjdbc-ng</groupId>
+      <artifactId>pgjdbc-ng</artifactId>
+      <version>0.8.4</version>
+    </dependency>-->
 
     <dependency>
       <groupId>org.jetbrains.kotlin</groupId>
       <artifactId>kotlin-test-junit</artifactId>
       <version>${kotlin.version}</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 
