@@ -18,9 +18,9 @@ object Tables {
   }
 
   object Settings : LongIdTable() {
-    val autoSave = bool("autoSave").default(false)
+    val autoSave = bool("autosave").default(false)
     val prefix = text("prefix").default("!")
-    val defaultTextChannel = long("defaultTextChannel").nullable()
+    val defaultTextChannel = long("defaulttextchannel").nullable()
     val volume = decimal("volume", 3, 2).default(BigDecimal.valueOf(0.8))
     val guild = reference("guild", Guilds, ReferenceOption.CASCADE).uniqueIndex()
   }
@@ -33,8 +33,8 @@ object Tables {
 
   object Channels : LongIdTable() {
     val name = text("name")
-    val autoRecord = integer("autoRecord").nullable()
-    val autoStop = integer("autoStop").nullable()
+    val autoRecord = integer("autorecord").nullable()
+    val autoStop = integer("autostop").nullable()
     val settings = reference("settings", Settings, ReferenceOption.CASCADE)
   }
 
