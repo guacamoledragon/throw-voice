@@ -6,7 +6,7 @@ where autoStop = 1
 
 --  Allow autostop to be null, just like autorecord
 alter table Channels
-  alter column autoStop drop default;
+  alter column autoStop drop not null;
 
 -- Reset autoStop to null to prevent accidental leaves
 update Channels
