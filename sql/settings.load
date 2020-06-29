@@ -1,0 +1,8 @@
+load database
+     from sqlite:///data/settings.db
+     into postgresql://postgres:password@postgres:5432/settings
+
+with include no drop, create no tables, create no indexes, reset no sequences
+
+excluding table names like 'flyway_schema_history', 'sqlite_master'
+set work_mem to '512MB', maintenance_work_mem to '512 MB';
