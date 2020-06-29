@@ -14,12 +14,12 @@ ARG VCS_REF
 ARG VERSION
 RUN mvn -B -Dversion="${VERSION}" -Dtimestamp="${BUILD_DATE}" -Drevision="${VCS_REF}" package
 
-FROM boxfuse/flyway as database
-
-COPY sql /flyway/sql
-COPY conf /flyway/conf
-
-RUN ["flyway", "-url=jdbc:sqlite:/tmp/settings.db", "migrate"]
+#FROM boxfuse/flyway as database
+#
+#COPY sql /flyway/sql
+#COPY conf /flyway/conf
+#
+#RUN ["flyway", "-url=jdbc:sqlite:/tmp/settings.db", "migrate"]
 
 FROM gcr.io/distroless/java:11
 LABEL maintainer="Jose V. Trigueros <jose@gdragon.tech>"
@@ -48,6 +48,6 @@ WORKDIR $APP_DIR
 
 COPY --from=builder /app/target/pawa-release/lib lib
 COPY --from=builder /app/target/pawa-release/*.jar .
-COPY --from=database /tmp/settings.db .
+#COPY --from=database /tmp/settings.db .
 
 CMD ["java", "-cp", "*:lib/*", "tech.gdragon.App"]
