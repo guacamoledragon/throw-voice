@@ -64,7 +64,7 @@ fun basicTest() {
 }
 
 fun testBiggestChannel() {
-  initializeDatabase("settings.db")
+//  initializeDatabase("settings.db")
   JDABuilder(AccountType.BOT)
     .setToken(System.getenv("TOKEN"))
     .addEventListeners(object : ListenerAdapter() {
@@ -85,7 +85,7 @@ fun testBiggestChannel() {
 }
 
 fun testAlerts() {
-  initializeDatabase("settings.db")
+//  initializeDatabase("settings.db")
   JDABuilder(AccountType.BOT)
     .setToken(System.getenv("TOKEN"))
     .addEventListeners(object : ListenerAdapter() {
@@ -100,7 +100,7 @@ fun testAlerts() {
 }
 
 fun testAutoJoin() {
-  initializeDatabase("./data/settings.db")
+//  initializeDatabase("./data/settings.db")
   transaction {
     val settings = Guild.findById(333055724198559745L)?.settings
 
