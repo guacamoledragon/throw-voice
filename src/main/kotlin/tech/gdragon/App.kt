@@ -41,7 +41,9 @@ fun main() {
 
   val dataDir = app.koin.getProperty("DATA_DIR", "./")
   initializeDataDirectory(dataDir)
-  initializeDatabase("$dataDir/${app.koin.getProperty<String>("DB_NAME")}")
+  app.koin.apply {
+    initializeDatabase(getProperty("DB_NAME"), getProperty("DB_HOST"), getProperty("DB_USER"), getProperty("DB_PASSWORD"))
+  }
 
   val bot =
     Bot().also {

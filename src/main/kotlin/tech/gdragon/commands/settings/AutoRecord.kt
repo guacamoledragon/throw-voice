@@ -31,6 +31,7 @@ class AutoRecord : CommandHandler() {
   /**
    * Sets the autoRecord value for a given voice channel. `null` represents autoRecord for that
    * channel is disabled.
+   * TODO: Minor optimization, delete rows that have the defaults
    */
   override fun action(args: Array<String>, event: GuildMessageReceivedEvent) {
     require(args.size >= 2) {
