@@ -55,6 +55,8 @@ Done!
 
 _Note: If you're deploying on your own VPS, then you'll need a bit more setup as you may be using NGINX or Apache._
 
+<a href="https://www.vultr.com/?ref=8483036-6G"><img src="https://www.vultr.com/media/banners/banner_728x90.png" width="728" height="90"></a>
+
 ## Docker Compose
 
 If Docker is your jam, go into the `docker` folder and modify the variables in the `.env`, the rest are in the `docker-compose.yml`
