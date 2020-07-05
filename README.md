@@ -45,7 +45,7 @@ If you want to try hosting your own bot, or website. I've used these hosting pla
 * [Linode](https://www.linode.com/?r=e655d87b0d382f2922e75de841b2f19d7403e2ca)
 * [ServerCheap](https://servercheap.net/crm/aff.php?aff=324)
     * Current Provider
-* We collect anonymous basic analytics using [Simple Analytics](https://referral.simpleanalytics.com/pawa), see them live here: [https://simpleanalytics.com/pawa.im](https://simpleanalytics.com/pawa.im)
+* We collect anonymous basic analytics using [Simple Analytics](https://referral.simpleanalytics.com/pawa)
 
 **Non-Free**
 
