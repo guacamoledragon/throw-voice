@@ -2,6 +2,7 @@ package tech.gdragon.listener
 
 import com.squareup.tape.QueueFile
 import de.sciss.jump3r.lowlevel.LameEncoder
+import io.reactivex.Observable
 import io.reactivex.disposables.Disposable
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
@@ -31,6 +32,7 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
 import java.util.*
+import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
 
 class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceChannel, val defaultChannel: TextChannel) : AudioReceiveHandler, KoinComponent {
@@ -124,17 +126,22 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
 
     return subject
       ?.doOnNext { isAfk(it.users.size) }
-      ?.map {
-        val bytes = it.getAudioData(volume)
+      ?.map { it.getAudioData(volume) }
+      ?.buffer(BUFFER_TIMEOUT, TimeUnit.MILLISECONDS, BUFFER_MAX_COUNT)
+      ?.flatMap { byteArrays ->
         val baos = ByteArrayOutputStream()
-        if (pcmMode) {
-          baos.writeBytes(bytes)
-        } else {
-          val buffer = ByteArray(bytes.size)
-          val bytesEncoded = encoder.encodeBuffer(bytes, 0, bytes.size, buffer)
-          baos.write(buffer, 0, bytesEncoded)
+
+        byteArrays.forEach {
+          if (pcmMode) {
+            baos.writeBytes(it)
+          } else {
+            val buffer = ByteArray(it.size)
+            val bytesEncoded = encoder.encodeBuffer(it, 0, it.size, buffer)
+            baos.write(buffer, 0, bytesEncoded)
+          }
         }
-        baos.toByteArray()
+
+        Observable.fromArray(baos.toByteArray())
       }
       ?.doOnNext {
         val percentage = recordingSize * 100 / MAX_RECORDING_SIZE
