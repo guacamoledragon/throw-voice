@@ -4,6 +4,7 @@ import com.squareup.tape.QueueFile
 import de.sciss.jump3r.lowlevel.LameEncoder
 import io.reactivex.Observable
 import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import mu.KotlinLogging
@@ -150,6 +151,7 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
           limitWarning = true
         }
       }
+      ?.observeOn(Schedulers.io())
       ?.collectInto(queueFile) { queue, bytes ->
 
         while (recordingSize + bytes.size > MAX_RECORDING_SIZE) {
