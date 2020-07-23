@@ -161,7 +161,11 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
         queue?.add(bytes)
         recordingSize += bytes.size
       }
-      ?.subscribe { _, e ->
+      ?.subscribe { q, e ->
+        q?.let {
+          logger.info { "Completed recording: $uuid, queue file size: ${it.size()}" }
+        }
+        println("q?.size = ${q?.size()}")
         e?.let {
           withLoggingContext("guild" to voiceChannel.guild.name, "voice-channel" to voiceChannel.name) {
             when (e) {
@@ -175,7 +179,15 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
 
   fun saveRecording(voiceChannel: VoiceChannel?, textChannel: TextChannel) {
     canReceive = false
-    subscription?.dispose()
+    subject?.onComplete()
+
+    logger.info { "Waiting for recording to complete..." }
+    var counter = 0
+    while (subscription?.isDisposed?.not() == true) {
+      print("$counter ")
+      Thread.sleep(500)
+      counter += 1
+    }
 
     val recording = File(filename)
 
