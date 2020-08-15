@@ -1,7 +1,11 @@
 (ns repl
   (:import (tech.gdragon.discord Bot)
            (net.dv8tion.jda.api JDA)
-           (net.dv8tion.jda.api.entities Guild TextChannel)))
+           (net.dv8tion.jda.api.entities Guild TextChannel)
+           (com.squareup.tape QueueFile QueueFile$ElementReader)
+           (java.io InputStream))
+  (:require [clojure.java.io :as io]
+            [clojure.string :as str]))
 
 (use 'cl-java-introspector.core)
 
@@ -26,8 +30,17 @@
 
 (comment (send-message! channel "Hello World!"))
 
+(defn queue->mp3
+  "Create MP3 from Queue file"
+  [queue-filename]
+  (with-open [os (io/output-stream (io/file (str/replace queue-filename "queue" "mp3")))]
+    (let [queue-file (QueueFile. (io/file queue-filename))]
+      (.forEach queue-file (reify QueueFile$ElementReader
+                             (read [this is length]
+                               (.transferTo is os)))))))
+
 (comment
-  (let [jda   (.api bot)
-        guild (first (.getGuildsByName jda "Guacamole Dragon" true))
+  (let [jda           (.api bot)
+        guild         (first (.getGuildsByName jda "Guacamole Dragon" true))
         audio-manager (.getAudioManager guild)]
     (.. audio-manager getConnectedChannel getName)))
