@@ -60,7 +60,6 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
   private var single: Single<QueueFile?>? = null
   private var subscription: Disposable? = null
   private var uuid: UUID? = null
-  private var queueFile: QueueFile? = null
   private var recordingRecord: Recording? = null
 
   private var canReceive = true
@@ -116,7 +115,7 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
     val filenameExtension = if (pcmMode) "pcm" else "mp3"
     filename = "$dataDirectory/recordings/$uuid.$filenameExtension"
     queueFilename = "$dataDirectory/recordings/$uuid.queue"
-    queueFile = QueueFile(File(queueFilename))
+    val queueFile = QueueFile(File(queueFilename))
     canReceive = true
 
     val encoder = LameEncoder(AudioReceiveHandler.OUTPUT_FORMAT, BITRATE, LameEncoder.CHANNEL_MODE_AUTO, LameEncoder.QUALITY_HIGHEST, true)
