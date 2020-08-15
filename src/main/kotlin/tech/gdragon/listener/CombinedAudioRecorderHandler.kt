@@ -3,10 +3,10 @@ package tech.gdragon.listener
 import com.squareup.tape.QueueFile
 import de.sciss.jump3r.lowlevel.LameEncoder
 import io.reactivex.Observable
+import io.reactivex.Single
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
-import io.reactivex.subjects.Subject
 import mu.KotlinLogging
 import mu.withLoggingContext
 import net.dv8tion.jda.api.audio.AudioReceiveHandler
@@ -56,7 +56,8 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
   private val pcmMode: Boolean = getKoin().getProperty("PCM_MODE", "false").toBoolean()
 
   // State-licious
-  private var subject: Subject<CombinedAudio>? = null
+  private var subject: PublishSubject<CombinedAudio>? = null
+  private var single: Single<QueueFile?>? = null
   private var subscription: Disposable? = null
   private var uuid: UUID? = null
   private var queueFile: QueueFile? = null
@@ -74,7 +75,7 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
     get() = uuid.toString()
 
   init {
-    subscription = createRecording()
+    single = createRecording()
   }
 
   /**
@@ -100,7 +101,7 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
     return isAfk
   }
 
-  private fun createRecording(): Disposable? {
+  private fun createRecording(): Single<QueueFile?>? {
     recordingRecord = transaction {
       Guild.findById(voiceChannel.guild.idLong)?.let {
         Recording.new {
@@ -125,7 +126,7 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
       """.trimMargin())
     logger.info { "Creating recording session - $queueFilename" }
 
-    return subject
+    val singleObservable = subject
       ?.doOnNext { isAfk(it.users.size) }
       ?.map { it.getAudioData(volume) }
       ?.buffer(BUFFER_TIMEOUT, TimeUnit.MILLISECONDS, BUFFER_MAX_COUNT)
@@ -161,70 +162,84 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
         queue?.add(bytes)
         recordingSize += bytes.size
       }
-      ?.subscribe { q, e ->
-        q?.let {
-          logger.info { "Completed recording: $uuid, queue file size: ${it.size()}" }
-        }
-        println("q?.size = ${q?.size()}")
-        e?.let {
-          withLoggingContext("guild" to voiceChannel.guild.name, "voice-channel" to voiceChannel.name) {
-            when (e) {
-              is IOException -> logger.warn(it) { "Error with queue file: $queueFilename" }
-              else -> logger.error(it) { "An error occurred in the recording pipeline" }
-            }
-          }
-        }
+
+    singleObservable?.subscribe { _, e ->
+      e?.let { ex ->
+        logger.error (ex) { "Error on subscription on createRecording"}
       }
+    }
+
+    return singleObservable
   }
 
   fun saveRecording(voiceChannel: VoiceChannel?, textChannel: TextChannel) {
     canReceive = false
-    subject?.onComplete()
+    // subscription?.dispose()
 
-    logger.info { "Waiting for recording to complete..." }
-    var counter = 0
-    while (subscription?.isDisposed?.not() == true) {
-      print("$counter ")
-      Thread.sleep(500)
-      counter += 1
-    }
+    val recordingUUID = uuid
 
-    val recording = File(filename)
+    logger.info { "Creating subscription for recording: $recordingUUID" }
+    single?.subscribe { q, e ->
+      e?.let { ex ->
+        logger.error (ex) { "Error on subscription on saveRecording"}
+      }
 
-    FileOutputStream(recording).use {
-      queueFile?.apply {
-        forEach { stream, _ ->
-          stream.transferTo(it)
-        }
+      val recording = File("$recordingUUID.mp3")
+      val queueFilename = "$recordingUUID.queue"
+//      val queueFile = QueueFile(File(queueFilename))
 
-        try {
-          // TODO: Why clear file? It's gonna get deleted anyway
-          clear()
-        } catch (e: IOException) {
-          logger.warn(e) {
-            "Issue clearing queue file: $queueFilename"
+      logger.warn { """
+        Subscribe body thinks that:
+        uuid -> $recordingUUID
+        filename -> $filename
+        queueFilename -> $queueFilename:$q
+      """.trimIndent()}
+
+      q?.let {
+        logger.info { "Completed recording: $recordingUUID, queue file size: ${it.size()}" }
+      }
+
+      FileOutputStream(recording).use {
+        q?.apply {
+          logger.info { "Generating MP3 file: ${recording.absolutePath}"}
+          forEach { stream, _ ->
+            stream.transferTo(it)
           }
-        } finally {
-          close()
-          File(queueFilename).delete()
+          logger.info { "Done generating MP3 file: ${recording.absolutePath}"}
+
+          /*try {
+            // TODO: Why clear file? It's gonna get deleted anyway
+            clear()
+          } catch (e: IOException) {
+            logger.warn(e) {
+              "Issue clearing queue file: $queueFilename"
+            }
+          } finally {
+            close()
+            File(queueFilename).delete()
+          }*/
         }
+      }
+
+      logger.info {
+        "Saving audio file ${recording.name} - ${FileUtils.byteCountToDisplaySize(recording.length())}."
+      }
+
+      logger.debug {
+        "Recording size in bytes: $recordingSize"
+      }
+
+      withLoggingContext("sessionId" to session) {
+        uploadRecording(recording, voiceChannel, textChannel)
       }
     }
 
-    logger.info {
-      "Saving audio file ${recording.name} - ${FileUtils.byteCountToDisplaySize(recording.length())}."
-    }
-
-    logger.debug {
-      "Recording size in bytes: $recordingSize"
-    }
-
-    withLoggingContext("sessionId" to session) {
-      uploadRecording(recording, voiceChannel, textChannel)
-    }
+    logger.info { "Marking observable as completed for recording: $uuid"}
+    subject?.onComplete()
 
     // Resume recording
-    subscription = createRecording()
+    createRecording()
+    logger.info { "Cannot wait! Creating a new recording: $uuid"}
   }
 
   fun saveClip(seconds: Long, voiceChannel: VoiceChannel?, channel: TextChannel) {
@@ -342,9 +357,6 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
     // Terminate subscription to Observable
     subscription?.dispose()
 
-    //
-    queueFile?.close()
-    queueFile = null
     Files.deleteIfExists(Path.of(queueFilename))
 
     transaction {
