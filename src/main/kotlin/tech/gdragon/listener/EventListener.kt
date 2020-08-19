@@ -90,7 +90,7 @@ class EventListener : ListenerAdapter(), KoinComponent {
       // Update activity
       BotUtils.updateActivity(event.guild)
 
-      BotUtils.autoRecord(event.guild, event.channelJoined)
+//      BotUtils.autoRecord(event.guild, event.channelJoined)
     }
   }
 
@@ -114,7 +114,7 @@ class EventListener : ListenerAdapter(), KoinComponent {
 
       if (BotUtils.isSelfBot(user).not()) {
         BotUtils.autoStop(event.guild, event.channelLeft)
-        BotUtils.autoRecord(event.guild, event.channelJoined)
+//        BotUtils.autoRecord(event.guild, event.channelJoined)
       }
     }
   }
