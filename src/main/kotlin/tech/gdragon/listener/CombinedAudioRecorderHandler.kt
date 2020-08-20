@@ -4,6 +4,7 @@ import com.squareup.tape.QueueFile
 import de.sciss.jump3r.lowlevel.LameEncoder
 import io.reactivex.Observable
 import io.reactivex.Single
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
@@ -58,7 +59,7 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
   // State-licious
   private var subject: PublishSubject<CombinedAudio>? = null
   private var single: Single<QueueFile?>? = null
-  private var subscription: Disposable? = null
+  private val compositeDisposable = CompositeDisposable()
   private var uuid: UUID? = null
   private var recordingRecord: Recording? = null
 
@@ -162,11 +163,13 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
         recordingSize += bytes.size
       }
 
-    singleObservable?.subscribe { _, e ->
+    val disposable = singleObservable?.subscribe { _, e ->
       e?.let { ex ->
-        logger.error (ex) { "Error on subscription on createRecording"}
+        logger.error(ex) { "Error on subscription on createRecording" }
       }
     }
+
+    disposable?.let(compositeDisposable::add)
 
     return singleObservable
   }
@@ -350,13 +353,22 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
     // Stop accepting audio from Discord
     canReceive = false
 
+
+    logger.info { "Disposing all connected" }
+    compositeDisposable.clear()
+
+    // Clean up queue file
+    single?.subscribe { queueFile, _ ->
+      logger.info { "Clean up queue files"}
+      queueFile?.let {
+        it.close()
+        Files.deleteIfExists(Path.of(queueFilename))
+      }
+    }
+
     // Shut off the Observable
     subject?.onComplete()
 
-    // Terminate subscription to Observable
-    subscription?.dispose()
-
-    Files.deleteIfExists(Path.of(queueFilename))
 
     transaction {
       recordingRecord?.apply {
