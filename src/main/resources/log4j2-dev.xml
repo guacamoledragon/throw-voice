@@ -30,7 +30,7 @@
   </Appenders>
   <Loggers>
     <Root level="info">
-      <AppenderRef level="error" ref="Discord"/>
+<!--      <AppenderRef level="error" ref="Discord"/>-->
       <AppenderRef ref="Console"/>
     </Root>
     <Logger name="tech.gdragon.db.ThreadLocalTransactionManager" level="debug" additivity="false">
