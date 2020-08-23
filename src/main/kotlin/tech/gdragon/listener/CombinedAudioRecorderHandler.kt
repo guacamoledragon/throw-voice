@@ -30,12 +30,40 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.nio.file.Files
-import java.nio.file.Path
 import java.nio.file.Paths
-import java.nio.file.StandardCopyOption
 import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
+
+class RecordingDisposable {
+  private var compositeDisposable: CompositeDisposable? = null
+
+  fun add(disposable: Disposable) {
+    if (compositeDisposable == null) {
+      compositeDisposable = CompositeDisposable()
+    }
+    compositeDisposable?.add(disposable)
+  }
+
+  /**
+   * Call dispose on all Disposable's via CompositeDisposable and remove reference to compositeDisposable
+   */
+  fun dispose() {
+    compositeDisposable?.dispose()
+    reset()
+  }
+
+  /**
+   * Remove reference to compositeDisposable
+   */
+  fun reset() {
+    compositeDisposable = null
+  }
+}
+
+class QFile(val file: File) : QueueFile(file) {
+
+}
 
 class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceChannel, val defaultChannel: TextChannel) : AudioReceiveHandler, KoinComponent {
   companion object {
@@ -59,7 +87,7 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
   // State-licious
   private var subject: PublishSubject<CombinedAudio>? = null
   private var single: Single<QueueFile?>? = null
-  private val compositeDisposable = CompositeDisposable()
+  private val compositeDisposable = RecordingDisposable()
   private var uuid: UUID? = null
   private var recordingRecord: Recording? = null
 
@@ -67,7 +95,6 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
   private var afkCounter = 0
 
   private var filename: String? = null
-  private var queueFilename: String? = null
   private var recordingSize: Long = 0
   private var limitWarning: Boolean = false
 
