@@ -218,7 +218,6 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
 
     logger.debug { "Creating subscription for recording: $recordingUUID" }
     val disposable = single?.subscribe { queueFile, e ->
-      logger.error { "saveRecording: $recordingUUID" }
       e?.let { ex ->
         logger.error(ex) { "Error on subscription on saveRecording: $recordingUUID" }
       }
