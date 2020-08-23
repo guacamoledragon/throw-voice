@@ -28,7 +28,8 @@ class Record : CommandHandler() {
           // Leave a previous voice channel
           if (event.guild.audioManager.isConnected) {
             connectedChannel?.let {
-              BotUtils.leaveVoiceChannel(it, defaultChannel)
+              val save = BotUtils.autoSave(event.guild)
+              BotUtils.leaveVoiceChannel(it, defaultChannel, save)
             }
           }
 

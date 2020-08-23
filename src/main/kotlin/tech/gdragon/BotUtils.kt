@@ -57,7 +57,7 @@ object BotUtils {
       }
   }
 
-  private fun autoSave(discordGuild: DiscordGuild): Boolean {
+  fun autoSave(discordGuild: DiscordGuild): Boolean {
     return transaction {
       Guild
         .findById(discordGuild.idLong)
@@ -77,7 +77,8 @@ object BotUtils {
 
         if (channelMemberCount <= autoStop) {
           val defaultChannel = defaultTextChannel(guild) ?: findPublicChannel(guild)
-          leaveVoiceChannel(channel, defaultChannel)
+          val save = autoSave(guild)
+          leaveVoiceChannel(channel, defaultChannel, save)
         }
       }
   }
@@ -111,7 +112,7 @@ object BotUtils {
   }
 
   @JvmStatic
-  fun leaveVoiceChannel(voiceChannel: VoiceChannel, textChannel: TextChannel?) {
+  fun leaveVoiceChannel(voiceChannel: VoiceChannel, textChannel: TextChannel?, save: Boolean) {
     val guild = voiceChannel.guild
     val audioManager = guild.audioManager
     val audioRecorderHandler = audioManager.receivingHandler as CombinedAudioRecorderHandler?
@@ -119,12 +120,14 @@ object BotUtils {
     withLoggingContext("guild" to voiceChannel.guild.name, "text-channel" to textChannel?.name.orEmpty()) {
 
       audioRecorderHandler?.let {
-        if (autoSave(guild) && textChannel != null) {
-          sendMessage(textChannel, ":floppy_disk: **Saving <#${voiceChannel.id}>'s recording...**")
-          it.saveRecording(voiceChannel, textChannel)
-        }
+        val (recording, recordingLock) =
+          if (save && textChannel != null) {
+            sendMessage(textChannel, ":floppy_disk: **Saving <#${voiceChannel.id}>'s recording...**")
+            it.saveRecording(voiceChannel, textChannel, false)
 
-        it.disconnect()
+          } else Pair(null, null)
+
+        it.disconnect(!save, recording, recordingLock)
       }
 
       logger.debug { "Leaving voice channel" }
