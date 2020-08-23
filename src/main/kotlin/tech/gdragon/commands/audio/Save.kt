@@ -18,11 +18,11 @@ class Save : CommandHandler() {
         ":no_entry_sign: _I am not currently recording._"
       } else {
         val voiceChannel = event.guild.audioManager.connectedChannel
-        val audioReceiveHandler = event.guild.audioManager.receivingHandler as CombinedAudioRecorderHandler
+        val save = true
 
         BotUtils.sendMessage(defaultChannel, ":floppy_disk: **Saving <#${voiceChannel?.id}>'s recording...**")
         if (args.isEmpty()) {
-          audioReceiveHandler.saveRecording(voiceChannel, defaultChannel)
+          BotUtils.leaveVoiceChannel(voiceChannel!!, defaultChannel, save)
           ""
         } else {
           val channelName = if (args.first().startsWith("#")) args.first().substring(1) else args.first()
@@ -31,7 +31,9 @@ class Save : CommandHandler() {
           if (channels.isEmpty()) {
             ":no_entry_sign: _Cannot find $channelName._"
           } else {
-            channels.forEach { audioReceiveHandler.saveRecording(voiceChannel, it) }
+            channels.forEach {
+              BotUtils.leaveVoiceChannel(voiceChannel!!, it, save)
+            }
             ""
           }
         }

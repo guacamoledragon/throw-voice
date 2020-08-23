@@ -16,7 +16,8 @@ class Stop : CommandHandler() {
     val message =
       if (event.guild.audioManager.isConnected) {
         event.guild.audioManager.connectedChannel?.let {
-          BotUtils.leaveVoiceChannel(it, defaultChannel)
+          val save = BotUtils.autoSave(event.guild)
+          BotUtils.leaveVoiceChannel(it, defaultChannel, save)
           ":wave: _Leaving **<#${it.id}>**_"
         } ?: ":no_entry_sign: _I am not in a channel_"
 
