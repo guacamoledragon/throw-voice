@@ -4,8 +4,6 @@
     <Property name="globalPattern">
       %d{YYYY-MM-dd'T'HH:mm:ssZ} [%level] %logger{1.} - %mdc{guild}#%mdc{text-channel}: %msg%n
     </Property>
-    <Property name="ROLLBAR_TOKEN"/>
-    <Property name="ROLLBAR_ENV"/>
   </Properties>
   <Appenders>
     <Console name="Console">
@@ -14,18 +12,6 @@
         <RegexFilter regex=".*Transaction attempt.*" onMatch="DENY" onMismatch="NEUTRAL"/>
       </Filters>
     </Console>
-    <Rollbar name="Rollbar">
-      <accessToken>${env:ROLLBAR_TOKEN}</accessToken>
-      <environment>${env:ROLLBAR_ENV}</environment>
-      <language>kotlin</language>
-      <PatternLayout pattern="${globalPattern}"/>
-      <Filters>
-        <RegexFilter regex=".*Found an unexpected key.*" onMatch="DENY" onMismatch="NEUTRAL"/>
-        <RegexFilter regex=".*There was some random exception.*" onMatch="DENY" onMismatch="NEUTRAL"/>
-        <RegexFilter regex=".*Failed to run transaction.*" onMatch="DENY" onMismatch="NEUTRAL"/>
-        <RegexFilter regex=".*One of the EventListeners had an uncaught exception.*" onMatch="DENY" onMismatch="NEUTRAL"/>
-      </Filters>
-    </Rollbar>
     <Discord name="Discord">
       <webhookUrl>${env:DISCORD_WEBHOOK}</webhookUrl>
       <PatternLayout pattern="${globalPattern}"/>
@@ -49,7 +35,6 @@
   </Appenders>
   <Loggers>
     <Root level="info">
-      <AppenderRef level="error" ref="Rollbar"/>
       <AppenderRef level="error" ref="Discord"/>
       <AppenderRef ref="Console"/>
     </Root>

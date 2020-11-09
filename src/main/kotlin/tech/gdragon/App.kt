@@ -9,7 +9,6 @@ import org.koin.dsl.module
 import tech.gdragon.data.DataStore
 import tech.gdragon.db.initializeDatabase
 import tech.gdragon.discord.Bot
-import tech.gdragon.metrics.Rollbar
 import tech.gdragon.repl.REPL
 import java.io.IOException
 import java.time.Duration
@@ -36,7 +35,6 @@ fun main() {
         single { Bot() }
         single { DataStore() }
         single { REPL() }
-        single { Rollbar() }
       }
     )
   }

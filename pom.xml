@@ -27,11 +27,6 @@
       <version>2.11.1</version>
     </dependency>
     <dependency>
-      <groupId>com.rollbar</groupId>
-      <artifactId>rollbar-log4j2</artifactId>
-      <version>1.7.3</version>
-    </dependency>
-    <dependency>
       <groupId>com.squareup</groupId>
       <artifactId>tape</artifactId>
       <version>1.2.3</version>
