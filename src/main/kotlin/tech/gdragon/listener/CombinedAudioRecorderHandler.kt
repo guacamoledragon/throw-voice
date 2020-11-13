@@ -18,8 +18,8 @@ import net.dv8tion.jda.api.entities.VoiceChannel
 import org.apache.commons.io.FileUtils
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.joda.time.DateTime
-import org.koin.core.KoinComponent
-import org.koin.core.inject
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import tech.gdragon.BotUtils
 import tech.gdragon.data.DataStore
 import tech.gdragon.db.dao.Channel

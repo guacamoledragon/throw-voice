@@ -15,7 +15,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.koin.core.KoinComponent
+import org.koin.core.component.KoinComponent
 import tech.gdragon.BotUtils
 import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.commands.handleCommand

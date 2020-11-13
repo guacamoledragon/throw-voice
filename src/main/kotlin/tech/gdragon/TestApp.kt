@@ -136,7 +136,7 @@ fun initializeKoin() = startKoin {
   environmentProperties()
 }
 
-fun main(args: Array<String>) {
+fun main() {
 //  testAlerts()
 //  basicTest()
 //  dropAllTables()

@@ -6,6 +6,7 @@ import mu.KotlinLogging
 import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
 import org.koin.dsl.module
+import org.koin.ext.getIntProperty
 import tech.gdragon.data.DataStore
 import tech.gdragon.db.initializeDatabase
 import tech.gdragon.discord.Bot
@@ -51,7 +52,7 @@ fun main() {
       Timer("remove-old-guilds", true)
         .scheduleAtFixedRate(0L, Duration.ofDays(1L).toMillis()) {
           val jda = it.api()
-          val afterDays = app.koin.getProperty("BOT_LEAVE_GUILD_AFTER", 30)
+          val afterDays = app.koin.getIntProperty("BOT_LEAVE_GUILD_AFTER", 30)
 
           if (afterDays <= 0) {
             logger.info { "Disabling remove-old-guilds Timer." }
@@ -72,8 +73,7 @@ fun main() {
       it.nRepl["bot"] = bot
     }
 
-
-  HttpServer(bot, app.koin.getProperty("PORT", 8080))
+  HttpServer(bot, app.koin.getIntProperty("PORT", 8080))
     .also {
       logger.info { "Starting HTTP Server: http://localhost:${it.port}" }
       it.server.start()

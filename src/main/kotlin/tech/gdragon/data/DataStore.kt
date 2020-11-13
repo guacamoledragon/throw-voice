@@ -8,7 +8,7 @@ import net.jodah.failsafe.RetryPolicy
 import org.apache.commons.io.FileUtils
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
-import org.koin.core.KoinComponent
+import org.koin.core.component.KoinComponent
 import java.io.File
 import java.time.temporal.ChronoUnit
 import java.util.*
