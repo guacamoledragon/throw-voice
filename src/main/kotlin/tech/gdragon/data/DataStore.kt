@@ -1,7 +1,6 @@
 package tech.gdragon.data
 
-import io.minio.MinioClient
-import io.minio.ObjectStat
+import io.minio.*
 import mu.KotlinLogging
 import net.jodah.failsafe.Failsafe
 import net.jodah.failsafe.RetryPolicy
@@ -9,6 +8,7 @@ import org.apache.commons.io.FileUtils
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.koin.core.component.KoinComponent
+import java.io.ByteArrayInputStream
 import java.io.File
 import java.time.temporal.ChronoUnit
 import java.util.*
@@ -22,7 +22,11 @@ class DataStore : KoinComponent {
   private val secretKey: String? = getKoin().getProperty("DS_SECRET_KEY")
   private val baseUrl: String = getKoin().getProperty("DS_BASEURL", "$endpoint/$bucketName")
 
-  private val client: MinioClient = MinioClient(endpoint, accessKey, secretKey)
+  private val client: MinioClient = MinioClient
+    .builder()
+    .endpoint(endpoint)
+    .credentials(accessKey, secretKey)
+    .build()
 
   private val retryPolicy: RetryPolicy<Unit> = RetryPolicy<Unit>()
     .withBackoff(2, 30, ChronoUnit.SECONDS)
@@ -30,11 +34,11 @@ class DataStore : KoinComponent {
     .onRetry { ex -> logger.warn { "Failure #${ex.attemptCount}. Retrying!" } }
 
   init {
-    if (!client.bucketExists(bucketName)) {
+    if (!client.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build())) {
       logger.warn {
         "$bucketName bucket does not exist! Creating..."
       }
-      client.makeBucket(bucketName)
+      client.makeBucket(MakeBucketArgs.builder().bucket(bucketName).build())
     }
   }
 
@@ -44,10 +48,23 @@ class DataStore : KoinComponent {
     }
 
     Failsafe.with(retryPolicy).run { ->
-      client.putObject(bucketName, key, file.path, null)
+      ByteArrayInputStream(file.readBytes()).use { bais ->
+        val putObjectArgs = PutObjectArgs
+          .builder()
+          .bucket(bucketName)
+          .`object`(key)
+          .stream(bais, bais.available().toLong(), -1)
+          .build()
+        client.putObject(putObjectArgs)
+      }
     }
 
-    val stat = UploadResult.from(baseUrl, client.statObject(bucketName, key))
+    val statObjectArgs = StatObjectArgs
+      .builder()
+      .bucket(bucketName)
+      .`object`(key)
+      .build()
+    val stat = UploadResult.from(baseUrl, client.statObject(statObjectArgs))
 
     logger.info {
       "Finished uploading file - (${FileUtils.byteCountToDisplaySize(stat.size)}) ${stat.key}"
@@ -59,11 +76,11 @@ class DataStore : KoinComponent {
 
 data class UploadResult(val key: String, val timestamp: DateTime, val size: Long, val url: String) {
   companion object {
-    fun from(baseUrl: String, stat: ObjectStat): UploadResult {
-      val createdTime = stat.createdTime().toInstant().toEpochMilli()
-      val tz = DateTimeZone.forTimeZone(TimeZone.getTimeZone(stat.createdTime().zone))
+    fun from(baseUrl: String, stat: StatObjectResponse): UploadResult {
+      val createdTime = stat.lastModified().toInstant().toEpochMilli()
+      val tz = DateTimeZone.forTimeZone(TimeZone.getTimeZone(stat.lastModified().zone))
 
-      return UploadResult(stat.name(), DateTime(createdTime, tz), stat.length(), "$baseUrl/${stat.name()}")
+      return UploadResult(stat.`object`(), DateTime(createdTime, tz), stat.size(), "$baseUrl/${stat.`object`()}")
     }
   }
 }
