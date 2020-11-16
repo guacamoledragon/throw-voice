@@ -7,7 +7,6 @@ import net.dv8tion.jda.api.events.ReadyEvent
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent
 import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateNicknameEvent
-import net.dv8tion.jda.api.events.guild.update.GuildUpdateNameEvent
 import net.dv8tion.jda.api.events.guild.update.GuildUpdateRegionEvent
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent
@@ -16,15 +15,12 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.koin.core.KoinComponent
+import org.koin.core.component.KoinComponent
 import tech.gdragon.BotUtils
 import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.commands.handleCommand
 import tech.gdragon.db.asyncTransaction
 import tech.gdragon.db.dao.Guild
-import tech.gdragon.db.nowUTC
-import tech.gdragon.discord.Bot
-import tech.gdragon.metrics.Rollbar
 
 class EventListener : ListenerAdapter(), KoinComponent {
 
@@ -202,7 +198,5 @@ class EventListener : ListenerAdapter(), KoinComponent {
     }
 
     logger.info { "ONLINE: Connected to ${event.jda.shardManager?.guilds?.size} guilds!" }
-    val rollbar = Rollbar()
-    rollbar.deploy()
   }
 }

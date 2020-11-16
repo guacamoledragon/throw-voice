@@ -9,7 +9,6 @@ These are the environment configuration variables used by the bot.
 - [Bot variables, **_required_**](#bot-variables-_required_)
 - [Bot variables, additional configs _optional_](#bot-variables-additional-configs-_optional_)
 - [Minio Storage variables, **_required_**](#minio-storage-variables-_required_)
-- [Rollbar variables, _optional_](#rollbar-variables-_optional_)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -39,11 +38,3 @@ For more information on this see [Minio](https://www.minio.io/).
 - `DS_BASEURL` _(optional)_: Only useful if you're choosing a custom URL, don't set otherwise.
 - `DS_BUCKET`: Bucket Name
 - `DS_HOST`: Minio host url e.g _http://localhost:9000_
-
-## Rollbar variables, _optional_
-
-All of these are optional, but if you want to upload your logs to Rollbar, create a
-[Rollbar account](https://rollbar.com/signup/).
-
-- `ROLLBAR_ENV`: Logging environment
-- `ROLLBAR_TOKEN`: Application Token

@@ -3,7 +3,7 @@ package tech.gdragon.commands
 import mu.KotlinLogging
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.koin.core.KoinComponent
+import org.koin.core.component.KoinComponent
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.discord.Command
 

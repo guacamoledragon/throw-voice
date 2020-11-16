@@ -4,7 +4,6 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import tech.gdragon.BotUtils
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
-import tech.gdragon.listener.CombinedAudioRecorderHandler
 
 class Save : CommandHandler() {
   override fun action(args: Array<String>, event: GuildMessageReceivedEvent) {
@@ -20,7 +19,6 @@ class Save : CommandHandler() {
         val voiceChannel = event.guild.audioManager.connectedChannel
         val save = true
 
-        BotUtils.sendMessage(defaultChannel, ":floppy_disk: **Saving <#${voiceChannel?.id}>'s recording...**")
         if (args.isEmpty()) {
           BotUtils.leaveVoiceChannel(voiceChannel!!, defaultChannel, save)
           ""

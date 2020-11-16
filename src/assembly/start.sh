@@ -1,26 +1,22 @@
 #! /bin/bash
 
 # Bot variables, required
-BOT_TOKEN=
-DATA_DIR=./data
-DISCORD_WEBHOOK=
-PORT=
+export BOT_TOKEN=
+export DATA_DIR=./data
+export DISCORD_WEBHOOK=
+export PORT=
 
 # Minio Cloud Storage variables, required
-DS_ACCESS_KEY=
-DS_BASEURL=
-DS_BUCKET=
-DS_HOST=
-DS_SECRET_KEY=
-
-# Rollbar variables, optional
-ROLLBAR_ENV=
-ROLLBAR_TOKEN=
+export DS_ACCESS_KEY=
+export DS_BASEURL=
+export DS_BUCKET=
+export DS_HOST=
+export DS_SECRET_KEY=
 
 echo ============================== Starting Bot ==============================
 echo    Version:  ${version}
 echo Build Date:  ${timestamp}
-echo   Revision:  https://github.com/guacamoledragon/throw-voice/commit/${revision}
+echo        URL:  https://pawa.im/releases/${version}
 echo ==========================================================================
 
 java -Xmx512m -cp ${name}-${version}.jar:lib/* tech.gdragon.App

@@ -13,10 +13,6 @@ SET DS_BUCKET=
 SET DS_HOST=
 SET DS_SECRET_KEY=
 
-REM Rollbar variables, optional
-SET ROLLBAR_ENV=
-SET ROLLBAR_TOKEN=
-
 @echo.
 echo ============================== Starting Bot ==============================
 echo    Version:  ${version}

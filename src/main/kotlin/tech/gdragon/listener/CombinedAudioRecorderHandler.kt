@@ -18,8 +18,8 @@ import net.dv8tion.jda.api.entities.VoiceChannel
 import org.apache.commons.io.FileUtils
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.joda.time.DateTime
-import org.koin.core.KoinComponent
-import org.koin.core.inject
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import tech.gdragon.BotUtils
 import tech.gdragon.data.DataStore
 import tech.gdragon.db.dao.Channel
@@ -397,14 +397,24 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
     }
 
     // Clean up queue file
-    single?.subscribe { queueFile, _ ->
-      recordingLock?.acquire(1)
+    single
+      ?.doOnError { error ->
+        logger.warn(error) {
+          "Couldn't clean up properly due to Exception."
+        }
+      }
+      ?.subscribe { queueFile, _ ->
+
       logger.info { "Clean up queue files" }
       queueFile?.let {
-        logger.warn {
-          "Acquiring lock in disconnect subscription: ${it.fileBuffer.canonicalPath}"
+        recordingLock?.let { lock ->
+          lock.acquire(1)
+          logger.warn {
+            "Acquiring lock in disconnect subscription: ${it.fileBuffer.canonicalPath}"
+          }
         }
         try {
+          it.close()
           Files.deleteIfExists(Paths.get(it.fileBuffer.toURI()))
         } catch (e: FileSystemException) {
           logger.warn(e) {
