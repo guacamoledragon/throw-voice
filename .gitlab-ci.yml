@@ -1,19 +1,9 @@
-include:
-  template: Dependency-Scanning.gitlab-ci.yml
-
 cache: &global_cache
   paths:
     - .m2/
 
 variables:
   MAVEN_OPTS: -Dmaven.repo.local=.m2
-  # This is for Dependency Scanning
-  DS_DEFAULT_ANALYZERS: "gemnasium-maven"
-  MAVEN_CLI_OPTS: -Dmaven.repo.local=.m2
-
-dependency_scanning:
-  rules:
-    - if: $CI_COMMIT_REF_NAME == 'master'
 
 build:
   artifacts:
