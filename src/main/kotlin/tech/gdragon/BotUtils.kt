@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.entities.*
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException
 import org.apache.commons.collections4.map.PassiveExpiringMap
 import org.jetbrains.exposed.dao.EntityID
+import org.jetbrains.exposed.exceptions.EntityNotFoundException
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.SqlExpressionBuilder
 import org.jetbrains.exposed.sql.and
@@ -332,9 +333,18 @@ object BotUtils {
   /**
    * Update Guild name if different than what's on the database
    */
-  private fun updateGuildName(guild: DiscordGuild): Unit {
+  private fun updateGuildName(guild: DiscordGuild) {
     val newName = guild.name
-    val oldName = transaction { Guild[guild.idLong].name }
+    val oldName = transaction {
+      try {
+        Guild[guild.idLong].name
+      } catch (e: EntityNotFoundException) {
+        logger.warn(e) {
+          "Couldn't find Guild with ID: ${guild.idLong} \tNew Name: $newName"
+        }
+        newName
+      }
+    }
 
     if (oldName != newName) {
       asyncTransaction {
