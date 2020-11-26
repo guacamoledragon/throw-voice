@@ -36,8 +36,8 @@ class EventListener : ListenerAdapter(), KoinComponent {
           .also {
             it.active = true
           }
+        BotUtils.updateActivity(event.guild)
       }
-      BotUtils.updateActivity(event.guild)
 
       logger.info { "Joined new server '${guild.name}', connected to ${event.jda.guilds.size} guilds." }
     }
