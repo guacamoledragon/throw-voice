@@ -6,5 +6,5 @@ docker run \
     -v "$PWD/sql:/flyway/sql" \
     -v "$PWD/conf:/flyway/conf" \
     -v "$PWD/data:/flyway/data" \
-    boxfuse/flyway \
+    flyway/flyway \
     migrate
