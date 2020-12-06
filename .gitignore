@@ -43,3 +43,4 @@ restic/b2_env.sh
 restic/b2_pw.txt
 metabase
 public
+prod-data
