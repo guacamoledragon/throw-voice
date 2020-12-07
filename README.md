@@ -42,18 +42,16 @@ You can support `pawa` development in any of these ways:
 If you want to try hosting your own bot, or website. I've used these hosting platforms in the past, use my referral links:
 
 * **Limited Time** [Vultr](https://www.vultr.com/?ref=8483036-6G): $100 credit to spend over 30 days
+* [DigitalOcean](https://m.do.co/c/d2af1fbee897): $100 credit
 * [Linode](https://www.linode.com/?r=e655d87b0d382f2922e75de841b2f19d7403e2ca)
-* [ServerCheap](https://servercheap.net/crm/aff.php?aff=324)
-    * Current Provider
 * We collect anonymous basic analytics using [Simple Analytics](https://referral.simpleanalytics.com/pawa)
 
 **Non-Free**
 
 _There is no obligation to do any of this, but this is a way to express your gratitude towards `pawa`_
 
-* [Buy me a coffee](https://ko-fi.com/L3L215SZC)
-* [Github Sponsor](https://github.com/sponsors/jvtrigueros)
-* [Donate Bot](https://donatebot.io/checkout/408795211901173762)
+* [Buy me a coffee](https://ko-fi.com/L3L215SZC) _(One time)_
+* [Github Sponsor](https://github.com/sponsors/jvtrigueros) _(Subscription)_
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
