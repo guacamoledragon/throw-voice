@@ -49,7 +49,7 @@ have [install Java 11+](https://adoptopenjdk.net/).
     - Save `start.sh`, start bot by double-click'ing `start.sh`
       - If you don't have a GUI, then drop to a terminal and execute `start.sh`
 
-- Navigate to `http://localhost:<PORT>` to add the bot to your Guild. 
+- Navigate to `http://localhost:<BOT_HTTP_PORT>` to add the bot to your Guild. 
 
 Done!
 
@@ -66,7 +66,7 @@ file itself. For reference see [environment variables](./environment-variables.m
     docker-compose up # optionally, --detach
 
 This will start both the bot on http://localhost:3000 and minio on http://localhost:9000, and that's really all there is.
-The recordings will be saved under `DATA_DIR\recordings` on your local machine, and can also be accessed through the Minio
+The recordings will be saved under `BOT_DATA_DIR\recordings` on your local machine, and can also be accessed through the Minio
 web interface.
 
 These are the defaults I set for packaging convenience, but tweak as much or as little as you want.
