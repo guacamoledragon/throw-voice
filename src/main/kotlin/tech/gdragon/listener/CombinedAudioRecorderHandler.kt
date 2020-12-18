@@ -80,7 +80,7 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
 
   private val logger = KotlinLogging.logger { }
   private val datastore: DataStore by inject()
-  private val dataDirectory: String = getKoin().getProperty("DATA_DIR", "./")
+  private val dataDirectory: String = getKoin().getProperty("BOT_DATA_DIR", "./")
   private val pcmMode: Boolean = getKoin().getProperty("PCM_MODE", "false").toBoolean()
 
   // State-licious
