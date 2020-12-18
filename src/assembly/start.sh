@@ -2,9 +2,9 @@
 
 # Bot variables, required
 export BOT_TOKEN=
-export DATA_DIR=./data
+export BOT_DATA_DIR=./data
 export DISCORD_WEBHOOK=
-export PORT=
+export BOT_HTTP_PORT=
 
 # Minio Cloud Storage variables, required
 export DS_ACCESS_KEY=
