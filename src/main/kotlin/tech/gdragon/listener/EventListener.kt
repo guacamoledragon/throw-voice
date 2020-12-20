@@ -25,7 +25,7 @@ import tech.gdragon.db.dao.Guild
 class EventListener : ListenerAdapter(), KoinComponent {
 
   private val logger = KotlinLogging.logger {}
-  val website: String = getKoin().getProperty("WEBSITE", "http://localhost:8080/")
+  val website: String = getKoin().getProperty("BOT_WEBSITE", "http://localhost:8080/")
 
   override fun onGuildJoin(event: GuildJoinEvent) {
     withLoggingContext("guild" to event.guild.name) {
@@ -135,7 +135,7 @@ class EventListener : ListenerAdapter(), KoinComponent {
 
     withLoggingContext("guild" to event.guild.name, "text-channel" to event.channel.name) {
       val rawContent = event.message.contentDisplay.toLowerCase()
-      val inMaintenance = getKoin().getProperty("MAINTENANCE", "false").toBoolean()
+      val inMaintenance = getKoin().getProperty("BOT_MAINTENANCE", "false").toBoolean()
       val defaultChannel = BotUtils.defaultTextChannel(event.guild) ?: event.channel
       val hasPrefix = rawContent.startsWith(prefix)
 
@@ -183,7 +183,7 @@ class EventListener : ListenerAdapter(), KoinComponent {
   }
 
   override fun onReady(event: ReadyEvent) {
-    val version: String = getKoin().getProperty("VERSION", "dev")
+    val version: String = getKoin().getProperty("BOT_ACTIVITY", "dev")
     event
       .jda
       .presence

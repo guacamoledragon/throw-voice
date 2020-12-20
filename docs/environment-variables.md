@@ -15,19 +15,19 @@ These are the environment configuration variables used by the bot.
 ## Bot variables, **_required_**
 
 - `BOT_TOKEN`: Discord Bot Token
-- `DATA_DIR`: Directory path to store bot files
-- `PORT`: Port on which the bot will run it's HTTP server on and redirect to bot's invite URL
+- `BOT_DATA_DIR`: Directory path to store bot files
+- `BOT_HTTP_PORT`: Port on which the bot will run it's HTTP server on and redirect to bot's invite URL
 
 ## Bot variables, additional configs _optional_
 
 - `DISCORD_WEBHOOK`: The location of the Discord webhook where error logs will be sent
 - `BOT_LEAVE_GUILD_AFTER`: Number, in days, before bot leaves a server for inactivity
-  - Defaults to `30`
-  - Set to `0` to disable
-- `PCM_MODE`: Save recordings as RAW PCM files instead of MP3
-  - Defaults to `false`
+    - Defaults to `30`
+    - Set to `0` to disable
+- `BOT_FILE_FORMAT`: Save recordings as RAW PCM files instead of MP3
+    - Defaults to `false`
 - `VERSION`: The version to display as the bot's _Playing ..._ status
-- `WEBSITE`: The website to display as the bot's _Playing ..._ status
+- `BOT_WEBSITE`: The website to display as the bot's _Playing ..._ status
 
 ## Minio Storage variables, **_required_**
 

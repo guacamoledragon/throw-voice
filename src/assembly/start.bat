@@ -2,9 +2,9 @@
 
 REM Bot variables, required
 SET BOT_TOKEN=
-SET DATA_DIR=./data
+SET BOT_DATA_DIR=./data
 SET DISCORD_WEBHOOK=
-SET PORT=
+SET BOT_HTTP_PORT=
 
 REM Minio Cloud Storage variables, required
 SET DS_ACCESS_KEY=

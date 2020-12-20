@@ -23,24 +23,27 @@ fun main() {
 
   val app = startKoin {
     printLogger(Level.INFO)
-    fileProperties("/defaults.properties")
+    fileProperties("/defaults.properties") // TODO: Remove defaults, there's no need for this
+
     System.getenv("ENV")
       ?.let {
         if (it == "dev") {
-          fileProperties("/dev.properties")
+          fileProperties("/dev.properties") // TODO: Remove this dev.properties
         }
       }
+    // TODO: Add function `externalFileProperties` that allows for loading properties from a file
     environmentProperties()
     modules(
       module {
         single { Bot() }
+        // TODO: Create Database module
         single { DataStore() }
         single { REPL() }
       }
     )
   }
 
-  val dataDir = app.koin.getProperty("DATA_DIR", "./")
+  val dataDir = app.koin.getProperty("BOT_DATA_DIR", "./")
   initializeDataDirectory(dataDir)
   app.koin.apply {
     initializeDatabase(getProperty("DB_NAME"), getProperty("DB_HOST"), getProperty("DB_USER"), getProperty("DB_PASSWORD"))
@@ -73,7 +76,7 @@ fun main() {
       it.nRepl["bot"] = bot
     }
 
-  HttpServer(bot, app.koin.getIntProperty("PORT", 8080))
+  HttpServer(bot, app.koin.getIntProperty("BOT_HTTP_PORT", 8080))
     .also {
       logger.info { "Starting HTTP Server: http://localhost:${it.port}" }
       it.server.start()

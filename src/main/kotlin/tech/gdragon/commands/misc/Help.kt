@@ -24,7 +24,7 @@ class Help : CommandHandler() {
       throw InvalidCommand(::usage, "Empty arguments")
     }
 
-    val website: String = getKoin().getProperty("WEBSITE", "http://localhost:8080/")
+    val website: String = getKoin().getProperty("BOT_WEBSITE", "http://localhost:8080/")
 
     // TODO must be configurable
     val embed = EmbedBuilder().apply {
