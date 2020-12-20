@@ -11,85 +11,90 @@ services:
     image: registry.gitlab.com/pawabot/pawa:${VERSION}
     depends_on:
       - datastore
-    env_file:
-      - ${ENV:-sample}.env
     deploy:
       resources:
         limits:
-          cpus: "1"
+          cpus: 1
+          memory: 6G
+    environment:
+      - BOT_ACTIVITY=${BOT_ACTIVITY}
+      - BOT_DATA_DIR=${BOT_DATA_DIR}
+      - BOT_FILE_FORMAT=${BOT_FILE_FORMAT}
+      - BOT_HTTP_PORT=${BOT_HTTP_PORT}
+      - BOT_GUILD_WHITELIST=${BOT_GUILD_WHITELIST}
+      - BOT_LEAVE_GUILD_AFTER=${BOT_LEAVE_GUILD_AFTER}
+      - BOT_MAINTENANCE=${BOT_MAINTENANCE}
+      - BOT_TOKEN=${BOT_TOKEN}
+      - BOT_WEBSITE=${BOT_WEBSITE}
+      - DB_NAME=${DB_NAME}
+      - DB_HOST=${DB_HOST}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DISCORD_WEBHOOK=${DISCORD_WEBHOOK}
+      - DS_ACCESS_KEY=${DS_ACCESS_KEY}
+      - DS_BASEURL=${DS_BASEURL}
+      - DS_BUCKET=${DS_BUCKET}
+      - DS_HOST=${DS_HOST}
+      - DS_SECRET_KEY=${DS_SECRET_KEY}
+      - TZ=${TZ}
+      - JAVA_TOOL_OPTIONS=-XX:MinRAMPercentage=${JVM_MIN_RAM_PERCENTAGE}
+                          -XX:MaxRAMPercentage=${JVM_MAX_RAM_PERCENTAGE}
+    ports:
+      - "127.0.0.1:1112:1112"
+    restart: on-failure:100
+    volumes:
+      - data:${BOT_DATA_DIR}
+      - ./logs:/app/logs
+    logging:
+      <<: *logging
+  database:
+    image: postgres@sha256:b6a3459825427f08ab886545c64d4e5754aa425c5eea678d5359f06a9bf7faab
+    deploy:
+      resources:
+        limits:
+          cpus: 1
           memory: 2G
     environment:
-      - TZ=America/Los_Angeles
-      - JAVA_TOOL_OPTIONS=-XX:+PrintFlagsFinal
-                          -XX:MinRAMPercentage=25.0
-                          -XX:MaxRAMPercentage=90.0
-                          -XX:+HeapDumpOnOutOfMemoryError
-                          -XX:HeapDumpPath=/app/data/dump
-                          -Dlog4j.configurationFile=log4j2-prod.xml
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    ports:
+      - "127.0.0.1:5432:5432"
     volumes:
-      - ./data:/app/data
-      - ./logs:/app/logs
-    restart: on-failure:100
-    logging:
-      <<: *logging
-  portainer:
-    image: portainer/portainer:latest
-    command: -H unix:///var/run/docker.sock
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - portainer_data:/data
-    logging:
-      <<: *logging
-  #  data:
-  #    image: metabase/metabase:v0.34.1
-  #    environment:
-  #      - JAVA_TOOL_OPTIONS=-Xmx300m
-  #      - TZ=America/Los_Angeles
-  #      - MB_DB_FILE=/opt/data/metabase
-  #    ports:
-  #      - 3000:3000
-  #    volumes:
-  #      - data:/opt/data
-  #    logging:
-  #      <<: *logging
-  database:
-    image: postgres:13
-    environment:
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB}
-    volumes:
-      - ./data/database/${POSTGRES_DB}:/var/lib/postgresql/data
+      - db-data:/var/lib/postgresql/data
   datastore:
-    image: minio/minio:RELEASE.2020-11-25T22-36-25Z
-    command: -c "MINIO_SECRET_KEY=$$DS_SECRET_KEY MINIO_ACCESS_KEY=$$DS_ACCESS_KEY minio gateway s3 https://s3.us-west-001.backblazeb2.com"
-    entrypoint: sh
-    env_file:
-      - ${ENV:-sample}.env
+    image: minio/minio:RELEASE.2020-12-18T03-27-42Z
+    command: gateway s3 https://s3.us-west-001.backblazeb2.com
+    deploy:
+      resources:
+        limits:
+          cpus: 1
+          memory: 1G
     environment:
-      - TZ=America/Los_Angeles
+      - MINIO_ACCESS_KEY=${DS_ACCESS_KEY}
+      - MINIO_SECRET_KEY=${DS_SECRET_KEY}
+      - TZ=${TZ}
     logging:
       <<: *logging
   nginx:
-    image: nginx:1.17-alpine
-    command: /bin/sh -c "envsubst '$${BOT_HOST},$${DATA_HOST},$${DATA_WHITELIST_IP}' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && exec nginx -g 'daemon off;'"
+    image: nginx:1.19-alpine
+    command: /bin/sh -c "envsubst '$${BOT_HTTP_HOST},$${BOT_HTTP_PORT}' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && exec nginx -g 'daemon off;'"
     environment:
-      - BOT_HOST=${BOT_HOST:-localhost}
-      - DATA_HOST=${DATA_HOST:-localhost}
-      - DATA_WHITELIST_IP=${DATA_WHITELIST_IP:-127.0.0.1}
+      - BOT_HTTP_HOST=${BOT_HTTP_HOST:-localhost}
     volumes:
-      - ${CONF:-./}nginx.conf:/etc/nginx/nginx.conf.template
+      - ${CONF_DIR:-./}nginx.conf:/etc/nginx/nginx.conf.template
     ports:
       - 80:80
     depends_on:
       - bot
-      #      - data
-      - portainer
     logging:
       <<: *logging
 
 volumes:
-  portainer_data:
-  #  data:
-  #    driver: local-persist
-  #    driver_opts:
-  #      mountpoint: /opt/pawa/data
+  data:
+    driver: local-persist
+    driver_opts:
+      mountpoint: ${BOT_MOUNT_DIR}
+  db-data:
+    driver: local-persist
+    driver_opts:
+      mountpoint: ${DB_MOUNT_DIR}
