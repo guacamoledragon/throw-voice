@@ -135,7 +135,7 @@ class EventListener : ListenerAdapter(), KoinComponent {
 
     withLoggingContext("guild" to event.guild.name, "text-channel" to event.channel.name) {
       val rawContent = event.message.contentDisplay.toLowerCase()
-      val inMaintenance = getKoin().getProperty("MAINTENANCE", "false").toBoolean()
+      val inMaintenance = getKoin().getProperty("BOT_MAINTENANCE", "false").toBoolean()
       val defaultChannel = BotUtils.defaultTextChannel(event.guild) ?: event.channel
       val hasPrefix = rawContent.startsWith(prefix)
 

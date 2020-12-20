@@ -81,7 +81,7 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
   private val logger = KotlinLogging.logger { }
   private val datastore: DataStore by inject()
   private val dataDirectory: String = getKoin().getProperty("BOT_DATA_DIR", "./")
-  private val pcmMode: Boolean = getKoin().getProperty("PCM_MODE", "false").toBoolean()
+  private val fileFormat: String = getKoin().getProperty("BOT_FILE_FORMAT", "mp3").toLowerCase()
 
   // State-licious
   private var subject: PublishSubject<CombinedAudio>? = null
@@ -142,8 +142,7 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
 
     subject = PublishSubject.create()
     uuid = UUID.randomUUID()
-    val filenameExtension = if (pcmMode) "pcm" else "mp3"
-    filename = "$dataDirectory/recordings/$uuid.$filenameExtension"
+    filename = "$dataDirectory/recordings/$uuid.$fileFormat"
     val queueFilename = "$dataDirectory/recordings/$uuid.queue"
     val queueFile = RecordingQueue(File(queueFilename))
     canReceive = true
@@ -163,7 +162,7 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
         val baos = ByteArrayOutputStream()
 
         byteArrays.forEach {
-          if (pcmMode) {
+          if (fileFormat == "pcm") {
             baos.writeBytes(it)
           } else {
             val buffer = ByteArray(it.size)
