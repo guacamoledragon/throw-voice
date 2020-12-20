@@ -17,9 +17,9 @@ services:
       - DS_BUCKET=recordings
       - DS_BASEURL=http://localhost:9000/recordings
       - DS_HOST=http://datastore:9000
-      - PORT=3000
+      - BOT_HTTP_PORT=3000
     volumes:
-      - ${DATA_DIR}:/app/data
+      - ${BOT_DATA_DIR}:/app/data
     ports:
       - 3000:3000
     logging:
@@ -31,7 +31,7 @@ services:
     env_file:
       - .env
     volumes:
-      - ${DATA_DIR}:/data
+      - ${BOT_DATA_DIR}:/data
     ports:
       - 9000:9000
     logging:
