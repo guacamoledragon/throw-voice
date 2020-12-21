@@ -44,3 +44,5 @@ restic/b2_pw.txt
 metabase
 public
 prod-data
+local-data
+local-db
