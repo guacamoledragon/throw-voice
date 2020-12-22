@@ -8,7 +8,9 @@ import org.koin.core.logger.Level
 import org.koin.dsl.module
 import org.koin.ext.getIntProperty
 import tech.gdragon.data.DataStore
-import tech.gdragon.db.initializeDatabase
+import tech.gdragon.db.Database
+import tech.gdragon.db.EmbeddedDatabase
+import tech.gdragon.db.RemoteDatabase
 import tech.gdragon.discord.Bot
 import tech.gdragon.repl.REPL
 import java.io.IOException
@@ -19,11 +21,9 @@ import kotlin.concurrent.scheduleAtFixedRate
 val logger = KotlinLogging.logger { }
 
 fun main() {
-  shutdownHook()
-
   val app = startKoin {
     printLogger(Level.INFO)
-    fileProperties("/defaults.properties") // TODO: Remove defaults, there's no need for this
+    fileProperties("/defaults.properties")
 
     System.getenv("ENV")
       ?.let {
@@ -33,21 +33,36 @@ fun main() {
       }
     // TODO: Add function `externalFileProperties` that allows for loading properties from a file
     environmentProperties()
+
+    val databaseModule = module {
+      single<Database> {
+        if (getProperty("BOT_STANDALONE").toBoolean())
+          EmbeddedDatabase("${getProperty("BOT_DATA_DIR", "./")}/embedded-database")
+        else
+          RemoteDatabase(
+            getProperty("DB_NAME"),
+            getProperty("DB_HOST"),
+            getProperty("DB_USER"),
+            getProperty("DB_PASSWORD")
+          )
+      }
+    }
     modules(
       module {
         single { Bot() }
-        // TODO: Create Database module
         single { DataStore() }
         single { REPL() }
-      }
+      },
+      databaseModule
     )
   }
 
   val dataDir = app.koin.getProperty("BOT_DATA_DIR", "./")
   initializeDataDirectory(dataDir)
-  app.koin.apply {
-    initializeDatabase(getProperty("DB_NAME"), getProperty("DB_HOST"), getProperty("DB_USER"), getProperty("DB_PASSWORD"))
-  }
+
+  val db = app.koin.get<Database>()
+
+  shutdownHook(db)
 
   val bot =
     Bot().also {
@@ -74,6 +89,7 @@ fun main() {
   REPL()
     .also {
       it.nRepl["bot"] = bot
+      it.nRepl["db"] = db
     }
 
   HttpServer(bot, app.koin.getIntProperty("BOT_HTTP_PORT", 8080))
@@ -95,13 +111,9 @@ private fun initializeDataDirectory(dataDirectory: String) {
   }
 }
 
-fun shutdownHook() {
+fun shutdownHook(db: Database) {
   Runtime.getRuntime().addShutdownHook(Thread() {
-    val stacktraces = Thread.getAllStackTraces()
-    stacktraces.forEach { (t, stacktrace) ->
-      logger.error {
-        "${t.name}: ${stacktrace.joinToString("\n")}"
-      }
-    }
+    logger.info { "Shutting down..." }
+    db.stop()
   })
 }

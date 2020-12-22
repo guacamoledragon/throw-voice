@@ -20,7 +20,6 @@ import org.koin.core.logger.Level
 import tech.gdragon.db.dao.Alias
 import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
-import tech.gdragon.db.initializeDatabase
 import tech.gdragon.db.table.Tables
 import tech.gdragon.db.table.Tables.Guilds
 import java.io.File
