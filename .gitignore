@@ -34,7 +34,7 @@ recordings/
 .factorypath
 .project
 .settings/
-src/main/resources/dev.properties
+overrides.properties
 *.log
 node_modules/
 logs/

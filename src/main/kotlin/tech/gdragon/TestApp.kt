@@ -131,7 +131,7 @@ fun pcm2mp3(pcm: String) {
 fun initializeKoin() = startKoin {
   printLogger(Level.INFO)
   fileProperties("/defaults.properties")
-  fileProperties("/dev.properties")
+  fileProperties("/overrides.properties")
   environmentProperties()
 }
 
