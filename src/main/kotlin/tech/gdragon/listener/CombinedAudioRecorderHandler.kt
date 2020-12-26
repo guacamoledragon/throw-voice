@@ -21,7 +21,7 @@ import org.joda.time.DateTime
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import tech.gdragon.BotUtils
-import tech.gdragon.data.DataStore
+import tech.gdragon.data.Datastore
 import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.dao.Recording
@@ -79,7 +79,7 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
   }
 
   private val logger = KotlinLogging.logger { }
-  private val datastore: DataStore by inject()
+  private val datastore: Datastore by inject()
   private val dataDirectory: String = getKoin().getProperty("BOT_DATA_DIR", "./")
   private val fileFormat: String = getKoin().getProperty("BOT_FILE_FORMAT", "mp3").toLowerCase()
 

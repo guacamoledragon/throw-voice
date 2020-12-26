@@ -12,7 +12,7 @@ import java.io.File
 import java.time.temporal.ChronoUnit
 import java.util.*
 
-class DataStore(
+class Datastore(
   accessKey: String,
   val bucketName: String,
   endpoint: String,

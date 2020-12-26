@@ -6,7 +6,7 @@ import mu.KotlinLogging
 import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
 import org.koin.dsl.module
-import tech.gdragon.data.DataStore
+import tech.gdragon.data.Datastore
 import tech.gdragon.db.Database
 import tech.gdragon.db.EmbeddedDatabase
 import tech.gdragon.db.RemoteDatabase
@@ -63,7 +63,7 @@ fun main() {
         single(createdAtStart = true) {
           val endpoint = getProperty("DS_HOST")
           val bucketName = getProperty("DS_BUCKET")
-          DataStore(
+          Datastore(
             getProperty("DS_ACCESS_KEY"),
             bucketName,
             endpoint,
