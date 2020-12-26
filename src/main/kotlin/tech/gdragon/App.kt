@@ -61,7 +61,17 @@ fun main() {
     modules(
       module {
         single { Bot() }
-        single { DataStore() }
+        single(createdAtStart = true) {
+          val endpoint = getProperty("DS_HOST")
+          val bucketName = getProperty("DS_BUCKET")
+          DataStore(
+            getProperty("DS_ACCESS_KEY"),
+            bucketName,
+            endpoint,
+            getProperty("DS_SECRET_KEY"),
+            getProperty("DS_BASEURL", "$endpoint/$bucketName")
+          )
+        }
         single { HttpServer(get(), getProperty("BOT_HTTP_PORT").toInt()) }
       },
       databaseModule
