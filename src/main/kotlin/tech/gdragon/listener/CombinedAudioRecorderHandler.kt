@@ -69,7 +69,7 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
     private const val AFK_MINUTES = 2
     private const val AFK_LIMIT = (AFK_MINUTES * 60 * 1000) / 20            // 2 minutes in ms over 20ms increments
     private const val MAX_RECORDING_MB = 110L
-    private const val MIN_RECORDING_SIZE = 5L * 1024 * 1024                 // 5MB
+    private const val MIN_RECORDING_SIZE = 0L * 1024 * 1024                 // 5MB
     private const val MAX_RECORDING_SIZE = MAX_RECORDING_MB * 1024 * 1024   // 110MB
     private const val DISCORD_MAX_RECORDING_SIZE = 8L * 1024 * 1024         // 8MB
     private const val BUFFER_TIMEOUT = 200L                                 // 200 milliseconds

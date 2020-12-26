@@ -7,6 +7,8 @@ import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
 import org.koin.dsl.module
 import tech.gdragon.data.Datastore
+import tech.gdragon.data.LocalDatastore
+import tech.gdragon.data.RemoteDatastore
 import tech.gdragon.db.Database
 import tech.gdragon.db.EmbeddedDatabase
 import tech.gdragon.db.RemoteDatabase
@@ -57,13 +59,14 @@ fun main() {
           )
       }
     }
-    modules(
-      module {
-        single { Bot() }
-        single(createdAtStart = true) {
+    val datastoreModule = module {
+      single<Datastore>(createdAtStart = true) {
+        val bucketName = getProperty("DS_BUCKET")
+        if (getProperty("BOT_STANDALONE").toBoolean()) {
+          LocalDatastore(bucketName)
+        } else {
           val endpoint = getProperty("DS_HOST")
-          val bucketName = getProperty("DS_BUCKET")
-          Datastore(
+          RemoteDatastore(
             getProperty("DS_ACCESS_KEY"),
             bucketName,
             endpoint,
@@ -71,9 +74,15 @@ fun main() {
             getProperty("DS_BASEURL", "$endpoint/$bucketName")
           )
         }
+      }
+    }
+    modules(
+      module {
+        single { Bot() }
         single { HttpServer(get(), getProperty("BOT_HTTP_PORT").toInt()) }
       },
-      databaseModule
+      databaseModule,
+      datastoreModule
     )
   }
 
