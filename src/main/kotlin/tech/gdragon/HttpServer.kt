@@ -3,7 +3,7 @@ package tech.gdragon
 import fi.iki.elonen.NanoHTTPD
 import tech.gdragon.discord.Bot
 
-class HttpServer(bot: Bot, val port: Int = 8080) {
+class HttpServer(bot: Bot, val port: Int) {
   val inviteUrl: String = bot.api().getInviteUrl(Bot.PERMISSIONS)
 
   val server = object : NanoHTTPD(port) {

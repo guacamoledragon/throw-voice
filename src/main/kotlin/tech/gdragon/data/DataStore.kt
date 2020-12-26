@@ -7,20 +7,19 @@ import net.jodah.failsafe.RetryPolicy
 import org.apache.commons.io.FileUtils
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
-import org.koin.core.component.KoinComponent
 import java.io.ByteArrayInputStream
 import java.io.File
 import java.time.temporal.ChronoUnit
 import java.util.*
 
-class DataStore : KoinComponent {
+class DataStore(
+  accessKey: String,
+  val bucketName: String,
+  endpoint: String,
+  secretKey: String,
+  val baseUrl: String
+) {
   val logger = KotlinLogging.logger { }
-
-  private val accessKey: String? = getKoin().getProperty("DS_ACCESS_KEY")
-  private val bucketName: String? = getKoin().getProperty("DS_BUCKET")
-  private val endpoint: String? = getKoin().getProperty("DS_HOST")
-  private val secretKey: String? = getKoin().getProperty("DS_SECRET_KEY")
-  private val baseUrl: String = getKoin().getProperty("DS_BASEURL", "$endpoint/$bucketName")
 
   private val client: MinioClient = MinioClient
     .builder()
