@@ -24,7 +24,7 @@ interface Datastore {
 class LocalDatastore(val localBucket: String) : Datastore {
   init {
     val localBucketDirectory = Paths.get(localBucket)
-    if(!Files.isDirectory(localBucketDirectory)) {
+    if (!Files.isDirectory(localBucketDirectory)) {
       Files.createDirectory(localBucketDirectory)
     }
   }
