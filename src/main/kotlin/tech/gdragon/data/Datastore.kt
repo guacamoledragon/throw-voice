@@ -9,16 +9,43 @@ import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import java.io.ByteArrayInputStream
 import java.io.File
+import java.io.FileInputStream
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
+import java.nio.file.attribute.BasicFileAttributes
 import java.time.temporal.ChronoUnit
 import java.util.*
 
-class DataStore(
+interface Datastore {
+  fun upload(key: String, file: File): UploadResult
+}
+
+class LocalDatastore(val localBucket: String) : Datastore {
+  init {
+    val localBucketDirectory = Paths.get(localBucket)
+    if (!Files.isDirectory(localBucketDirectory)) {
+      Files.createDirectory(localBucketDirectory)
+    }
+  }
+
+  override fun upload(key: String, file: File): UploadResult {
+    FileInputStream(file).use {
+      val newFile = Paths.get(localBucket, key)
+      Files.createDirectories(newFile.parent)
+      Files.copy(it, newFile)
+      return UploadResult.from(newFile)
+    }
+  }
+}
+
+class RemoteDatastore(
   accessKey: String,
   val bucketName: String,
   endpoint: String,
   secretKey: String,
   val baseUrl: String
-) {
+) : Datastore {
   val logger = KotlinLogging.logger { }
 
   private val client: MinioClient = MinioClient
@@ -41,7 +68,7 @@ class DataStore(
     }
   }
 
-  fun upload(key: String, file: File): UploadResult {
+  override fun upload(key: String, file: File): UploadResult {
     logger.info {
       "Uploading: $baseUrl/$key"
     }
@@ -80,6 +107,12 @@ data class UploadResult(val key: String, val timestamp: DateTime, val size: Long
       val tz = DateTimeZone.forTimeZone(TimeZone.getTimeZone(stat.lastModified().zone))
 
       return UploadResult(stat.`object`(), DateTime(createdTime, tz), stat.size(), "$baseUrl/${stat.`object`()}")
+    }
+
+    fun from(path: Path): UploadResult {
+      val attributes = Files.readAttributes(path, BasicFileAttributes::class.java)
+      val createdTime = attributes.creationTime().toMillis()
+      return UploadResult(path.fileName.toString(), DateTime(createdTime), attributes.size(), path.toUri().toString())
     }
   }
 }
