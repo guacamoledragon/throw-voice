@@ -38,6 +38,7 @@ package:
 
 container:
   image: docker:20.10.1
+  cache: {}
   rules:
     - if: $CI_COMMIT_REF_NAME == 'master'
     - if: $CI_COMMIT_TAG
