@@ -16,15 +16,6 @@ build:
     - mvn test
   stage: build
 
-coverage:
-  cache: {}
-  dependencies:
-    - build
-  image: circleci/buildpack-deps:curl
-  script:
-    - bash <(curl -s https://codecov.io/bash) -s ./target -X gcov
-  stage: test
-
 package:
   artifacts:
     name: pawa
