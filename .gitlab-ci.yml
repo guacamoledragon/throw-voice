@@ -10,7 +10,7 @@ build:
     expire_in: 1 hour
     paths:
       - ./target/html
-  image: circleci/openjdk:11-jdk
+  image: maven:3.6-jdk-11
   script:
     - mvn -B de.qaware.maven:go-offline-maven-plugin:resolve-dependencies
     - mvn test
