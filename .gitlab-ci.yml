@@ -51,7 +51,6 @@ container:
       docker build --quiet \
              --cache-from $CI_REGISTRY/pawabot/pawa:latest \
              -t $CI_REGISTRY/pawabot/pawa:${VERSION} \
-             -t $CI_REGISTRY/pawabot/pawa:${VERSION} \
              --build-arg VCS_REF=${CI_COMMIT_SHORT_SHA} \
              --build-arg BUILD_DATE=${BUILD_DATE} \
              --build-arg VERSION=${VERSION} \
