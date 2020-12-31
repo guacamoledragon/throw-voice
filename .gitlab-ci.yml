@@ -16,26 +16,6 @@ build:
     - mvn test
   stage: build
 
-package:
-  artifacts:
-    name: pawa
-    expire_in: 30 days
-    paths:
-      - target/pawa-release
-  cache:
-    <<: *global_cache
-    policy: pull
-  dependencies:
-    - build
-  image: circleci/openjdk:11-jdk
-  rules:
-    - if: $CI_COMMIT_REF_NAME == 'master'
-    - if: $CI_COMMIT_TAG
-  script:
-    - '[[ -v CI_COMMIT_TAG ]] && VERSION=${CI_COMMIT_TAG#"v"} || VERSION=${CI_COMMIT_SHORT_SHA}'
-    - mvn package -B -Dtimestamp=$(date -u +%FT%TZ) -Dversion=${VERSION} -Drevision=$(git rev-parse --short HEAD)
-  stage: deploy
-
 container:
   image: docker:20.10.1
   cache: {}
