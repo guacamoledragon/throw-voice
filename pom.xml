@@ -114,31 +114,12 @@
       <groupId>org.jetbrains.exposed</groupId>
       <artifactId>exposed</artifactId>
       <version>0.17.7</version>
-    </dependency>
-<!--    <dependency>
-      <groupId>org.jetbrains.exposed</groupId>
-      <artifactId>exposed-core</artifactId>
-      <version>0.25.1</version>
-    </dependency>
-    <dependency>
-      <groupId>org.jetbrains.exposed</groupId>
-      <artifactId>exposed-dao</artifactId>
-      <version>0.25.1</version>
-    </dependency>
-    <dependency>
-      <groupId>org.jetbrains.exposed</groupId>
-      <artifactId>exposed-jodatime</artifactId>
-      <version>0.25.1</version>
-    </dependency>
-    <dependency>
-      <groupId>org.jetbrains.exposed</groupId>
-      <artifactId>exposed-jdbc</artifactId>
-      <version>0.25.1</version>
-    </dependency>-->
-    <dependency>
-      <groupId>org.jetbrains.kotlin</groupId>
-      <artifactId>kotlin-reflect</artifactId>
-      <version>${kotlin.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>com.h2database</groupId>
+          <artifactId>h2</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.jetbrains.kotlin</groupId>
@@ -165,11 +146,6 @@
       <artifactId>postgresql</artifactId>
       <version>42.2.18</version>
     </dependency>
-<!--    <dependency>
-      <groupId>com.impossibl.pgjdbc-ng</groupId>
-      <artifactId>pgjdbc-ng</artifactId>
-      <version>0.8.4</version>
-    </dependency>-->
 
     <dependency>
       <groupId>org.jetbrains.kotlin</groupId>
