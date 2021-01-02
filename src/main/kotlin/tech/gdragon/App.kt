@@ -18,6 +18,8 @@ import tech.gdragon.koin.getStringProperty
 import tech.gdragon.koin.overrideFileProperties
 import tech.gdragon.repl.REPL
 import java.io.IOException
+import java.nio.file.Files
+import java.nio.file.Paths
 import java.time.Duration
 import java.util.*
 import kotlin.concurrent.scheduleAtFixedRate
@@ -136,8 +138,9 @@ fun main() {
  */
 private fun initializeDataDirectory(dataDirectory: String) {
   try {
-    val recordingsDir = "$dataDirectory/recordings/"
+    val recordingsDir = Paths.get("$dataDirectory/recordings/")
     logger.info("Creating recordings directory: $recordingsDir")
+    Files.createDirectories(recordingsDir)
   } catch (e: IOException) {
     logger.error("Could not create recordings directory", e)
   }
