@@ -8,41 +8,41 @@
   <Appenders>
     <Console name="Console">
       <PatternLayout pattern="${globalPattern}" charset="UTF-8" />
-      <Filters>
-        <RegexFilter regex=".*Transaction attempt.*" onMatch="DENY" onMismatch="NEUTRAL"/>
-      </Filters>
     </Console>
-    <Discord name="Discord">
-      <webhookUrl>${env:DISCORD_WEBHOOK}</webhookUrl>
-      <PatternLayout pattern="${globalPattern}"/>
-      <Filters>
-        <RegexFilter regex=".*Found an unexpected key.*" onMatch="DENY" onMismatch="NEUTRAL"/>
-        <RegexFilter regex=".*There was some random exception.*" onMatch="DENY" onMismatch="NEUTRAL"/>
-        <RegexFilter regex=".*Transaction attempt.*" onMatch="DENY" onMismatch="NEUTRAL"/>
-        <RegexFilter regex=".*One of the EventListeners had an uncaught exception.*" onMatch="DENY" onMismatch="NEUTRAL"/>
-      </Filters>
-    </Discord>
     <RollingRandomAccessFile
-      name="RollingRandomAccessFile"
+      name="DatabaseLogs"
       fileName="logs/database.log"
-      filePattern="logs/$${date:yyyy-MM}/app-%d{MM-dd-yyyy}-%i.log.gz">
+      filePattern="logs/$${date:yyyy-MM}/db-%d{MM-dd-yyyy}-%i.log">
       <PatternLayout pattern="${globalPattern}" charset="UTF-8"/>
       <Policies>
-        <TimeBasedTriggeringPolicy interval="1"/>
+        <SizeBasedTriggeringPolicy size="5 MB"/>
+      </Policies>
+      <DefaultRolloverStrategy max="5"/>
+    </RollingRandomAccessFile>
+    <RollingRandomAccessFile
+      name="ApplicationLogs"
+      fileName="logs/app.log"
+      filePattern="logs/$${date:yyyy-MM}/app-%d{MM-dd-yyyy}-%i.log">
+      <PatternLayout pattern="${globalPattern}" charset="UTF-8"/>
+      <Policies>
+        <SizeBasedTriggeringPolicy size="5 MB"/>
       </Policies>
       <DefaultRolloverStrategy max="5"/>
     </RollingRandomAccessFile>
   </Appenders>
   <Loggers>
-    <Root level="info">
-      <AppenderRef level="error" ref="Discord"/>
-      <AppenderRef ref="Console"/>
+    <Root level="debug">
+      <AppenderRef ref="Console" level="info"/>
+      <AppenderRef ref="ApplicationLogs"/>
     </Root>
     <Logger name="tech.gdragon.db.ThreadLocalTransactionManager" level="info" additivity="false">
-      <AppenderRef ref="RollingRandomAccessFile"/>
+      <AppenderRef ref="DatabaseLogs"/>
     </Logger>
     <Logger name="Exposed" level="info" additivity="false">
-      <AppenderRef ref="RollingRandomAccessFile"/>
+      <AppenderRef ref="DatabaseLogs"/>
+    </Logger>
+    <Logger name="io.zonky.test.db.postgres.embedded" level="info" additivity="false">
+      <AppenderRef ref="DatabaseLogs"/>
     </Logger>
   </Loggers>
 </Configuration>

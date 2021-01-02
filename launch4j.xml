@@ -14,7 +14,11 @@
   <restartOnCrash>false</restartOnCrash>
   <manifest></manifest>
   <icon>D:\workspace\pawabot\pawa\assets\pawa-beta.ico</icon>
+  <var>BOT_FILE_FORMAT=mp3</var>
+  <var>BOT_LEAVE_GUILD_AFTER=0</var>
+  <var>BOT_MAINTENANCE=false</var>
   <var>BOT_STANDALONE=true</var>
+  <var>BOT_WEBSITE=https://pawa.im</var>
   <var>OVERRIDE_FILE=settings.properties</var>
   <classPath>
     <mainClass>tech.gdragon.App</mainClass>
@@ -27,5 +31,6 @@
     <maxVersion></maxVersion>
     <jdkPreference>jdkOnly</jdkPreference>
     <runtimeBits>64</runtimeBits>
+    <opt>-Dlog4j.configurationFile=log4j2-prod.xml</opt>
   </jre>
 </launch4jConfig>
