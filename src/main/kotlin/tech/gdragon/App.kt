@@ -13,6 +13,7 @@ import tech.gdragon.db.Database
 import tech.gdragon.db.EmbeddedDatabase
 import tech.gdragon.db.RemoteDatabase
 import tech.gdragon.discord.Bot
+import tech.gdragon.koin.getBooleanProperty
 import tech.gdragon.koin.getStringProperty
 import tech.gdragon.koin.overrideFileProperties
 import tech.gdragon.repl.REPL
@@ -76,11 +77,27 @@ fun main() {
         }
       }
     }
+    val optionalModules = module {
+      val createdAtStart = !koin.getBooleanProperty("BOT_STANDALONE")
+      single(createdAtStart = createdAtStart) {
+        REPL().also {
+          it.nRepl["bot"] = get<Bot>()
+        }
+      }
+      single(createdAtStart = createdAtStart) {
+        HttpServer(get(), getProperty("BOT_HTTP_PORT").toInt()).also {
+          if (logger.isAt(Level.INFO)) {
+            logger.info("Starting HTTP Server: http://localhost:${it.port}")
+          }
+          it.server.start()
+        }
+      }
+    }
     modules(
       module {
         single { Bot() }
-        single { HttpServer(get(), getProperty("BOT_HTTP_PORT").toInt()) }
       },
+      optionalModules,
       databaseModule,
       datastoreModule
     )
@@ -112,17 +129,6 @@ fun main() {
           }
         }
     }
-
-  REPL()
-    .let {
-      it.nRepl["bot"] = bot
-      it.nRepl["db"] = db
-    }
-
-  app.koin.get<HttpServer>().let {
-    logger.info { "Starting HTTP Server: http://localhost:${it.port}" }
-    it.server.start()
-  }
 }
 
 /**

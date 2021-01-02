@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>tech.gdragon.pawabot</groupId>
   <artifactId>pawa</artifactId>
-  <version>2.0.0-SNAPSHOT</version>
+  <version>2.9.0</version>
   <description>Simple voice recording for Discord</description>
   <scm>
     <connection>scm:git:https://gitlab.com/pawabot/pawa.git</connection>
@@ -114,27 +114,29 @@
       <groupId>org.jetbrains.exposed</groupId>
       <artifactId>exposed</artifactId>
       <version>0.17.7</version>
+      <exclusions>
+        <exclusion>
+          <groupId>com.h2database</groupId>
+          <artifactId>h2</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.jetbrains.kotlin</groupId>
+          <artifactId>kotlin-reflect</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.jetbrains.kotlin</groupId>
+          <artifactId>kotlin-stdlib</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.jetbrains.kotlin</groupId>
+          <artifactId>kotlin-stdlib-common</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-api</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
-<!--    <dependency>
-      <groupId>org.jetbrains.exposed</groupId>
-      <artifactId>exposed-core</artifactId>
-      <version>0.25.1</version>
-    </dependency>
-    <dependency>
-      <groupId>org.jetbrains.exposed</groupId>
-      <artifactId>exposed-dao</artifactId>
-      <version>0.25.1</version>
-    </dependency>
-    <dependency>
-      <groupId>org.jetbrains.exposed</groupId>
-      <artifactId>exposed-jodatime</artifactId>
-      <version>0.25.1</version>
-    </dependency>
-    <dependency>
-      <groupId>org.jetbrains.exposed</groupId>
-      <artifactId>exposed-jdbc</artifactId>
-      <version>0.25.1</version>
-    </dependency>-->
     <dependency>
       <groupId>org.jetbrains.kotlin</groupId>
       <artifactId>kotlin-reflect</artifactId>
@@ -165,11 +167,6 @@
       <artifactId>postgresql</artifactId>
       <version>42.2.18</version>
     </dependency>
-<!--    <dependency>
-      <groupId>com.impossibl.pgjdbc-ng</groupId>
-      <artifactId>pgjdbc-ng</artifactId>
-      <version>0.8.4</version>
-    </dependency>-->
 
     <dependency>
       <groupId>org.jetbrains.kotlin</groupId>
@@ -316,16 +313,6 @@
     </plugins>
   </build>
 
-  <reporting>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <version>3.2.0</version>
-      </plugin>
-    </plugins>
-  </reporting>
-
   <repositories>
     <repository>
       <id>bintray-kotlin-exposed</id>
@@ -348,28 +335,77 @@
 
   <profiles>
     <profile>
-      <id>client</id>
+      <id>lite</id>
       <build>
         <plugins>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-shade-plugin</artifactId>
             <version>3.2.4</version>
-            <configuration>
-              <transformers>
-                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                  <mainClass>${main.class}</mainClass>
-                </transformer>
-              </transformers>
-            </configuration>
             <executions>
               <execution>
                 <phase>package</phase>
                 <goals>
                   <goal>shade</goal>
                 </goals>
+                <configuration>
+                  <transformers>
+                    <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                      <mainClass>${main.class}</mainClass>
+                      <manifestEntries>
+                        <Multi-Release>true</Multi-Release>
+                      </manifestEntries>
+                    </transformer>
+                    <transformer
+                      implementation="com.github.edwgiz.maven_shade_plugin.log4j2_cache_transformer.PluginsCacheFileTransformer">
+                    </transformer>
+                  </transformers>
+                  <artifactSet>
+                    <excludes>
+                      <exclude>io.minio:minio</exclude>
+                      <exclude>io.zonky.test.postgres:embedded-postgres-binaries-darwin-amd64</exclude>
+                      <exclude>io.zonky.test.postgres:embedded-postgres-binaries-linux-amd64</exclude>
+                      <exclude>io.zonky.test.postgres:embedded-postgres-binaries-linux-amd64-alpine</exclude>
+                      <exclude>net.matlux:jvm-breakglass</exclude>
+                      <exclude>org.clojure:clojure</exclude>
+                      <exclude>org.clojure:tools.nrepl</exclude>
+                      <exclude>org.nanohttpd:nanohttpd</exclude>
+                    </excludes>
+                  </artifactSet>
+                  <filters>
+                    <filter>
+                      <artifact>*:*</artifact>
+                      <excludes>
+                        <exclude>module-info.class</exclude>
+                        <exclude>META-INF/versions/9/module-info.class</exclude>
+                        <exclude>META-INF/*.MF</exclude>
+                        <exclude>META-INF/*.txt</exclude>
+                        <exclude>META-INF/DEPENDENCIES</exclude>
+                        <exclude>META-INF/LICENSE</exclude>
+                        <exclude>META-INF/NOTICE</exclude>
+                      </excludes>
+                    </filter>
+                    <filter>
+                      <artifact>club.minnced:opus-java-natives</artifact>
+                      <excludes>
+                        <exclude>natives/darwin/**</exclude>
+                        <exclude>natives/linux-aarch64/**</exclude>
+                        <exclude>natives/linux-arm/**</exclude>
+                        <exclude>natives/linux-x86/**</exclude>
+                        <exclude>natives/linux-x86-64/**</exclude>
+                      </excludes>
+                    </filter>
+                  </filters>
+                </configuration>
               </execution>
             </executions>
+            <dependencies>
+              <dependency>
+                <groupId>com.github.edwgiz</groupId>
+                <artifactId>maven-shade-plugin.log4j2-cachefile-transformer</artifactId>
+                <version>2.14.0</version>
+              </dependency>
+            </dependencies>
           </plugin>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
@@ -377,6 +413,25 @@
             <executions>
               <execution>
                 <id>copy-dependencies</id>
+                <phase>none</phase>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>com.ruleoftech</groupId>
+            <artifactId>markdown-page-generator-plugin</artifactId>
+            <executions>
+              <execution>
+                <phase>none</phase>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-assembly-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>make-assembly</id>
                 <phase>none</phase>
               </execution>
             </executions>
