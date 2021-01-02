@@ -335,7 +335,7 @@
 
   <profiles>
     <profile>
-      <id>client</id>
+      <id>lite</id>
       <build>
         <plugins>
           <plugin>
