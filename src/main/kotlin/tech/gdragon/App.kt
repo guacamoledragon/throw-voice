@@ -130,6 +130,9 @@ fun main() {
             BotUtils.leaveInactiveGuilds(jda, afterDays, whitelist)
           }
         }
+      logger.info {
+        "Invite URL: ${it.api().getInviteUrl(Bot.PERMISSIONS)}"
+      }
     }
 }
 
