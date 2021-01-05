@@ -340,7 +340,7 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
       }
 
       // Upload to Minio
-      if (recording.length() in MIN_RECORDING_SIZE until MAX_RECORDING_SIZE) {
+      if (recording.length() in MIN_RECORDING_SIZE until MAX_RECORDING_SIZE || getKoin().getProperty<String>("BOT_STANDALONE").toBoolean()) {
         val recordingKey = "${channel.guild.id}/${recording.name}"
         try {
           val result = datastore.upload(recordingKey, recording)
