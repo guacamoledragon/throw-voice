@@ -439,5 +439,22 @@
         </plugins>
       </build>
     </profile>
+    <profile>
+      <id>dev</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-maven-plugin</artifactId>
+            <version>${kotlin.version}</version>
+            <configuration>
+              <sourceDirs>
+                <sourceDir>src/dev/kotlin</sourceDir>
+              </sourceDirs>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
   </profiles>
 </project>

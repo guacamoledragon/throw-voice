@@ -115,7 +115,7 @@ object BotUtils {
   @JvmStatic
   fun leaveVoiceChannel(voiceChannel: VoiceChannel, textChannel: TextChannel?, save: Boolean) {
     val guild = voiceChannel.guild
-    val audioManager = guild.audioManager
+    val audioManager = guild.audioManager // TODO try using AudioManagerImpl so that we can call .audioConnection.shutdown()
     val audioRecorderHandler = audioManager.receivingHandler as CombinedAudioRecorderHandler?
 
     withLoggingContext("guild" to voiceChannel.guild.name, "text-channel" to textChannel?.name.orEmpty()) {
