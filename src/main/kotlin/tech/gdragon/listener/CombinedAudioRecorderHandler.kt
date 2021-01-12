@@ -18,7 +18,6 @@ import net.dv8tion.jda.api.entities.VoiceChannel
 import org.apache.commons.io.FileUtils
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.joda.time.DateTime
-import org.joda.time.DateTimeZone
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import tech.gdragon.BotUtils
@@ -381,17 +380,9 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
       } else {
         transaction {
           recordingRecord?.apply {
-            if (attachment != null) {
-              val modifiedTime = DateTime(attachment.timeCreated.toInstant().toEpochMilli(), DateTimeZone.UTC)
-
-              size = attachment.size.toLong()
-              modifiedOn = modifiedTime
-              url = attachment.proxyUrl
-            } else {
-              size = recording.length()
-              modifiedOn = DateTime.now()
-              url = "Discord Only"
-            }
+            size = recording.length()
+            modifiedOn = DateTime.now()
+            url = attachment?.proxyUrl ?: "Discord Only"
           }
         }
         cleanup(recording)
