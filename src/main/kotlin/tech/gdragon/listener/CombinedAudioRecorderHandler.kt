@@ -335,9 +335,12 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
       }
     } else {
       // Upload to Discord
-      if (recording.length() < DISCORD_MAX_RECORDING_SIZE) {
-        BotUtils.uploadFile(channel, recording)
-      }
+      val attachment =
+        if (recording.length() < DISCORD_MAX_RECORDING_SIZE) {
+          BotUtils.uploadFile(channel, recording)
+            ?.attachments
+            ?.first()
+        } else null
 
       // Upload to Minio
       if (recording.length() in MIN_RECORDING_SIZE until MAX_RECORDING_SIZE || getKoin().getProperty<String>("BOT_STANDALONE").toBoolean()) {
@@ -379,7 +382,7 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
           recordingRecord?.apply {
             size = recording.length()
             modifiedOn = DateTime.now()
-            url = "Discord Only"
+            url = attachment?.proxyUrl ?: "Discord Only"
           }
         }
         cleanup(recording)

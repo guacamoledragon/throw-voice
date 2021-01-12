@@ -83,6 +83,7 @@ fun main() {
       val createdAtStart = !koin.getBooleanProperty("BOT_STANDALONE")
       single(createdAtStart = createdAtStart) {
         REPL().also {
+          it.nRepl["db"] = get<Database>()
           it.nRepl["bot"] = get<Bot>()
         }
       }
