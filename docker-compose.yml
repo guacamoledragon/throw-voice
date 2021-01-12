@@ -30,7 +30,6 @@ services:
       - DB_HOST=${DB_HOST}
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
-      - DISCORD_WEBHOOK=${DISCORD_WEBHOOK}
       - DS_ACCESS_KEY=${DS_ACCESS_KEY}
       - DS_BASEURL=${DS_BASEURL}
       - DS_BUCKET=${DS_BUCKET}
@@ -38,7 +37,8 @@ services:
       - DS_SECRET_KEY=${DS_SECRET_KEY}
       - OVERRIDE_FILE=${OVERRIDE_FILE}
       - TZ=${TZ}
-      - JAVA_TOOL_OPTIONS=-XX:MinRAMPercentage=${JVM_MIN_RAM_PERCENTAGE}
+      - JAVA_TOOL_OPTIONS=-Dlog4j.configurationFile=log4j2-prod.xml
+                          -XX:MinRAMPercentage=${JVM_MIN_RAM_PERCENTAGE}
                           -XX:MaxRAMPercentage=${JVM_MAX_RAM_PERCENTAGE}
     ports:
       - "127.0.0.1:1112:1112"
