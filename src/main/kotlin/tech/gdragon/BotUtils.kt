@@ -313,10 +313,12 @@ object BotUtils {
     }
   }
 
-  fun uploadFile(textChannel: TextChannel, file: File) {
+  fun uploadFile(textChannel: TextChannel, file: File): Message? {
+    var msgResult: Message? = null
+
     FileInputStream(file).use {
       try {
-        textChannel
+        msgResult = textChannel
           .sendFile(it, file.name)
           .complete()
       } catch (e: InsufficientPermissionException) {
@@ -328,6 +330,8 @@ object BotUtils {
         }
       }
     }
+
+    return msgResult
   }
 
   /**
