@@ -63,7 +63,7 @@ services:
     volumes:
       - db-data:/var/lib/postgresql/data
   datastore:
-    image: minio/minio:RELEASE.2020-12-26T01-35-54Z
+    image: minio/minio:RELEASE.2021-01-08T21-18-21Z
     command: gateway s3 https://s3.us-west-001.backblazeb2.com
     deploy:
       resources:
