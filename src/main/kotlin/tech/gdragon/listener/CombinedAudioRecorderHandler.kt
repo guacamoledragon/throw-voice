@@ -18,6 +18,7 @@ import net.dv8tion.jda.api.entities.VoiceChannel
 import org.apache.commons.io.FileUtils
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.joda.time.DateTime
+import org.joda.time.DateTimeZone
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import tech.gdragon.BotUtils
@@ -335,9 +336,12 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
       }
     } else {
       // Upload to Discord
-      if (recording.length() < DISCORD_MAX_RECORDING_SIZE) {
-        BotUtils.uploadFile(channel, recording)
-      }
+      val attachment =
+        if (recording.length() < DISCORD_MAX_RECORDING_SIZE) {
+          BotUtils.uploadFile(channel, recording)
+            ?.attachments
+            ?.first()
+        } else null
 
       // Upload to Minio
       if (recording.length() in MIN_RECORDING_SIZE until MAX_RECORDING_SIZE || getKoin().getProperty<String>("BOT_STANDALONE").toBoolean()) {
@@ -377,9 +381,17 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
       } else {
         transaction {
           recordingRecord?.apply {
-            size = recording.length()
-            modifiedOn = DateTime.now()
-            url = "Discord Only"
+            if (attachment != null) {
+              val modifiedTime = DateTime(attachment.timeCreated.toInstant().toEpochMilli(), DateTimeZone.UTC)
+
+              size = attachment.size.toLong()
+              modifiedOn = modifiedTime
+              url = attachment.proxyUrl
+            } else {
+              size = recording.length()
+              modifiedOn = DateTime.now()
+              url = "Discord Only"
+            }
           }
         }
         cleanup(recording)
