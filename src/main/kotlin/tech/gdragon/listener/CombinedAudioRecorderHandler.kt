@@ -83,6 +83,7 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
   private val dataDirectory: String = getKoin().getProperty("BOT_DATA_DIR", "./")
   private val fileFormat: String = getKoin().getProperty("BOT_FILE_FORMAT", "mp3").toLowerCase()
   private val standalone = getKoin().getProperty<String>("BOT_STANDALONE").toBoolean()
+  private val vbr = getKoin().getProperty<String>("BOT_MP3_VBR").toBoolean()
 
   // State-licious
   private var subject: PublishSubject<CombinedAudio>? = null
@@ -148,7 +149,7 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
     val queueFile = RecordingQueue(File(queueFilename))
     canReceive = true
 
-    val encoder = LameEncoder(AudioReceiveHandler.OUTPUT_FORMAT, BITRATE, LameEncoder.CHANNEL_MODE_AUTO, LameEncoder.QUALITY_HIGHEST, true)
+    val encoder = LameEncoder(AudioReceiveHandler.OUTPUT_FORMAT, BITRATE, LameEncoder.CHANNEL_MODE_AUTO, LameEncoder.QUALITY_HIGHEST, vbr)
 
     BotUtils.sendMessage(defaultChannel, """:red_circle: **Recording audio on <#${voiceChannel.id}>**
         |_Session ID: `${session}`_
