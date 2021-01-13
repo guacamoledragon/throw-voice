@@ -185,7 +185,7 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
       ?.observeOn(Schedulers.io())
       ?.collectInto(queueFile) { queue, bytes ->
 
-        while (standalone || recordingSize + bytes.size > MAX_RECORDING_SIZE) {
+        while (!standalone && recordingSize + bytes.size > MAX_RECORDING_SIZE) {
           recordingSize -= queue?.peek()?.size ?: 0
           queue?.remove()
         }
