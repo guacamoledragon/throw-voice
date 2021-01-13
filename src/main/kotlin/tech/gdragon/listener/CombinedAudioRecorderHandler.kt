@@ -82,6 +82,7 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
   private val datastore: Datastore by inject()
   private val dataDirectory: String = getKoin().getProperty("BOT_DATA_DIR", "./")
   private val fileFormat: String = getKoin().getProperty("BOT_FILE_FORMAT", "mp3").toLowerCase()
+  private val standalone = getKoin().getProperty<String>("BOT_STANDALONE").toBoolean()
 
   // State-licious
   private var subject: PublishSubject<CombinedAudio>? = null
@@ -175,7 +176,7 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
       }
       ?.doOnNext {
         val percentage = recordingSize * 100 / MAX_RECORDING_SIZE
-        if (percentage >= 90 && !limitWarning) {
+        if (!standalone && (percentage >= 90 && !limitWarning)) {
           BotUtils.sendMessage(defaultChannel, ":warning:_You've reached $percentage% of your recording limit, please save to start a new session._")
           limitWarning = true
         }
@@ -183,7 +184,7 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
       ?.observeOn(Schedulers.io())
       ?.collectInto(queueFile) { queue, bytes ->
 
-        while (recordingSize + bytes.size > MAX_RECORDING_SIZE) {
+        while (standalone || recordingSize + bytes.size > MAX_RECORDING_SIZE) {
           recordingSize -= queue?.peek()?.size ?: 0
           queue?.remove()
         }
@@ -343,7 +344,7 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
         } else null
 
       // Upload to Minio
-      if (recording.length() in MIN_RECORDING_SIZE until MAX_RECORDING_SIZE || getKoin().getProperty<String>("BOT_STANDALONE").toBoolean()) {
+      if (recording.length() in MIN_RECORDING_SIZE until MAX_RECORDING_SIZE || standalone) {
         val recordingKey = "${channel.guild.id}/${recording.name}"
         try {
           val result = datastore.upload(recordingKey, recording)
