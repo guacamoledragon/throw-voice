@@ -49,7 +49,7 @@ fun main() {
     }
       ?: if (koin.logger.isAt(Level.INFO)) koin.logger.info("No override file provided. Please set OVERRIDE_FILE environment variable if desired.")
 
-    val databaseModule = module {
+    val databaseModule = module(createdAtStart = true) {
       single<Database> {
         if (getProperty("BOT_STANDALONE").toBoolean())
           EmbeddedDatabase("${getProperty("BOT_DATA_DIR", "./")}/embedded-database")
@@ -97,19 +97,18 @@ fun main() {
       }
     }
     modules(
+      databaseModule,
       module {
         single { Bot() }
       },
-      optionalModules,
-      databaseModule,
-      datastoreModule
+      datastoreModule,
+      optionalModules
     )
   }
 
   val dataDir = app.koin.getStringProperty("BOT_DATA_DIR")
   initializeDataDirectory(dataDir)
-
-  val db = app.koin.get<Database>().also(::shutdownHook)
+  shutdownHook()
 
   val bot = app.koin.get<Bot>()
     .let {
@@ -150,9 +149,8 @@ private fun initializeDataDirectory(dataDirectory: String) {
   }
 }
 
-fun shutdownHook(db: Database) {
+fun shutdownHook() {
   Runtime.getRuntime().addShutdownHook(Thread() {
     logger.info { "Shutting down..." }
-    db.stop()
   })
 }
