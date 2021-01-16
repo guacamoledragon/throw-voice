@@ -20,19 +20,12 @@
     <slf4j.version>2.0.0-alpha1</slf4j.version>
   </properties>
 
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>io.zonky.test.postgres</groupId>
-        <artifactId>embedded-postgres-binaries-bom</artifactId>
-        <version>13.1.0-1</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
-
   <dependencies>
+    <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+      <version>1.4.200</version>
+    </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
@@ -75,11 +68,6 @@
       <version>2.2.20</version>
     </dependency>
     <dependency>
-      <groupId>io.zonky.test</groupId>
-      <artifactId>embedded-postgres</artifactId>
-      <version>1.2.9</version>
-    </dependency>
-    <dependency>
       <groupId>net.dv8tion</groupId>
       <artifactId>JDA</artifactId>
       <version>${jda.version}</version>
@@ -115,10 +103,6 @@
       <artifactId>exposed</artifactId>
       <version>0.17.7</version>
       <exclusions>
-        <exclusion>
-          <groupId>com.h2database</groupId>
-          <artifactId>h2</artifactId>
-        </exclusion>
         <exclusion>
           <groupId>org.jetbrains.kotlin</groupId>
           <artifactId>kotlin-reflect</artifactId>
@@ -363,9 +347,7 @@
                   <artifactSet>
                     <excludes>
                       <exclude>io.minio:minio</exclude>
-                      <exclude>io.zonky.test.postgres:embedded-postgres-binaries-darwin-amd64</exclude>
-                      <exclude>io.zonky.test.postgres:embedded-postgres-binaries-linux-amd64</exclude>
-                      <exclude>io.zonky.test.postgres:embedded-postgres-binaries-linux-amd64-alpine</exclude>
+                      <exclude>org.postgresql:postgresql</exclude>
                       <exclude>net.matlux:jvm-breakglass</exclude>
                       <exclude>org.clojure:clojure</exclude>
                       <exclude>org.clojure:tools.nrepl</exclude>
