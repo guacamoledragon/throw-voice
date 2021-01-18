@@ -17,6 +17,7 @@
   <var>BOT_FILE_FORMAT=mp3</var>
   <var>BOT_LEAVE_GUILD_AFTER=0</var>
   <var>BOT_MAINTENANCE=false</var>
+  <var>BOT_MP3_VBR=false</var>
   <var>BOT_STANDALONE=true</var>
   <var>BOT_WEBSITE=https://pawa.im</var>
   <var>OVERRIDE_FILE=settings.properties</var>
