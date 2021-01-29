@@ -420,33 +420,37 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
       }
       ?.subscribe { queueFile, _ ->
 
-      logger.info { "Clean up queue files" }
-      queueFile?.let {
-        recordingLock?.let { lock ->
-          lock.acquire(1)
-          logger.warn {
-            "Acquiring lock in disconnect subscription: ${it.fileBuffer.canonicalPath}"
+        queueFile?.let {
+          recordingLock?.let { lock ->
+            lock.acquire(1)
+            logger.warn {
+              "Acquiring lock in disconnect subscription: ${it.fileBuffer.canonicalPath}"
+            }
           }
-        }
-        try {
-          it.close()
-          Files.deleteIfExists(Paths.get(it.fileBuffer.toURI()))
-        } catch (e: FileSystemException) {
-          logger.warn(e) {
-            "Couldn't delete ${it.fileBuffer.canonicalPath}"
+          try {
+            it.close()
+            if (!standalone) {
+              logger.info {
+                "Delete queue file: ${it.fileBuffer.name}"
+              }
+              Files.deleteIfExists(Paths.get(it.fileBuffer.toURI()))
+            }
+          } catch (e: FileSystemException) {
+            logger.warn(e) {
+              "Couldn't delete ${it.fileBuffer.canonicalPath}"
+            }
           }
-        }
 
-        // Delete database entry if no URL
-        recording?.apply {
-          transaction {
-            if (url.isNullOrEmpty())
-              delete()
+          // Delete database entry if no URL
+          recording?.apply {
+            transaction {
+              if (url.isNullOrEmpty())
+                delete()
+            }
           }
+          recordingLock?.release(1)
         }
-        recordingLock?.release(1)
       }
-    }
 
     // Shut off the Observable
     subject?.onComplete()
