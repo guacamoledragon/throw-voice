@@ -22,8 +22,8 @@
 1. Stop recording voice channel, type `!stop`
 
 <video loop muted controls>
-  <source src="docs/_media/pawa-howto.webm" type="video/webm">
-  <source src="docs/_media/pawa-howto.mp4" type="video/mp4">
+  <source src="src/site/_media/pawa-howto.webm" type="video/webm">
+  <source src="src/site/_media/pawa-howto.mp4" type="video/mp4">
 </video>
 
 # Support
@@ -59,7 +59,7 @@ _There is no obligation to do any of this, but this is a way to express your gra
 ## License
 
 ```
-Copyright (c) 2017-2020 Guacamole Dragon, LLC
+Copyright (c) 2017-2021 Guacamole Dragon, LLC
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
