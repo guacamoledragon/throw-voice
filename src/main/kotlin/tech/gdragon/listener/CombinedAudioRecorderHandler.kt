@@ -149,11 +149,19 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
     val queueFile = RecordingQueue(File(queueFilename))
     canReceive = true
 
-    val encoder = LameEncoder(AudioReceiveHandler.OUTPUT_FORMAT, BITRATE, LameEncoder.CHANNEL_MODE_AUTO, LameEncoder.QUALITY_HIGHEST, vbr)
+    val encoder = LameEncoder(
+      AudioReceiveHandler.OUTPUT_FORMAT,
+      BITRATE,
+      LameEncoder.CHANNEL_MODE_AUTO,
+      LameEncoder.QUALITY_HIGHEST,
+      vbr
+    )
 
-    BotUtils.sendMessage(defaultChannel, """:red_circle: **Recording audio on <#${voiceChannel.id}>**
-        |_Session ID: `${session}`_
-      """.trimMargin())
+    BotUtils.sendMessage(
+      defaultChannel, """:red_circle: **Recording audio on <#${voiceChannel.id}>**
+      |_Session ID: `${session}`_
+      """.trimMargin()
+    )
     logger.info { "Creating recording session - $queueFilename" }
 
     val singleObservable = subject
@@ -178,7 +186,10 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
       ?.doOnNext {
         val percentage = recordingSize * 100 / MAX_RECORDING_SIZE
         if (!standalone && (percentage >= 90 && !limitWarning)) {
-          BotUtils.sendMessage(defaultChannel, ":warning:_You've reached $percentage% of your recording limit, please save to start a new session._")
+          BotUtils.sendMessage(
+            defaultChannel,
+            ":warning:_You've reached $percentage% of your recording limit, please save to start a new session._"
+          )
           limitWarning = true
         }
       }
