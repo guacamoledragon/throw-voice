@@ -149,11 +149,19 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
     val queueFile = RecordingQueue(File(queueFilename))
     canReceive = true
 
-    val encoder = LameEncoder(AudioReceiveHandler.OUTPUT_FORMAT, BITRATE, LameEncoder.CHANNEL_MODE_AUTO, LameEncoder.QUALITY_HIGHEST, vbr)
+    val encoder = LameEncoder(
+      AudioReceiveHandler.OUTPUT_FORMAT,
+      BITRATE,
+      LameEncoder.CHANNEL_MODE_AUTO,
+      LameEncoder.QUALITY_HIGHEST,
+      vbr
+    )
 
-    BotUtils.sendMessage(defaultChannel, """:red_circle: **Recording audio on <#${voiceChannel.id}>**
-        |_Session ID: `${session}`_
-      """.trimMargin())
+    BotUtils.sendMessage(
+      defaultChannel, """:red_circle: **Recording audio on <#${voiceChannel.id}>**
+      |_Session ID: `${session}`_
+      """.trimMargin()
+    )
     logger.info { "Creating recording session - $queueFilename" }
 
     val singleObservable = subject
@@ -178,7 +186,10 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
       ?.doOnNext {
         val percentage = recordingSize * 100 / MAX_RECORDING_SIZE
         if (!standalone && (percentage >= 90 && !limitWarning)) {
-          BotUtils.sendMessage(defaultChannel, ":warning:_You've reached $percentage% of your recording limit, please save to start a new session._")
+          BotUtils.sendMessage(
+            defaultChannel,
+            ":warning:_You've reached $percentage% of your recording limit, please save to start a new session._"
+          )
           limitWarning = true
         }
       }
@@ -409,33 +420,37 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
       }
       ?.subscribe { queueFile, _ ->
 
-      logger.info { "Clean up queue files" }
-      queueFile?.let {
-        recordingLock?.let { lock ->
-          lock.acquire(1)
-          logger.warn {
-            "Acquiring lock in disconnect subscription: ${it.fileBuffer.canonicalPath}"
+        queueFile?.let {
+          recordingLock?.let { lock ->
+            lock.acquire(1)
+            logger.warn {
+              "Acquiring lock in disconnect subscription: ${it.fileBuffer.canonicalPath}"
+            }
           }
-        }
-        try {
-          it.close()
-          Files.deleteIfExists(Paths.get(it.fileBuffer.toURI()))
-        } catch (e: FileSystemException) {
-          logger.warn(e) {
-            "Couldn't delete ${it.fileBuffer.canonicalPath}"
+          try {
+            it.close()
+            if (!standalone) {
+              logger.info {
+                "Delete queue file: ${it.fileBuffer.name}"
+              }
+              Files.deleteIfExists(Paths.get(it.fileBuffer.toURI()))
+            }
+          } catch (e: FileSystemException) {
+            logger.warn(e) {
+              "Couldn't delete ${it.fileBuffer.canonicalPath}"
+            }
           }
-        }
 
-        // Delete database entry if no URL
-        recording?.apply {
-          transaction {
-            if (url.isNullOrEmpty())
-              delete()
+          // Delete database entry if no URL
+          recording?.apply {
+            transaction {
+              if (url.isNullOrEmpty())
+                delete()
+            }
           }
+          recordingLock?.release(1)
         }
-        recordingLock?.release(1)
       }
-    }
 
     // Shut off the Observable
     subject?.onComplete()
