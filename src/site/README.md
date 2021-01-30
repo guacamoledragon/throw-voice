@@ -1,5 +1,5 @@
 # pawa
-> Simple voice recording for Discord
+> Simple audio recording for Discord
 
 <div align="center">
   <a href="https://discordbots.org/bot/338897906524225538">
@@ -15,22 +15,33 @@
 
 ## What is `pawa`?
 
-`pawa` is a Discord bot that records any audio in a voice channel.
+`pawa` is a simple audio recording bot for Discord. With **two** simple commands you can generate a single MP3 file!
 
-# Support
-_There is no obligation to do any of this, but this is a way to express your gratitude towards `pawa`_
+See [Quickstart](quickstart.md) guide for more details.
+
+## Features
+
+* Single track recordings
+* Universal output format -- MP3
+* Straighforward [commands](commands.md)
+* Uploads to Discord where you can keep recording _FOREVER_
+* Shareable recording URL
+* [Premium](commands.md) Advanced Commands
+
+# Donate
+If you enjoy using `pawa` please consider donating 🤗
 
 * [Buy me a coffee](https://ko-fi.com/L3L215SZC) _(One time)_
 * [Github Sponsor](https://github.com/sponsors/jvtrigueros) _(Subscription)_
 
-**Free**
+# Spread the word!
 
-* 🐤 Follow the [Twitter account](https://twitter.com/pawa_bot) and retweet
+* 🐤 Follow the [Twitter account](https://twitter.com/pawa_bot) or tweet using hashtag [#pawabot](https://twitter.com/search?q=%23pawabot)
 * 🗳️ Vote on [top.gg](https://top.gg/bot/pawa/vote)
 * ⭐ Leave a review on [bots.ondiscord.xyz](https://bots.ondiscord.xyz/bots/338897906524225538)
 * 🔄 Share with others!
 
-**Affiliates**
+# Affiliates
 
 If you want to try hosting your own bot, or website. I've used these hosting platforms in the past, use my referral links:
 
@@ -38,28 +49,6 @@ If you want to try hosting your own bot, or website. I've used these hosting pla
 * [DigitalOcean](https://m.do.co/c/d2af1fbee897): $100 credit
 * [Linode](https://www.linode.com/?r=e655d87b0d382f2922e75de841b2f19d7403e2ca)
 * We collect anonymous basic analytics using [Simple Analytics](https://referral.simpleanalytics.com/pawa)
-
-# Full Command List
-
-These commands aren't necessary for the functionality of `pawa` but they do provide some quality of life improvements.
-
-?> _NOTE_ Anything between <> is mandatory. Anything in [] is optional. Vertical bar | means 'or', either side of bar is valid choice.
-
-|                                  Command | Description                                                                                       |
-|-----------------------------------------:|---------------------------------------------------------------------------------------------------|
-|               [alias](commands/alias.md) | Creates an alias, or alternate name, to a command for customization.                              |
-|    [autorecord](commands/autorecord.md)* | Configure the number of users in a voice channel before [pawa](https://pawa.im) begins recording. |
-|         [autostop](commands/autostop.md) | Configure the number of users in a voice channel before [pawa](https://pawa.im) stops recording.  |
-|         [autosave](commands/autosave.md) | Automatically save recording.                                                                     |
-|             [record](commands/record.md) | Start recording.                                                                                  |
-|                 [stop](commands/stop.md) | Stop recording.                                                                                   |
-|             [prefix](commands/prefix.md) | Change prefix.                                                                                    |
-|   [removeAlias](commands/removealias.md) | Remove custom alias.                                                                              |
-|                 [save](commands/save.md) | Saves current recording, either provides a link or uploads directly to Discord.                   |
-| [saveLocation](commands/savelocation.md) | Default text channel for all messages.                                                            |
-|             [volume](commands/volume.md) | Set the recording volume.                                                                         |
-
-?> *Command only available for supporters
 
 # Self-hosting
 

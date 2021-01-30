@@ -3,6 +3,7 @@ cache: &global_cache
     - .m2/
 
 variables:
+  BOT_VERSION: 2.9.1
   MAVEN_OPTS: -Dmaven.repo.local=.m2
 
 build:
@@ -42,7 +43,6 @@ container:
     - docker push gdragon/throw-voice:${VERSION}
   stage: deploy
   variables:
-    BOT_VERSION: 2.0.0
     DOCKER_DRIVER: overlay2
     DOCKER_TLS_CERTDIR: /certs
 
