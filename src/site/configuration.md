@@ -1,4 +1,4 @@
-# Configuration
+# Environment Variables
 
 These are the environment configuration variables used by the bot.
 
