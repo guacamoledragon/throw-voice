@@ -19,12 +19,14 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 - [Pawa Lite]: Replace Embedded Postgres with H2
 - This drastically reduces the package size (about 20MB)
 - [Pawa Lite]: Keep `queue` files, might create congestion, but will make it easier to recover if needed
+
 ### Fixed
 - [Pawa Lite]: No longer needed to exit with Ctrl-C
 
 ## [2.9.0] - 2021-01-18
 ### Added
 - Pawa Lite configuration
+
 ### Fixed
 - Remove recording limits and warnings
 
