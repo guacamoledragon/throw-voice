@@ -1,15 +1,23 @@
 # Quickstart
 
-?> TODO: Add invite link button
+Before you get started, you must invite `pawa` to your own Discord server.
 
+<div align="center">
 
-Follow this recipe:
+  [Invite!](https://discordapp.com/oauth2/authorize?client_id=338897906524225538&scope=bot&permissions=101731328 ':class=theme-button')
+
+</div>
+
+?> You must be a server Administrator to do this.
+
+## Creating Recording
+
+With _two_ simple steps, you can record your own audio:
 
 1. Join a voice channel, then type `!record`
 1. Create and upload recording, type `!save`
-1. Stop recording voice channel, type `!stop`
 
-!> If you  `!stop` before `!save`, the recording will be deleted!
+!> If you `!stop` before `!save`, the recording will be **DELETED**!
 
 <div align="center">
   <video loop muted controls>
@@ -17,3 +25,13 @@ Follow this recipe:
     <source src="_media/pawa-howto.mp4" type="video/mp4">
   </video>
 </div>
+
+## Saving Recording
+
+The recording will either:
+
+* Be uploaded directly to Discord where you can keep it _forever_
+* Or, you'll be given a link where you can download your recording within **24 hours**
+
+!> If you forget to download the recording before then, there's nothing I can do to restore the recording. It is gone.
+
