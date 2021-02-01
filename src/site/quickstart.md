@@ -10,7 +10,7 @@ Before you get started, you must invite `pawa` to your own Discord server.
 
 ?> You must be a server Administrator to do this.
 
-## Creating Recording
+## Create Recording
 
 With _two_ simple steps, you can record your own audio:
 
@@ -26,7 +26,7 @@ With _two_ simple steps, you can record your own audio:
   </video>
 </div>
 
-## Saving Recording
+## Save Recording
 
 The recording will either:
 
