@@ -34,6 +34,8 @@ If you enjoy using `pawa` please consider donating 🤗
 * [Buy me a coffee](https://ko-fi.com/L3L215SZC) _(One time)_
 * [Github Sponsor](https://github.com/sponsors/jvtrigueros) _(Subscription)_
 
+<!-- TODO: use the buttons instead of this, but the iframe is a PITA QQ -->
+
 # Spread the word!
 
 * 🐤 Follow the [Twitter account](https://twitter.com/pawa_bot) or tweet using hashtag [#pawabot](https://twitter.com/search?q=%23pawabot)

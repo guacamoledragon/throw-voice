@@ -15,6 +15,26 @@
     .float-left {
         float: left;
     }
+
+  a.theme-button {
+    border-radius: 1rem;
+    border: 1px solid var(--theme-color,#6E84D1);
+    box-sizing: border-box;
+    background-color: var(--theme-color,#6E84D1);
+    color: #fff;
+    display: inline-block;
+    font-size: 2.05rem;
+    letter-spacing: .1rem;
+    margin: .5rem 1rem;
+    padding: .75em 2rem;
+    text-decoration: none;
+    transition: all .15s ease;
+  }
+
+  a.theme-button:hover {
+    color: inherit;
+    opacity: .8;
+  }
   </style>
 </head>
 <body>
@@ -27,7 +47,6 @@
       loadSidebar: true,
       name: 'pawa',
       repo: '',
-      routerMode: 'history',
       subMaxLevel: 2,
     }
   </script>
