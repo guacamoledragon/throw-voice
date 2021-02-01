@@ -7,10 +7,6 @@ variables:
   MAVEN_OPTS: -Dmaven.repo.local=.m2
 
 build:
-  artifacts:
-    expire_in: 1 hour
-    paths:
-      - ./target/html
   image: maven:3.6-jdk-11
   script:
     - mvn -B de.qaware.maven:go-offline-maven-plugin:resolve-dependencies
