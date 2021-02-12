@@ -1,4 +1,7 @@
 # Self-hosting
+
+!> These instructions are out of date, will be updating as soon as possible!
+
 The main motivation for forking the project was to allow any Discord Guild owner to be able to host their own instance
 of this bot. In order to be able to do that, a bit of configuration is necessary, however, here's nothing special about
 this bot, it can be self-hosted without any issues in one of the following ways.
@@ -42,10 +45,10 @@ have [install Java 11+](https://adoptopenjdk.net/).
 
 - Configure Bot
   - Windows Users:
-    - Edit `start.bat` and enter the appropriate values for all the variables described under [environment variables](./environment-variables.md).
+    - Edit `start.bat` and enter the appropriate values for all the variables described under [environment variables](environment-variables.md).
     - Save `start.bat`, start bot by double-click'ing `start.bat`
   - Linux/macOS Users:
-    - Edit `start.sh` and enter the appropriate values for all the variables described under [environment variables](./environment-variables.md).
+    - Edit `start.sh` and enter the appropriate values for all the variables described under [environment variables](environment-variables.md).
     - Save `start.sh`, start bot by double-click'ing `start.sh`
       - If you don't have a GUI, then drop to a terminal and execute `start.sh`
 
@@ -60,7 +63,7 @@ _Note: If you're deploying on your own VPS, then you'll need a bit more setup as
 ## Docker Compose
 
 If Docker is your jam, go into the `docker` folder and modify the variables in the `.env`, the rest are in the `docker-compose.yml`
-file itself. For reference see [environment variables](./environment-variables.md). Then use
+file itself. For reference see [environment variables](environment-variables.md). Then use
 [`docker-compose`](https://docs.docker.com/compose/):
 
     docker-compose up # optionally, --detach

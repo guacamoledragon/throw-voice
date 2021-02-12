@@ -3,13 +3,10 @@ cache: &global_cache
     - .m2/
 
 variables:
+  BOT_VERSION: 2.9.1
   MAVEN_OPTS: -Dmaven.repo.local=.m2
 
 build:
-  artifacts:
-    expire_in: 1 hour
-    paths:
-      - ./target/html
   image: maven:3.6-jdk-11
   script:
     - mvn -B de.qaware.maven:go-offline-maven-plugin:resolve-dependencies
@@ -42,7 +39,6 @@ container:
     - docker push gdragon/throw-voice:${VERSION}
   stage: deploy
   variables:
-    BOT_VERSION: 2.0.0
     DOCKER_DRIVER: overlay2
     DOCKER_TLS_CERTDIR: /certs
 
@@ -55,8 +51,7 @@ pages:
   dependencies:
     - build
   script:
-    - mv target/html/ public/
-    - mv public/{README,index}.html
+    - cp -r src/site/ public
   stage: deploy
   rules:
     - if: $CI_COMMIT_REF_NAME == 'master'

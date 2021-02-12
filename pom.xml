@@ -163,30 +163,6 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>com.ruleoftech</groupId>
-        <artifactId>markdown-page-generator-plugin</artifactId>
-        <version>2.3.0</version>
-        <configuration>
-          <alwaysUseDefaultTitle>true</alwaysUseDefaultTitle>
-          <copyDirectories>assets/features,assets/favicon</copyDirectories>
-          <defaultTitle>${project.name} - ${project.description}</defaultTitle>
-          <inputDirectory>${project.basedir}</inputDirectory>
-          <recursiveInput>true</recursiveInput>
-          <transformRelativeMarkdownLinks>true</transformRelativeMarkdownLinks>
-          <headerHtmlFile>${project.basedir}/src/main/resources/markdown/html/header.html</headerHtmlFile>
-          <footerHtmlFile>${project.basedir}/src/main/resources/markdown/html/footer.html</footerHtmlFile>
-          <pegdownExtensions>TABLES, FENCED_CODE_BLOCKS, TOC</pegdownExtensions>
-        </configuration>
-        <executions>
-          <execution>
-            <phase>process-resources</phase>
-            <goals>
-              <goal>generate</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
         <artifactId>kotlin-maven-plugin</artifactId>
         <groupId>org.jetbrains.kotlin</groupId>
         <version>${kotlin.version}</version>
@@ -395,15 +371,6 @@
             <executions>
               <execution>
                 <id>copy-dependencies</id>
-                <phase>none</phase>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>com.ruleoftech</groupId>
-            <artifactId>markdown-page-generator-plugin</artifactId>
-            <executions>
-              <execution>
                 <phase>none</phase>
               </execution>
             </executions>
