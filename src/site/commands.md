@@ -11,6 +11,7 @@ This is the full list of commands available, but on a daily basis, you wont need
 |               [alias](commands/alias.md) | Creates an alias for a command                                                                  |
 |         [autostop](commands/autostop.md) | Configure the number of users in a voice channel before [pawa](https://pawa.im) stops recording |
 |         [autosave](commands/autosave.md) | Automatically save recording                                                                    |
+|                                     help | Sends you a DM with these commands, including any [alias](commands/alias.md)es                  |
 |             [record](commands/record.md) | Start recording                                                                                 |
 |                 [stop](commands/stop.md) | Stop recording                                                                                  |
 |             [prefix](commands/prefix.md) | Change prefix                                                                                   |
