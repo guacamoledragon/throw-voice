@@ -6,7 +6,6 @@ COPY pom.xml .
 RUN mvn -B de.qaware.maven:go-offline-maven-plugin:resolve-dependencies
 
 COPY LICENSE .
-COPY docs docs
 COPY src src
 
 ARG BUILD_DATE
