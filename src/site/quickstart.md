@@ -21,13 +21,6 @@ With _two_ simple steps, you can record your own audio:
 
 !> If you `!stop` before `!save`, the recording will be **DELETED**!
 
-<div align="center">
-  <video loop muted controls>
-    <source src="_media/pawa-howto.webm" type="video/webm">
-    <source src="_media/pawa-howto.mp4" type="video/mp4">
-  </video>
-</div>
-
 ## Save Recording
 
 The recording will either:
@@ -36,4 +29,13 @@ The recording will either:
 * Or, you'll be given a link where you can download your recording within **24 hours**
 
 !> If you forget to download the recording before then, there's nothing I can do to restore the recording. It is gone.
+
+## Demonstration
+
+<div align="center">
+  <video loop muted controls>
+    <source src="_media/pawa-howto.webm" type="video/webm">
+    <source src="_media/pawa-howto.mp4" type="video/mp4">
+  </video>
+</div>
 
