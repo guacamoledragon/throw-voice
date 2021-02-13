@@ -120,18 +120,7 @@ class EventListener : ListenerAdapter(), KoinComponent {
       if (BotUtils.isSelfBot(it.user)) return
     } ?: return
 
-    val guild =
-      event.guild.run {
-        transaction {
-          // HACK: Create settings for a guild that needs to be accessed. This is a problem when restarting bot.
-          // TODO: On bot initialization, I should be able to check which Guilds the bot is connected to and purge/add respectively
-          Guild.findOrCreate(idLong, name, region.name)
-        }
-      }
-
-    val prefix = transaction {
-      guild.settings.prefix
-    }
+    val prefix = BotUtils.getPrefix(event.guild)
 
     withLoggingContext("guild" to event.guild.name, "text-channel" to event.channel.name) {
       val rawContent = event.message.contentDisplay.toLowerCase()
