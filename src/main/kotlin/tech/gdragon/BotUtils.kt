@@ -1,5 +1,6 @@
 package tech.gdragon
 
+import com.github.benmanes.caffeine.cache.Caffeine
 import mu.KotlinLogging
 import mu.withLoggingContext
 import net.dv8tion.jda.api.JDA
@@ -16,6 +17,7 @@ import org.joda.time.DateTime
 import tech.gdragon.db.asyncTransaction
 import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
+import tech.gdragon.db.dao.Settings
 import tech.gdragon.db.nowUTC
 import tech.gdragon.db.table.Tables.Guilds
 import tech.gdragon.listener.CombinedAudioRecorderHandler
@@ -28,6 +30,9 @@ object BotUtils {
   private val logger = KotlinLogging.logger {}
 
   private val guildActivity = PassiveExpiringMap<Long, DateTime>(1L, TimeUnit.HOURS)
+
+  val guildCache = Caffeine.newBuilder()
+    .build<Long, Settings>()
 
   /**
    * AutoRecord voice channel if it meets the auto record criterion
@@ -47,7 +52,8 @@ object BotUtils {
           withLoggingContext("guild" to guild.name, "voice-channel" to channel.name) {
             try {
               recordVoiceChannel(channel, defaultChannel) { ex ->
-                val message = ":no_entry_sign: _Cannot record on **<#${channel.id}>**, need permission:_ ```${ex.permission}```"
+                val message =
+                  ":no_entry_sign: _Cannot record on **<#${channel.id}>**, need permission:_ ```${ex.permission}```"
                 sendMessage(defaultChannel, message)
               }
             } catch (e: IllegalArgumentException) {
@@ -108,6 +114,28 @@ object BotUtils {
       .find(TextChannel::canTalk)
   }
 
+  fun getPrefix(guild: DiscordGuild): String {
+    return guild.run {
+      guildCache.getIfPresent(idLong)?.prefix ?: transaction {
+        // HACK: Create settings for a guild that needs to be accessed. This is a problem when restarting bot.
+        // TODO: On bot initialization, I should be able to check which Guilds the bot is connected to and purge/add respectively
+        val settings = Guild.findOrCreate(idLong, name, region.name).settings
+        guildCache.put(idLong, settings)
+        settings.prefix
+      }
+    }
+  }
+
+  fun setPrefix(guild: DiscordGuild, newPrefix: String): String {
+    return guild.run {
+      transaction {
+        val settings = Guild.findById(idLong)!!.settings.apply { prefix = newPrefix }
+        guildCache.put(idLong, settings)
+        settings.prefix
+      }
+    }
+  }
+
   fun isSelfBot(user: User): Boolean {
     return user.isBot && user.jda.selfUser.idLong == user.idLong
   }
@@ -115,7 +143,8 @@ object BotUtils {
   @JvmStatic
   fun leaveVoiceChannel(voiceChannel: VoiceChannel, textChannel: TextChannel?, save: Boolean) {
     val guild = voiceChannel.guild
-    val audioManager = guild.audioManager // TODO try using AudioManagerImpl so that we can call .audioConnection.shutdown()
+    val audioManager =
+      guild.audioManager // TODO try using AudioManagerImpl so that we can call .audioConnection.shutdown()
     val audioRecorderHandler = audioManager.receivingHandler as CombinedAudioRecorderHandler?
 
     withLoggingContext("guild" to voiceChannel.guild.name, "text-channel" to textChannel?.name.orEmpty()) {
@@ -230,7 +259,11 @@ object BotUtils {
   }
 
   // TODO: I don't think there's a need for the callback for exception handling, just throw
-  fun recordVoiceChannel(channel: VoiceChannel, defaultChannel: TextChannel?, onError: (InsufficientPermissionException) -> Unit = {}) {
+  fun recordVoiceChannel(
+    channel: VoiceChannel,
+    defaultChannel: TextChannel?,
+    onError: (InsufficientPermissionException) -> Unit = {}
+  ) {
 
     /** Begin assertions **/
     require(defaultChannel != null && channel.guild.getTextChannelById(defaultChannel.id)?.canTalk() ?: false) {
@@ -323,7 +356,10 @@ object BotUtils {
           .complete()
       } catch (e: InsufficientPermissionException) {
         withLoggingContext("guild" to textChannel.guild.name, "text-channel" to textChannel.name) {
-          sendMessage(textChannel, ":no_entry_sign: _Couldn't upload recording directly to <#${textChannel.id}>, to enable this give `Attach Files` permissions._")
+          sendMessage(
+            textChannel,
+            ":no_entry_sign: _Couldn't upload recording directly to <#${textChannel.id}>, to enable this give `Attach Files` permissions._"
+          )
           logger.warn(e) {
             "Couldn't upload recording: ${file.name}"
           }

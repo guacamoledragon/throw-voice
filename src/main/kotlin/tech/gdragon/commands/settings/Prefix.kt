@@ -14,13 +14,7 @@ class Prefix : CommandHandler() {
     }
 
     val newPrefix = args.first()
-    val prefix = transaction {
-      Guild
-        .findById(event.guild.idLong)
-        ?.settings
-        ?.apply { prefix = newPrefix }
-        ?.prefix
-    }
+    val prefix = BotUtils.setPrefix(event.guild, newPrefix)
 
     val message =
       if (prefix == newPrefix) ":twisted_rightwards_arrows: _Command prefix now set to **`${prefix}`**._"
