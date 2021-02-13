@@ -8,6 +8,7 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 
 ### Added
 - Display a warning about saving recording
+- Add Caching library to cache database requests for Guild prefix
 ### Changed
 ### Deprecated
 ### Removed
