@@ -180,6 +180,9 @@
               <goal>compile</goal>
             </goals>
             <configuration>
+              <args>
+                <arg>-Xuse-ir</arg>
+              </args>
               <sourceDirs>
                 <source>src/main/java</source>
                 <source>src/main/kotlin</source>
@@ -193,6 +196,9 @@
               <goal>test-compile</goal>
             </goals>
             <configuration>
+              <args>
+                <arg>-Xuse-ir</arg>
+              </args>
               <sourceDirs>
                 <sourceDir>src/test/kotlin</sourceDir>
                 <sourceDir>src/test/java</sourceDir>
