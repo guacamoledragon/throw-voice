@@ -17,7 +17,6 @@ import org.joda.time.DateTime
 import tech.gdragon.db.asyncTransaction
 import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
-import tech.gdragon.db.dao.Settings
 import tech.gdragon.db.nowUTC
 import tech.gdragon.db.table.Tables.Guilds
 import tech.gdragon.listener.CombinedAudioRecorderHandler
@@ -32,7 +31,7 @@ object BotUtils {
   private val guildActivity = PassiveExpiringMap<Long, DateTime>(1L, TimeUnit.HOURS)
 
   val guildCache = Caffeine.newBuilder()
-    .build<Long, Settings>()
+    .build<Long, String>()
 
   /**
    * AutoRecord voice channel if it meets the auto record criterion
@@ -116,12 +115,12 @@ object BotUtils {
 
   fun getPrefix(guild: DiscordGuild): String {
     return guild.run {
-      guildCache.getIfPresent(idLong)?.prefix ?: transaction {
+      guildCache.getIfPresent(idLong) ?: transaction {
         // HACK: Create settings for a guild that needs to be accessed. This is a problem when restarting bot.
         // TODO: On bot initialization, I should be able to check which Guilds the bot is connected to and purge/add respectively
-        val settings = Guild.findOrCreate(idLong, name, region.name).settings
-        guildCache.put(idLong, settings)
-        settings.prefix
+        val prefix = Guild.findOrCreate(idLong, name, region.name).settings.prefix
+        guildCache.put(idLong, prefix)
+        prefix
       }
     }
   }
@@ -129,9 +128,9 @@ object BotUtils {
   fun setPrefix(guild: DiscordGuild, newPrefix: String): String {
     return guild.run {
       transaction {
-        val settings = Guild.findById(idLong)!!.settings.apply { prefix = newPrefix }
-        guildCache.put(idLong, settings)
-        settings.prefix
+        val prefix = Guild.findById(idLong)!!.settings.apply { prefix = newPrefix }.prefix
+        guildCache.put(idLong, prefix)
+        prefix
       }
     }
   }
@@ -346,13 +345,13 @@ object BotUtils {
     }
   }
 
-  fun uploadFile(textChannel: TextChannel, file: File): Message? {
+  fun uploadFile(textChannel: TextChannel, file: File, filename: String): Message? {
     var msgResult: Message? = null
 
     FileInputStream(file).use {
       try {
         msgResult = textChannel
-          .sendFile(it, file.name)
+          .sendFile(it, filename)
           .complete()
       } catch (e: InsufficientPermissionException) {
         withLoggingContext("guild" to textChannel.guild.name, "text-channel" to textChannel.name) {

@@ -25,6 +25,8 @@ import tech.gdragon.data.Datastore
 import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.dao.Recording
+import tech.gdragon.db.dtf
+import tech.gdragon.db.nowUTC
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -64,7 +66,11 @@ class RecordingDisposable {
 
 data class RecordingQueue(val fileBuffer: File) : QueueFile(fileBuffer)
 
-class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceChannel, val defaultChannel: TextChannel) : AudioReceiveHandler, KoinComponent {
+class CombinedAudioRecorderHandler(
+  var volume: Double,
+  val voiceChannel: VoiceChannel,
+  val defaultChannel: TextChannel
+) : AudioReceiveHandler, KoinComponent {
   companion object {
     private const val AFK_MINUTES = 2
     private const val AFK_LIMIT = (AFK_MINUTES * 60 * 1000) / 20            // 2 minutes in ms over 20ms increments
@@ -122,7 +128,10 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
         logger.debug { "AFK detected." }
       }
 
-      BotUtils.sendMessage(defaultChannel, ":sleeping: _No audio detected in the last **$AFK_MINUTES** minutes, leaving **<#${voiceChannel.id}>**._")
+      BotUtils.sendMessage(
+        defaultChannel,
+        ":sleeping: _No audio detected in the last **$AFK_MINUTES** minutes, leaving **<#${voiceChannel.id}>**._"
+      )
       thread {
         val save = BotUtils.autoSave(voiceChannel.guild)
         BotUtils.leaveVoiceChannel(voiceChannel, defaultChannel, save)
@@ -227,7 +236,11 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
     return singleObservable
   }
 
-  fun saveRecording(voiceChannel: VoiceChannel?, textChannel: TextChannel, resumeRecording: Boolean = true): Pair<Recording?, Semaphore> {
+  fun saveRecording(
+    voiceChannel: VoiceChannel?,
+    textChannel: TextChannel,
+    resumeRecording: Boolean = true
+  ): Pair<Recording?, Semaphore> {
     canReceive = false
     val recordingLock = Semaphore(1, false)
     val recordingUUID = uuid
@@ -351,17 +364,22 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
         recordingRecord?.delete()
       }
     } else {
+      val filename = if (standalone) "${voiceChannel?.name}-${dtf.print(nowUTC())}.$fileFormat" else recording.name
       // Upload to Discord
       val attachment =
         if (recording.length() < DISCORD_MAX_RECORDING_SIZE) {
-          BotUtils.uploadFile(channel, recording)
+          BotUtils.uploadFile(channel, recording, filename)
             ?.attachments
             ?.first()
         } else null
 
       // Upload to Minio
       if (recording.length() in MIN_RECORDING_SIZE until MAX_RECORDING_SIZE || standalone) {
-        val recordingKey = "${channel.guild.id}/${recording.name}"
+        val recordingKey = if (standalone) {
+          "${channel.guild.id}/$filename"
+        } else {
+          "${channel.guild.id}/${recording.name}"
+        }
         try {
           val result = datastore.upload(recordingKey, recording)
 
@@ -388,7 +406,8 @@ class CombinedAudioRecorderHandler(var volume: Double, val voiceChannel: VoiceCh
             "Error uploading recording."
           }
 
-          val errorMessage = """|:no_entry_sign: _Error uploading recording, please visit support server and provide Session ID._
+          val errorMessage =
+            """|:no_entry_sign: _Error uploading recording, please visit support server and provide Session ID._
                                 |_Session ID: `$session`_
                                 |""".trimMargin()
 
