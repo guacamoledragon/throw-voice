@@ -7,13 +7,21 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 ## [Unreleased]
 
 ### Added
-- Display a warning about saving recording
-- Add Caching library to cache database requests for Guild prefix
 ### Changed
 ### Deprecated
 ### Removed
 ### Fixed
 ### Security
+
+## [2.9.2] - 2021-03-01
+
+### Added
+- Display a warning about saving recording
+- Add Caching library to cache database requests for Guild prefix
+
+### Changed
+- [Pawa Lite]: Recordings are uploaded using the following format
+  `<voice-channel>-yyyyMMdd'T'HHmmss.SSSZ` e.g. `bot-testing-20210302T182001.176-0800`
 
 ## [2.9.1] - 2021-01-29
 ### Changed
