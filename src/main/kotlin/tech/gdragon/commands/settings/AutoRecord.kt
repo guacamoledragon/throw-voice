@@ -12,6 +12,8 @@ import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
 
 class AutoRecord : CommandHandler() {
+  private val standalone = getKoin().getProperty<String>("BOT_STANDALONE").toBoolean()
+
   private fun updateChannelAutoJoin(channel: GuildChannel, autoRecord: Int?) {
     withLoggingContext("guild" to channel.guild.name, "text-channel" to channel.name) {
       channel.guild.run {
@@ -34,6 +36,13 @@ class AutoRecord : CommandHandler() {
    * TODO: Minor optimization, delete rows that have the defaults
    */
   override fun action(args: Array<String>, event: GuildMessageReceivedEvent) {
+    require(standalone) {
+      BotUtils.sendMessage(
+        event.channel,
+        ":no_entry_sign: _Command is currently disabled, please see https://pawa.im/#/commands for more information._"
+      )
+      return
+    }
     require(args.size >= 2) {
       throw InvalidCommand(::usage, "Incorrect number of arguments: ${args.size}")
     }

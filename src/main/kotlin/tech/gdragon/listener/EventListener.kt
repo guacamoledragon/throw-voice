@@ -25,7 +25,8 @@ import tech.gdragon.db.dao.Guild
 class EventListener : ListenerAdapter(), KoinComponent {
 
   private val logger = KotlinLogging.logger {}
-  val website: String = getKoin().getProperty("BOT_WEBSITE", "http://localhost:8080/")
+  private val website: String = getKoin().getProperty("BOT_WEBSITE", "http://localhost:8080/")
+  private val standalone = getKoin().getProperty<String>("BOT_STANDALONE").toBoolean()
 
   override fun onGuildJoin(event: GuildJoinEvent) {
     withLoggingContext("guild" to event.guild.name) {
@@ -86,7 +87,9 @@ class EventListener : ListenerAdapter(), KoinComponent {
       // Update activity
       BotUtils.updateActivity(event.guild)
 
-//      BotUtils.autoRecord(event.guild, event.channelJoined)
+      if (standalone) {
+        BotUtils.autoRecord(event.guild, event.channelJoined)
+      }
     }
   }
 
@@ -110,7 +113,9 @@ class EventListener : ListenerAdapter(), KoinComponent {
 
       if (BotUtils.isSelfBot(user).not()) {
         BotUtils.autoStop(event.guild, event.channelLeft)
-//        BotUtils.autoRecord(event.guild, event.channelJoined)
+        if (standalone) {
+          BotUtils.autoRecord(event.guild, event.channelJoined)
+        }
       }
     }
   }
@@ -129,7 +134,10 @@ class EventListener : ListenerAdapter(), KoinComponent {
       val hasPrefix = rawContent.startsWith(prefix)
 
       if (hasPrefix && inMaintenance) {
-        BotUtils.sendMessage(defaultChannel, ":poop: _Currently running an update...\n\nIf you have any questions please visit the support server: ${website}_")
+        BotUtils.sendMessage(
+          defaultChannel,
+          ":poop: _Currently running an update...\n\nIf you have any questions please visit the support server: ${website}_"
+        )
         logger.warn("Trying to use while running an update")
       } else if (hasPrefix)
         try {

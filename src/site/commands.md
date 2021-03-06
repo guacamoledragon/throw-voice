@@ -23,6 +23,8 @@ This is the full list of commands available, but on a daily basis, you wont need
 
 ## Supporter Commands: _Coming Soon!_
 
+### If you'd like to get notified, please sign up [>> here <<](notify.md)
+
 !> These aren't available yet, but just a preview of what they'll do.
 
 These are [supporter](https://github.com/sponsors/jvtrigueros) only commands.
