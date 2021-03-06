@@ -7,10 +7,18 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 ## [Unreleased]
 
 ### Added
+- [Pawa Lite]: `autorecord` command now works!
+
 ### Changed
+- Show warning when attempting to use `autorecord`
+
 ### Deprecated
+
 ### Removed
+
 ### Fixed
+- Open Graph meta tags now display proper information for links
+
 ### Security
 
 ## [2.9.2] - 2021-03-01
