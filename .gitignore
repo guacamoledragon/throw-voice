@@ -46,3 +46,6 @@ public
 prod-data
 local-data
 local-db
+*.mp3
+*.queue
+
