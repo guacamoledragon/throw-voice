@@ -8,7 +8,6 @@
   - [Configuration](configuration.md)
 
 - [Changelog](changelog.md)
-- [Pawa Lite](https://lite.pawa.im)
 ---
 - Alternatives
   - [vs. Craig](craig.md)
