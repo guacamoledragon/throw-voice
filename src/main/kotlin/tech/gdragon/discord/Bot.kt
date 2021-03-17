@@ -13,6 +13,7 @@ import org.koin.core.component.KoinComponent
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.audio.Clip
 import tech.gdragon.commands.audio.Save
+import tech.gdragon.commands.debug.Status
 import tech.gdragon.commands.misc.Help
 import tech.gdragon.commands.misc.Record
 import tech.gdragon.commands.misc.Stop
@@ -106,6 +107,9 @@ enum class Command {
   },
   SAVE {
     override val handler: CommandHandler = Save()
+  },
+  STATUS {
+    override val handler: CommandHandler = Status()
   },
   SAVELOCATION {
     override val handler: CommandHandler = SaveLocation()

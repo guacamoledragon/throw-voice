@@ -2,6 +2,7 @@
   (:import (tech.gdragon.discord Bot)
            (net.dv8tion.jda.api JDA)
            (net.dv8tion.jda.api.entities Guild TextChannel)
+           (net.dv8tion.jda.api.sharding DefaultShardManager)
            (com.squareup.tape QueueFile QueueFile$ElementReader)
            (java.io InputStream))
   (:require [clojure.java.io :as io]
@@ -10,6 +11,8 @@
 (use 'cl-java-introspector.core)
 
 (def ^Bot bot (get-obj "bot"))
+
+(def ^DefaultShardManager shard-manager (-> bot .api .getShardManager))
 
 (defn get-channel
   "Find Discord channel and return"
@@ -27,7 +30,8 @@
   (def channel (get-channel
                  (.api bot)
                  "Guacamole Dragon"
-                 "bot-testing")))
+                 "bot-testing"))
+  (send-message! channel "!status"))
 
 (comment (send-message! channel "Hello World!"))
 
@@ -50,7 +54,6 @@
   (use 'cl-java-introspector.core)
   (import '(net.dv8tion.jda.api.sharding DefaultShardManager))
   (def bot (get-obj "bot"))
-  (def ^DefaultShardManager shard-manager (-> bot .api .getShardManager))
 
   (import '(org.koin.core.context GlobalContext)
           '(net.dv8tion.jda.api.entities Activity)
@@ -89,7 +92,6 @@
 
   (comment
     (doseq [shard (.getShards shard-manager)]
-      (print (.getShardInfo shard) (.getStatus shard) ": ")
-      (println (.getGuildById shard 408795211901173762)))
+      (println (.getShardInfo shard) (.getStatus shard) ": "))
 
-    (.restart shard-manager)))
+    (.restart shard-manager 8)))
