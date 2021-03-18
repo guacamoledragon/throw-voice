@@ -327,6 +327,15 @@ object BotUtils {
     }
   }
 
+  fun sendEmbedMessage(textChannel: MessageChannel, embedMessage: MessageEmbed) {
+    textChannel
+      .sendMessage(embedMessage)
+      .queue(
+        { m -> logger.debug { "Send message - ${m.contentDisplay}" } },
+        { t -> logger.error { "Error sending message - $embedMessage.: ${t.message}" } }
+      )
+  }
+
   /**
    * Using an LRU cache, update activity if not in cache, this is not thread safe but also non-critical so wutevs
    */
