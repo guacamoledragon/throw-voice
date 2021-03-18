@@ -1,15 +1,17 @@
 (ns repl
   (:import (tech.gdragon.discord Bot)
-           (net.dv8tion.jda.api JDA)
+           (net.dv8tion.jda.api JDA JDA$Status EmbedBuilder JDA$ShardInfo)
            (net.dv8tion.jda.api.entities Guild TextChannel)
-           (com.squareup.tape QueueFile QueueFile$ElementReader)
-           (java.io InputStream))
+           (net.dv8tion.jda.api.sharding DefaultShardManager)
+           (com.squareup.tape QueueFile QueueFile$ElementReader))
   (:require [clojure.java.io :as io]
             [clojure.string :as str]))
 
 (use 'cl-java-introspector.core)
 
 (def ^Bot bot (get-obj "bot"))
+
+(def ^DefaultShardManager shard-manager (-> bot .api .getShardManager))
 
 (defn get-channel
   "Find Discord channel and return"
@@ -23,13 +25,47 @@
   [^TextChannel channel message]
   (.. channel (sendMessage message) (queue)))
 
+(defn set-embed-fields!
+  [^EmbedBuilder builder fields]
+  (reduce
+    (fn [^EmbedBuilder b field]
+      (let [{:keys [title text inline?] :or {text "" inline? false}} field]
+        (.addField b title text inline?)))
+    builder
+    fields))
+
+(defn send-embed!
+  "Send an embed message"
+  [^TextChannel channel embed-map]
+  (let [^EmbedBuilder builder (EmbedBuilder.)
+        {:keys [description fields title]} embed-map
+        message-embed         (cond-> builder
+                                      title (.setTitle title)
+                                      description (.setDescription description)
+                                      fields (set-embed-fields! fields)
+                                      true (.build))]
+    (.. channel (sendMessage message-embed) (queue))))
+
+(defn shard->field
+  "Convert ShardInfo to field map."
+  [^JDA shard]
+  (let [status (.getStatus shard)
+        emoji  (if (< 7 (.ordinal status)) ":x:" ":white_check_mark:")]
+    {:title   (str emoji " " (.. shard getShardInfo getShardString))
+     :text    (.toString status)
+     :inline? true}))
+
 (comment
   (def channel (get-channel
                  (.api bot)
                  "Guacamole Dragon"
-                 "bot-testing")))
+                 "bot-testing"))
+  (send-message! channel "!status")
 
-(comment (send-message! channel "Hello World!"))
+  (let [fields (mapv shard->field (reverse (.getShards shard-manager)))]
+    (send-embed! channel {:title       ":fleur_de_lis: Bot Status"
+                          :description "Summary of @pawa's status."
+                          :fields      fields})))
 
 (defn queue->mp3
   "Create MP3 from Queue file"
@@ -50,7 +86,6 @@
   (use 'cl-java-introspector.core)
   (import '(net.dv8tion.jda.api.sharding DefaultShardManager))
   (def bot (get-obj "bot"))
-  (def ^DefaultShardManager shard-manager (-> bot .api .getShardManager))
 
   (import '(org.koin.core.context GlobalContext)
           '(net.dv8tion.jda.api.entities Activity)
@@ -89,7 +124,6 @@
 
   (comment
     (doseq [shard (.getShards shard-manager)]
-      (print (.getShardInfo shard) (.getStatus shard) ": ")
-      (println (.getGuildById shard 408795211901173762)))
+      (println (.getShardInfo shard) (.getStatus shard) ": "))
 
-    (.restart shard-manager)))
+    (.restart shard-manager 8)))
