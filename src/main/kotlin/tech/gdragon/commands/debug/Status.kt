@@ -34,6 +34,7 @@ class Status : CommandHandler() {
 
     shardManager
       ?.shards
+      ?.reversed()
       ?.fold(embedBuilder, ::addShardStatusField)
       ?.build()
       ?.let { embed ->
