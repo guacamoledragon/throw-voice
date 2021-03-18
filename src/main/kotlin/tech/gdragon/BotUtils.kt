@@ -28,7 +28,10 @@ import net.dv8tion.jda.api.entities.Guild as DiscordGuild
 object BotUtils {
   private val logger = KotlinLogging.logger {}
 
-  private val guildActivity = PassiveExpiringMap<Long, DateTime>(1L, TimeUnit.HOURS)
+  private val guildActivityCache = Caffeine.newBuilder()
+    .expireAfterWrite(1L, TimeUnit.HOURS)
+    .softValues()
+    .build<Long, DateTime>()
 
   val guildCache = Caffeine.newBuilder()
     .build<Long, String>()
@@ -340,16 +343,16 @@ object BotUtils {
    * Using an LRU cache, update activity if not in cache, this is not thread safe but also non-critical so wutevs
    */
   fun updateActivity(guild: DiscordGuild): Unit {
-    if (guildActivity[guild.idLong] == null) {
+    if (guildActivityCache.getIfPresent(guild.idLong) == null) {
       // Update Guild name if necessary
       updateGuildName(guild)
 
       // Update LRU
-      guildActivity[guild.idLong] = nowUTC()
+      guildActivityCache.put(guild.idLong, nowUTC())
 
       // Update active on timestamp
       asyncTransaction {
-        Guild[guild.idLong].lastActiveOn = guildActivity[guild.idLong]!!
+        Guild[guild.idLong].lastActiveOn = guildActivityCache.getIfPresent(guild.idLong)!!
       }
     }
   }
