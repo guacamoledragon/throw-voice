@@ -1,10 +1,9 @@
 (ns repl
   (:import (tech.gdragon.discord Bot)
-           (net.dv8tion.jda.api JDA)
+           (net.dv8tion.jda.api JDA JDA$Status EmbedBuilder JDA$ShardInfo)
            (net.dv8tion.jda.api.entities Guild TextChannel)
            (net.dv8tion.jda.api.sharding DefaultShardManager)
-           (com.squareup.tape QueueFile QueueFile$ElementReader)
-           (java.io InputStream))
+           (com.squareup.tape QueueFile QueueFile$ElementReader))
   (:require [clojure.java.io :as io]
             [clojure.string :as str]))
 
@@ -26,14 +25,47 @@
   [^TextChannel channel message]
   (.. channel (sendMessage message) (queue)))
 
+(defn set-embed-fields!
+  [^EmbedBuilder builder fields]
+  (reduce
+    (fn [^EmbedBuilder b field]
+      (let [{:keys [title text inline?] :or {text "" inline? false}} field]
+        (.addField b title text inline?)))
+    builder
+    fields))
+
+(defn send-embed!
+  "Send an embed message"
+  [^TextChannel channel embed-map]
+  (let [^EmbedBuilder builder (EmbedBuilder.)
+        {:keys [description fields title]} embed-map
+        message-embed         (cond-> builder
+                                      title (.setTitle title)
+                                      description (.setDescription description)
+                                      fields (set-embed-fields! fields)
+                                      true (.build))]
+    (.. channel (sendMessage message-embed) (queue))))
+
+(defn shard->field
+  "Convert ShardInfo to field map."
+  [^JDA shard]
+  (let [status (.getStatus shard)
+        emoji  (if (< 7 (.ordinal status)) ":x:" ":white_check_mark:")]
+    {:title   (str emoji " " (.. shard getShardInfo getShardString))
+     :text    (.toString status)
+     :inline? true}))
+
 (comment
   (def channel (get-channel
                  (.api bot)
                  "Guacamole Dragon"
                  "bot-testing"))
-  (send-message! channel "!status"))
+  (send-message! channel "!status")
 
-(comment (send-message! channel "Hello World!"))
+  (let [fields (mapv shard->field (reverse (.getShards shard-manager)))]
+    (send-embed! channel {:title       ":fleur_de_lis: Bot Status"
+                          :description "Summary of @pawa's status."
+                          :fields      fields})))
 
 (defn queue->mp3
   "Create MP3 from Queue file"
