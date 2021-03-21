@@ -1,7 +1,7 @@
 (ns repl
   (:import (tech.gdragon.discord Bot)
            (net.dv8tion.jda.api JDA JDA$Status EmbedBuilder JDA$ShardInfo)
-           (net.dv8tion.jda.api.entities Guild TextChannel)
+           (net.dv8tion.jda.api.entities Activity Activity$ActivityType Guild TextChannel)
            (net.dv8tion.jda.api.sharding DefaultShardManager)
            (com.squareup.tape QueueFile QueueFile$ElementReader))
   (:require [clojure.java.io :as io]
@@ -55,12 +55,19 @@
      :text    (.toString status)
      :inline? true}))
 
+(defn print-shard-status
+  "docstring"
+  [^DefaultShardManager shard-manager]
+  (doseq [shard (.getShards shard-manager)]
+    (println (.getShardInfo shard) (.getStatus shard) ": ")))
+
 (comment
   (def channel (get-channel
                  (.api bot)
                  "Guacamole Dragon"
                  "bot-testing"))
   (send-message! channel "!status")
+  (.queue (.leave (first (.getGuildsByName shard-manager "Kiinan Työsuojeluviranomainen [https://discord.gg/RWgNRj7]" true))))
 
   (let [fields (mapv shard->field (reverse (.getShards shard-manager)))]
     (send-embed! channel {:title       ":fleur_de_lis: Bot Status"
@@ -76,6 +83,15 @@
                              (read [this is length]
                                (.transferTo is os)))))))
 
+(defn set-activity
+  "Set bot's activity"
+  [^Bot bot activity]
+  (let [activity (Activity/of
+                   Activity$ActivityType/DEFAULT
+                   (str "2.9.2 | https://pawa.im")
+                   activity)]
+    (.. bot api getPresence (setActivity activity))))
+
 (comment
   (let [jda           (.api bot)
         guild         (first (.getGuildsByName jda "Guacamole Dragon" true))
@@ -87,9 +103,7 @@
   (import '(net.dv8tion.jda.api.sharding DefaultShardManager))
   (def bot (get-obj "bot"))
 
-  (import '(org.koin.core.context GlobalContext)
-          '(net.dv8tion.jda.api.entities Activity)
-          '(net.dv8tion.jda.api.entities Activity$ActivityType))
+  (import '(org.koin.core.context GlobalContext))
 
   ;(.setProperty (.get (GlobalContext/INSTANCE)) "MAINTENANCE" "true")
 
@@ -98,32 +112,11 @@
     [jda]
     (let [shard-manager (.getShardManager jda)]))
 
-
-  (def activity
-    (Activity/of
-      Activity$ActivityType/DEFAULT
-      (str "2.9.1 | https://pawa.im")
-      "https://pawa.im"))
-
   (comment
-    ;; Set pawa's status
-    (-> bot
-        .api
-        .getPresence
-        (.setActivity activity)))
+    (print-shard-status shard-manager)
 
-  (comment
-    (require '[criterium.core :as crit])
-    (import '(org.jetbrains.exposed.sql.transactions ThreadLocalTransactionManagerKt)
-            '(kotlin.jvm.functions Function1)
-            '(tech.gdragon BotUtils))
-    (let [guild (.getGuildById shard-manager 333055724198559745)]
-      (crit/with-progress-reporting
-        (crit/bench
-          (.getPrefix BotUtils/INSTANCE guild)))))
-
-  (comment
-    (doseq [shard (.getShards shard-manager)]
-      (println (.getShardInfo shard) (.getStatus shard) ": "))
-
-    (.restart shard-manager 8)))
+    (do (.start shard-manager 8)
+        (.start shard-manager 7))
+    (do (.start shard-manager 6)
+        (.start shard-manager 5))
+    (.start shard-manager 4)))
