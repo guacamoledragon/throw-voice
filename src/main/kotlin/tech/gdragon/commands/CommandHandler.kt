@@ -1,6 +1,7 @@
 package tech.gdragon.commands
 
 import mu.KotlinLogging
+import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.component.KoinComponent
@@ -9,6 +10,8 @@ import tech.gdragon.discord.Command
 
 abstract class CommandHandler : KoinComponent {
   protected val logger = KotlinLogging.logger {}
+
+  var _message: Message? = null
 
   @Throws(InvalidCommand::class)
   abstract fun action(args: Array<String>, event: GuildMessageReceivedEvent)
@@ -20,7 +23,7 @@ abstract class CommandHandler : KoinComponent {
 data class InvalidCommand(val usage: (String) -> String, val reason: String) : Throwable()
 
 @Throws(InvalidCommand::class)
-fun handleCommand(event: GuildMessageReceivedEvent, prefix: String, rawInput: String) {
+fun handleCommand(event: GuildMessageReceivedEvent, prefix: String, rawInput: String, message: Message) {
   val tokens = rawInput.substring(prefix.length).split(" ")
   val rawCommand = tokens.first()
   val args = tokens.drop(1).toTypedArray()
@@ -34,5 +37,8 @@ fun handleCommand(event: GuildMessageReceivedEvent, prefix: String, rawInput: St
       ?.let { Command.valueOf(it.name) }
   }
 
-  command?.handler?.action(args, event)
+  command?.handler?.let {
+    it._message = message
+    it.action(args, event)
+  }
 }
