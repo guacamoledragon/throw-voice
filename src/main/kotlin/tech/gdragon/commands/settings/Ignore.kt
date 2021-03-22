@@ -21,20 +21,20 @@ class Silence : CommandHandler() {
 
     if (isRecording) {
       val handler = audioManager.receivingHandler as? CombinedAudioRecorderHandler
-      val ignoredUsers = _message
-        ?.mentionedUsers
-        ?.mapNotNull {
+      val ignoredUsers = event.message
+        .mentionedUsers
+        .mapNotNull {
           val isSuccess = handler?.silenceUser(it) ?: false
           if (isSuccess) it else null
         }
-        ?.joinToString { it.asMention }
+        .joinToString { it.asMention }
       BotUtils.sendMessage(event.channel, ":hear_no_evil: _Ignoring the following users: ${ignoredUsers}_")
     } else {
-      BotUtils.sendMessage(event.channel, ":no_entry_sign: _Didn't ignore any users._")
+      BotUtils.sendMessage(event.channel, ":no_entry_sign: _Can't use command if not recording._")
     }
   }
 
-  override fun usage(prefix: String): String = "${prefix}silence bot#0000"
+  override fun usage(prefix: String): String = "${prefix}ignore @bot1 @bot2"
 
   override fun description(): String = "Ignores audio from a Bot during a recording session."
 

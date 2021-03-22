@@ -141,7 +141,7 @@ class EventListener : ListenerAdapter(), KoinComponent {
         logger.warn("Trying to use while running an update")
       } else if (hasPrefix)
         try {
-          handleCommand(event, prefix, rawContent, event.message)
+          handleCommand(event, prefix, rawContent)
           // Update activity
           BotUtils.updateActivity(event.guild)
         } catch (e: InvalidCommand) {

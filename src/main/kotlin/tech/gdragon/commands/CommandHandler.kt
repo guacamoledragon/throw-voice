@@ -23,7 +23,7 @@ abstract class CommandHandler : KoinComponent {
 data class InvalidCommand(val usage: (String) -> String, val reason: String) : Throwable()
 
 @Throws(InvalidCommand::class)
-fun handleCommand(event: GuildMessageReceivedEvent, prefix: String, rawInput: String, message: Message) {
+fun handleCommand(event: GuildMessageReceivedEvent, prefix: String, rawInput: String) {
   val tokens = rawInput.substring(prefix.length).split(" ")
   val rawCommand = tokens.first()
   val args = tokens.drop(1).toTypedArray()
@@ -37,8 +37,5 @@ fun handleCommand(event: GuildMessageReceivedEvent, prefix: String, rawInput: St
       ?.let { Command.valueOf(it.name) }
   }
 
-  command?.handler?.let {
-    it._message = message
-    it.action(args, event)
-  }
+  command?.handler?.action(args, event)
 }
