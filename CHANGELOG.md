@@ -10,6 +10,8 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 - [Pawa Lite]: `autorecord` command now works!
 - `status` command
   Mainly for debugging purposes and only accessible to me, this shows the status of the shards
+- `ignore` command
+  Removes other bots from recording session
 
 ### Changed
 - Show warning when attempting to use `autorecord`
