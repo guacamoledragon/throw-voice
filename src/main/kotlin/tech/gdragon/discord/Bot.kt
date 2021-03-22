@@ -108,6 +108,9 @@ enum class Command {
   SAVE {
     override val handler: CommandHandler = Save()
   },
+  SILENCE {
+    override val handler: CommandHandler = Silence()
+  },
   STATUS {
     override val handler: CommandHandler = Status()
   },

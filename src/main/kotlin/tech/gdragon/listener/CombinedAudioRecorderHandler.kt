@@ -14,6 +14,7 @@ import net.dv8tion.jda.api.audio.AudioReceiveHandler
 import net.dv8tion.jda.api.audio.CombinedAudio
 import net.dv8tion.jda.api.audio.UserAudio
 import net.dv8tion.jda.api.entities.TextChannel
+import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.entities.VoiceChannel
 import org.apache.commons.io.FileUtils
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -103,9 +104,10 @@ class CombinedAudioRecorderHandler(
 
   private var filename: String? = null
 
-  //  private var queueFilename: String? = null
   private var recordingSize: Long = 0
   private var limitWarning: Boolean = false
+
+  private var silencedUsers: MutableSet<Long> = mutableSetOf()
 
   val session: String
     get() = uuid.toString()
@@ -489,6 +491,8 @@ class CombinedAudioRecorderHandler(
       logger.warn { "Could not delete file ${recording.name}." }
   }
 
+  fun silenceUser(user: User) = silencedUsers.add(user.idLong)
+
   override fun canReceiveUser(): Boolean = false
 
   override fun canReceiveCombined(): Boolean = canReceive
@@ -497,5 +501,7 @@ class CombinedAudioRecorderHandler(
     subject?.onNext(combinedAudio)
   }
 
-  override fun handleUserAudio(userAudio: UserAudio) = TODO("Not implemented.")
+  override fun includeUserInCombinedAudio(user: User): Boolean {
+    return !silencedUsers.contains(user.idLong)
+  }
 }
