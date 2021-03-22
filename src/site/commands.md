@@ -12,6 +12,7 @@ This is the full list of commands available, but on a daily basis, you wont need
 |         [autostop](commands/autostop.md) | Configure the number of users in a voice channel before [pawa](https://pawa.im) stops recording |
 |         [autosave](commands/autosave.md) | Automatically save recording                                                                    |
 |                                     help | Sends you a DM with these commands, including any [alias](commands/alias.md)es                  |
+|      [ignore (beta)](commands/ignore.md) | Ignore a bot during recording session.                                                          |
 |             [record](commands/record.md) | Start recording                                                                                 |
 |                 [stop](commands/stop.md) | Stop recording                                                                                  |
 |             [prefix](commands/prefix.md) | Change prefix                                                                                   |
