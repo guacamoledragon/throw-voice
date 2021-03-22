@@ -6,11 +6,13 @@ import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.listener.CombinedAudioRecorderHandler
 
-class Silence : CommandHandler() {
+class Ignore : CommandHandler() {
   override fun action(args: Array<String>, event: GuildMessageReceivedEvent) {
     require(args.isNotEmpty()) {
       throw InvalidCommand(::usage, "Incorrect number of arguments: ${args.size}")
     }
+
+    BotUtils.sendMessage(event.channel, ":construction: _Command currently in beta, use at your own discretion!_")
 
     val audioManager = event.guild.audioManager
 
