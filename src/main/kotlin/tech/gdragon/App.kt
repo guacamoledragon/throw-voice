@@ -16,6 +16,8 @@ import tech.gdragon.discord.Bot
 import tech.gdragon.koin.getBooleanProperty
 import tech.gdragon.koin.getStringProperty
 import tech.gdragon.koin.overrideFileProperties
+import tech.gdragon.metrics.EventTracer
+import tech.gdragon.metrics.Honey
 import tech.gdragon.repl.REPL
 import java.io.IOException
 import java.nio.file.Files
@@ -95,6 +97,9 @@ fun main() {
           it.server.start()
         }
       }
+      single {
+        Honey(getProperty("TRACING_API_KEY"))
+      }
     }
     modules(
       databaseModule,
@@ -127,7 +132,9 @@ fun main() {
               .filter(String::isNotEmpty)
               .map(String::toLong)
 
-            BotUtils.leaveInactiveGuilds(jda, afterDays, whitelist)
+            val inactiveGuilds = BotUtils.leaveInactiveGuilds(jda, afterDays, whitelist)
+
+            app.koin.get<EventTracer>().sendEvent(mapOf("inactive-guilds" to inactiveGuilds))
           }
         }
       logger.info {

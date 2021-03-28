@@ -52,6 +52,11 @@
       <version>2.0.6</version>
     </dependency>
     <dependency>
+      <groupId>io.honeycomb.libhoney</groupId>
+      <artifactId>libhoney-java</artifactId>
+      <version>1.0.9</version>
+    </dependency>
+    <dependency>
       <groupId>io.minio</groupId>
       <artifactId>minio</artifactId>
       <version>8.1.0</version>

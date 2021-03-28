@@ -1,4 +1,4 @@
-cache:
+cache: &global_cache
   paths:
     - .m2/
 

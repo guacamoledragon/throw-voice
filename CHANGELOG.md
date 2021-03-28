@@ -12,6 +12,7 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
   Mainly for debugging purposes and only accessible to me, this shows the status of the shards
 - `ignore` command
   Removes other bots from recording session
+- Add LibHoney dependency to track events, doesn't contain any user or guild data
 
 ### Changed
 - Show warning when attempting to use `autorecord`

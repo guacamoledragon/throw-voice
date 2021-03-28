@@ -180,7 +180,7 @@ object BotUtils {
    * In the past, I've been deleting the Guild from the database, but that makes things annoying when you rejoin.
    * For now, we'll just be leaving a Guild, but keeping the settings.
    */
-  fun leaveInactiveGuilds(jda: JDA, afterDays: Int, whitelist: List<Long>) {
+  fun leaveInactiveGuilds(jda: JDA, afterDays: Int, whitelist: List<Long>): Int {
     logger.info { "Leaving all Guilds that haven't been active in the past $afterDays days." }
     val op: SqlExpressionBuilder.() -> Op<Boolean> = {
       val now = DateTime.now()
@@ -227,6 +227,8 @@ object BotUtils {
     /*transaction {
       Guilds.deleteWhere(op = op)
     }*/
+
+    return guilds.size
   }
 
   /**
