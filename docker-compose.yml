@@ -38,6 +38,7 @@ services:
       - DS_HOST=${DS_HOST}
       - DS_SECRET_KEY=${DS_SECRET_KEY}
       - OVERRIDE_FILE=${OVERRIDE_FILE}
+      - TRACING_API_KEY=${TRACING_API_KEY}
       - TZ=${TZ}
       - JAVA_TOOL_OPTIONS=-Dlog4j.configurationFile=log4j2-prod.xml
                           -XX:MinRAMPercentage=${JVM_MIN_RAM_PERCENTAGE}
