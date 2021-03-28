@@ -11,7 +11,7 @@
   </scm>
 
   <properties>
-    <jda.version>4.2.0_247</jda.version>
+    <jda.version>4.2.0_252</jda.version>
     <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
     <kotlin.compiler.jvmTarget>11</kotlin.compiler.jvmTarget>
     <kotlin.version>1.4.32</kotlin.version>
@@ -298,6 +298,11 @@
         <enabled>false</enabled>
       </snapshots>
       <url>http://dl.bintray.com/kotlin/exposed</url>
+    </repository>
+    <repository>
+      <id>dv8tion</id>
+      <name>m2-dv8tion</name>
+      <url>https://m2.dv8tion.net/releases</url>
     </repository>
     <repository>
       <id>jcenter</id>
