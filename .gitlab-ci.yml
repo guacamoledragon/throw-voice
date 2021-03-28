@@ -1,4 +1,4 @@
-cache: &global_cache
+cache:
   paths:
     - .m2/
 
@@ -8,17 +8,24 @@ variables:
 
 build:
   image: maven:3.6-jdk-11
+  only:
+    changes: &code-changes
+      - Dockerfile
+      - src/main/**/*
   script:
     - mvn -B de.qaware.maven:go-offline-maven-plugin:resolve-dependencies
     - mvn test
   stage: build
+
 
 container:
   image: docker:20.10.1
   cache: {}
   rules:
     - if: $CI_COMMIT_REF_NAME == 'master'
+      changes: *code-changes
     - if: $CI_COMMIT_TAG
+      changes: *code-changes
   services:
     - docker:20.10.1-dind
   script:
@@ -55,4 +62,8 @@ pages:
   stage: deploy
   rules:
     - if: $CI_COMMIT_REF_NAME == 'master'
+      changes:
+        - src/main/site/**/*
     - if: $CI_COMMIT_TAG
+      changes:
+        - src/main/site/**/*
