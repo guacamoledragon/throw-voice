@@ -11,6 +11,7 @@ build:
   only:
     changes: &code-changes
       - Dockerfile
+      - pom.xml
       - src/main/**/*
   script:
     - mvn -B de.qaware.maven:go-offline-maven-plugin:resolve-dependencies
@@ -61,7 +62,9 @@ pages:
   rules:
     - if: $CI_COMMIT_REF_NAME == 'master'
       changes:
+        - CHANGELOG.md
         - src/main/site/**/*
     - if: $CI_COMMIT_TAG
       changes:
+        - CHANGELOG.md
         - src/main/site/**/*
