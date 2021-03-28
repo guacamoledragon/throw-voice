@@ -97,7 +97,7 @@ fun main() {
           it.server.start()
         }
       }
-      single {
+      single<EventTracer>(createdAtStart = true) {
         Honey(getProperty("TRACING_API_KEY"))
       }
     }
