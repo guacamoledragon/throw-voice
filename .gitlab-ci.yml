@@ -55,8 +55,6 @@ pages:
     paths:
       - public
   cache: {}
-  dependencies:
-    - build
   script:
     - cp -r src/site/ public
   stage: deploy
