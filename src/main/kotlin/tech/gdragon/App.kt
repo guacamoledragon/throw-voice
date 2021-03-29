@@ -18,6 +18,7 @@ import tech.gdragon.koin.getStringProperty
 import tech.gdragon.koin.overrideFileProperties
 import tech.gdragon.metrics.EventTracer
 import tech.gdragon.metrics.Honey
+import tech.gdragon.metrics.NoHoney
 import tech.gdragon.repl.REPL
 import java.io.IOException
 import java.nio.file.Files
@@ -98,7 +99,11 @@ fun main() {
         }
       }
       single<EventTracer>(createdAtStart = true) {
-        Honey(getProperty("TRACING_API_KEY"))
+        if(koin.getBooleanProperty("BOT_STANDALONE"))
+          NoHoney()
+        else
+          Honey(getProperty("TRACING_API_KEY"))
+
       }
     }
     modules(
