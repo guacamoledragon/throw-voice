@@ -16,6 +16,8 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 
 ### Changed
 - Show warning when attempting to use `autorecord`
+- [Pawa Lite]: `record` command now also takes an argument that allows caller to record a voice
+  channel without being in it
 
 ### Deprecated
 

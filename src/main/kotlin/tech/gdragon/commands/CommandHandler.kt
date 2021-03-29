@@ -10,6 +10,7 @@ import tech.gdragon.metrics.EventTracer
 
 abstract class CommandHandler : KoinComponent {
   protected val logger = KotlinLogging.logger {}
+  protected val standalone = getKoin().getProperty<String>("BOT_STANDALONE").toBoolean()
 
   val tracer: EventTracer = getKoin().get()
 

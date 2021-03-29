@@ -12,8 +12,6 @@ import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
 
 class AutoRecord : CommandHandler() {
-  private val standalone = getKoin().getProperty<String>("BOT_STANDALONE").toBoolean()
-
   private fun updateChannelAutoJoin(channel: GuildChannel, autoRecord: Int?) {
     withLoggingContext("guild" to channel.guild.name, "text-channel" to channel.name) {
       channel.guild.run {

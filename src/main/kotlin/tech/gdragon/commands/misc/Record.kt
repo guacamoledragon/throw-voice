@@ -1,6 +1,7 @@
 package tech.gdragon.commands.misc
 
 import mu.withLoggingContext
+import net.dv8tion.jda.api.entities.VoiceChannel
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import tech.gdragon.BotUtils
 import tech.gdragon.commands.CommandHandler
@@ -9,18 +10,24 @@ import java.lang.IllegalArgumentException
 
 class Record : CommandHandler() {
   override fun action(args: Array<String>, event: GuildMessageReceivedEvent) {
-    require(args.isEmpty()) {
+    require(standalone || args.isEmpty()) {
       throw InvalidCommand(::usage, "Incorrect number of arguments: ${args.size}")
     }
 
     val defaultChannel = BotUtils.defaultTextChannel(event.guild) ?: event.channel
-    val voiceChannel = event.member?.voiceState?.channel
+    val voiceChannel: VoiceChannel? = if (standalone && args.isNotEmpty()) {
+      event.jda.getVoiceChannelsByName(args.joinToString(separator = " "), false)
+        .firstOrNull()
+        ?: event.member?.voiceState?.channel
+    } else {
+      event.member?.voiceState?.channel
+    }
     val message: String? =
       if (voiceChannel == null) {
         ":no_entry_sign: _Please join a voice channel before using this command._"
       } else {
         val connectedChannel = event.guild.audioManager.connectedChannel
-        if (connectedChannel != null && connectedChannel.members.contains(event.member)) {
+        if (connectedChannel != null && (connectedChannel.members.contains(event.member) || standalone)) {
           ":no_entry_sign: _I am already in **<#${connectedChannel.id}>**._"
         } else {
           // This is where the happy path logic begins
