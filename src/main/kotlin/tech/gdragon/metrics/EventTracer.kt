@@ -25,3 +25,9 @@ class Honey(apiKey: String) : EventTracer {
       .send()
   }
 }
+
+class NoHoney() : EventTracer {
+  override fun sendEvent(fields: Map<String, Any>) {
+    // No Op
+  }
+}
