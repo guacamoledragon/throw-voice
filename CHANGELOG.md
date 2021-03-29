@@ -13,6 +13,7 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 - `ignore` command
   Removes other bots from recording session
 - Add LibHoney dependency to track events, doesn't contain any user or guild data
+  No tracking for [Pawa Lite]
 
 ### Changed
 - Show warning when attempting to use `autorecord`
