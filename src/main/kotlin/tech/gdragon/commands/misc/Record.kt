@@ -15,8 +15,7 @@ class Record : CommandHandler() {
     }
 
     val defaultChannel = BotUtils.defaultTextChannel(event.guild) ?: event.channel
-    val voiceChannel: VoiceChannel? = if (standalone) {
-      logger.info { args.joinToString(separator = " ") }
+    val voiceChannel: VoiceChannel? = if (standalone && args.isNotEmpty()) {
       event.jda.getVoiceChannelsByName(args.joinToString(separator = " "), false)
         .firstOrNull()
         ?: event.member?.voiceState?.channel
@@ -28,7 +27,7 @@ class Record : CommandHandler() {
         ":no_entry_sign: _Please join a voice channel before using this command._"
       } else {
         val connectedChannel = event.guild.audioManager.connectedChannel
-        if (connectedChannel != null && connectedChannel.members.contains(event.member)) {
+        if (connectedChannel != null && (connectedChannel.members.contains(event.member) || standalone)) {
           ":no_entry_sign: _I am already in **<#${connectedChannel.id}>**._"
         } else {
           // This is where the happy path logic begins
