@@ -7,6 +7,21 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 ## [Unreleased]
 
 ### Added
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+
+
+## [2.9.3]
+
+### Added
 - [Pawa Lite]: `autorecord` command now works!
 - `status` command
   Mainly for debugging purposes and only accessible to me, this shows the status of the shards
@@ -20,14 +35,8 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 - [Pawa Lite]: `record` command now also takes an argument that allows caller to record a voice
   channel without being in it
 
-### Deprecated
-
-### Removed
-
 ### Fixed
 - Open Graph meta tags now display proper information for links
-
-### Security
 
 ## [2.9.2] - 2021-03-01
 
@@ -56,6 +65,8 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 - Remove recording limits and warnings
 
 [Pawa Lite]: https://lite.pawa.im
-[Unreleased]: https://gitlab.com/pawabot/pawa/-/compare/v2.9.1...master
+[Unreleased]: https://gitlab.com/pawabot/pawa/-/compare/v2.9.3...master
+[2.9.3]: https://gitlab.com/pawabot/pawa/-/compare/v2.9.2...v2.9.3
+[2.9.2]: https://gitlab.com/pawabot/pawa/-/compare/v2.9.1...v2.9.2
 [2.9.1]: https://gitlab.com/pawabot/pawa/-/compare/98653c...v2.9.1
 [2.9.0]: https://gitlab.com/pawabot/pawa/-/compare/5c097e...98653c
