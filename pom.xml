@@ -106,7 +106,7 @@
     <dependency>
       <groupId>org.jetbrains.exposed</groupId>
       <artifactId>exposed</artifactId>
-      <version>0.17.9</version>
+      <version>0.17.13</version>
       <exclusions>
         <exclusion>
           <groupId>org.jetbrains.kotlin</groupId>
