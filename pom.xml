@@ -354,6 +354,7 @@
                       <exclude>org.clojure:clojure</exclude>
                       <exclude>org.clojure:tools.nrepl</exclude>
                       <exclude>org.nanohttpd:nanohttpd</exclude>
+                      <exclude>io.honeycomb.libhoney:libhoney-java</exclude>
                     </excludes>
                   </artifactSet>
                   <filters>
