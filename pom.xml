@@ -11,7 +11,7 @@
   </scm>
 
   <properties>
-    <jda.version>4.2.0_252</jda.version>
+    <jda.version>4.2.0_DEV</jda.version>
     <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
     <kotlin.compiler.jvmTarget>11</kotlin.compiler.jvmTarget>
     <kotlin.version>1.4.32</kotlin.version>
