@@ -19,6 +19,10 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 
 ### Security
 
+## [2.9.4]
+
+### Changed
+- [Pawa Lite]: Will not leave voice channel when there's no voice activity.
 
 ## [2.9.3]
 
@@ -65,9 +69,10 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 ### Fixed
 - Remove recording limits and warnings
 
-[Pawa Lite]: https://lite.pawa.im
-[Unreleased]: https://gitlab.com/pawabot/pawa/-/compare/v2.9.3...master
+[Unreleased]: https://gitlab.com/pawabot/pawa/-/compare/v2.9.4...master
+[2.9.4]: https://gitlab.com/pawabot/pawa/-/compare/v2.9.3...v2.9.4
 [2.9.3]: https://gitlab.com/pawabot/pawa/-/compare/v2.9.2...v2.9.3
 [2.9.2]: https://gitlab.com/pawabot/pawa/-/compare/v2.9.1...v2.9.2
 [2.9.1]: https://gitlab.com/pawabot/pawa/-/compare/98653c...v2.9.1
 [2.9.0]: https://gitlab.com/pawabot/pawa/-/compare/5c097e...98653c
+[Pawa Lite]: https://lite.pawa.im
