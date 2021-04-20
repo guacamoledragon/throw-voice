@@ -121,26 +121,30 @@ class CombinedAudioRecorderHandler(
    * side effects and triggers messages outside of the scope
    */
   private fun isAfk(userCount: Int): Boolean {
-    if (userCount == 0) afkCounter++ else afkCounter = 0
+    if (standalone) {
+      return false
+    } else {
+      if (userCount == 0) afkCounter++ else afkCounter = 0
 
-    val isAfk = afkCounter >= AFK_LIMIT
+      val isAfk = afkCounter >= AFK_LIMIT
 
-    if (isAfk) {
-      withLoggingContext("guild" to voiceChannel.guild.name, "voice-channel" to voiceChannel.name) {
-        logger.debug { "AFK detected." }
+      if (isAfk) {
+        withLoggingContext("guild" to voiceChannel.guild.name, "voice-channel" to voiceChannel.name) {
+          logger.debug { "AFK detected." }
+        }
+
+        BotUtils.sendMessage(
+          defaultChannel,
+          ":sleeping: _No audio detected in the last **$AFK_MINUTES** minutes, leaving **<#${voiceChannel.id}>**._"
+        )
+        thread {
+          val save = BotUtils.autoSave(voiceChannel.guild)
+          BotUtils.leaveVoiceChannel(voiceChannel, defaultChannel, save)
+        }
       }
 
-      BotUtils.sendMessage(
-        defaultChannel,
-        ":sleeping: _No audio detected in the last **$AFK_MINUTES** minutes, leaving **<#${voiceChannel.id}>**._"
-      )
-      thread {
-        val save = BotUtils.autoSave(voiceChannel.guild)
-        BotUtils.leaveVoiceChannel(voiceChannel, defaultChannel, save)
-      }
+      return isAfk
     }
-
-    return isAfk
   }
 
   private fun createRecording(): Single<RecordingQueue?>? {
