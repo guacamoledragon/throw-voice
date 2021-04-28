@@ -9,7 +9,6 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 ### Added
 
 ### Changed
-- [Pawa Lite]: Will not leave voice channel when there's no voice activity.
 
 ### Deprecated
 

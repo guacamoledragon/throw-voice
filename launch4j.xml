@@ -3,7 +3,7 @@
   <dontWrapJar>false</dontWrapJar>
   <headerType>console</headerType>
   <jar>D:\workspace\pawabot\pawa\target\pawa-2.9.4.jar</jar>
-  <outfile>D:\workspace\pawabot\pawa-lite\pawa-lire-2.9.4.exe</outfile>
+  <outfile>D:\workspace\pawabot\pawa-lite\pawa-lite-2.9.4.exe</outfile>
   <errTitle></errTitle>
   <cmdLine></cmdLine>
   <chdir>.</chdir>
