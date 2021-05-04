@@ -6,7 +6,8 @@
   - [DIY](self-hosting.md)
   - [Pawa Lite](pawalite.md)
   - [Configuration](configuration.md)
-
+- Attributions
+  - [Sponsors](sponsors.md)
 - [Changelog](changelog.md)
 ---
 - Alternatives
