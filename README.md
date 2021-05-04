@@ -53,6 +53,10 @@ _There is no obligation to do any of this, but this is a way to express your gra
 * [Buy me a coffee](https://ko-fi.com/L3L215SZC) _(One time)_
 * [Github Sponsor](https://github.com/sponsors/jvtrigueros) _(Subscription)_
 
+## Sponsors
+
+- [12g](https://github.com/12g)
+
 ## Attributions
 - Original Java codebase by [ajm1996's](https://github.com/ajm1996) [DiscordEcho](https://github.com/ajm1996/DiscordEcho).
 
