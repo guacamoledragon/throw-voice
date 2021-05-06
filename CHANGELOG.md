@@ -15,6 +15,7 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 ### Removed
 
 ### Fixed
+- Adding an alias twice in a row would result in an error and would break the alias
 
 ### Security
 
