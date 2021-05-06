@@ -8,7 +8,14 @@ import java.lang.IllegalArgumentException
 
 class Language : CommandHandler() {
   companion object {
+    // TODO: This cannot exist, this will affect the entire bot
     var currentLanguage = Lang.EN
+
+    /**
+     * 1. I need to add a new column in settings specifying the language for Guild
+     * 2. For now, lookup the language on every command :sob:
+     * 3.
+     */
 
     fun valid(lang: String): Boolean {
       return try {

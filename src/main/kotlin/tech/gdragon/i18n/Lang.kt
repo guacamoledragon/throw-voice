@@ -4,7 +4,6 @@
 package tech.gdragon.i18n
 
 import tech.gdragon.commands.audio.Save
-import java.lang.IllegalArgumentException
 import java.util.*
 
 /**
@@ -13,13 +12,21 @@ import java.util.*
  */
 
 enum class Lang {
-  EN,
-  ES,
-  ZH
+  EN {
+    override val locale = Locale.ENGLISH
+  },
+  ES {
+    override val locale = Locale("es")
+  },
+  ZH {
+    override val locale = Locale.CHINESE
+  };
+
+  abstract val locale: Locale
 }
 
-class Save(lang: Locale) {
-  private val resource = ResourceBundle.getBundle(Save::class.simpleName!!, lang)
+class Save(lang: Lang) {
+  private val resource = ResourceBundle.getBundle(Save::class.simpleName!!, lang.locale)
 
   val notRecording: String = resource.getString("not_recording")
   val channelNotFound: (String) -> String = { channel -> resource.getString("channel_not_found").format(channel) }
