@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import tech.gdragon.BotUtils
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
+import tech.gdragon.i18n.Lang
 import java.lang.IllegalArgumentException
 
 class Record : CommandHandler() {
@@ -60,7 +61,7 @@ class Record : CommandHandler() {
     }
   }
 
-  override fun usage(prefix: String): String = "${prefix}record"
+  override fun usage(prefix: String, lang: Lang): String = "${prefix}record"
 
-  override fun description(): String = "Ask the bot to join and record in your current channel."
+  override fun description(lang: Lang): String = "Ask the bot to join and record in your current channel."
 }

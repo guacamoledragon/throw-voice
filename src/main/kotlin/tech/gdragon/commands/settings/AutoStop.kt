@@ -10,6 +10,7 @@ import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.db.asyncTransaction
 import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
+import tech.gdragon.i18n.Lang
 
 class AutoStop : CommandHandler() {
 
@@ -85,7 +86,7 @@ class AutoStop : CommandHandler() {
     BotUtils.sendMessage(event.channel, message)
   }
 
-  override fun usage(prefix: String): String = "${prefix}autostop [Voice Channel name | 'all'] [number | 'off']"
+  override fun usage(prefix: String, lang: Lang): String = "${prefix}autostop [Voice Channel name | 'all'] [number | 'off']"
 
-  override fun description(): String = "Sets the number of players for the bot to autostop a voice channel. All will apply number to all voice channels."
+  override fun description(lang: Lang): String = "Sets the number of players for the bot to autostop a voice channel. All will apply number to all voice channels."
 }

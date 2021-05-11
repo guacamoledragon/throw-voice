@@ -10,6 +10,7 @@ import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.db.asyncTransaction
 import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
+import tech.gdragon.i18n.Lang
 
 class AutoRecord : CommandHandler() {
   private fun updateChannelAutoJoin(channel: GuildChannel, autoRecord: Int?) {
@@ -94,8 +95,8 @@ class AutoRecord : CommandHandler() {
     BotUtils.sendMessage(defaultChannel, message)
   }
 
-  override fun usage(prefix: String): String = "${prefix}autorecord [Voice Channel name | 'all'] [number | 'off']"
+  override fun usage(prefix: String, lang: Lang): String = "${prefix}autorecord [Voice Channel name | 'all'] [number | 'off']"
 
-  override fun description(): String = "Sets the number of players for the bot to autorecord a voice channel, or " +
+  override fun description(lang: Lang): String = "Sets the number of players for the bot to autorecord a voice channel, or " +
     "disables auto recording. `All` will apply number to all voice channels."
 }

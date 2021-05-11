@@ -8,6 +8,7 @@ import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.discord.Command
+import tech.gdragon.i18n.Lang
 import java.awt.Color
 
 class Help : CommandHandler() {
@@ -60,7 +61,7 @@ class Help : CommandHandler() {
         { ex -> logger.warn(ex) { "Couldn't send DM to ${event.author.name}" } })
   }
 
-  override fun usage(prefix: String): String = "${prefix}help"
+  override fun usage(prefix: String, lang: Lang): String = "${prefix}help"
 
-  override fun description(): String = "Shows all commands and their usages."
+  override fun description(lang: Lang): String = "Shows all commands and their usages."
 }

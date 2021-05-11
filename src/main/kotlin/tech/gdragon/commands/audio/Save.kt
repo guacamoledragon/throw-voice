@@ -10,7 +10,7 @@ import tech.gdragon.i18n.Save
 
 class Save : CommandHandler() {
   companion object {
-    val translators: MutableMap<Lang, Save> = mutableMapOf()
+    private val translators: MutableMap<Lang, Save> = mutableMapOf()
     fun translator(lang: Lang) = translators.getOrPut(lang) {
       Save(lang)
     }
@@ -52,11 +52,13 @@ class Save : CommandHandler() {
       BotUtils.sendMessage(defaultChannel, message)
   }
 
-  override fun usage(prefix: String): String {
-    val translator = translator(Language.currentLanguage)
+  override fun usage(prefix: String, lang: Lang): String {
+    val translator = translator(lang)
     return translator.usage(prefix)
   }
 
-    override fun description(): String =
-      "Saves the current recording and outputs it to the current or specified text channel."
+    override fun description(lang: Lang): String {
+      val translator = translator(lang)
+      return translator.description
+    }
   }

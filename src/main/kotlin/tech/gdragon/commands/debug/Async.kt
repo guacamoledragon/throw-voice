@@ -5,6 +5,7 @@ import org.joda.time.DateTime
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.db.asyncTransaction
 import tech.gdragon.db.dao.Guild
+import tech.gdragon.i18n.Lang
 
 class Async : CommandHandler() {
   override fun action(args: Array<String>, event: GuildMessageReceivedEvent) {
@@ -17,11 +18,11 @@ class Async : CommandHandler() {
     }
   }
 
-  override fun usage(prefix: String): String {
+  override fun usage(prefix: String, lang: Lang): String {
     TODO("Not yet implemented")
   }
 
-  override fun description(): String {
+  override fun description(lang: Lang): String {
     TODO("Not yet implemented")
   }
 }

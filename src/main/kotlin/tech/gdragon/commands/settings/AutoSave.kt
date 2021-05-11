@@ -6,6 +6,7 @@ import tech.gdragon.BotUtils
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.db.dao.Guild
+import tech.gdragon.i18n.Lang
 
 class AutoSave : CommandHandler() {
   override fun action(args: Array<String>, event: GuildMessageReceivedEvent) {
@@ -34,7 +35,7 @@ class AutoSave : CommandHandler() {
     BotUtils.sendMessage(defaultChannel, message)
   }
 
-  override fun usage(prefix: String): String = "${prefix}autosave"
+  override fun usage(prefix: String, lang: Lang): String = "${prefix}autosave"
 
-  override fun description(): String = "Toggles the option to automatically save and send all files at the end of each session - not just saved or clipped files."
+  override fun description(lang: Lang): String = "Toggles the option to automatically save and send all files at the end of each session - not just saved or clipped files."
 }

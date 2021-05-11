@@ -37,7 +37,7 @@ class Language : CommandHandler() {
     currentLanguage = Lang.valueOf(lang)
   }
 
-  override fun usage(prefix: String): String = "${prefix}lang [${Lang.values().joinToString(separator = "|") { it.name.toLowerCase() }}]"
+  override fun usage(prefix: String, lang: Lang): String = "${prefix}lang [${Lang.values().joinToString(separator = "|") { it.name.toLowerCase() }}]"
 
-  override fun description(): String = "Specifies the language to use."
+  override fun description(lang: Lang): String = "Specifies the language to use."
 }

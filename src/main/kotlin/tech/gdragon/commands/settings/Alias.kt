@@ -9,6 +9,7 @@ import tech.gdragon.db.asyncTransaction
 import tech.gdragon.db.dao.Alias
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.discord.Command
+import tech.gdragon.i18n.Lang
 
 class Alias : CommandHandler() {
 
@@ -51,7 +52,7 @@ class Alias : CommandHandler() {
     }
   }
 
-  override fun usage(prefix: String): String = "${prefix}alias [command name] [new command alias]"
+  override fun usage(prefix: String, lang: Lang): String = "${prefix}alias [command name] [new command alias]"
 
-  override fun description(): String = "Creates an alias, or alternate name, to a command for customization."
+  override fun description(lang: Lang): String = "Creates an alias, or alternate name, to a command for customization."
 }

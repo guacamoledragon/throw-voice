@@ -6,11 +6,6 @@ package tech.gdragon.i18n
 import tech.gdragon.commands.audio.Save
 import java.util.*
 
-/**
- * Locale(EN).command.notRecording
- * Generate a map from String -> String
- */
-
 enum class Lang {
   EN {
     override val locale = Locale.ENGLISH
@@ -31,12 +26,5 @@ class Save(lang: Lang) {
   val notRecording: String = resource.getString("not_recording")
   val channelNotFound: (String) -> String = { channel -> resource.getString("channel_not_found").format(channel) }
   val usage: (String) -> String = { prefix -> resource.getString("usage").format(prefix) }
-}
-
-
-fun main() {
-  val resourceBundle = ResourceBundle.getBundle(Save::class.simpleName!!, Locale.SIMPLIFIED_CHINESE)
-//  println(resourceBundle.getString("app.command.save.not_recording"))
-
-  resourceBundle.keySet().forEach(::println)
+  val description: String = resource.getString("description")
 }

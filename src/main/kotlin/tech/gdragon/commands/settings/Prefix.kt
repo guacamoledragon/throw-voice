@@ -1,11 +1,10 @@
 package tech.gdragon.commands.settings
 
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
-import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.BotUtils
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
-import tech.gdragon.db.dao.Guild
+import tech.gdragon.i18n.Lang
 
 class Prefix : CommandHandler() {
   override fun action(args: Array<String>, event: GuildMessageReceivedEvent) {
@@ -24,7 +23,7 @@ class Prefix : CommandHandler() {
     BotUtils.sendMessage(defaultChannel, message)
   }
 
-  override fun usage(prefix: String): String = "${prefix}prefix [character]"
+  override fun usage(prefix: String, lang: Lang): String = "${prefix}prefix [character]"
 
-  override fun description(): String = "Sets the prefix for each command to avoid conflict with other bots (Default is '!')"
+  override fun description(lang: Lang): String = "Sets the prefix for each command to avoid conflict with other bots (Default is '!')"
 }

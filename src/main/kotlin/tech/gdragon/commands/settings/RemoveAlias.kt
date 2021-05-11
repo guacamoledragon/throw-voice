@@ -6,6 +6,7 @@ import tech.gdragon.BotUtils
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.db.dao.Guild
+import tech.gdragon.i18n.Lang
 
 class RemoveAlias : CommandHandler() {
   override fun action(args: Array<String>, event: GuildMessageReceivedEvent) {
@@ -31,7 +32,7 @@ class RemoveAlias : CommandHandler() {
     BotUtils.sendMessage(defaultChannel, message)
   }
 
-  override fun usage(prefix: String): String = "${prefix}removeAlias [alias name]"
+  override fun usage(prefix: String, lang: Lang): String = "${prefix}removeAlias [alias name]"
 
-  override fun description(): String = "Removes an alias for a command."
+  override fun description(lang: Lang): String = "Removes an alias for a command."
 }

@@ -9,6 +9,7 @@ import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.db.asyncTransaction
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.dao.Settings
+import tech.gdragon.i18n.Lang
 
 class SaveLocation : CommandHandler() {
   private fun setSaveLocation(settings: Settings, channel: TextChannel?): String {
@@ -55,7 +56,7 @@ class SaveLocation : CommandHandler() {
     BotUtils.sendMessage(defaultChannel, message)
   }
 
-  override fun usage(prefix: String): String = "${prefix}saveLocation | ${prefix}saveLocation [text channel | 'off']"
+  override fun usage(prefix: String, lang: Lang): String = "${prefix}saveLocation | ${prefix}saveLocation [text channel | 'off']"
 
-  override fun description(): String = "Sets the text channel to send all messages to, use `off` to restore default behaviour."
+  override fun description(lang: Lang): String = "Sets the text channel to send all messages to, use `off` to restore default behaviour."
 }

@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import tech.gdragon.BotUtils
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
+import tech.gdragon.i18n.Lang
 import tech.gdragon.listener.CombinedAudioRecorderHandler
 
 class Ignore : CommandHandler() {
@@ -36,8 +37,8 @@ class Ignore : CommandHandler() {
     }
   }
 
-  override fun usage(prefix: String): String = "${prefix}ignore @bot1 @bot2"
+  override fun usage(prefix: String, lang: Lang): String = "${prefix}ignore @bot1 @bot2"
 
-  override fun description(): String = "Ignores audio from a Bot during a recording session."
+  override fun description(lang: Lang): String = "Ignores audio from a Bot during a recording session."
 
 }

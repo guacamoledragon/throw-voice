@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import tech.gdragon.BotUtils
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
+import tech.gdragon.i18n.Lang
 
 class Stop : CommandHandler() {
   override fun action(args: Array<String>, event: GuildMessageReceivedEvent) {
@@ -28,7 +29,7 @@ class Stop : CommandHandler() {
     BotUtils.sendMessage(defaultChannel, message)
   }
 
-  override fun usage(prefix: String): String = "${prefix}stop"
+  override fun usage(prefix: String, lang: Lang): String = "${prefix}stop"
 
-  override fun description(): String = "Ask the bot to stop recording and leave its current channel"
+  override fun description(lang: Lang): String = "Ask the bot to stop recording and leave its current channel"
 }

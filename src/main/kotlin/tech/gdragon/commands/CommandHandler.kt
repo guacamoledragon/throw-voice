@@ -6,6 +6,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.component.KoinComponent
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.discord.Command
+import tech.gdragon.i18n.Lang
 import tech.gdragon.metrics.EventTracer
 
 abstract class CommandHandler : KoinComponent {
@@ -17,8 +18,8 @@ abstract class CommandHandler : KoinComponent {
   @Throws(InvalidCommand::class)
   abstract fun action(args: Array<String>, event: GuildMessageReceivedEvent)
 
-  abstract fun usage(prefix: String): String
-  abstract fun description(): String
+  abstract fun usage(prefix: String, lang: Lang = Lang.EN): String
+  abstract fun description(lang: Lang = Lang.EN): String
 }
 
 data class InvalidCommand(val usage: (String) -> String, val reason: String) : Throwable()

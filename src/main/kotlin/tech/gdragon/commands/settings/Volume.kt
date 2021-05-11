@@ -6,6 +6,7 @@ import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.db.dao.Guild
 import org.jetbrains.exposed.sql.transactions.transaction
+import tech.gdragon.i18n.Lang
 import java.math.BigDecimal
 
 class Volume : CommandHandler() {
@@ -43,7 +44,7 @@ class Volume : CommandHandler() {
     BotUtils.sendMessage(defaultChannel, message)
   }
 
-  override fun usage(prefix: String): String = "${prefix}volume [1-100]"
+  override fun usage(prefix: String, lang: Lang): String = "${prefix}volume [1-100]"
 
-  override fun description(): String = "Sets the percentage volume to record at, from 1-100%"
+  override fun description(lang: Lang): String = "Sets the percentage volume to record at, from 1-100%"
 }
