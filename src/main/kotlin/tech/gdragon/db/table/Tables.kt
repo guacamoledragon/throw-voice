@@ -5,7 +5,9 @@ import org.jetbrains.exposed.dao.LongIdTable
 import org.jetbrains.exposed.sql.ReferenceOption
 import org.joda.time.DateTime
 import tech.gdragon.db.DateColumnType
+import tech.gdragon.db.LanguageColumnType
 import tech.gdragon.db.nowUTC
+import tech.gdragon.i18n.Lang
 import java.math.BigDecimal
 
 object Tables {
@@ -23,6 +25,7 @@ object Tables {
     val defaultTextChannel = long("defaulttextchannel").nullable()
     val volume = decimal("volume", 3, 2).default(BigDecimal.valueOf(0.8))
     val guild = reference("guild", Guilds, ReferenceOption.CASCADE).uniqueIndex()
+    val language = registerColumn<Lang>("language", LanguageColumnType())
   }
 
   object Aliases : IntIdTable() {

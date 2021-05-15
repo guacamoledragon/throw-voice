@@ -81,6 +81,7 @@ class Settings(id: EntityID<Long>) : LongEntity(id) {
   var defaultTextChannel by SettingsTable.defaultTextChannel
   var prefix by SettingsTable.prefix
   var volume by SettingsTable.volume
+  var language by SettingsTable.language
   var guild by Guild referencedOn SettingsTable.guild
 
   val channels by Channel referrersOn Channels.settings
