@@ -13,13 +13,19 @@ import java.awt.Color
 
 class Help : CommandHandler() {
   override fun action(args: Array<String>, event: GuildMessageReceivedEvent) {
-    val prefix = transaction { Guild.findById(event.guild.idLong)?.settings?.prefix } ?: "!"
+    // Avoid getting DoS'd by bots, bots are helpless anyway :D
+    if (event.author.isBot)
+      return
+
+    val guild = transaction { Guild[event.guild.idLong] }
+    val prefix = transaction { guild.settings.prefix }
     val aliases = transaction {
       Guild.findById(event.guild.idLong)
         ?.settings
         ?.aliases
         ?.toList()
     }
+    val language = transaction { guild.settings.language }
 
     require(args.isEmpty()) {
       throw InvalidCommand(::usage, "Empty arguments")
@@ -27,7 +33,6 @@ class Help : CommandHandler() {
 
     val website: String = getKoin().getProperty("BOT_WEBSITE", "http://localhost:8080/")
 
-    // TODO must be configurable
     val embed = EmbedBuilder().apply {
       setAuthor("pawa", website, event.jda.selfUser.avatarUrl)
       setColor(Color.decode("#596800"))
@@ -51,7 +56,7 @@ class Help : CommandHandler() {
               } else ""
             } ?: ""
 
-        embed.addField(commandHandler.usage(prefix), aliasDescription, false)
+        embed.addField(commandHandler.usage(prefix, language), aliasDescription, false)
       }
 
     event.author.openPrivateChannel()
