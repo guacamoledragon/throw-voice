@@ -23,8 +23,8 @@ enum class Lang {
 class Save(lang: Lang) {
   private val resource = ResourceBundle.getBundle(Save::class.simpleName!!, lang.locale)
 
-  val notRecording: String = resource.getString("not_recording")
-  val channelNotFound: (String) -> String = { channel -> resource.getString("channel_not_found").format(channel) }
-  val usage: (String) -> String = { prefix -> resource.getString("usage").format(prefix) }
-  val description: String = resource.getString("description")
+  val notRecording: String = resource.getString("save.not_recording")
+  val channelNotFound: (String) -> String = { channel -> resource.getString("save.channel_not_found").format(channel) }
+  val usage: (String) -> String = { prefix -> resource.getString("save.usage").format(prefix, prefix) }
+  val description: String = resource.getString("save.description")
 }
