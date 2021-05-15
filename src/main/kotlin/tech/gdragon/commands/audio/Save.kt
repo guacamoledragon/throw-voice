@@ -1,23 +1,30 @@
 package tech.gdragon.commands.audio
 
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
+import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.BotUtils
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
-import tech.gdragon.commands.settings.Language
+import tech.gdragon.db.dao.Guild
 import tech.gdragon.i18n.Lang
 import tech.gdragon.i18n.Save
 
 class Save : CommandHandler() {
   companion object {
     private val translators: MutableMap<Lang, Save> = mutableMapOf()
-    fun translator(lang: Lang) = translators.getOrPut(lang) {
-      Save(lang)
+    fun translator(lang: Lang): Save {
+      return translators.getOrPut(lang) {
+        Save(lang)
+      }
     }
   }
 
   override fun action(args: Array<String>, event: GuildMessageReceivedEvent) {
-    val translator = translator(Language.currentLanguage)
+    val translator = transaction {
+      val guildLanguage = Guild[event.guild.idLong].settings.language
+      translator(guildLanguage)
+    }
+
     require(args.size in 0..1) {
       throw InvalidCommand(::usage, "Incorrect number of arguments: ${args.size}")
     }
@@ -57,8 +64,8 @@ class Save : CommandHandler() {
     return translator.usage(prefix)
   }
 
-    override fun description(lang: Lang): String {
-      val translator = translator(lang)
-      return translator.description
-    }
+  override fun description(lang: Lang): String {
+    val translator = translator(lang)
+    return translator.description
   }
+}
