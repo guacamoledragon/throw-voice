@@ -13,7 +13,7 @@ class Honey(apiKey: String) : EventTracer {
     options()
       .setWriteKey(apiKey)
       .setDataset("pawa")
-      .setSampleRate(2)
+      .setSampleRate(1)
       .build()
   )
 
