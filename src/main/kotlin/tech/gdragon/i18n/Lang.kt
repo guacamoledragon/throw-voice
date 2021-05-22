@@ -3,25 +3,57 @@
  */
 package tech.gdragon.i18n
 
-import tech.gdragon.commands.audio.Save
 import java.util.*
 
 enum class Lang {
   EN {
-    override val locale = Locale.ENGLISH
+    override val locale = Locale.ENGLISH!!
+    override val flagEmoji: String = ":flag_us:"
   },
-  ES {
-    override val locale = Locale("es")
+  PT_BR {
+    override val locale: Locale = Locale("pt", "BR")
+    override val flagEmoji: String = "flag_br"
   },
   ZH {
-    override val locale = Locale.CHINESE
+    override val locale = Locale.CHINESE!!
+    override val flagEmoji: String = "flag_cn"
   };
 
   abstract val locale: Locale
+  abstract val flagEmoji: String
+}
+
+object Babel {
+  val languages = Lang.values().joinToString("|") { it.name.lowercase() }
+
+  fun resource(lang: Lang): ResourceBundle = ResourceBundle.getBundle("translations", lang.locale)
+
+  private val language: MutableMap<Lang, Language> = mutableMapOf()
+  fun language(lang: Lang) = language.getOrPut(lang) { Language(lang) }
+
+  private val save: MutableMap<Lang, Save> = mutableMapOf()
+  fun save(lang: Lang) = save.getOrPut(lang) { Save(lang) }
+
+  fun valid(lang: String) = try {
+    Lang.valueOf(lang)
+    true
+  } catch (ex: IllegalArgumentException) {
+    false
+  }
+}
+
+class Language(lang: Lang) {
+  private val resource = Babel.resource(lang)
+
+  val usage: (String) -> String = { prefix ->
+    resource
+      .getString("language.usage")
+      .format(prefix, Babel.languages)
+  }
 }
 
 class Save(lang: Lang) {
-  private val resource = ResourceBundle.getBundle(Save::class.simpleName!!, lang.locale)
+  private val resource = Babel.resource(lang)
 
   val notRecording: String = resource.getString("save.not_recording")
   val channelNotFound: (String) -> String = { channel -> resource.getString("save.channel_not_found").format(channel) }
