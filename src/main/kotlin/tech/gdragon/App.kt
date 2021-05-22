@@ -106,7 +106,7 @@ fun main() {
 
       }
     }
-    modules(
+    val modules = listOf(
       databaseModule,
       module {
         single { Bot() }
@@ -114,6 +114,7 @@ fun main() {
       datastoreModule,
       optionalModules
     )
+    koin.loadModules(modules)
   }
 
   val dataDir = app.koin.getStringProperty("BOT_DATA_DIR")
