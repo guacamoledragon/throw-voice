@@ -4,6 +4,7 @@ import mu.KotlinLogging
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.component.KoinComponent
+import org.koin.java.KoinJavaComponent
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.discord.Command
 import tech.gdragon.i18n.Lang
@@ -31,11 +32,22 @@ fun handleCommand(event: GuildMessageReceivedEvent, prefix: String, rawInput: St
   val args = tokens.drop(1).toTypedArray()
 
   val command = try {
-    Command.valueOf(rawCommand.toUpperCase())
+    Command.valueOf(rawCommand.uppercase())
   } catch (e: IllegalArgumentException) {
-    val aliases = transaction { Guild.findById(event.guild.idLong)?.settings?.aliases?.toList() }
-    aliases
-      ?.find { it.alias == rawCommand }
+
+    val alias = transaction {
+      Guild.findById(event.guild.idLong)
+        ?.settings
+        ?.aliases
+        ?.find { it.alias == rawCommand }
+    }
+
+    if (alias == null) {
+      val tracer: EventTracer = KoinJavaComponent.getKoin().get()
+      tracer.sendEvent(mapOf("command-not-found" to rawCommand.uppercase()))
+    }
+
+    alias
       ?.let { Command.valueOf(it.name) }
   }
 
