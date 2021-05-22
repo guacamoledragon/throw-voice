@@ -374,10 +374,6 @@
                       <artifact>club.minnced:opus-java-natives</artifact>
                       <excludes>
                         <exclude>natives/darwin/**</exclude>
-                        <exclude>natives/linux-aarch64/**</exclude>
-                        <exclude>natives/linux-arm/**</exclude>
-                        <exclude>natives/linux-x86/**</exclude>
-                        <exclude>natives/linux-x86-64/**</exclude>
                       </excludes>
                     </filter>
                   </filters>

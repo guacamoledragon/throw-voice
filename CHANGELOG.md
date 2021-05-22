@@ -9,6 +9,7 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 ### Added
 
 ### Changed
+- [Pawa Lite]: Include binaries necessary for decoding OPUS
 
 ### Deprecated
 
