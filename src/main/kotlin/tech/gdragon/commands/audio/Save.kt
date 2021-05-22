@@ -6,23 +6,15 @@ import tech.gdragon.BotUtils
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.db.dao.Guild
+import tech.gdragon.i18n.Babel
 import tech.gdragon.i18n.Lang
-import tech.gdragon.i18n.Save
 
 class Save : CommandHandler() {
-  companion object {
-    private val translators: MutableMap<Lang, Save> = mutableMapOf()
-    fun translator(lang: Lang): Save {
-      return translators.getOrPut(lang) {
-        Save(lang)
-      }
-    }
-  }
 
   override fun action(args: Array<String>, event: GuildMessageReceivedEvent) {
     val translator = transaction {
       val guildLanguage = Guild[event.guild.idLong].settings.language
-      translator(guildLanguage)
+      Babel.save(guildLanguage)
     }
 
     require(args.size in 0..1) {
@@ -60,12 +52,12 @@ class Save : CommandHandler() {
   }
 
   override fun usage(prefix: String, lang: Lang): String {
-    val translator = translator(lang)
+    val translator = Babel.save(lang)
     return translator.usage(prefix)
   }
 
   override fun description(lang: Lang): String {
-    val translator = translator(lang)
+    val translator = Babel.save(lang)
     return translator.description
   }
 }
