@@ -28,6 +28,9 @@ object Babel {
 
   fun resource(lang: Lang): ResourceBundle = ResourceBundle.getBundle("translations", lang.locale)
 
+  private val alias: MutableMap<Lang, Alias> = mutableMapOf()
+  fun alias(lang: Lang) = alias.getOrPut(lang) { Alias(lang) }
+
   private val help: MutableMap<Lang, Help> = mutableMapOf()
   fun help(lang: Lang) = help.getOrPut(lang) { Help(lang) }
 
@@ -49,6 +52,16 @@ object Babel {
   } catch (ex: IllegalArgumentException) {
     false
   }
+}
+
+class Alias(lang: Lang) {
+  private val resource = Babel.resource(lang)
+
+  val command: (String) -> String = { alias -> resource.getString("alias.command").format("**`$alias`**") }
+  val exists: (String) -> String = { alias -> resource.getString("alias.exists").format("**`$alias`**") }
+  val invalid: (String) -> String = { command -> resource.getString("alias.invalid").format("**`$command`**") }
+  val new: (String, String) -> String = { alias, command -> resource.getString("alias.new").format("**`$alias", "$command`**") }
+  val usage: (String) -> String = { s -> resource.getString("alias.usage").format(s) }
 }
 
 class Help(lang: Lang) {
