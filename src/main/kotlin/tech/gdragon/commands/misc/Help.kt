@@ -8,6 +8,7 @@ import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.discord.Command
+import tech.gdragon.i18n.Babel
 import tech.gdragon.i18n.Lang
 import java.awt.Color
 
@@ -27,6 +28,8 @@ class Help : CommandHandler() {
     }
     val language = transaction { guild.settings.language }
 
+    val translator = Babel.help(language)
+
     require(args.isEmpty()) {
       throw InvalidCommand(::usage, "Empty arguments")
     }
@@ -36,7 +39,7 @@ class Help : CommandHandler() {
     val embed = EmbedBuilder().apply {
       setAuthor("pawa", website, event.jda.selfUser.avatarUrl)
       setColor(Color.decode("#596800"))
-      setTitle("Full documentation can be found at $website")
+      setTitle(translator.embedTitle(website))
       setThumbnail(event.jda.selfUser.avatarUrl)
     }
 
@@ -62,11 +65,14 @@ class Help : CommandHandler() {
     event.author.openPrivateChannel()
       .flatMap { it.sendMessage(embed.build()) }
       .queue(
-        { BotUtils.sendMessage(defaultChannel, ":information_source: _**<@${event.author.id}>** check your DMs!_") },
+        { BotUtils.sendMessage(defaultChannel, ":information_source: _${translator.checkDm(event.author.id)}_") },
         { ex -> logger.warn(ex) { "Couldn't send DM to ${event.author.name}" } })
   }
 
-  override fun usage(prefix: String, lang: Lang): String = "${prefix}help"
+  override fun usage(prefix: String, lang: Lang): String {
+    val translator = Babel.help(lang)
+    return translator.usage(prefix)
+  }
 
   override fun description(lang: Lang): String = "Shows all commands and their usages."
 }

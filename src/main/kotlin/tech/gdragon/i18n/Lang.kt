@@ -28,6 +28,9 @@ object Babel {
 
   fun resource(lang: Lang): ResourceBundle = ResourceBundle.getBundle("translations", lang.locale)
 
+  private val help: MutableMap<Lang, Help> = mutableMapOf()
+  fun help(lang: Lang) = help.getOrPut(lang) { Help(lang) }
+
   private val language: MutableMap<Lang, Language> = mutableMapOf()
   fun language(lang: Lang) = language.getOrPut(lang) { Language(lang) }
 
@@ -40,6 +43,14 @@ object Babel {
   } catch (ex: IllegalArgumentException) {
     false
   }
+}
+
+class Help(lang: Lang) {
+  private val resource = Babel.resource(lang)
+
+  val checkDm: (String) -> String = { userId -> resource.getString("help.check_dm").format("**<@$userId>**") }
+  val embedTitle: (String) -> String = { website -> resource.getString("help.embed_title").format(website) }
+  val usage: (String) -> String = { prefix -> resource.getString("help.usage").format(prefix) }
 }
 
 class Language(lang: Lang) {
