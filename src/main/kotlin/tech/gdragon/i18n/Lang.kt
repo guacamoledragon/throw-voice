@@ -40,6 +40,9 @@ object Babel {
   private val save: MutableMap<Lang, Save> = mutableMapOf()
   fun save(lang: Lang) = save.getOrPut(lang) { Save(lang) }
 
+  private val stop: MutableMap<Lang, Stop> = mutableMapOf()
+  fun stop(lang: Lang) = stop.getOrPut(lang) { Stop(lang) }
+
   fun valid(lang: String) = try {
     Lang.valueOf(lang)
     true
@@ -82,4 +85,12 @@ class Save(lang: Lang) {
   val channelNotFound: (String) -> String = { channel -> resource.getString("save.channel_not_found").format(channel) }
   val usage: (String) -> String = { prefix -> resource.getString("save.usage").format(prefix, prefix) }
   val description: String = resource.getString("save.description")
+}
+
+class Stop(lang: Lang) {
+  private val resource = Babel.resource(lang)
+
+  val leaveChannel: (String) -> String = { channelId -> resource.getString("stop.leave_channel").format("**<#$channelId>**") }
+  val noChannel = resource.getString("stop.no_channel")
+  val usage: (String) -> String = { prefix -> resource.getString("stop.usage").format(prefix) }
 }
