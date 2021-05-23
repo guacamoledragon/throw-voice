@@ -34,6 +34,9 @@ object Babel {
   private val language: MutableMap<Lang, Language> = mutableMapOf()
   fun language(lang: Lang) = language.getOrPut(lang) { Language(lang) }
 
+  private val record: MutableMap<Lang, Record> = mutableMapOf()
+  fun record(lang: Lang) = record.getOrPut(lang) { Record(lang) }
+
   private val save: MutableMap<Lang, Save> = mutableMapOf()
   fun save(lang: Lang) = save.getOrPut(lang) { Save(lang) }
 
@@ -61,6 +64,15 @@ class Language(lang: Lang) {
       .getString("language.usage")
       .format(prefix, Babel.languages)
   }
+}
+
+class Record(lang: Lang) {
+  private val resource = Babel.resource(lang)
+
+  val alreadyInChannel: (String) -> String = { channelId -> resource.getString("record.already_in_channel").format("**<#$channelId>**") }
+  val cannotRecord: (String) -> String  = { channelId -> resource.getString("record.cannot_record").format("**<#$channelId>**") }
+  val joinChannel: String = resource.getString("record.join_channel")
+  val usage: (String) -> String  = { prefix -> resource.getString("record.usage").format(prefix) }
 }
 
 class Save(lang: Lang) {
