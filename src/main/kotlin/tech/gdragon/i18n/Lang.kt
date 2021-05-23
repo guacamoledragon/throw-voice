@@ -28,6 +28,9 @@ object Babel {
 
   fun resource(lang: Lang): ResourceBundle = ResourceBundle.getBundle("translations", lang.locale)
 
+  private val autosave: MutableMap<Lang, AutoSave> = mutableMapOf()
+  fun autosave(lang: Lang) = autosave.getOrPut(lang) { AutoSave(lang) }
+
   private val alias: MutableMap<Lang, Alias> = mutableMapOf()
   fun alias(lang: Lang) = alias.getOrPut(lang) { Alias(lang) }
 
@@ -60,8 +63,18 @@ class Alias(lang: Lang) {
   val command: (String) -> String = { alias -> resource.getString("alias.command").format("**`$alias`**") }
   val exists: (String) -> String = { alias -> resource.getString("alias.exists").format("**`$alias`**") }
   val invalid: (String) -> String = { command -> resource.getString("alias.invalid").format("**`$command`**") }
-  val new: (String, String) -> String = { alias, command -> resource.getString("alias.new").format("**`$alias", "$command`**") }
+  val new: (String, String) -> String =
+    { alias, command -> resource.getString("alias.new").format("**`$alias", "$command`**") }
   val usage: (String) -> String = { s -> resource.getString("alias.usage").format(s) }
+}
+
+class AutoSave(lang: Lang) {
+  private val resource = Babel.resource(lang)
+
+  val noop = resource.getString("autosave.noop")
+  val off = resource.getString("autosave.off")
+  val on = resource.getString("autosave.on")
+  val usage: (String) -> String = { prefix -> resource.getString("autosave.usage").format(prefix) }
 }
 
 class Help(lang: Lang) {
@@ -85,10 +98,12 @@ class Language(lang: Lang) {
 class Record(lang: Lang) {
   private val resource = Babel.resource(lang)
 
-  val alreadyInChannel: (String) -> String = { channelId -> resource.getString("record.already_in_channel").format("**<#$channelId>**") }
-  val cannotRecord: (String) -> String  = { channelId -> resource.getString("record.cannot_record").format("**<#$channelId>**") }
+  val alreadyInChannel: (String) -> String =
+    { channelId -> resource.getString("record.already_in_channel").format("**<#$channelId>**") }
+  val cannotRecord: (String) -> String =
+    { channelId -> resource.getString("record.cannot_record").format("**<#$channelId>**") }
   val joinChannel: String = resource.getString("record.join_channel")
-  val usage: (String) -> String  = { prefix -> resource.getString("record.usage").format(prefix) }
+  val usage: (String) -> String = { prefix -> resource.getString("record.usage").format(prefix) }
 }
 
 class Save(lang: Lang) {
@@ -103,7 +118,8 @@ class Save(lang: Lang) {
 class Stop(lang: Lang) {
   private val resource = Babel.resource(lang)
 
-  val leaveChannel: (String) -> String = { channelId -> resource.getString("stop.leave_channel").format("**<#$channelId>**") }
+  val leaveChannel: (String) -> String =
+    { channelId -> resource.getString("stop.leave_channel").format("**<#$channelId>**") }
   val noChannel = resource.getString("stop.no_channel")
   val usage: (String) -> String = { prefix -> resource.getString("stop.usage").format(prefix) }
 }
