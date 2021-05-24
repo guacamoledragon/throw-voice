@@ -64,6 +64,9 @@ object Babel {
   private val stop: MutableMap<Lang, Stop> = mutableMapOf()
   fun stop(lang: Lang) = stop.getOrPut(lang) { Stop(lang) }
 
+  private val volume: MutableMap<Lang, Volume> = mutableMapOf()
+  fun volume(lang: Lang) = volume.getOrPut(lang) { Volume(lang) }
+
   fun valid(lang: String) = try {
     Lang.valueOf(lang)
     true
@@ -186,4 +189,12 @@ class Stop(lang: Lang) {
     { channelId -> resource.getString("stop.leave_channel").format("**<#$channelId>**") }
   val noChannel = resource.getString("stop.no_channel")
   val usage: (String) -> String = { prefix -> resource.getString("stop.usage").format(prefix) }
+}
+
+class Volume(lang: Lang) {
+  private val resource = Babel.resource(lang)
+
+  val recording: (String) -> String = { volume -> resource.getString("volume.recording").format("**$volume%**") }
+  val notRecording: String = resource.getString("volume.not_recording")
+  val usage: (String) -> String = { prefix -> resource.getString("volume.usage").format(prefix) }
 }
