@@ -1,6 +1,7 @@
 - Getting started
   - [Quickstart](quickstart.md)
   - [Commands](commands.md)
+  - [Translations](translations.md)
 
 - Self Hosting
   - [DIY](self-hosting.md)

@@ -81,11 +81,11 @@ enum class Command {
   AUTORECORD {
     override val handler: CommandHandler = AutoRecord()
   },
-  AUTOSTOP {
-    override val handler: CommandHandler = AutoStop()
-  },
   AUTOSAVE {
     override val handler: CommandHandler = AutoSave()
+  },
+  AUTOSTOP {
+    override val handler: CommandHandler = AutoStop()
   },
   CLIP {
     override val handler: CommandHandler = Clip()
@@ -96,14 +96,14 @@ enum class Command {
   IGNORE {
     override val handler: CommandHandler = Ignore()
   },
-  RECORD {
-    override val handler: CommandHandler = Record()
-  },
-  STOP {
-    override val handler: CommandHandler = Stop()
+  LANG {
+    override val handler: CommandHandler = Language()
   },
   PREFIX {
     override val handler: CommandHandler = Prefix()
+  },
+  RECORD {
+    override val handler: CommandHandler = Record()
   },
   REMOVEALIAS {
     override val handler: CommandHandler = RemoveAlias()
@@ -111,11 +111,14 @@ enum class Command {
   SAVE {
     override val handler: CommandHandler = Save()
   },
+  SAVELOCATION {
+    override val handler: CommandHandler = SaveLocation()
+  },
   STATUS {
     override val handler: CommandHandler = Status()
   },
-  SAVELOCATION {
-    override val handler: CommandHandler = SaveLocation()
+  STOP {
+    override val handler: CommandHandler = Stop()
   },
   VOLUME {
     override val handler: CommandHandler = Volume()

@@ -13,6 +13,7 @@ This is the full list of commands available, but on a daily basis, you wont need
 |         [autosave](commands/autosave.md) | Automatically save recording                                                                    |
 |                                     help | Sends you a DM with these commands, including any [alias](commands/alias.md)es                  |
 |      [ignore (beta)](commands/ignore.md) | Ignore a bot during recording session.                                                          |
+|                 [lang](commands/lang.md) | Specifies the language to use.
 |             [record](commands/record.md) | Start recording                                                                                 |
 |                 [stop](commands/stop.md) | Stop recording                                                                                  |
 |             [prefix](commands/prefix.md) | Change prefix                                                                                   |

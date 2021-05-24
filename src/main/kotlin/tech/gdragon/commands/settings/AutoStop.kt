@@ -10,6 +10,8 @@ import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.db.asyncTransaction
 import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
+import tech.gdragon.i18n.Babel
+import tech.gdragon.i18n.Lang
 
 class AutoStop : CommandHandler() {
 
@@ -51,14 +53,16 @@ class AutoStop : CommandHandler() {
           }
         }
 
+        val translator = transaction { Guild[event.guild.idLong].settings.language.let(Babel::autostop) }
+
         if (channelName == "all") {
           val channels = event.guild.voiceChannels
           channels.forEach { updateChannelAutoStop(it, number) }
 
           if (number != null) {
-            ":vibration_mode::wave: _Will automatically leave any voice channel with **$number** or less people._"
+            ":vibration_mode::wave: _${translator.all(number.toString())}_"
           } else {
-            ":mobile_phone_off::wave: _Will not automatically stop recording any channel._"
+            ":mobile_phone_off::wave: _${translator.none}_"
           }
         } else {
           val channels = event.guild.getVoiceChannelsByName(channelName, true)
@@ -70,9 +74,9 @@ class AutoStop : CommandHandler() {
             val voiceChannel = channels.first()
 
             if (number != null) {
-              ":vibration_mode::wave: _Will automatically stop recording **<#${voiceChannel.id}>** when there are **$number** or less people._"
+              ":vibration_mode::wave: _${translator.one(voiceChannel.id, number.toString())}_"
             } else {
-              ":mobile_phone_off::wave: _Will not automatically stop recording **<#${voiceChannel.id}>**._"
+              ":mobile_phone_off::wave: _${translator.some(voiceChannel.id)}_"
             }
           }
         }
@@ -85,7 +89,8 @@ class AutoStop : CommandHandler() {
     BotUtils.sendMessage(event.channel, message)
   }
 
-  override fun usage(prefix: String): String = "${prefix}autostop [Voice Channel name | 'all'] [number | 'off']"
+  override fun usage(prefix: String, lang: Lang): String = Babel.autostop(lang).usage(prefix)
 
-  override fun description(): String = "Sets the number of players for the bot to autostop a voice channel. All will apply number to all voice channels."
+  override fun description(lang: Lang): String =
+    "Sets the number of players for the bot to autostop a voice channel. All will apply number to all voice channels."
 }

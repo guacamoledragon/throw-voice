@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import tech.gdragon.BotUtils
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
+import tech.gdragon.i18n.Lang
 
 class Status : CommandHandler() {
   private fun addShardStatusField(builder: EmbedBuilder, shard: JDA): EmbedBuilder {
@@ -43,8 +44,8 @@ class Status : CommandHandler() {
       ?: BotUtils.sendMessage(event.channel, "Couldn't report status!")
   }
 
-  override fun usage(prefix: String): String = "${prefix}status"
+  override fun usage(prefix: String, lang: Lang): String = "${prefix}status"
 
-  override fun description(): String = "Display Shard Status"
+  override fun description(lang: Lang): String = "Display Shard Status"
 
 }

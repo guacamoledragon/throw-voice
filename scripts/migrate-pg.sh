@@ -6,5 +6,5 @@ docker run \
     -v "$PWD/sql:/flyway/sql" \
     -v "$PWD/conf:/flyway/conf" \
     -v "$PWD/data:/flyway/data" \
-    flyway/flyway \
+    flyway/flyway:7.8-alpine \
     migrate

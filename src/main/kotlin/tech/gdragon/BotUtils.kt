@@ -6,7 +6,6 @@ import mu.withLoggingContext
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.*
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException
-import org.apache.commons.collections4.map.PassiveExpiringMap
 import org.jetbrains.exposed.dao.EntityID
 import org.jetbrains.exposed.exceptions.EntityNotFoundException
 import org.jetbrains.exposed.sql.Op

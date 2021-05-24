@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import tech.gdragon.BotUtils
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
+import tech.gdragon.i18n.Lang
 import tech.gdragon.listener.CombinedAudioRecorderHandler
 
 class Clip : CommandHandler() {
@@ -46,7 +47,7 @@ class Clip : CommandHandler() {
       BotUtils.sendMessage(defaultChannel, message)
   }
 
-  override fun usage(prefix: String): String = "${prefix}clip [seconds] | ${prefix}clip [seconds] [text channel output]"
+  override fun usage(prefix: String, lang: Lang): String = "${prefix}clip [seconds] | ${prefix}clip [seconds] [text channel output]"
 
-  override fun description(): String = "Saves a clip of the specified length (seconds) and outputs it in the current or specified text channel."
+  override fun description(lang: Lang): String = "Saves a clip of the specified length (seconds) and outputs it in the current or specified text channel."
 }
