@@ -58,6 +58,9 @@ object Babel {
   private val save: MutableMap<Lang, Save> = mutableMapOf()
   fun save(lang: Lang) = save.getOrPut(lang) { Save(lang) }
 
+  private val savelocation: MutableMap<Lang, SaveLocation> = mutableMapOf()
+  fun savelocation(lang: Lang) = savelocation.getOrPut(lang) { SaveLocation(lang) }
+
   private val stop: MutableMap<Lang, Stop> = mutableMapOf()
   fun stop(lang: Lang) = stop.getOrPut(lang) { Stop(lang) }
 
@@ -149,7 +152,8 @@ class Record(lang: Lang) {
 class RemoveAlias(lang: Lang) {
   private val resource = Babel.resource(lang)
 
-  val doesNotExist: (String) -> String = { alias -> resource.getString("removealias.does_not_exist").format("**`$alias`**") }
+  val doesNotExist: (String) -> String =
+    { alias -> resource.getString("removealias.does_not_exist").format("**`$alias`**") }
   val remove: (String) -> String = { alias -> resource.getString("removealias.remove").format("**`$alias`**") }
   val usage: (String) -> String = { prefix -> resource.getString("removealias.usage").format(prefix) }
 }
@@ -161,6 +165,18 @@ class Save(lang: Lang) {
   val channelNotFound: (String) -> String = { channel -> resource.getString("save.channel_not_found").format(channel) }
   val usage: (String) -> String = { prefix -> resource.getString("save.usage").format(prefix, prefix) }
   val description: String = resource.getString("save.description")
+}
+
+class SaveLocation(lang: Lang) {
+  private val resource = Babel.resource(lang)
+
+  val current: String = resource.getString("savelocation.current")
+  val channel: (String) -> String = { channel -> resource.getString("savelocation.channel").format("**$channel**") }
+  val permissions: (String) -> String =
+    { channel -> resource.getString("savelocation.permissions").format("**$channel**") }
+  val notFound: (String) -> String = { channel -> resource.getString("savelocation.not_found").format("**$channel**") }
+  val fail: String = resource.getString("savelocation.fail")
+  val usage: (String) -> String = { prefix -> resource.getString("savelocation.usage").format(prefix, prefix) }
 }
 
 class Stop(lang: Lang) {

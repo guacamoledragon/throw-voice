@@ -9,20 +9,22 @@ import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.db.asyncTransaction
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.dao.Settings
+import tech.gdragon.i18n.Babel
 import tech.gdragon.i18n.Lang
 
 class SaveLocation : CommandHandler() {
   private fun setSaveLocation(settings: Settings, channel: TextChannel?): String {
+    val translator = transaction { settings.language.let(Babel::savelocation) }
     return when {
       channel == null -> {
         asyncTransaction { settings.defaultTextChannel = null }
-        ":file_folder: _All messages will default to current channel._"
+        ":file_folder: _${translator.current}_"
       }
       channel.canTalk() -> {
         asyncTransaction { settings.defaultTextChannel = channel.idLong }
-        ":file_folder: _All messages will default to channel **${channel.asMention}**._"
+        ":file_folder: _${translator.channel(channel.asMention)}_"
       }
-      else -> ":no_entry_sign: _Cannot send messages in **${channel.asMention}**, please configure permissions and try again._"
+      else -> ":no_entry_sign: _${translator.permissions(channel.asMention)}_"
     }
   }
 
@@ -32,9 +34,10 @@ class SaveLocation : CommandHandler() {
     }
 
     val settings = transaction {
-      Guild.findById(event.guild.idLong)?.settings
+      Guild[event.guild.idLong].settings
     }
 
+    val translator = transaction { settings.language.let(Babel::savelocation) }
     val message = settings?.let {
       when {
         args.isEmpty() -> setSaveLocation(it, event.channel)
@@ -44,19 +47,20 @@ class SaveLocation : CommandHandler() {
           val channels = event.guild.getTextChannelsByName(channelName, true)
 
           if (channels.isEmpty()) {
-            ":no_entry_sign: _Cannot find text channel **${args.first()}**!_"
+            ":no_entry_sign: _${translator.notFound(args.first())}_"
           } else {
             setSaveLocation(it, channels.first())
           }
         }
       }
-    } ?: ":no_entry_sign: _Could not set default save location._"
+    } ?: ":no_entry_sign: _${translator.fail}_"
 
     val defaultChannel = BotUtils.defaultTextChannel(event.guild) ?: event.channel
     BotUtils.sendMessage(defaultChannel, message)
   }
 
-  override fun usage(prefix: String, lang: Lang): String = "${prefix}saveLocation | ${prefix}saveLocation [text channel | 'off']"
+  override fun usage(prefix: String, lang: Lang): String = Babel.savelocation(lang).usage(prefix)
 
-  override fun description(lang: Lang): String = "Sets the text channel to send all messages to, use `off` to restore default behaviour."
+  override fun description(lang: Lang): String =
+    "Sets the text channel to send all messages to, use `off` to restore default behaviour."
 }
