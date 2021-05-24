@@ -46,6 +46,9 @@ object Babel {
   private val language: MutableMap<Lang, Language> = mutableMapOf()
   fun language(lang: Lang) = language.getOrPut(lang) { Language(lang) }
 
+  private val prefix: MutableMap<Lang, Prefix> = mutableMapOf()
+  fun prefix(lang: Lang) = prefix.getOrPut(lang) { Prefix(lang) }
+
   private val record: MutableMap<Lang, Record> = mutableMapOf()
   fun record(lang: Lang) = record.getOrPut(lang) { Record(lang) }
 
@@ -119,6 +122,14 @@ class Language(lang: Lang) {
       .getString("language.usage")
       .format(prefix, Babel.languages)
   }
+}
+
+class Prefix(lang: Lang) {
+  private val resource = Babel.resource(lang)
+
+  val changed: (String) -> String = { prefix -> resource.getString("prefix.changed").format("**`${prefix}`**") }
+  val notChanged: (String) -> String = { prefix -> resource.getString("prefix.not_changed").format("**`$prefix`**") }
+  val usage: (String) -> String = { prefix -> resource.getString("prefix.usage").format(prefix) }
 }
 
 class Record(lang: Lang) {
