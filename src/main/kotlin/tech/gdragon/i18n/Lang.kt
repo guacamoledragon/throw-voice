@@ -31,6 +31,9 @@ object Babel {
   private val autosave: MutableMap<Lang, AutoSave> = mutableMapOf()
   fun autosave(lang: Lang) = autosave.getOrPut(lang) { AutoSave(lang) }
 
+  private val autostop: MutableMap<Lang, AutoStop> = mutableMapOf()
+  fun autostop(lang: Lang) = autostop.getOrPut(lang) { AutoStop(lang) }
+
   private val alias: MutableMap<Lang, Alias> = mutableMapOf()
   fun alias(lang: Lang) = alias.getOrPut(lang) { Alias(lang) }
 
@@ -75,6 +78,17 @@ class AutoSave(lang: Lang) {
   val off = resource.getString("autosave.off")
   val on = resource.getString("autosave.on")
   val usage: (String) -> String = { prefix -> resource.getString("autosave.usage").format(prefix) }
+}
+
+class AutoStop(lang: Lang) {
+  private val resource = Babel.resource(lang)
+
+  val all: (String) -> String = { number -> resource.getString("autostop.all").format("**$number**") }
+  val none: String = resource.getString("autostop.none")
+  val one: (String, String) -> String =
+    { channelId, number -> resource.getString("autostop.one").format("**<#${channelId}>**", "**$number**") }
+  val some: (String) -> String = { channelId -> resource.getString("autostop.some").format("**<#$channelId>**") }
+  val usage: (String) -> String = { prefix -> resource.getString("autostop.usage").format(prefix) }
 }
 
 class Help(lang: Lang) {
