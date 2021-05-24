@@ -52,6 +52,9 @@ object Babel {
   private val record: MutableMap<Lang, Record> = mutableMapOf()
   fun record(lang: Lang) = record.getOrPut(lang) { Record(lang) }
 
+  private val removealias: MutableMap<Lang, RemoveAlias> = mutableMapOf()
+  fun removealias(lang: Lang) = removealias.getOrPut(lang) { RemoveAlias(lang) }
+
   private val save: MutableMap<Lang, Save> = mutableMapOf()
   fun save(lang: Lang) = save.getOrPut(lang) { Save(lang) }
 
@@ -141,6 +144,14 @@ class Record(lang: Lang) {
     { channelId -> resource.getString("record.cannot_record").format("**<#$channelId>**") }
   val joinChannel: String = resource.getString("record.join_channel")
   val usage: (String) -> String = { prefix -> resource.getString("record.usage").format(prefix) }
+}
+
+class RemoveAlias(lang: Lang) {
+  private val resource = Babel.resource(lang)
+
+  val doesNotExist: (String) -> String = { alias -> resource.getString("removealias.does_not_exist").format("**`$alias`**") }
+  val remove: (String) -> String = { alias -> resource.getString("removealias.remove").format("**`$alias`**") }
+  val usage: (String) -> String = { prefix -> resource.getString("removealias.usage").format(prefix) }
 }
 
 class Save(lang: Lang) {
