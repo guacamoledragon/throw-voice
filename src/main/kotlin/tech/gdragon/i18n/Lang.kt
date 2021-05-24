@@ -40,6 +40,9 @@ object Babel {
   private val help: MutableMap<Lang, Help> = mutableMapOf()
   fun help(lang: Lang) = help.getOrPut(lang) { Help(lang) }
 
+  private val ignore: MutableMap<Lang, Ignore> = mutableMapOf()
+  fun ignore(lang: Lang) = ignore.getOrPut(lang) { Ignore(lang) }
+
   private val language: MutableMap<Lang, Language> = mutableMapOf()
   fun language(lang: Lang) = language.getOrPut(lang) { Language(lang) }
 
@@ -97,6 +100,15 @@ class Help(lang: Lang) {
   val checkDm: (String) -> String = { userId -> resource.getString("help.check_dm").format("**<@$userId>**") }
   val embedTitle: (String) -> String = { website -> resource.getString("help.embed_title").format(website) }
   val usage: (String) -> String = { prefix -> resource.getString("help.usage").format(prefix) }
+}
+
+class Ignore(lang: Lang) {
+  private val resource = Babel.resource(lang)
+
+  val beta = resource.getString("ignore.beta")
+  val ignore: (String) -> String = { users -> resource.getString("ignore.ignore").format(users) }
+  val notRecording = resource.getString("ignore.not_recording")
+  val usage: (String) -> String = { prefix -> resource.getString("ignore.usage").format(prefix) }
 }
 
 class Language(lang: Lang) {
