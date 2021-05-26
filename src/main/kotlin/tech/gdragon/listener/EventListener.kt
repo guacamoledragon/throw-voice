@@ -125,10 +125,17 @@ class EventListener : ListenerAdapter(), KoinComponent {
       if (BotUtils.isSelfBot(it.user)) return
     } ?: return
 
-    val prefix = BotUtils.getPrefix(event.guild)
+    val prefix = try {
+      BotUtils.getPrefix(event.guild)
+    } catch (e: Exception) {
+      logger.error(e) {
+        "Attempting to fetch prefix for ${event.guild.idLong}, failed!"
+      }
+      return
+    }
 
     withLoggingContext("guild" to event.guild.name, "text-channel" to event.channel.name) {
-      val rawContent = event.message.contentDisplay.toLowerCase()
+      val rawContent = event.message.contentDisplay.lowercase()
       val inMaintenance = getKoin().getProperty("BOT_MAINTENANCE", "false").toBoolean()
       val defaultChannel = BotUtils.defaultTextChannel(event.guild) ?: event.channel
       val hasPrefix = rawContent.startsWith(prefix)

@@ -118,6 +118,7 @@ object BotUtils {
   fun getPrefix(guild: DiscordGuild): String {
     return guild.run {
       guildCache.getIfPresent(idLong) ?: transaction {
+        logger.info { "Cache Miss! Obtaining prefix for $idLong" }
         // HACK: Create settings for a guild that needs to be accessed. This is a problem when restarting bot.
         // TODO: On bot initialization, I should be able to check which Guilds the bot is connected to and purge/add respectively
         val prefix = Guild.findOrCreate(idLong, name, region.name).settings.prefix
