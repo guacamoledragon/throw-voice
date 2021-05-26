@@ -6,6 +6,7 @@ import tech.gdragon.i18n.Lang
 class LanguageColumnType : TextColumnType() {
   override fun valueFromDB(value: Any): Any = when (value) {
     is ByteArray -> Lang.valueOf(String(value))
+    is Lang -> value
     else -> Lang.valueOf(value as String)
   }
 
