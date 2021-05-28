@@ -7,6 +7,8 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 ## [Unreleased]
 
 ### Added
+- Add new command `!lang`, provides a way to change the bot's language
+  - Create a system for adding new languages in the future
 
 ### Changed
 - [Pawa Lite]: Include binaries necessary for decoding OPUS
