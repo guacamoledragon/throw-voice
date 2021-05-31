@@ -12,6 +12,7 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 
 ### Changed
 - [Pawa Lite]: Include binaries necessary for decoding OPUS
+- [Pawa Lite]: Apply database migrations on startup
 
 ### Deprecated
 

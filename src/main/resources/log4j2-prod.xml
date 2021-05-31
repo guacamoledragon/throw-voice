@@ -2,12 +2,12 @@
 <Configuration>
   <Properties>
     <Property name="globalPattern">
-      %d{YYYY-MM-dd'T'HH:mm:ssZ} [%level] %logger{1.} -  %X{jda.shard} %mdc{guild}#%mdc{text-channel}: %msg%n
+      %d{YYYY-MM-dd'T'HH:mm:ssZ} [%level] %logger{1.} - %X{jda.shard} %mdc{guild}#%mdc{text-channel}: %msg%n
     </Property>
   </Properties>
   <Appenders>
     <Console name="Console">
-      <PatternLayout pattern="${globalPattern}" charset="UTF-8" />
+      <PatternLayout pattern="${globalPattern}" charset="UTF-8"/>
     </Console>
     <RollingRandomAccessFile
       name="DatabaseLogs"
@@ -35,13 +35,13 @@
       <AppenderRef ref="Console" level="info"/>
       <AppenderRef ref="ApplicationLogs"/>
     </Root>
-    <Logger name="tech.gdragon.db.ThreadLocalTransactionManager" level="info" additivity="false">
+    <Logger name="tech.gdragon.db" level="info" additivity="false">
       <AppenderRef ref="DatabaseLogs"/>
     </Logger>
     <Logger name="Exposed" level="info" additivity="false">
       <AppenderRef ref="DatabaseLogs"/>
     </Logger>
-    <Logger name="io.zonky.test.db.postgres.embedded" level="info" additivity="false">
+    <Logger name="org.flywaydb.core.internal" level="info" additivity="false">
       <AppenderRef ref="DatabaseLogs"/>
     </Logger>
   </Loggers>
