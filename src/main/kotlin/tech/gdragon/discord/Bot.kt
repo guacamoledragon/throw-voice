@@ -41,8 +41,8 @@ class Bot : KoinComponent {
   lateinit var shardManager: ShardManager
 
   fun api(): JDA {
-    while (!shardManager.statuses.any { it.value == JDA.Status.CONNECTED }) {
-      Thread.sleep(50)
+    while (!shardManager.statuses.all { it.value == JDA.Status.CONNECTED }) {
+      Thread.sleep(500)
     }
 
     return shardManager.shards.find { shard -> shard.status == JDA.Status.CONNECTED }!!
