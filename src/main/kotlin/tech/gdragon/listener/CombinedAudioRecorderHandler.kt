@@ -2,6 +2,7 @@ package tech.gdragon.listener
 
 import com.squareup.tape.QueueFile
 import de.sciss.jump3r.lowlevel.LameEncoder
+import io.azam.ulidj.ULID
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
@@ -12,7 +13,6 @@ import mu.KotlinLogging
 import mu.withLoggingContext
 import net.dv8tion.jda.api.audio.AudioReceiveHandler
 import net.dv8tion.jda.api.audio.CombinedAudio
-import net.dv8tion.jda.api.audio.UserAudio
 import net.dv8tion.jda.api.entities.TextChannel
 import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.entities.VoiceChannel
@@ -34,7 +34,6 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Paths
-import java.util.*
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
@@ -88,7 +87,7 @@ class CombinedAudioRecorderHandler(
   private val logger = KotlinLogging.logger { }
   private val datastore: Datastore by inject()
   private val dataDirectory: String = getKoin().getProperty("BOT_DATA_DIR", "./")
-  private val fileFormat: String = getKoin().getProperty("BOT_FILE_FORMAT", "mp3").toLowerCase()
+  private val fileFormat: String = getKoin().getProperty("BOT_FILE_FORMAT", "mp3").lowercase()
   private val standalone = getKoin().getProperty<String>("BOT_STANDALONE").toBoolean()
   private val vbr = getKoin().getProperty<String>("BOT_MP3_VBR").toBoolean()
 
@@ -96,7 +95,7 @@ class CombinedAudioRecorderHandler(
   private var subject: PublishSubject<CombinedAudio>? = null
   private var single: Single<RecordingQueue?>? = null
   private val compositeDisposable = RecordingDisposable()
-  private var uuid: UUID? = null
+  private var ulid: String? = null
   private var recordingRecord: Recording? = null
 
   private var canReceive = true
@@ -110,7 +109,7 @@ class CombinedAudioRecorderHandler(
   private var silencedUsers: MutableSet<Long> = mutableSetOf()
 
   val session: String
-    get() = uuid.toString()
+    get() = ulid ?: ""
 
   init {
     single = createRecording()
@@ -158,9 +157,9 @@ class CombinedAudioRecorderHandler(
     }
 
     subject = PublishSubject.create()
-    uuid = UUID.randomUUID()
-    filename = "$dataDirectory/recordings/$uuid.$fileFormat"
-    val queueFilename = "$dataDirectory/recordings/$uuid.queue"
+    ulid = ULID.random()
+    filename = "$dataDirectory/recordings/$ulid.$fileFormat"
+    val queueFilename = "$dataDirectory/recordings/$ulid.queue"
     val queueFile = RecordingQueue(File(queueFilename))
     canReceive = true
 
@@ -225,14 +224,14 @@ class CombinedAudioRecorderHandler(
           recordingSize += bytes.size
         } catch (e: IOException) {
           logger.warn {
-            "${e.message} - Queue file has been closed: $uuid"
+            "${e.message} - Queue file has been closed: $ulid"
           }
         }
       }
 
     val disposable = singleObservable?.subscribe { _, e ->
       e?.let { ex ->
-        logger.error(ex) { "Error on subscription on createRecording: $uuid" }
+        logger.error(ex) { "Error on subscription on createRecording: $ulid" }
       }
     }
 
@@ -249,16 +248,16 @@ class CombinedAudioRecorderHandler(
   ): Pair<Recording?, Semaphore> {
     canReceive = false
     val recordingLock = Semaphore(1, false)
-    val recordingUUID = uuid
+    val recordingId = ulid
 
-    logger.debug { "Creating subscription for recording: $recordingUUID" }
+    logger.debug { "Creating subscription for recording: $recordingId" }
     val disposable = single?.subscribe { queueFile, e ->
       e?.let { ex ->
-        logger.error(ex) { "Error on subscription on saveRecording: $recordingUUID" }
+        logger.error(ex) { "Error on subscription on saveRecording: $recordingId" }
       }
 
       val recordingFile = queueFile?.let {
-        logger.info { "Completed recording: $recordingUUID, queue file size: ${it.size()}" }
+        logger.info { "Completed recording: $recordingId, queue file size: ${it.size()}" }
         File(it.fileBuffer.canonicalPath.replace("queue", "mp3"))
       }
 
@@ -290,7 +289,7 @@ class CombinedAudioRecorderHandler(
       withLoggingContext("sessionId" to session) {
         uploadRecording(recordingFile, voiceChannel, textChannel)
         logger.debug {
-          "Releasing lock in saveRecording subscription on uuid: $recordingUUID"
+          "Releasing lock in saveRecording subscription on id: $recordingId"
         }
         recordingLock.release(1)
       }
@@ -300,10 +299,10 @@ class CombinedAudioRecorderHandler(
     disposable?.let(compositeDisposable::add)
 
     logger.debug {
-      "Acquiring lock in saveRecording on recording: $recordingUUID"
+      "Acquiring lock in saveRecording on recording: $recordingId"
     }
     recordingLock.acquire(1) // what could go wrong?
-    logger.debug { "Marking observable as completed for recording: $recordingUUID" }
+    logger.debug { "Marking observable as completed for recording: $recordingId" }
     subject?.onComplete()
 
     val recording = recordingRecord
@@ -312,7 +311,7 @@ class CombinedAudioRecorderHandler(
     if (resumeRecording) {
       compositeDisposable.reset()
       createRecording()
-      logger.info { "Cannot wait! Creating a new recording: $recordingUUID" }
+      logger.info { "Cannot wait! Creating a new recording: $recordingId" }
     }
 
     return Pair(recording, recordingLock)

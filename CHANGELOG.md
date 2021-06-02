@@ -13,6 +13,7 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 ### Changed
 - [Pawa Lite]: Include binaries necessary for decoding OPUS
 - [Pawa Lite]: Apply database migrations on startup
+- Switch from using UUIDs to ULIDs
 
 ### Deprecated
 
@@ -23,12 +24,12 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 
 ### Security
 
-## [2.9.4]
+## [2.9.4] - 2021-04-19
 
 ### Changed
 - [Pawa Lite]: Will not leave voice channel when there's no voice activity.
 
-## [2.9.3]
+## [2.9.3] - 2021-03-28
 
 ### Added
 - [Pawa Lite]: `autorecord` command now works!
