@@ -7,6 +7,20 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 ## [Unreleased]
 
 ### Added
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+
+## [2.9.5] - 2021-06-11
+
+### Added
 - Add new command `!lang`, provides a way to change the bot's language
   - Create a system for adding new languages in the future
 
@@ -15,14 +29,8 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 - [Pawa Lite]: Apply database migrations on startup
 - Switch from using UUIDs to ULIDs
 
-### Deprecated
-
-### Removed
-
 ### Fixed
 - Adding an alias twice in a row would result in an error and would break the alias
-
-### Security
 
 ## [2.9.4] - 2021-04-19
 
@@ -74,7 +82,8 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 ### Fixed
 - Remove recording limits and warnings
 
-[Unreleased]: https://gitlab.com/pawabot/pawa/-/compare/v2.9.4...master
+[Unreleased]: https://gitlab.com/pawabot/pawa/-/compare/v2.9.5...master
+[2.9.5]: https://gitlab.com/pawabot/pawa/-/compare/v2.9.4...v2.9.5
 [2.9.4]: https://gitlab.com/pawabot/pawa/-/compare/v2.9.3...v2.9.4
 [2.9.3]: https://gitlab.com/pawabot/pawa/-/compare/v2.9.2...v2.9.3
 [2.9.2]: https://gitlab.com/pawabot/pawa/-/compare/v2.9.1...v2.9.2
