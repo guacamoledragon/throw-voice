@@ -40,6 +40,7 @@ fun handleCommand(event: GuildMessageReceivedEvent, prefix: String, rawInput: St
         ?.settings
         ?.aliases
         ?.find { it.alias == rawCommand }
+        ?.name
     }
 
     if (alias == null) {
@@ -47,8 +48,7 @@ fun handleCommand(event: GuildMessageReceivedEvent, prefix: String, rawInput: St
       tracer.sendEvent(mapOf("command-not-found" to rawCommand.uppercase()))
     }
 
-    alias
-      ?.let { Command.valueOf(it.name) }
+    alias?.let(Command::valueOf)
   }
 
   command?.handler?.let {
