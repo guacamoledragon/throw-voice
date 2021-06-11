@@ -1,12 +1,11 @@
 package tech.gdragon
 
 import de.sciss.jump3r.lowlevel.LameEncoder
-import net.dv8tion.jda.api.AccountType
-import net.dv8tion.jda.api.JDABuilder
 import net.dv8tion.jda.api.audio.AudioReceiveHandler
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
+import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder
 import org.apache.commons.io.FileUtils
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -64,8 +63,8 @@ fun basicTest() {
 
 fun testBiggestChannel() {
 //  initializeDatabase("settings.db")
-  JDABuilder(AccountType.BOT)
-    .setToken(System.getenv("TOKEN"))
+  DefaultShardManagerBuilder
+    .createDefault(System.getenv("TOKEN"))
     .addEventListeners(object : ListenerAdapter() {
       override fun onGuildVoiceJoin(event: GuildVoiceJoinEvent) {
         println("event.guild = ${event.guild}")
@@ -80,13 +79,12 @@ fun testBiggestChannel() {
       }
     })
     .build()
-    .awaitReady()
 }
 
 fun testAlerts() {
 //  initializeDatabase("settings.db")
-  JDABuilder(AccountType.BOT)
-    .setToken(System.getenv("TOKEN"))
+  DefaultShardManagerBuilder
+    .createDefault(System.getenv("TOKEN"))
     .addEventListeners(object : ListenerAdapter() {
       override fun onGuildVoiceJoin(event: GuildVoiceJoinEvent) {
         println("Sending alerts to users that joined ${event.channelJoined}.")
@@ -95,7 +93,6 @@ fun testAlerts() {
       }
     })
     .build()
-    .awaitReady()
 }
 
 fun testAutoJoin() {
