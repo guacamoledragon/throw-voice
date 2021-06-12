@@ -8,13 +8,16 @@ import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.db.asyncTransaction
 import tech.gdragon.db.dao.Guild
-import tech.gdragon.db.dao.Settings
 import tech.gdragon.i18n.Babel
 import tech.gdragon.i18n.Lang
+import tech.gdragon.i18n.SaveLocation
 
 class SaveLocation : CommandHandler() {
-  private fun setSaveLocation(settings: Settings, channel: TextChannel?): String {
-    val translator = transaction { settings.language.let(Babel::savelocation) }
+  private fun setSaveLocation(guildId: Long, channel: TextChannel?, translator: SaveLocation): String {
+    val settings = transaction {
+      Guild[guildId].settings
+    }
+
     return when {
       channel == null -> {
         asyncTransaction { settings.defaultTextChannel = null }
@@ -33,27 +36,29 @@ class SaveLocation : CommandHandler() {
       throw InvalidCommand(::usage, "Incorrect number of arguments: ${args.size}")
     }
 
-    val settings = transaction {
-      Guild[event.guild.idLong].settings
+    val guildId = event.guild.idLong
+
+    val translator = transaction {
+      Guild[guildId]
+        .settings
+        .language
+        .let(Babel::savelocation)
     }
 
-    val translator = transaction { settings.language.let(Babel::savelocation) }
-    val message = settings?.let {
-      when {
-        args.isEmpty() -> setSaveLocation(it, event.channel)
-        args.first() == "off" -> setSaveLocation(it, null)
-        else -> {
-          val channelName = if (args.first().startsWith("#")) args.first().substring(1) else args.first()
-          val channels = event.guild.getTextChannelsByName(channelName, true)
+    val message = when {
+      args.isEmpty() -> setSaveLocation(guildId, event.channel, translator)
+      args.first() == "off" -> setSaveLocation(guildId, null, translator)
+      else -> {
+        val channelName = if (args.first().startsWith("#")) args.first().substring(1) else args.first()
+        val channels = event.guild.getTextChannelsByName(channelName, true)
 
-          if (channels.isEmpty()) {
-            ":no_entry_sign: _${translator.notFound(args.first())}_"
-          } else {
-            setSaveLocation(it, channels.first())
-          }
+        if (channels.isEmpty()) {
+          ":no_entry_sign: _${translator.notFound(args.first())}_"
+        } else {
+          setSaveLocation(guildId, channels.first(), translator)
         }
       }
-    } ?: ":no_entry_sign: _${translator.fail}_"
+    }
 
     val defaultChannel = BotUtils.defaultTextChannel(event.guild) ?: event.channel
     BotUtils.sendMessage(defaultChannel, message)
