@@ -9,12 +9,15 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 ### Added
 
 ### Changed
+- Change activity from "Playing" to "Listening"
 
 ### Deprecated
 
 ### Removed
 
 ### Fixed
+- [Pawa Lite]: Some commands had issues with the H2 embedded database transactions, so had to adjust code to cache the
+  objects and prevent re-query'ing for them after the database connection had closed.
 
 ### Security
 
