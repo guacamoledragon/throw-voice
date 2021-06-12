@@ -25,6 +25,12 @@ class Help : CommandHandler() {
         ?.settings
         ?.aliases
         ?.toList()
+        ?.map {
+          object {
+            val name = it.name
+            val alias = it.alias
+          }
+        }
     }
     val language = transaction { guild.settings.language }
 
