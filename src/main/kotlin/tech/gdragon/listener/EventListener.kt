@@ -191,7 +191,7 @@ class EventListener : ListenerAdapter(), KoinComponent {
     event
       .jda
       .presence
-      .activity = Activity.of(Activity.ActivityType.DEFAULT, "$version | $website", website)
+      .activity = Activity.of(Activity.ActivityType.LISTENING, "$version | $website", website)
 
     // Add guild if not present
     logger.info { "Add any missing Guilds to the Database..." }
