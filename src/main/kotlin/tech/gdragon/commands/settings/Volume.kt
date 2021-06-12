@@ -27,7 +27,12 @@ class Volume : CommandHandler() {
             Guild[event.guild.idLong].settings
           }
 
-          val translator = transaction { settings.language.let(Babel::volume) }
+          val translator = transaction {
+            Guild[event.guild.idLong]
+              .settings
+              .language
+              .let(Babel::volume)
+          }
 
           settings.let {
             transaction {
@@ -35,7 +40,7 @@ class Volume : CommandHandler() {
             }
             BotUtils.updateVolume(event.guild, percentage)
             ":loud_sound: _${translator.recording(volume.toString())}_"
-          } ?: ":no_entry_sign: _${translator.notRecording}_"
+          }
         } else {
           throw InvalidCommand(::usage, "Volume must be a number between 1-100: ${args.first()}")
         }
