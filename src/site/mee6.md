@@ -14,9 +14,16 @@ MEE6 has two tiers:
 * Free: **2 minutes**
 * Premium: Up to **6 hours**
 
+From their [website](https://mee6.xyz/premium):
 ![feature comparison](./_media/mee6-premium-free.png)
 
 ## Feature Comparison
+
+| Feature         | pawa  | MEE6          |
+|:----------------|:-----:|:-------------:|
+| Recording Limit | 100mb | 2mins - 6hrs* |
+|                 |       |               |
+
 
 ## Which one?
 
