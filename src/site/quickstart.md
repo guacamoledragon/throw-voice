@@ -2,13 +2,9 @@
 
 Before you get started, you must invite `pawa` to your own Discord server.
 
-<section class="cover show" style="height: unset; width: unset;">
-  <div class="cover-main">
-    <p>
-      <a style="font-size: 2.05rem" href="https://discordapp.com/oauth2/authorize?client_id=338897906524225538&scope=bot&permissions=101731328">Invite!</a>
-    </p>
-  </div>
-</section>
+<div style="text-align: center;">
+  <a class="button" style="font-size: 2.05rem;" href="https://discordapp.com/oauth2/authorize?client_id=338897906524225538&scope=bot&permissions=101731328">Invite!</a>
+</div>
 
 ?> You must be a server Administrator to do this.
 

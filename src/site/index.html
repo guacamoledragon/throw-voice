@@ -32,6 +32,20 @@
   <style>
     :root {
         --theme-color: #5C6A00;
+        --cover-button-primary-background--hover: #424d00;
+    }
+
+    .markdown-section a.button {
+        background-color: var(--cover-button-primary-background);
+        box-shadow: 0 5px 0 #161a00;
+        color: var(--cover-button-primary-color);
+        padding: 1rem 1.5rem;
+        text-decoration: none;
+        transition: var(--cover-button-transition);
+    }
+
+    .markdown-section a.button:hover {
+        background-color: var(--cover-button-primary-background--hover);
     }
 
     .sponsors {
