@@ -19,10 +19,13 @@ From their [website](https://mee6.xyz/premium):
 
 ## Feature Comparison
 
-| Feature         | pawa  | MEE6          |
-|:----------------|:-----:|:-------------:|
-| Recording Limit | 100mb | 2mins - 6hrs* |
-|                 |       |               |
+| Feature          | pawa   | MEE6           |
+|:-----------------|:------:|:--------------:|
+| Recording Limit  | 100mb* | 2mins - 6hrs** |
+| Recording Format | mp3    | mp3            |
+| Multi-Track      | No     | No             |
+| Link Expiration  | 24hrs  | ???            |
+|                  |        |                |
 
 
 ## Which one?

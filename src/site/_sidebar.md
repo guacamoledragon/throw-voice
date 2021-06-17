@@ -13,4 +13,4 @@
 ---
 - Alternatives
   - [vs. Craig](craig.md)
-  - [vs. Mee6](mee6.md)
+  - [vs. MEE6](mee6.md)
