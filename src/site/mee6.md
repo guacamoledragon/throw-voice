@@ -27,6 +27,14 @@ From their [website](https://mee6.xyz/premium):
 | Link Expiration  | 24hrs  | ???            |
 |                  |        |                |
 
+_* pawa's limits are based on size of recording not time, so the time could range between 1hr - 3hrs_  
+_** Requires a Premium subscription_
 
-## Which one?
+## Conclusion
 
+So which one do you choose?
+
+* If you're already using MEE6 Premium, then use <u>MEE6</u>.
+* If you're not using MEE6 Premium, it's hard to recommend for it's 2min recording limit, so use <u>pawa</u>.
+
+Regardless of which route you end up going, if you care about your recording, **ALWAYS** have a backup, whether that's another recording bot or some form of local recording with a tool like Audacity. Better be safe than sorry.
