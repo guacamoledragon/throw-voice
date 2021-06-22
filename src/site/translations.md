@@ -2,9 +2,11 @@
 [pawa](https://pawa.im) supports "speaking" in the following languages:
 
 | Language            | Code    | Status     | Contributors  |
-|---------------------|---------|------------|---------------|
+|---------------------|:-------:|:----------:|:-------------:|
 | English             | `en`    | Done       |               |
 | Portuguese (Brazil) | `pt_BR` | Incomplete | Zeus Portella |
+| Spanish             | `es`    | Done       |               |
+| French              | `fr`    | Done       | CedriCDAR77   |
 
 
 ## Contribute
