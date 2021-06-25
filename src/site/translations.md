@@ -4,8 +4,9 @@
 | Language            | Code    | Status     | Contributors  |
 |---------------------|:-------:|:----------:|:-------------:|
 | English             | `en`    | Done       |               |
+| Indonesian          | `id`    | Done       | Aldiwild77    |
 | Portuguese (Brazil) | `pt_BR` | Incomplete | Zeus Portella |
-| Spanish             | `es`    | Done       |               |
+| Spanish             | `es`    | Done       | ChangoMC      |
 | French              | `fr`    | Done       | CedriCDAR77   |
 
 
