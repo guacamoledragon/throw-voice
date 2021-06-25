@@ -14,6 +14,10 @@ enum class Lang {
     override val locale = Locale("es")
     override val flagEmoji: String = ":flag_mx:"
   },
+  ID {
+    override val locale = Locale("id", "ID", "indonesia")
+    override val flagEmoji: String = ":flag_id:"
+  },
   FR {
     override val locale = Locale.FRENCH!!
     override val flagEmoji: String = ":flag_fr:"
