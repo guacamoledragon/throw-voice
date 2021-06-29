@@ -9,30 +9,43 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 ### Added
 
 ### Changed
-- Change activity from "Playing" to "Listening"
 
 ### Deprecated
 
 ### Removed
 
 ### Fixed
-- [Pawa Lite]: Some commands had issues with the H2 embedded database transactions, so had to adjust code to cache the
-  objects and prevent re-query'ing for them after the database connection had closed.
 
 ### Security
+
+## [2.9.6] - 2021-06-29
+
+### Added
+- Add beta support for [Stage Channels](https://github.com/DV8FromTheWorld/JDA/pull/1575)
+- Add translations for:
+  - Indonesian
+  - Spanish (MX)
+  - French
+
+### Changed
+- Change activity from "Playing" to "Listening"
+
+### Fixed
+- [Pawa Lite]: Some commands had issues with the H2 embedded database transactions, so had to adjust code to cache the
+  objects and prevent re-query'ing for them after the database connection had closed.
 
 ## [2.9.5] - 2021-06-11
 
 ### Added
 - Add new command `!lang`, provides a way to change the bot's language
   - Create a system for adding new languages in the future
+- [Pawa Lite]: Apply database migrations on startup
 
 ### Changed
-- [Pawa Lite]: Include binaries necessary for decoding OPUS
-- [Pawa Lite]: Apply database migrations on startup
 - Switch from using UUIDs to ULIDs
 
 ### Fixed
+- [Pawa Lite]: Include binaries necessary for decoding OPUS
 - Adding an alias twice in a row would result in an error and would break the alias
 
 ## [2.9.4] - 2021-04-19
@@ -85,7 +98,8 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 ### Fixed
 - Remove recording limits and warnings
 
-[Unreleased]: https://gitlab.com/pawabot/pawa/-/compare/v2.9.5...master
+[Unreleased]: https://gitlab.com/pawabot/pawa/-/compare/v2.9.6...master
+[2.9.6]: https://gitlab.com/pawabot/pawa/-/compare/v2.9.5...v2.9.6
 [2.9.5]: https://gitlab.com/pawabot/pawa/-/compare/v2.9.4...v2.9.5
 [2.9.4]: https://gitlab.com/pawabot/pawa/-/compare/v2.9.3...v2.9.4
 [2.9.3]: https://gitlab.com/pawabot/pawa/-/compare/v2.9.2...v2.9.3
