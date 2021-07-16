@@ -117,7 +117,7 @@
     <dependency>
       <groupId>org.flywaydb</groupId>
       <artifactId>flyway-core</artifactId>
-      <version>7.10.0</version>
+      <version>7.11.2</version>
     </dependency>
     <dependency>
       <groupId>org.jetbrains.exposed</groupId>
