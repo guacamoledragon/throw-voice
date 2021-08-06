@@ -1,5 +1,6 @@
 package tech.gdragon.discord
 
+import dev.minn.jda.ktx.injectKTX
 import mu.KotlinLogging
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.Permission
@@ -18,6 +19,7 @@ import tech.gdragon.commands.misc.Help
 import tech.gdragon.commands.misc.Record
 import tech.gdragon.commands.misc.Stop
 import tech.gdragon.commands.settings.*
+import tech.gdragon.commands.slash.registerSlashCommands
 import tech.gdragon.listener.EventListener
 import tech.gdragon.listener.SystemEventListener
 import javax.security.auth.login.LoginException
@@ -34,7 +36,8 @@ class Bot : KoinComponent {
       Permission.NICKNAME_CHANGE,
       Permission.VOICE_CONNECT,
       Permission.VOICE_SPEAK,
-      Permission.VOICE_USE_VAD
+      Permission.VOICE_USE_VAD,
+      Permission.USE_SLASH_COMMANDS
     )
   }
 
@@ -57,7 +60,9 @@ class Bot : KoinComponent {
         .setChunkingFilter(ChunkingFilter.NONE)
         .setMemberCachePolicy(MemberCachePolicy.VOICE)
         .addEventListeners(EventListener(), SystemEventListener())
+        .injectKTX()
         .build()
+      registerSlashCommands(shardManager)
     } catch (e: LoginException) {
       logger.error(e) {
         "Could not authenticate using token: $token"

@@ -12,6 +12,7 @@
 
   <properties>
     <jda.version>4.3.0_301</jda.version>
+    <jda-ktx.version>ea0a1b2</jda-ktx.version>
     <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
     <kotlin.compiler.jvmTarget>11</kotlin.compiler.jvmTarget>
     <kotlin.version>1.5.21</kotlin.version>
@@ -25,6 +26,11 @@
       <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>
       <version>1.4.200</version>
+    </dependency>
+    <dependency>
+      <groupId>com.github.MinnDevelopment</groupId>
+      <artifactId>jda-ktx</artifactId>
+      <version>${jda-ktx.version}</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
