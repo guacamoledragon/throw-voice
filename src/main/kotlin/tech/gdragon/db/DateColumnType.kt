@@ -46,6 +46,7 @@ class DateColumnType(val time: Boolean) : ColumnType() {
     is String -> when {
       currentDialect is SQLiteDialect && time -> SQLITE_DATE_TIME_STRING_FORMATTER.parseDateTime(value)
       currentDialect is SQLiteDialect -> SQLITE_DATE_STRING_FORMATTER.parseDateTime(value)
+      time -> SQLITE_DATE_TIME_STRING_FORMATTER.parseDateTime(value)
       else -> value
     }
     // REVIEW
