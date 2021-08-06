@@ -34,7 +34,8 @@ class Bot : KoinComponent {
       Permission.NICKNAME_CHANGE,
       Permission.VOICE_CONNECT,
       Permission.VOICE_SPEAK,
-      Permission.VOICE_USE_VAD
+      Permission.VOICE_USE_VAD,
+      Permission.USE_SLASH_COMMANDS
     )
   }
 
