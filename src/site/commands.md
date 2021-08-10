@@ -23,6 +23,12 @@ This is the full list of commands available, but on a daily basis, you wont need
 |             [volume](commands/volume.md) | Set the recording volume                                                                        |
 
 
+## Slash Commands
+
+|                  Command | Description                                                                |
+|-------------------------:|----------------------------------------------------------------------------|
+| [info](commands/info.md) | Displays information about[pawa](https://pawa.im) for the caller's server. |
+
 ## Supporter Commands: _Coming Soon!_
 
 ### If you'd like to get notified, please sign up [>> here <<](notify.md)
