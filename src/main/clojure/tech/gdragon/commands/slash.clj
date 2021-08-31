@@ -3,8 +3,9 @@
   (:import (tech.gdragon.discord Bot)
            (tech.gdragon.commands.slash Info)
            (net.dv8tion.jda.api.entities Guild)
-           (net.dv8tion.jda.api.sharding DefaultShardManager)
-           (net.dv8tion.jda.api.interactions.commands.build CommandData)))
+           (net.dv8tion.jda.api.sharding DefaultShardManager ShardManager)
+           (net.dv8tion.jda.api.interactions.commands.build CommandData)
+           (net.dv8tion.jda.api JDA)))
 
 (def ^Bot bot (get-obj "bot"))
 
@@ -26,9 +27,20 @@
   (let [commands (into-array CommandData [command])]
     (.. guild updateCommands (addCommands commands) complete)))
 
+(defn set-global-command
+  "Set slash command **globally**."
+  [^JDA jda ^CommandData command]
+  (let [commands (into-array CommandData [command])]
+    (.. jda updateCommands (addCommands commands) complete)))
+
 (comment
   (require '[clojure.repl :refer [pst]])
   (pst *e)
-  (let [guild (find-guild shard-manager 333055724198559745)]
-    #_(set-guild-command guild (.getCommand Info/INSTANCE))
-    (retrieve-guild-commands guild)))
+
+  (set-global-command (.api bot) (.getCommand Info/INSTANCE))
+  #_(let [guild (find-guild shard-manager )]
+      ;(set-guild-command guild (.getCommand Info/INSTANCE))))
+      (retrieve-guild-commands guild)))
+
+(comment
+  "Invite URL: https://discord.com/oauth2/authorize?client_id=338897906524225538&scope=applications.commands+bot&permissions=2251328512")
