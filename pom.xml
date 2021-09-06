@@ -159,7 +159,7 @@
       <version>${kotlin.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.koin</groupId>
+      <groupId>io.insert-koin</groupId>
       <artifactId>koin-core</artifactId>
       <version>2.2.2</version>
     </dependency>
@@ -323,11 +323,6 @@
       <id>dv8tion</id>
       <name>m2-dv8tion</name>
       <url>https://m2.dv8tion.net/releases</url>
-    </repository>
-    <repository>
-      <id>jcenter</id>
-      <name>jcenter-bintray</name>
-      <url>https://jcenter.bintray.com</url>
     </repository>
     <repository>
       <id>jitpack.io</id>
