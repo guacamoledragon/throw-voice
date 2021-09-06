@@ -1,14 +1,15 @@
 # Translations
 [pawa](https://pawa.im) supports "speaking" in the following languages:
 
-| Language            | Code    | Status     | Contributors  |
-|---------------------|:-------:|:----------:|:-------------:|
-| English             | `en`    | Done       |               |
-| Indonesian          | `id`    | Done       | Aldiwild77    |
-| Portuguese (Brazil) | `pt_BR` | Incomplete | Zeus Portella |
-| Spanish             | `es`    | Done       | ChangoMC      |
-| French              | `fr`    | Done       | CedriCDAR77   |
-
+| Language            | Code    | Status           | Contributors         |
+|---------------------|:-------:|:----------------:|:--------------------:|
+| English             | `en`    | Done             | Kinglester           |
+| French              | `fr`    | Done             | CedriCDAR77          |
+| Indonesian          | `id`    | Done             | Aldiwild77           |
+| Italian             | `ita`   | Done             | Anko                 |
+| Portuguese (Brazil) | `pt_BR` | Incomplete (41%) | Zeus Portella, icebb |
+| Spanish             | `es`    | Done             | ChangoMC             |
+| Thai                | `tha`   | Incomplete (8%)  | Kariburahack         |
 
 ## Contribute
 We need your help! [pawa](https://pawa.im) will only be able to speak other languages if contributed by the community.
@@ -22,4 +23,4 @@ Download the [`translations.properties`](https://gitlab.com/pawabot/pawa/-/blob/
 
 ### POEditor
 
-Go to [pawa's POEditor](https://poeditor.com/join/project?hash=qQs2GuUoYv) project page, and add a language. The translations will be synchronized on the next release.
+Go to [pawa's POEditor](https://poeditor.com/join/project?hash=qQs2GuUoYv) project page, and add a language. I will synchronize the translations on the next release.
