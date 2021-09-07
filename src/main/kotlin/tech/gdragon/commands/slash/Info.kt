@@ -6,17 +6,22 @@ import net.dv8tion.jda.api.interactions.commands.build.CommandData
 import net.dv8tion.jda.api.sharding.ShardManager
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.koin.java.KoinJavaComponent.getKoin
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.table.Tables.Recordings
+import tech.gdragon.metrics.EventTracer
 import java.awt.Color
 
 object Info {
   val command = CommandData("info", "Display information about the bot for this specific server.")
 }
 
+val tracer: EventTracer = getKoin().get()
+
 fun registerSlashCommands(shardManager: ShardManager) {
   shardManager
     .onCommand("info") { event ->
+      tracer.sendEvent(mapOf("command" to "INFO"))
       if (event.isFromGuild) {
         transaction {
           event.guild?.let {
