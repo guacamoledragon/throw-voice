@@ -7,6 +7,10 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 ## [Unreleased]
 
 ### Added
+- Translations for:
+  - Italian
+  - Thai (partial)
+- Slash command `/info` to display information about Guild
 
 ### Changed
 
