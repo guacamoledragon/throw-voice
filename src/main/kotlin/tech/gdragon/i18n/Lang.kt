@@ -6,6 +6,10 @@ package tech.gdragon.i18n
 import java.util.*
 
 enum class Lang {
+  DE {
+    override val locale = Locale.GERMAN!!
+    override val flagEmoji: String = ":flag_de:"
+  },
   EN {
     override val locale = Locale.ENGLISH!!
     override val flagEmoji: String = ":flag_us:"
