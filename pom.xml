@@ -106,9 +106,9 @@
       <version>2.4.3</version>
     </dependency>
     <dependency>
-      <groupId>net.matlux</groupId>
-      <artifactId>jvm-breakglass</artifactId>
-      <version>0.0.8</version>
+      <groupId>nrepl</groupId>
+      <artifactId>nrepl</artifactId>
+      <version>0.8.3</version>
     </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
@@ -119,6 +119,11 @@
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-slf4j18-impl</artifactId>
       <version>2.14.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.clojure</groupId>
+      <artifactId>clojure</artifactId>
+      <version>1.10.3</version>
     </dependency>
     <dependency>
       <groupId>org.flywaydb</groupId>
