@@ -9,6 +9,8 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 ### Added
 - Translations for:
   - Italian
+  - German
+  - Portuguese
   - Thai (partial)
 - Slash command `/info` to display information about Guild
 
@@ -19,6 +21,8 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 ### Removed
 
 ### Fixed
+- Error about logging on startup
+  - Any version past 2.0.0-alpha2 is broken for us
 
 ### Security
 
