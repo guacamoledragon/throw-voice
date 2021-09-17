@@ -21,11 +21,21 @@
   [^Guild guild]
   (.. guild retrieveCommands complete))
 
+(defn retrieve-global-commands
+  "Get a list of global commands."
+  [^JDA jda]
+  (.. jda retrieveCommands complete))
+
 (defn set-guild-command
   "Set Guild slash command."
   [^Guild guild ^CommandData command]
   (let [commands (into-array CommandData [command])]
     (.. guild updateCommands (addCommands commands) complete)))
+
+(defn remove-guild-command
+  "Remove Guild slash command"
+  [^Guild guild ^String command-id]
+  (.. guild (deleteCommandById command-id) complete))
 
 (defn set-global-command
   "Set slash command **globally**."
@@ -37,8 +47,14 @@
   (require '[clojure.repl :refer [pst]])
   (pst *e)
 
-  (set-global-command (.api bot) (.getCommand Info/INSTANCE))
-  #_(let [guild (find-guild shard-manager )]
+  #_(let [guild (find-guild shard-manager 408795211901173762)
+          jda   (.api bot)]
+      (println
+        (retrieve-guild-commands guild)
+        (retrieve-global-commands jda)))
+
+  ;(set-global-command (.api bot) (.getCommand Info/INSTANCE))
+  #_(let [guild (find-guild shard-manager)]
       ;(set-guild-command guild (.getCommand Info/INSTANCE))))
       (retrieve-guild-commands guild)))
 
