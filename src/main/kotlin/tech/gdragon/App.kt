@@ -85,10 +85,7 @@ fun main() {
     val optionalModules = module {
       val createdAtStart = !koin.getBooleanProperty("BOT_STANDALONE")
       single(createdAtStart = createdAtStart) {
-        REPL().also {
-          it.nRepl["db"] = get<Database>()
-          it.nRepl["bot"] = get<Bot>()
-        }
+        REPL()
       }
       single(createdAtStart = createdAtStart) {
         HttpServer(get(), getProperty("BOT_HTTP_PORT").toInt()).also {
