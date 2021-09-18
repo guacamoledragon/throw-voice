@@ -20,12 +20,12 @@ import tech.gdragon.commands.misc.Record
 import tech.gdragon.commands.misc.Stop
 import tech.gdragon.commands.settings.*
 import tech.gdragon.commands.slash.registerSlashCommands
+import tech.gdragon.db.Database
 import tech.gdragon.listener.EventListener
 import tech.gdragon.listener.SystemEventListener
 import javax.security.auth.login.LoginException
 
-class Bot : KoinComponent {
-  private val token: String = getKoin().getProperty("BOT_TOKEN", "")
+class Bot(private val token: String, database: Database) {
   private val logger = KotlinLogging.logger {}
 
   companion object {
@@ -76,6 +76,10 @@ class Bot : KoinComponent {
         "Some shit went really wrong during the bot creation that I had to summon the big papa Exception"
       }
     }
+  }
+
+  fun shutdown() {
+    shardManager.shutdown()
   }
 }
 
