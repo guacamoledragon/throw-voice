@@ -24,4 +24,8 @@ class HttpServer(bot: Bot, val port: Int) {
       }
     }
   }
+
+  fun shutdown() {
+    server.stop()
+  }
 }
