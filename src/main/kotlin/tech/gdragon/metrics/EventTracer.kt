@@ -6,6 +6,8 @@ import io.honeycomb.libhoney.LibHoney.options
 
 interface EventTracer {
   fun sendEvent(fields: Map<String, Any>)
+
+  fun shutdown()
 }
 
 class Honey(apiKey: String) : EventTracer {
@@ -24,10 +26,18 @@ class Honey(apiKey: String) : EventTracer {
       .setTimestamp(System.currentTimeMillis())
       .send()
   }
+
+  override fun shutdown() {
+    honeyClient.closeOnShutdown()
+  }
 }
 
 class NoHoney() : EventTracer {
   override fun sendEvent(fields: Map<String, Any>) {
+    // No Op
+  }
+
+  override fun shutdown() {
     // No Op
   }
 }

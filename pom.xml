@@ -31,6 +31,12 @@
       <groupId>com.github.MinnDevelopment</groupId>
       <artifactId>jda-ktx</artifactId>
       <version>${jda-ktx.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.jetbrains.kotlin</groupId>
+          <artifactId>kotlin-stdlib-jdk8</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
@@ -64,7 +70,7 @@
       <exclusions>
         <exclusion>
           <groupId>org.jetbrains.kotlin</groupId>
-          <artifactId>kotlin-stdlib-common</artifactId>
+          <artifactId>kotlin-stdlib-jdk8</artifactId>
         </exclusion>
       </exclusions>
     </dependency>

@@ -15,6 +15,7 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 - Slash command `/info` to display information about Guild
 
 ### Changed
+- REPL class implementation, matlux/jvm-breakglass -> nrepl/nrepl
 
 ### Deprecated
 

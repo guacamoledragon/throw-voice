@@ -3,15 +3,14 @@
            (net.dv8tion.jda.api JDA JDA$Status EmbedBuilder JDA$ShardInfo)
            (net.dv8tion.jda.api.entities Activity Activity$ActivityType Guild TextChannel)
            (net.dv8tion.jda.api.sharding DefaultShardManager)
-           (com.squareup.tape QueueFile QueueFile$ElementReader))
+           (com.squareup.tape QueueFile QueueFile$ElementReader)
+           (org.koin.java KoinJavaComponent))
   (:require [clojure.java.io :as io]
             [clojure.string :as str]))
 
-(use 'cl-java-introspector.core)
+(def ^Bot bot "bot" (delay (KoinJavaComponent/get Bot)))
 
-(def ^Bot bot (get-obj "bot"))
-
-(def ^DefaultShardManager shard-manager (-> bot .api .getShardManager))
+(def ^DefaultShardManager shard-manager (delay (-> @bot .api .getShardManager)))
 
 (defn get-channel
   "Find Discord channel and return"
@@ -99,13 +98,7 @@
     (.. audio-manager getConnectedChannel getName)))
 
 (comment
-  (use 'cl-java-introspector.core)
   (import '(net.dv8tion.jda.api.sharding DefaultShardManager))
-  (def bot (get-obj "bot"))
-
-  (import '(org.koin.core.context GlobalContext))
-
-  ;(.setProperty (.get (GlobalContext/INSTANCE)) "MAINTENANCE" "true")
 
   (defn which-shard
     "Find the shard ID for a given guild ID"
