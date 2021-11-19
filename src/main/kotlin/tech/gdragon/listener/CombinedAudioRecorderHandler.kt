@@ -389,10 +389,8 @@ class CombinedAudioRecorderHandler(
           val result = datastore.upload(recordingKey, recording)
 
           val message = """|:microphone2: **Recording for <#${voiceChannel?.id}> has been uploaded!**
-                           |${result.url}
-                           |
-                           |_Recording will only be available for 24hrs_
-                           |---
+                           |${if (!standalone) result.url else "`" + result.url + "`"}
+                           |${if (!standalone) "\n\n_Recording will only be available for 24hrs_" else ""}
                            |""".trimMargin()
 
           BotUtils.sendMessage(channel, message)
