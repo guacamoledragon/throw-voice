@@ -7,6 +7,20 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 ## [Unreleased]
 
 ### Added
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+
+## [2.9.7] - 2021-11-19
+
+### Added
 - Translations for:
   - Italian
   - German
@@ -16,16 +30,23 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 
 ### Changed
 - REPL class implementation, matlux/jvm-breakglass -> nrepl/nrepl
-
-### Deprecated
-
-### Removed
+- [Pawa Lite]: Omit 24 hour warning
+- Update the following dependencies:
+  - JDA from 4.3.0_324 to 4.3.0_346
+  - exposed from 0.17.13 to 0.17.14
+  - failsafe from 2.4.3 to 2.4.4
+  - flyway-core from 7.15.0 to 8.0.5
+  - jackson-databind from 2.12.5 to 2.13.0
+  - jda-ktx from ea0a1b2 to 1223d5c
+  - koin-core from 2.2.2 to 3.1.3
+  - kotlin-logging-jvm from 2.0.11 to 2.1.0 
+  - kotlin.version from 1.5.30 to 1.6.0
+  - postgresql from 42.2.23 to 42.3.1
 
 ### Fixed
 - Error about logging on startup
   - Any version past 2.0.0-alpha2 is broken for us
 
-### Security
 
 ## [2.9.6] - 2021-06-29
 
@@ -107,7 +128,8 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 ### Fixed
 - Remove recording limits and warnings
 
-[Unreleased]: https://gitlab.com/pawabot/pawa/-/compare/v2.9.6...master
+[Unreleased]: https://gitlab.com/pawabot/pawa/-/compare/v2.9.7...master
+[2.9.7]: https://gitlab.com/pawabot/pawa/-/compare/v2.9.6...v2.9.7
 [2.9.6]: https://gitlab.com/pawabot/pawa/-/compare/v2.9.5...v2.9.6
 [2.9.5]: https://gitlab.com/pawabot/pawa/-/compare/v2.9.4...v2.9.5
 [2.9.4]: https://gitlab.com/pawabot/pawa/-/compare/v2.9.3...v2.9.4
