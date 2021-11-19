@@ -10,7 +10,6 @@ import net.dv8tion.jda.api.sharding.ShardManager
 import net.dv8tion.jda.api.utils.ChunkingFilter
 import net.dv8tion.jda.api.utils.MemberCachePolicy
 import net.dv8tion.jda.api.utils.cache.CacheFlag
-import org.koin.core.component.KoinComponent
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.audio.Clip
 import tech.gdragon.commands.audio.Save
