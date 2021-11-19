@@ -12,7 +12,7 @@
 
   <properties>
     <jda.version>4.3.0_346</jda.version>
-    <jda-ktx.version>ea0a1b2</jda-ktx.version>
+    <jda-ktx.version>0.7.0</jda-ktx.version>
     <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
     <kotlin.compiler.jvmTarget>11</kotlin.compiler.jvmTarget>
     <kotlin.version>1.6.0</kotlin.version>
