@@ -8,6 +8,8 @@ import org.koin.core.context.GlobalContext
 import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
 import org.koin.dsl.module
+import org.koin.environmentProperties
+import org.koin.fileProperties
 import tech.gdragon.data.Datastore
 import tech.gdragon.data.LocalDatastore
 import tech.gdragon.data.RemoteDatastore
@@ -168,7 +170,7 @@ object App {
     }
 
     app.close()
-    GlobalContext.stop()
+    GlobalContext.stopKoin()
   }
 
   /**

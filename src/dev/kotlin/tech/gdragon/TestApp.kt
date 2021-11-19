@@ -16,6 +16,8 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.joda.time.DateTime
 import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
+import org.koin.environmentProperties
+import org.koin.fileProperties
 import tech.gdragon.db.dao.Alias
 import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
