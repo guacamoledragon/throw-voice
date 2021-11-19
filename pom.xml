@@ -15,7 +15,7 @@
     <jda-ktx.version>ea0a1b2</jda-ktx.version>
     <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
     <kotlin.compiler.jvmTarget>11</kotlin.compiler.jvmTarget>
-    <kotlin.version>1.5.30</kotlin.version>
+    <kotlin.version>1.6.0</kotlin.version>
     <main.class>tech.gdragon.App</main.class>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <slf4j.version>2.0.0-alpha2</slf4j.version>
