@@ -1,3 +1,5 @@
+@file:JvmName("App")
+
 package tech.gdragon
 
 import mu.KotlinLogging
@@ -29,6 +31,8 @@ import kotlin.concurrent.scheduleAtFixedRate
 
 object App {
   val logger = KotlinLogging.logger { }
+
+  lateinit var app: KoinApplication
 
   @JvmStatic
   fun start(): KoinApplication {
@@ -190,10 +194,9 @@ object App {
       logger.info { "Shutting down..." }
     })
   }
-}
 
-lateinit var app: KoinApplication
-
-fun main() {
-  app = App.start()
+  @JvmStatic
+  fun main(args: Array<String>) {
+    app = start()
+  }
 }
