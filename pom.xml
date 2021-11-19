@@ -18,7 +18,7 @@
     <kotlin.version>1.6.0</kotlin.version>
     <main.class>tech.gdragon.App</main.class>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <slf4j.version>2.0.0-alpha5</slf4j.version>
+    <slf4j.version>2.0.0-alpha2</slf4j.version>
   </properties>
 
   <dependencies>
