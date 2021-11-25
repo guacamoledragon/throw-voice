@@ -1,5 +1,5 @@
 
-# Pawa Lite
+# Pawa Lite (50% OFF During Black Friday/Cyber Monday!!! :rocket:)
 
 ![pawalite](_media/pawalite.png ':size=20%')
 
@@ -15,16 +15,16 @@ This is a standalone version of [pawa](https://pawa.im), meaning:
 Run Pawa Lite wherever you want, whenever you want, and on your own terms. Use it for your meetings, podcasts, or creative project on your computer, it's **YOUR** data.
 
 <div style="text-align: center">
-  <a class="button" href="https://lite.pawa.im">(US Preferred) Buy Now</a>
+  <a class="button" href="https://ko-fi.com/jvtrigueros/link/CYBERMONDAY">(US Preferred) Buy Now</a>
 </div>
 
 <div align="center">
-  <a href="https://flurly.com/p/pawalite" onMouseOver="this.style.opacity='80%'" onMouseOut="this.style.opacity='100%'">
+  <a href="https://flurly.com/p/pawalite?coupon=CYBERMONDAY" onMouseOver="this.style.opacity='80%'" onMouseOut="this.style.opacity='100%'">
     <img src="https://flurly.com/buy-now.svg" style="height: 3em; background-color: white; margin-top: 25px;" />
   </a>
 </div>
 
-?> _Limited run for early adopters, so it's **HEAVILY** discounted._
+?> _Limited run for early adopters._
 
 See how simple the installation process is:
 
