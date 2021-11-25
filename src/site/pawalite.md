@@ -1,4 +1,3 @@
-
 # Pawa Lite (50% OFF During Black Friday/Cyber Monday!!! :rocket:)
 
 ![pawalite](_media/pawalite.png ':size=20%')
@@ -24,7 +23,7 @@ Run Pawa Lite wherever you want, whenever you want, and on your own terms. Use i
   </a>
 </div>
 
-?> _Limited run for early adopters._
+?> _Limited run for early adopters, so it's **HEAVILY** discounted._
 
 See how simple the installation process is:
 
