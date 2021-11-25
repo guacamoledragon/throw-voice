@@ -31,7 +31,12 @@ This is the full list of commands available, but on a daily basis, you wont need
 
 ## Supporter Commands: _Coming Soon!_
 
-### If you'd like to get notified, please sign up [>> here <<](notify.md)
+### If you'd like to get notified, please sign up
+
+<br/>
+<div style="text-align: center">
+  <a class="button" href="#/notify">Sign Up!</a>
+</div>
 
 !> These aren't available yet, but just a preview of what they'll do.
 
