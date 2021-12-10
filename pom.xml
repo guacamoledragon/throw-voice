@@ -134,7 +134,7 @@
     <dependency>
       <groupId>org.flywaydb</groupId>
       <artifactId>flyway-core</artifactId>
-      <version>8.0.5</version>
+      <version>8.2.1</version>
     </dependency>
     <dependency>
       <groupId>org.jetbrains.exposed</groupId>
