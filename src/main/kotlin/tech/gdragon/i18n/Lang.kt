@@ -37,6 +37,10 @@ enum class Lang {
   THA {
     override val locale: Locale = Locale("tha")
     override val flagEmoji: String = ":flag_th:"
+  },
+  VI {
+    override val locale: Locale = Locale("vi")
+    override val flagEmoji: String = ":flag_vn:"
   };
 
   abstract val locale: Locale
