@@ -15,7 +15,7 @@
     <jda-ktx.version>1223d5c</jda-ktx.version>
     <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
     <kotlin.compiler.jvmTarget>11</kotlin.compiler.jvmTarget>
-    <kotlin.version>1.6.0</kotlin.version>
+    <kotlin.version>1.6.10</kotlin.version>
     <main.class>tech.gdragon.App</main.class>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <slf4j.version>2.0.0-alpha2</slf4j.version>
@@ -66,7 +66,7 @@
     <dependency>
       <groupId>io.github.microutils</groupId>
       <artifactId>kotlin-logging-jvm</artifactId>
-      <version>2.1.0</version>
+      <version>2.1.20</version>
       <exclusions>
         <exclusion>
           <groupId>org.jetbrains.kotlin</groupId>
