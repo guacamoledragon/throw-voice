@@ -183,7 +183,7 @@
     <dependency>
       <groupId>io.insert-koin</groupId>
       <artifactId>koin-core-jvm</artifactId>
-      <version>3.1.3</version>
+      <version>3.1.4</version>
       <exclusions>
         <exclusion>
           <groupId>org.jetbrains.kotlin</groupId>
@@ -218,7 +218,7 @@
     <dependency>
       <groupId>com.github.ben-manes.caffeine</groupId>
       <artifactId>caffeine</artifactId>
-      <version>3.0.4</version>
+      <version>3.0.5</version>
     </dependency>
 
     <dependency>
