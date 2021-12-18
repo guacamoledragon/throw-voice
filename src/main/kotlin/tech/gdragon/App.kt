@@ -63,7 +63,7 @@ object App {
       val databaseModule = module {
         single<Database>(createdAtStart = true) {
           logger.info("Creating Database Module")
-          if (getProperty("BOT_STANDALONE").toBoolean())
+          if (getProperty<String>("BOT_STANDALONE").toBoolean())
             EmbeddedDatabase("${getProperty("BOT_DATA_DIR", "./")}/embedded-database")
           else
             RemoteDatabase(
@@ -76,11 +76,11 @@ object App {
       }
       val datastoreModule = module {
         single<Datastore>(createdAtStart = true) {
-          val bucketName = getProperty("DS_BUCKET")
-          if (getProperty("BOT_STANDALONE").toBoolean()) {
+          val bucketName = getProperty<String>("DS_BUCKET")
+          if (getProperty<String>("BOT_STANDALONE").toBoolean()) {
             LocalDatastore(bucketName)
           } else {
-            val endpoint = getProperty("DS_HOST")
+            val endpoint = getProperty<String>("DS_HOST")
             RemoteDatastore(
               getProperty("DS_ACCESS_KEY"),
               bucketName,
@@ -97,7 +97,7 @@ object App {
           REPL()
         }
         single(createdAtStart = createdAtStart) {
-          HttpServer(get(), getProperty("BOT_HTTP_PORT").toInt()).also {
+          HttpServer(get(), getProperty<String>("BOT_HTTP_PORT").toInt()).also {
             if (logger.isAt(Level.INFO)) {
               logger.info("Starting HTTP Server: http://localhost:${it.port}")
             }
