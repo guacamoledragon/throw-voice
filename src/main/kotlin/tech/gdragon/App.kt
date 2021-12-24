@@ -96,14 +96,6 @@ object App {
         single(createdAtStart = createdAtStart) {
           REPL()
         }
-        single(createdAtStart = createdAtStart) {
-          HttpServer(get(), getProperty<String>("BOT_HTTP_PORT").toInt()).also {
-            if (logger.isAt(Level.INFO)) {
-              logger.info("Starting HTTP Server: http://localhost:${it.port}")
-            }
-            it.server.start()
-          }
-        }
         single<EventTracer>(createdAtStart = true) {
           if (koin.getBooleanProperty("BOT_STANDALONE"))
             NoHoney()
@@ -165,7 +157,6 @@ object App {
 
       if (getProperty<String>("BOT_STANDALONE").toBoolean().not()) {
         getOrNull<REPL>()?.shutdown()
-        getOrNull<HttpServer>()?.shutdown()
       }
     }
 
