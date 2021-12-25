@@ -4,19 +4,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [2.9.8] - 2021-12-25
 
 ### Added
+- Translations for Vietnamese :flag_vn:
 
 ### Changed
-
-### Deprecated
+- Update the following dependencies:
+  - Bump JDA from 4.3.0_346 to 4.4.0_352
+  - Bump caffeine from 3.0.4 to 3.0.5
+  - Bump flyway-core from 8.0.5 to 8.2.2
+  - Bump flyway-core from 8.2.1 to 8.3.0
+  - Bump jackson-databind from 2.13.0 to 2.13.1
+  - Bump koin-core from 3.1.3 to 3.1.4
+  - Bump koin-core-jvm from 3.1.3 to 3.1.4
+  - Bump kotlin-logging-jvm from 2.1.0 to 2.1.20
+  - Bump kotlin-logging-jvm from 2.1.20 to 2.1.21
+  - Bump kotlin.version from 1.6.0 to 1.6.10
+  - Bump libhoney-java from 1.3.1 to 1.4.0
+  - Bump log4j-slf4j18-impl from 2.14.1 to 2.16.0
+  - Bump log4j-slf4j18-impl from 2.16.0 to 2.17.0
+  - Bump maven-shade-plugin.log4j2-cachefile-transformer from 2.14.1 to 2.15
+  - Bump nrepl from 0.8.3 to 0.9.0
 
 ### Removed
-
-### Fixed
+- Remove NanoHTTPD
+  - No longer in use
 
 ### Security
+- Fix [Log4Shell](https://nvd.nist.gov/vuln/detail/CVE-2021-44228)
+  - Update log4j-core 2.14.1 -> 2.17.0
 
 ## [2.9.7] - 2021-11-19
 
@@ -46,7 +63,6 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 ### Fixed
 - Error about logging on startup
   - Any version past 2.0.0-alpha2 is broken for us
-
 
 ## [2.9.6] - 2021-06-29
 
@@ -128,7 +144,7 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 ### Fixed
 - Remove recording limits and warnings
 
-[Unreleased]: https://gitlab.com/pawabot/pawa/-/compare/v2.9.7...master
+[2.9.8]: https://gitlab.com/pawabot/pawa/-/compare/v2.9.7...v2.9.8
 [2.9.7]: https://gitlab.com/pawabot/pawa/-/compare/v2.9.6...v2.9.7
 [2.9.6]: https://gitlab.com/pawabot/pawa/-/compare/v2.9.5...v2.9.6
 [2.9.5]: https://gitlab.com/pawabot/pawa/-/compare/v2.9.4...v2.9.5

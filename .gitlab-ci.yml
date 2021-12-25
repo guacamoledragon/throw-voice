@@ -3,7 +3,7 @@ cache: &global_cache
     - .m2/
 
 variables:
-  BOT_VERSION: 2.9.7
+  BOT_VERSION: 2.9.8
   MAVEN_OPTS: -Dmaven.repo.local=.m2
 
 build:
