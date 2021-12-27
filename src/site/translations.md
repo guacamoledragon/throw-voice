@@ -11,6 +11,7 @@
 | Portuguese (Brazil)                                                                 | `pt_BR` | Done            | Zeus Portella, icebb |
 | Spanish                                                                             | `es`    | Done            | ChangoMC             |
 | [Thai](https://poeditor.com/projects/po_edit?id_language=163&per_page=20&id=294405) | `tha`   | Incomplete (8%) | Kariburahack         |
+| Vietnamese                                                                          | `vi`    | Done            | taa·mee              |
 
 ## Contribute
 We need your help! [pawa](https://pawa.im) will only be able to speak other languages if contributed by the community.
