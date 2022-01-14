@@ -6,10 +6,8 @@
     <img src="https://discordbots.org/api/widget/338897906524225538.png" alt="Discord Bots" />
   </a>
 
-  [![Discord](https://discordapp.com/api/guilds/408795211901173762/widget.png)](https://discord.gg/gkvsNw8)
-  [![pipeline status](https://gitlab.com/pawabot/pawa/badges/master/pipeline.svg)](https://gitlab.com/pawabot/pawa/commits/master)
-  [![Get your own version badge on microbadger.com](https://images.microbadger.com/badges/version/gdragon/throw-voice.svg)](https://microbadger.com/images/gdragon/throw-voice)
-  [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgitlab.com%2Fpawabot%2Fpawa.svg?type=shield)](https://app.fossa.io/projects/git%2Bgitlab.com%2Fpawabot%2Fpawa?ref=badge_shield)
+  [![Discord Server Count](https://discordapp.com/api/guilds/408795211901173762/widget.png "Badge displaying number of members in Discord server")](https://discord.gg/gkvsNw8)
+  [![Build Status](https://gitlab.com/pawabot/pawa/badges/master/pipeline.svg "Badge displaying build status")](https://gitlab.com/pawabot/pawa/commits/master)
 
 </div>
 
@@ -23,7 +21,7 @@ See [Quickstart](quickstart.md) guide for more details.
 
 * Single track recordings
 * Universal output format -- MP3
-* Straighforward [commands](commands.md)
+* Straightforward [commands](commands.md)
 * Uploads to Discord where you can keep recording _FOREVER_
 * Shareable recording URL
 * [Premium](commands.md) Advanced Commands
