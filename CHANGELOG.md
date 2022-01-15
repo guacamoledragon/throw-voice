@@ -7,7 +7,7 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 ## [2.9.8] - 2021-12-25
 
 ### Added
-- Translations for Vietnamese :flag_vn:
+- Translations for Vietnamese 🇻🇳
 
 ### Changed
 - Update the following dependencies:
