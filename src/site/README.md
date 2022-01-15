@@ -29,8 +29,12 @@ See [Quickstart](quickstart.md) guide for more details.
 # Donate
 If you enjoy using `pawa` please consider donating 🤗
 
-* [Buy me a coffee](https://ko-fi.com/L3L215SZC) _(One time)_
-* [Github Sponsor](https://github.com/sponsors/jvtrigueros) _(Subscription)_
+<div align="center">
+
+[![GitHub Sponsors](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub)](https://github.com/sponsors/jvtrigueros)  
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/L3L215SZC)
+
+</div>
 
 <!-- TODO: use the buttons instead of this, but the iframe is a PITA QQ -->
 
