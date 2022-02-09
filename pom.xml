@@ -396,10 +396,8 @@
                     <excludes>
                       <exclude>io.minio:minio</exclude>
                       <exclude>org.postgresql:postgresql</exclude>
-                      <exclude>net.matlux:jvm-breakglass</exclude>
                       <exclude>org.clojure:clojure</exclude>
                       <exclude>org.clojure:tools.nrepl</exclude>
-                      <exclude>org.nanohttpd:nanohttpd</exclude>
                       <exclude>io.honeycomb.libhoney:libhoney-java</exclude>
                     </excludes>
                   </artifactSet>
@@ -409,7 +407,9 @@
                       <excludes>
                         <exclude>module-info.class</exclude>
                         <exclude>META-INF/versions/9/module-info.class</exclude>
-                        <exclude>META-INF/*.MF</exclude>
+                        <exclude>META-INF/*.SF</exclude>
+                        <exclude>META-INF/*.DSA</exclude>
+                        <exclude>META-INF/*.RSA</exclude>
                         <exclude>META-INF/*.txt</exclude>
                         <exclude>META-INF/DEPENDENCIES</exclude>
                         <exclude>META-INF/LICENSE</exclude>
