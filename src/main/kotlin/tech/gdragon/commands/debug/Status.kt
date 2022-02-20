@@ -23,7 +23,7 @@ class Status : CommandHandler() {
     }
 
     // TODO: Hardcoding my Discord User ID because I'm lazy
-    require(96802905322962944L == event.author.idLong) {
+    require(standalone || 96802905322962944L == event.author.idLong) {
       throw InvalidCommand({ "Command can only be used by server admins." }, "Unauthorized use.")
     }
 
