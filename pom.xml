@@ -134,7 +134,7 @@
     <dependency>
       <groupId>org.flywaydb</groupId>
       <artifactId>flyway-core</artifactId>
-      <version>8.3.0</version>
+      <version>8.5.0</version>
     </dependency>
     <dependency>
       <groupId>org.jetbrains.exposed</groupId>
@@ -286,7 +286,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.8.1</version>
+        <version>3.10.0</version>
         <configuration>
           <release>11</release>
         </configuration>
