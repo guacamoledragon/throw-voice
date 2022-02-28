@@ -6,8 +6,8 @@ import mu.withLoggingContext
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.*
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException
-import org.jetbrains.exposed.dao.EntityID
-import org.jetbrains.exposed.exceptions.EntityNotFoundException
+import org.jetbrains.exposed.dao.id.EntityID
+import org.jetbrains.exposed.dao.exceptions.EntityNotFoundException
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.SqlExpressionBuilder
 import org.jetbrains.exposed.sql.and

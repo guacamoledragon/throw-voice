@@ -52,5 +52,4 @@ class RemoteDatabase(database: String?, hostname: String?, username: String?, pa
     DateTimeZone.setDefault(DateTimeZone.UTC)
     _database = ExposedDatabase.connect("jdbc:postgresql://$hostname/$database", "org.postgresql.Driver", username!!, password!!)
   }
-
 }

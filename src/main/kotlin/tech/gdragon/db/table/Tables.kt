@@ -1,7 +1,7 @@
 package tech.gdragon.db.table
 
-import org.jetbrains.exposed.dao.IntIdTable
-import org.jetbrains.exposed.dao.LongIdTable
+import org.jetbrains.exposed.dao.id.IntIdTable
+import org.jetbrains.exposed.dao.id.LongIdTable
 import org.jetbrains.exposed.sql.ReferenceOption
 import org.joda.time.DateTime
 import tech.gdragon.db.DateColumnType
