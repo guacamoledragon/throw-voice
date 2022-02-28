@@ -22,7 +22,6 @@ class Status : CommandHandler() {
       throw InvalidCommand(::usage, "Incorrect number of arguments: ${args.size}")
     }
 
-    // TODO: Hardcoding my Discord User ID because I'm lazy
     require(standalone || 96802905322962944L == event.author.idLong) {
       throw InvalidCommand({ "Command can only be used by server admins." }, "Unauthorized use.")
     }
@@ -47,5 +46,4 @@ class Status : CommandHandler() {
   override fun usage(prefix: String, lang: Lang): String = "${prefix}status"
 
   override fun description(lang: Lang): String = "Display Shard Status"
-
 }
