@@ -7,7 +7,7 @@ variables:
   MAVEN_OPTS: --batch-mode -Dmaven.repo.local=.m2/repository
 
 build:
-  image: maven:3.6-jdk-11
+  image: maven:3.8-jdk-11
   only:
     changes: &code-changes
       - Dockerfile
