@@ -474,6 +474,21 @@
               </sourceDirs>
             </configuration>
           </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <!-- Generate backup.sql from an H2 v1 Database -->
+      <id>h2-script</id>
+      <dependencies>
+        <dependency>
+          <groupId>com.h2database</groupId>
+          <artifactId>h2</artifactId>
+          <version>1.4.200</version>
+        </dependency>
+      </dependencies>
+      <build>
+        <plugins>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-shade-plugin</artifactId>
@@ -484,10 +499,11 @@
                 <goals>
                   <goal>shade</goal>
                 </goals>
-                <configuration>
+                <configuration combine.self="override">
+                  <finalName>h2-script</finalName>
                   <transformers>
                     <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                      <mainClass>tech.gdragon.Queue2Mp3</mainClass>
+                      <mainClass>tech.gdragon.h2.Script</mainClass>
                     </transformer>
                   </transformers>
                 </configuration>
