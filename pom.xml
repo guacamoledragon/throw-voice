@@ -501,6 +501,12 @@
                 </goals>
                 <configuration combine.self="override">
                   <finalName>h2-script</finalName>
+                  <artifactSet>
+                    <includes>
+                      <include>com.h2database:h2</include>
+                      <include>org.jetbrains.kotlin:*</include>
+                    </includes>
+                  </artifactSet>
                   <transformers>
                     <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                       <mainClass>tech.gdragon.h2.Script</mainClass>
