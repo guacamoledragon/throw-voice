@@ -20,7 +20,7 @@ class EmbeddedDatabase(dataDirectory: String) : Database {
   override val database = _database
 
   init {
-    val url = "jdbc:h2:file:$dataDirectory/settings.db"
+    val url = "jdbc:h2:file:$dataDirectory/embedded-database/settings.db"
     logger.info {
       "Starting database migration: $url"
     }

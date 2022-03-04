@@ -64,7 +64,7 @@ object App {
         single<Database>(createdAtStart = true) {
           logger.info("Creating Database Module")
           if (getProperty<String>("BOT_STANDALONE").toBoolean())
-            EmbeddedDatabase("${getProperty("BOT_DATA_DIR", "./")}/embedded-database")
+            EmbeddedDatabase(getProperty("BOT_DATA_DIR", "./"))
           else
             RemoteDatabase(
               getProperty("DB_NAME"),
