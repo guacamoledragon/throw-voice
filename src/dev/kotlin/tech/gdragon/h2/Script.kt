@@ -30,5 +30,8 @@ object Script {
     } else {
       println("Couldn't create backup script :(.")
     }
+
+    println("Press Enter key to continue...")
+    readLine()
   }
 }
