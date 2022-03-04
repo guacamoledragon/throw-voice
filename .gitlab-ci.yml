@@ -1,10 +1,10 @@
 cache: &global_cache
   paths:
-    - .m2/
+    - .m2/repository
 
 variables:
   BOT_VERSION: 2.9.8
-  MAVEN_OPTS: -Dmaven.repo.local=.m2
+  MAVEN_OPTS: --batch-mode -Dmaven.repo.local=.m2/repository
 
 build:
   image: maven:3.6-jdk-11
@@ -14,8 +14,8 @@ build:
       - pom.xml
       - src/main/**/*
   script:
-    - mvn -B de.qaware.maven:go-offline-maven-plugin:resolve-dependencies
-    - mvn test
+    - mvn $MAVEN_OPTS de.qaware.maven:go-offline-maven-plugin:resolve-dependencies
+    - mvn $MAVEN_OPTS test
   stage: build
 
 container:
