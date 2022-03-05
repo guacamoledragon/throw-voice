@@ -1,17 +1,18 @@
 # Translations
 [pawa](https://pawa.im) supports "speaking" in the following languages:
 
-| Language                                                                            | Code    | Status          | Contributors         |
-|-------------------------------------------------------------------------------------|:-------:|:---------------:|:--------------------:|
-| English                                                                             | `en`    | Done            | Kinglester           |
-| German                                                                              | `de`    | Done            | Mathis               |
-| French                                                                              | `fr`    | Done            | CedriCDAR77          |
-| Indonesian                                                                          | `id`    | Done            | Aldiwild77           |
-| Italian                                                                             | `ita`   | Done            | Anko                 |
-| Portuguese (Brazil)                                                                 | `pt_BR` | Done            | Zeus Portella, icebb |
-| Spanish                                                                             | `es`    | Done            | ChangoMC             |
-| [Thai](https://poeditor.com/projects/po_edit?id_language=163&per_page=20&id=294405) | `tha`   | Incomplete (8%) | Kariburahack         |
-| Vietnamese                                                                          | `vi`    | Done            | taa·mee              |
+| Language                                                                                | Code    | Status           | Contributors         |
+|-----------------------------------------------------------------------------------------|:-------:|:----------------:|:--------------------:|
+| English                                                                                 | `en`    | Done             | Kinglester           |
+| German                                                                                  | `de`    | Done             | Mathis               |
+| [Filipino](https://poeditor.com/projects/po_edit?id_language=219&per_page=20&id=294405) | `fil`   | Incomplete (79%) | pranchiii            |
+| French                                                                                  | `fr`    | Done             | CedriCDAR77          |
+| Indonesian                                                                              | `id`    | Done             | Aldiwild77           |
+| Italian                                                                                 | `ita`   | Done             | Anko                 |
+| Portuguese (Brazil)                                                                     | `pt_BR` | Done             | Zeus Portella, icebb |
+| Spanish                                                                                 | `es`    | Done             | ChangoMC             |
+| [Thai](https://poeditor.com/projects/po_edit?id_language=163&per_page=20&id=294405)     | `tha`   | Incomplete (8%)  | Kariburahack         |
+| Vietnamese                                                                              | `vi`    | Done             | taa·mee              |
 
 ## Contribute
 We need your help! [pawa](https://pawa.im) will only be able to speak other languages if contributed by the community.
