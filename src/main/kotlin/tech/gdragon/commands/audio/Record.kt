@@ -1,4 +1,4 @@
-package tech.gdragon.commands.misc
+package tech.gdragon.commands.audio
 
 import mu.withLoggingContext
 import net.dv8tion.jda.api.entities.VoiceChannel

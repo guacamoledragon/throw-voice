@@ -1,4 +1,4 @@
-package tech.gdragon.commands.misc
+package tech.gdragon.commands.audio
 
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import org.jetbrains.exposed.sql.transactions.transaction
