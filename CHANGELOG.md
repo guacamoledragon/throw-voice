@@ -4,6 +4,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- Translations for Filipino 🇵🇭
+
+### Changed
+- [Pawa Lite] now supports `!status` command.
+- Update the following dependencies:
+  - Bump flyway-core from 8.3.0 to 8.5.1
+  - Bump h2 from 1.4.200 to 2.1.210
+  - Bump koin-core from 3.1.4 to 3.1.5
+  - Bump koin-core-jvm from 3.1.4 to 3.1.5
+  - Bump libhoney-java from 1.4.0 to 1.4.1
+  - Bump log4j-core from 2.17.0 to 2.17.2
+  - Bump log4j-slf4j18-impl from 2.17.0 to 2.17.2
+  - Bump maven-compiler-plugin from 3.8.1 to 3.10.0
+  - Bump minio from 8.3.4 to 8.3.7
+  - Bump postgresql from 42.3.1 to 42.3.3
+
+### Deprecated
+- [Pawa Lite] cannot upgrade in place for versions after 2.9.8, see User Guide
+
+### Removed
+
+### Fixed
+
+### Security
+
 ## [2.9.8] - 2021-12-25
 
 ### Added
