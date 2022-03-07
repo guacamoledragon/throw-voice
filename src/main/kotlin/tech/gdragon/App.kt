@@ -141,7 +141,7 @@ object App {
             }
           }
         logger.info {
-          "Invite URL: ${it.api().getInviteUrl(Bot.PERMISSIONS)}"
+          "Invite URL: ${it.api().setRequiredScopes("applications.commands").getInviteUrl(Bot.PERMISSIONS)}"
         }
       }
 
