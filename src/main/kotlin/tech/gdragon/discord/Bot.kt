@@ -18,6 +18,7 @@ import tech.gdragon.commands.misc.Help
 import tech.gdragon.commands.audio.Record
 import tech.gdragon.commands.audio.Stop
 import tech.gdragon.commands.settings.*
+import tech.gdragon.commands.slash.Slash
 import tech.gdragon.commands.slash.registerSlashCommands
 import tech.gdragon.db.Database
 import tech.gdragon.listener.EventListener
@@ -121,6 +122,9 @@ enum class Command {
   },
   SAVELOCATION {
     override val handler: CommandHandler = SaveLocation()
+  },
+  SLASH {
+    override val handler: CommandHandler = Slash()
   },
   STATUS {
     override val handler: CommandHandler = Status()
