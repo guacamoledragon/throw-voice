@@ -27,6 +27,8 @@ import net.dv8tion.jda.api.entities.Guild as DiscordGuild
 object BotUtils {
   private val logger = KotlinLogging.logger {}
 
+  val trigoman = 96802905322962944L
+
   private val guildActivityCache = Caffeine.newBuilder()
     .expireAfterWrite(1L, TimeUnit.HOURS)
     .softValues()

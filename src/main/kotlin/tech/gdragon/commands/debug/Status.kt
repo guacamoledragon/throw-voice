@@ -22,7 +22,7 @@ class Status : CommandHandler() {
       throw InvalidCommand(::usage, "Incorrect number of arguments: ${args.size}")
     }
 
-    require(standalone || 96802905322962944L == event.author.idLong) {
+    require(standalone || BotUtils.trigoman == event.author.idLong) {
       throw InvalidCommand({ "Command can only be used by server admins." }, "Unauthorized use.")
     }
 
