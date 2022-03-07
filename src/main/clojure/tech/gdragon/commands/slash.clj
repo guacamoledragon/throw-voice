@@ -1,13 +1,10 @@
 (ns tech.gdragon.commands.slash
-  (:require [cl-java-introspector.core :refer [get-obj]])
   (:import (tech.gdragon.discord Bot)
            (tech.gdragon.commands.slash Info)
            (net.dv8tion.jda.api.entities Guild)
            (net.dv8tion.jda.api.sharding DefaultShardManager ShardManager)
            (net.dv8tion.jda.api.interactions.commands.build CommandData)
            (net.dv8tion.jda.api JDA)))
-
-(def ^Bot bot (get-obj "bot"))
 
 (def ^DefaultShardManager shard-manager (-> bot .api .getShardManager))
 
