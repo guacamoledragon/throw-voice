@@ -6,8 +6,8 @@ import mu.withLoggingContext
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.*
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException
-import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.exceptions.EntityNotFoundException
+import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.SqlExpressionBuilder
 import org.jetbrains.exposed.sql.and
@@ -27,7 +27,7 @@ import net.dv8tion.jda.api.entities.Guild as DiscordGuild
 object BotUtils {
   private val logger = KotlinLogging.logger {}
 
-  val trigoman = 96802905322962944L
+  const val trigoman = 96802905322962944L
 
   private val guildActivityCache = Caffeine.newBuilder()
     .expireAfterWrite(1L, TimeUnit.HOURS)
