@@ -2,6 +2,7 @@ package tech.gdragon.commands.slash
 
 import dev.minn.jda.ktx.interactions.command
 import dev.minn.jda.ktx.interactions.updateCommands
+import dev.minn.jda.ktx.ref
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import tech.gdragon.BotUtils
 import tech.gdragon.commands.CommandHandler
@@ -16,45 +17,39 @@ class Slash : CommandHandler() {
     }
 
     val action = args.first()
-    val channel = event.channel
+    val sendMessage = { msg: () -> String ->
+      val channel by event.channel.ref()
+      BotUtils.sendMessage(channel, msg())
+    }
 
     event.jda.let {
       when (action) {
-        "invite" -> BotUtils.sendMessage(
-          channel,
-          it.setRequiredScopes("applications.commands").getInviteUrl(Bot.PERMISSIONS)
-        )
+        "invite" -> sendMessage {
+          "Invite URL: " + it.setRequiredScopes("applications.commands").getInviteUrl(Bot.PERMISSIONS)
+        }
         "list" -> it.retrieveCommands().queue { commands ->
-          BotUtils.sendMessage(channel, commands.joinToString { command -> command.name }.ifEmpty { "No commands!" })
+          sendMessage {
+            commands.joinToString(prefix = "Available Commands: ") { command -> command.name }
+              .ifEmpty { "No commands!" }
+          }
         }
         "add" -> it.updateCommands {
           command(Info.command.name, Info.command.description)
         }.queue { commands ->
-          BotUtils.sendMessage(channel, commands.joinToString { command -> command.name }.ifEmpty { "No commands!" })
+          sendMessage {
+            commands.joinToString(prefix = "Adding: ") { command -> command.name }.ifEmpty { "No commands!" }
+          }
         }
         "remove" -> it.retrieveCommands().queue { commands ->
           commands.forEach { command ->
             it.deleteCommandById(command.idLong).queue {
-              BotUtils.sendMessage(channel, "Removed ${command.name}!")
+              sendMessage { "Removed ${command.name}!" }
             }
           }
         }
-        else -> BotUtils.sendMessage(channel, "Invalid command!")
+        else -> sendMessage { "Invalid command!" }
       }
     }
-
-/*    val willCreate = args.first().toBoolean()
-    if (willCreate) {
-      event.jda
-        .upsertCommand(Info.command)
-    }
-    event.jda
-      .retrieveCommands()
-      .complete()
-      .forEach { command ->
-        event.jda.deleteCommandById(command.id).queue()
-      }
-    println("updating slash commands")*/
   }
 
   override fun usage(prefix: String, lang: Lang): String = "${prefix}bootstrap"
