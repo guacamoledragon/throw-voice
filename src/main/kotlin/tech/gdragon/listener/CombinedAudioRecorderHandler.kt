@@ -455,11 +455,16 @@ class CombinedAudioRecorderHandler(
           }
           try {
             it.close()
-            if (!standalone) {
+            val mp3File = File(it.fileBuffer.canonicalPath.replace("queue", "mp3"))
+            if (!standalone && (mp3File.exists() && 0 < mp3File.length())) {
               logger.info {
                 "Delete queue file: ${it.fileBuffer.name}"
               }
               Files.deleteIfExists(Paths.get(it.fileBuffer.toURI()))
+            } else {
+              logger.info {
+                "Skip deleting queue file: ${it.fileBuffer.name}, mp3 file size: ${mp3File.length()}"
+              }
             }
           } catch (e: FileSystemException) {
             logger.warn(e) {
