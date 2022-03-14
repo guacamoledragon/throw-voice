@@ -261,37 +261,37 @@ class CombinedAudioRecorderHandler(
         File(it.fileBuffer.canonicalPath.replace("queue", "mp3"))
       }
 
-      // TODO: Convert Queue file to MP3 file, make own function in BotUtils
       FileOutputStream(recordingFile!!).use {
-        queueFile.apply {
-          try {
-            forEach { stream, _ ->
-              stream.transferTo(it)
+        withLoggingContext("sessionId" to session) {
+          queueFile.apply {
+            try {
+              forEach { stream, _ ->
+                stream.transferTo(it)
+              }
+
+              logger.info {
+                "Saving audio file ${recordingFile.name} - ${FileUtils.byteCountToDisplaySize(recordingFile.length())}."
+              }
+
+              logger.debug {
+                "Recording size in bytes: $recordingSize"
+              }
+
+              uploadRecording(recordingFile, voiceChannel, textChannel)
+            } catch (e: IOException) {
+              logger.warn(e) {
+                "Could not generate MP3 file from Queue: ${recordingFile.absolutePath}: ${queueFile.fileBuffer.canonicalPath}"
+              }
+            } finally {
+              close()
+
+              logger.debug {
+                "Releasing lock in saveRecording subscription on id: $recordingId"
+              }
+              recordingLock.release(1)
             }
-          } catch (e: IOException) {
-            logger.warn(e) {
-              "Could not generate MP3 file from Queue: ${recordingFile.absolutePath}: ${queueFile.fileBuffer.canonicalPath}"
-            }
-          } finally {
-            close()
           }
         }
-      }
-
-      logger.info {
-        "Saving audio file ${recordingFile.name} - ${FileUtils.byteCountToDisplaySize(recordingFile.length())}."
-      }
-
-      logger.debug {
-        "Recording size in bytes: $recordingSize"
-      }
-
-      withLoggingContext("sessionId" to session) {
-        uploadRecording(recordingFile, voiceChannel, textChannel)
-        logger.debug {
-          "Releasing lock in saveRecording subscription on id: $recordingId"
-        }
-        recordingLock.release(1)
       }
     }
 
