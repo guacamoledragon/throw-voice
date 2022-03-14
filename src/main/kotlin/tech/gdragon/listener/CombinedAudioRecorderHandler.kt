@@ -282,6 +282,13 @@ class CombinedAudioRecorderHandler(
               logger.warn(e) {
                 "Could not generate MP3 file from Queue: ${recordingFile.absolutePath}: ${queueFile.fileBuffer.canonicalPath}"
               }
+
+              val errorMessage =
+                """|:no_entry_sign: _Error creating recording, please visit support server and provide Session ID._
+                   |_Session ID: `$session`_
+                   |""".trimMargin()
+
+              BotUtils.sendMessage(textChannel, errorMessage)
             } finally {
               close()
 
