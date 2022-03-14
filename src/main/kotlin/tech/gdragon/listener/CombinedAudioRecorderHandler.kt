@@ -261,37 +261,44 @@ class CombinedAudioRecorderHandler(
         File(it.fileBuffer.canonicalPath.replace("queue", "mp3"))
       }
 
-      // TODO: Convert Queue file to MP3 file, make own function in BotUtils
       FileOutputStream(recordingFile!!).use {
-        queueFile.apply {
-          try {
-            forEach { stream, _ ->
-              stream.transferTo(it)
+        withLoggingContext("sessionId" to session) {
+          queueFile.apply {
+            try {
+              forEach { stream, _ ->
+                stream.transferTo(it)
+              }
+
+              logger.info {
+                "Saving audio file ${recordingFile.name} - ${FileUtils.byteCountToDisplaySize(recordingFile.length())}."
+              }
+
+              logger.debug {
+                "Recording size in bytes: $recordingSize"
+              }
+
+              uploadRecording(recordingFile, voiceChannel, textChannel)
+            } catch (e: IOException) {
+              logger.warn(e) {
+                "Could not generate MP3 file from Queue: ${recordingFile.absolutePath}: ${queueFile.fileBuffer.canonicalPath}"
+              }
+
+              val errorMessage =
+                """|:no_entry_sign: _Error creating recording, please visit support server and provide Session ID._
+                   |_Session ID: `$session`_
+                   |""".trimMargin()
+
+              BotUtils.sendMessage(textChannel, errorMessage)
+            } finally {
+              close()
+
+              logger.debug {
+                "Releasing lock in saveRecording subscription on id: $recordingId"
+              }
+              recordingLock.release(1)
             }
-          } catch (e: IOException) {
-            logger.warn(e) {
-              "Could not generate MP3 file from Queue: ${recordingFile.absolutePath}: ${queueFile.fileBuffer.canonicalPath}"
-            }
-          } finally {
-            close()
           }
         }
-      }
-
-      logger.info {
-        "Saving audio file ${recordingFile.name} - ${FileUtils.byteCountToDisplaySize(recordingFile.length())}."
-      }
-
-      logger.debug {
-        "Recording size in bytes: $recordingSize"
-      }
-
-      withLoggingContext("sessionId" to session) {
-        uploadRecording(recordingFile, voiceChannel, textChannel)
-        logger.debug {
-          "Releasing lock in saveRecording subscription on id: $recordingId"
-        }
-        recordingLock.release(1)
       }
     }
 
@@ -455,11 +462,16 @@ class CombinedAudioRecorderHandler(
           }
           try {
             it.close()
-            if (!standalone) {
+            val mp3File = File(it.fileBuffer.canonicalPath.replace("queue", "mp3"))
+            if (!standalone && (mp3File.exists() && 0 < mp3File.length())) {
               logger.info {
                 "Delete queue file: ${it.fileBuffer.name}"
               }
               Files.deleteIfExists(Paths.get(it.fileBuffer.toURI()))
+            } else {
+              logger.info {
+                "Skip deleting queue file: ${it.fileBuffer.name}, mp3 file size: ${mp3File.length()}"
+              }
             }
           } catch (e: FileSystemException) {
             logger.warn(e) {
