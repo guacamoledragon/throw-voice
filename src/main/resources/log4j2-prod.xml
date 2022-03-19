@@ -2,7 +2,7 @@
 <Configuration>
   <Properties>
     <Property name="globalPattern">
-      %d{YYYY-MM-dd'T'HH:mm:ssZ} [%level] %logger{1.} - %X{jda.shard} %mdc{guild}#%mdc{text-channel}: %msg%n
+      %d{YYYY-MM-dd'T'HH:mm:ssZ} [%level] %logger{1.} - %X{jda.shard} %mdc{sessionId} %mdc{guild}#%mdc{text-channel}: %msg%n
     </Property>
   </Properties>
   <Appenders>
