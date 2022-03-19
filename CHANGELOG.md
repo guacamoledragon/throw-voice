@@ -8,7 +8,7 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 
 ### Added
 - `!slash` command to manage Slash commands, this is only available to use by me and [Pawa Lite] users
-  - Provides an invite URL for ease of access
+  - Provides an invitation URL for ease of access
   - Removes, Adds, and Lists all Slash commands, currently only `/info` added in [2.9.7]
 - Translations for Filipino 🇵🇭
 
@@ -32,6 +32,8 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 ### Removed
 
 ### Fixed
+- If there's an issue creating an MP3 file from a queue file, the queue file would get deleted making it impossible to
+  recover. This is a hack, but it'll work for now...
 
 ### Security
 
