@@ -12,6 +12,7 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
   - Removes, Adds, and Lists all Slash commands, currently only `/info` added in [2.9.7]
 - Translations for Filipino 🇵🇭
 - Translations for Polish 🇵🇱
+- Translations for Hungarian 🇭🇺
 
 ### Changed
 - [Pawa Lite] now supports `!status` command.
