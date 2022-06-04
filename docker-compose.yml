@@ -53,6 +53,7 @@ services:
       <<: *logging
   database:
     image: postgres@sha256:b6a3459825427f08ab886545c64d4e5754aa425c5eea678d5359f06a9bf7faab
+    command: -c logging_collector=on -c log_directory=logs -c log_min_duration_statement=0 -c log_statement=none
     deploy:
       resources:
         limits:
