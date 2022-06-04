@@ -43,6 +43,8 @@ services:
       - JAVA_TOOL_OPTIONS=-Dlog4j.configurationFile=log4j2-prod.xml
                           -XX:MinRAMPercentage=${JVM_MIN_RAM_PERCENTAGE}
                           -XX:MaxRAMPercentage=${JVM_MAX_RAM_PERCENTAGE}
+      - HONEYCOMB_API_KEY=${HONEYCOMB_API_KEY}
+      - SERVICE_NAME=${SERVICE_NAME}
     ports:
       - "127.0.0.1:1112:1112"
     restart: on-failure:100
