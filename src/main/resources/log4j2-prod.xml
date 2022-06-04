@@ -4,6 +4,7 @@
     <Property name="globalPattern">
       %d{YYYY-MM-dd'T'HH:mm:ssZ} [%level] %logger{1.} - %X{jda.shard} %mdc{sessionId} %mdc{guild}#%mdc{text-channel}: %msg%n
     </Property>
+    <Property name="baseDir">logs</Property>
   </Properties>
   <Appenders>
     <Console name="Console">
@@ -11,23 +12,35 @@
     </Console>
     <RollingRandomAccessFile
       name="DatabaseLogs"
-      fileName="logs/database.log"
-      filePattern="logs/$${date:yyyy-MM}/db-%d{MM-dd-yyyy}-%i.log">
+      fileName="${baseDir}/database.log"
+      filePattern="${baseDir}/$${date:yyyy-MM}/db-%d{MM-dd-yyyy}-%i.log">
       <PatternLayout pattern="${globalPattern}" charset="UTF-8"/>
       <Policies>
-        <SizeBasedTriggeringPolicy size="5 MB"/>
+        <SizeBasedTriggeringPolicy size="1 MB"/>
       </Policies>
-      <DefaultRolloverStrategy max="5"/>
+      <DefaultRolloverStrategy>
+        <Delete basePath="${baseDir}" maxDepth="2">
+          <IfFileName glob="*/database-*.log" />
+          <IfAccumulatedFileSize exceeds="64 MB" />
+        </Delete>
+      </DefaultRolloverStrategy>
     </RollingRandomAccessFile>
     <RollingRandomAccessFile
       name="ApplicationLogs"
-      fileName="logs/app.log"
-      filePattern="logs/$${date:yyyy-MM}/app-%d{MM-dd-yyyy}-%i.log">
-      <PatternLayout pattern="${globalPattern}" charset="UTF-8"/>
+      fileName="${baseDir}/app.json"
+      filePattern="${baseDir}/$${date:yyyy-MM}/app-%d{MM-dd-yyyy}-%i.json">
+      <JsonTemplateLayout eventTemplateUri="classpath:EcsLayout.json">
+        <EventTemplateAdditionalField key="service.name" value="pawa" />
+      </JsonTemplateLayout>
       <Policies>
-        <SizeBasedTriggeringPolicy size="5 MB"/>
+        <SizeBasedTriggeringPolicy size="1 MB"/>
       </Policies>
-      <DefaultRolloverStrategy max="5"/>
+      <DefaultRolloverStrategy max="5">
+        <Delete basePath="${baseDir}" maxDepth="2">
+          <IfFileName glob="*/app-*.log" />
+          <IfAccumulatedFileSize exceeds="64 MB" />
+        </Delete>
+      </DefaultRolloverStrategy>
     </RollingRandomAccessFile>
   </Appenders>
   <Loggers>
