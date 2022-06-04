@@ -13,6 +13,12 @@ ARG VCS_REF
 ARG VERSION
 RUN mvn -B -Dversion="${VERSION}" -Dtimestamp="${BUILD_DATE}" -Drevision="${VCS_REF}" package
 
+FROM curlimages/curl:latest as deps
+
+WORKDIR /home/curl_user
+
+RUN curl -Lo agent.jar https://github.com/honeycombio/honeycomb-opentelemetry-java/releases/download/v1.1.1/honeycomb-opentelemetry-javaagent-1.1.1.jar
+
 FROM gcr.io/distroless/java:11
 LABEL maintainer="Jose V. Trigueros <jose@gdragon.tech>"
 
@@ -37,8 +43,8 @@ ENV APP_DIR /app
 ENV VERSION $VERSION
 
 WORKDIR $APP_DIR
-
+COPY --from=deps /home/curl_user/agent.jar .
 COPY --from=builder /app/target/pawa-release/lib lib
 COPY --from=builder /app/target/pawa-release/*.jar .
 
-CMD ["java", "-cp", "*:lib/*", "tech.gdragon.App"]
+CMD ["java", "-javaagent:agent.jar", "-cp", "*:lib/*", "tech.gdragon.App"]

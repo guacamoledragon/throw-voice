@@ -44,9 +44,9 @@
     </RollingRandomAccessFile>
   </Appenders>
   <Loggers>
-    <Root level="debug">
-      <AppenderRef ref="Console" level="info"/>
-      <AppenderRef ref="ApplicationLogs"/>
+    <Root level="info">
+      <AppenderRef ref="Console" />
+      <AppenderRef ref="ApplicationLogs" />
     </Root>
     <Logger name="tech.gdragon.db" level="info" additivity="false">
       <AppenderRef ref="DatabaseLogs"/>
