@@ -1,5 +1,6 @@
 package tech.gdragon.listener
 
+import io.opentelemetry.api.OpenTelemetry
 import mu.KotlinLogging
 import mu.withLoggingContext
 import net.dv8tion.jda.api.entities.Activity
@@ -146,15 +147,25 @@ class EventListener : ListenerAdapter(), KoinComponent {
           ":poop: _Currently running an update...\n\nIf you have any questions please visit the support server: ${website}_"
         )
         logger.warn("Trying to use while running an update")
-      } else if (hasPrefix)
+      } else if (hasPrefix) {
+        val tracer = getKoin().get<OpenTelemetry>().getTracer("tech.gdragon.listener.EventListener")
+        val span = tracer.spanBuilder("handle command").startSpan()
+        span.run {
+          setAttribute("discord-user", event.author.idLong)
+          setAttribute("guild", event.guild.idLong)
+          setAttribute("text-channel", event.channel.idLong)
+        }
         try {
           handleCommand(event, prefix, rawContent)
           // Update activity
           BotUtils.updateActivity(event.guild)
         } catch (e: InvalidCommand) {
+          span.recordException(e)
           BotUtils.sendMessage(defaultChannel, ":no_entry_sign: _Usage: `${e.usage(prefix)}`_")
           logger.warn { "[$rawContent] ${e.reason}" }
         }
+        span.end()
+      }
     }
   }
 
