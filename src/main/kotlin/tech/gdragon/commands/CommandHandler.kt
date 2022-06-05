@@ -1,5 +1,6 @@
 package tech.gdragon.commands
 
+import io.opentelemetry.api.trace.Span
 import mu.KotlinLogging
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -53,6 +54,7 @@ fun handleCommand(event: GuildMessageReceivedEvent, prefix: String, rawInput: St
 
   command?.handler?.let {
     it.tracer.sendEvent(mapOf("command" to command.name))
+    Span.current().setAttribute("command", command.name)
     it.action(args, event)
   }
 }
