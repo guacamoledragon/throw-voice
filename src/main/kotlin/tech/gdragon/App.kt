@@ -4,6 +4,7 @@ package tech.gdragon
 
 import io.opentelemetry.api.GlobalOpenTelemetry
 import io.opentelemetry.api.OpenTelemetry
+import io.opentelemetry.api.trace.Tracer
 import mu.KotlinLogging
 import org.koin.core.KoinApplication
 import org.koin.core.context.GlobalContext
@@ -104,11 +105,12 @@ object App {
           else
             Honey(getProperty("TRACING_API_KEY"))
         }
-        single<OpenTelemetry>(createdAtStart = true) {
+        single<Tracer>(createdAtStart = true) {
+          val scopeName = "tech.gdragon.pawa"
           if (koin.getBooleanProperty("BOT_STANDALONE"))
-            OpenTelemetry.noop()
+            OpenTelemetry.noop().getTracer(scopeName)
           else {
-            GlobalOpenTelemetry.get()
+            GlobalOpenTelemetry.get().getTracer(scopeName)
           }
         }
       }
