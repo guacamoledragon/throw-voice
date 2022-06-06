@@ -1,6 +1,7 @@
 package tech.gdragon.listener
 
-import io.opentelemetry.api.OpenTelemetry
+import io.opentelemetry.api.trace.StatusCode
+import io.opentelemetry.api.trace.Tracer
 import mu.KotlinLogging
 import mu.withLoggingContext
 import net.dv8tion.jda.api.entities.Activity
@@ -122,51 +123,61 @@ class EventListener : ListenerAdapter(), KoinComponent {
   }
 
   override fun onGuildMessageReceived(event: GuildMessageReceivedEvent) {
-    event.member?.let {
-      if (BotUtils.isSelfBot(it.user)) return
-    } ?: return
-
-    val prefix = try {
-      BotUtils.getPrefix(event.guild)
-    } catch (e: Exception) {
-      logger.error(e) {
-        "Attempting to fetch prefix for ${event.guild.idLong}, failed!"
-      }
-      return
+    val tracer = getKoin().get<Tracer>()
+    val span = tracer.spanBuilder("Event Message Received").startSpan()
+    span.run {
+      setAttribute("discord-user", event.author.idLong)
+      setAttribute("guild", event.guild.idLong)
+      setAttribute("text-channel", event.channel.idLong)
     }
 
-    withLoggingContext("guild" to event.guild.name, "text-channel" to event.channel.name) {
-      val rawContent = event.message.contentDisplay.lowercase()
-      val inMaintenance = getKoin().getProperty("BOT_MAINTENANCE", "false").toBoolean()
-      val defaultChannel = BotUtils.defaultTextChannel(event.guild) ?: event.channel
-      val hasPrefix = rawContent.startsWith(prefix)
+    span.makeCurrent().use{
 
-      if (hasPrefix && inMaintenance) {
-        BotUtils.sendMessage(
-          defaultChannel,
-          ":poop: _Currently running an update...\n\nIf you have any questions please visit the support server: ${website}_"
-        )
-        logger.warn("Trying to use while running an update")
-      } else if (hasPrefix) {
-        val tracer = getKoin().get<OpenTelemetry>().getTracer("tech.gdragon.listener.EventListener")
-        val span = tracer.spanBuilder("handle command").startSpan()
-        span.run {
-          setAttribute("discord-user", event.author.idLong)
-          setAttribute("guild", event.guild.idLong)
-          setAttribute("text-channel", event.channel.idLong)
+      event.member?.let {
+        if (BotUtils.isSelfBot(it.user)) {
+          span.end()
+          return
         }
-        try {
-          handleCommand(event, prefix, rawContent)
-          // Update activity
-          BotUtils.updateActivity(event.guild)
-        } catch (e: InvalidCommand) {
-          span.recordException(e)
-          BotUtils.sendMessage(defaultChannel, ":no_entry_sign: _Usage: `${e.usage(prefix)}`_")
-          logger.warn { "[$rawContent] ${e.reason}" }
+      }
+
+      val prefix = try {
+        BotUtils.getPrefix(event.guild)
+      } catch (e: Exception) {
+        span.recordException(e)
+        span.setStatus(StatusCode.ERROR)
+        logger.error(e) {
+          "Attempting to fetch prefix for ${event.guild.idLong}, failed!"
         }
         span.end()
+        return
+      }
+
+      withLoggingContext("guild" to event.guild.name, "text-channel" to event.channel.name) {
+        val rawContent = event.message.contentDisplay.lowercase()
+        val inMaintenance = getKoin().getProperty("BOT_MAINTENANCE", "false").toBoolean()
+        val defaultChannel = BotUtils.defaultTextChannel(event.guild) ?: event.channel
+        val hasPrefix = rawContent.startsWith(prefix)
+
+        if (hasPrefix && inMaintenance) {
+          BotUtils.sendMessage(
+            defaultChannel,
+            ":poop: _Currently running an update...\n\nIf you have any questions please visit the support server: ${website}_"
+          )
+          logger.warn("Trying to use while running an update")
+        } else if (hasPrefix) {
+          try {
+            handleCommand(span, event, prefix, rawContent)
+            // Update activity
+            BotUtils.updateActivity(event.guild)
+          } catch (e: InvalidCommand) {
+            BotUtils.sendMessage(defaultChannel, ":no_entry_sign: _Usage: `${e.usage(prefix)}`_")
+            logger.warn { "[$rawContent] ${e.reason}" }
+          }
+        }
       }
     }
+
+    span.end()
   }
 
   override fun onPrivateMessageReceived(event: PrivateMessageReceivedEvent) {
