@@ -1,6 +1,7 @@
 package tech.gdragon
 
 import com.github.benmanes.caffeine.cache.Caffeine
+import io.opentelemetry.extension.annotations.WithSpan
 import mu.KotlinLogging
 import mu.withLoggingContext
 import net.dv8tion.jda.api.JDA
@@ -117,6 +118,7 @@ object BotUtils {
       .find(TextChannel::canTalk)
   }
 
+  @WithSpan("Get Guild Prefix")
   fun getPrefix(guild: DiscordGuild): String {
     return guild.run {
       guildCache.getIfPresent(idLong) ?: transaction {
@@ -140,6 +142,7 @@ object BotUtils {
     }
   }
 
+  @WithSpan("Is Self Bot")
   fun isSelfBot(user: User): Boolean {
     return user.isBot && user.jda.selfUser.idLong == user.idLong
   }
@@ -319,6 +322,7 @@ object BotUtils {
   /**
    * General message sending utility with error logging
    */
+  @WithSpan("Send Text Message")
   fun sendMessage(textChannel: MessageChannel?, msg: String) {
     try {
       textChannel
@@ -343,6 +347,7 @@ object BotUtils {
       )
   }
 
+  @WithSpan("Update Guild Activity")
   /**
    * Using an LRU cache, update activity if not in cache, this is not thread safe but also non-critical so wutevs
    */
