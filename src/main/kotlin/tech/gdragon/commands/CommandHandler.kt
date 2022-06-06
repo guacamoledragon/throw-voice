@@ -64,7 +64,9 @@ fun handleCommand(parentSpan: Span, event: GuildMessageReceivedEvent, prefix: St
       .spanBuilder("${command.name} Command")
       .setParent(Context.current().with(parentSpan))
       .startSpan()
-    it.action(args, event)
+    span.makeCurrent().use { _ ->
+      it.action(args, event)
+    }
     span.end()
   }
 }
