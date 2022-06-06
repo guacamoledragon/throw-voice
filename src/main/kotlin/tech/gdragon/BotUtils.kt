@@ -68,6 +68,7 @@ object BotUtils {
       }
   }
 
+  @WithSpan("Auto Save")
   fun autoSave(discordGuild: DiscordGuild): Boolean {
     return transaction {
       Guild
@@ -99,6 +100,7 @@ object BotUtils {
    * - Retrieve it based on the ID that the bot stores
    * - Retrieve the first channel that the bot can talk to
    */
+  @WithSpan("Guild Default Channel")
   fun defaultTextChannel(guild: DiscordGuild): TextChannel? {
     return transaction {
       Guild
@@ -147,6 +149,7 @@ object BotUtils {
     return user.isBot && user.jda.selfUser.idLong == user.idLong
   }
 
+  @WithSpan("Leave Voice Channel")
   @JvmStatic
   fun leaveVoiceChannel(voiceChannel: VoiceChannel, textChannel: TextChannel?, save: Boolean) {
     val guild = voiceChannel.guild
@@ -268,6 +271,7 @@ object BotUtils {
   }
 
   // TODO: I don't think there's a need for the callback for exception handling, just throw
+  @WithSpan("Record Voice Channel")
   fun recordVoiceChannel(
     channel: VoiceChannel,
     defaultChannel: TextChannel?,
