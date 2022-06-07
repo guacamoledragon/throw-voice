@@ -1,6 +1,7 @@
 package tech.gdragon
 
 import com.github.benmanes.caffeine.cache.Caffeine
+import io.opentelemetry.extension.annotations.WithSpan
 import mu.KotlinLogging
 import mu.withLoggingContext
 import net.dv8tion.jda.api.JDA
@@ -67,6 +68,7 @@ object BotUtils {
       }
   }
 
+  @WithSpan("Auto Save")
   fun autoSave(discordGuild: DiscordGuild): Boolean {
     return transaction {
       Guild
@@ -98,6 +100,7 @@ object BotUtils {
    * - Retrieve it based on the ID that the bot stores
    * - Retrieve the first channel that the bot can talk to
    */
+  @WithSpan("Guild Default Channel")
   fun defaultTextChannel(guild: DiscordGuild): TextChannel? {
     return transaction {
       Guild
@@ -117,6 +120,7 @@ object BotUtils {
       .find(TextChannel::canTalk)
   }
 
+  @WithSpan("Get Guild Prefix")
   fun getPrefix(guild: DiscordGuild): String {
     return guild.run {
       guildCache.getIfPresent(idLong) ?: transaction {
@@ -140,10 +144,12 @@ object BotUtils {
     }
   }
 
+  @WithSpan("Is Self Bot")
   fun isSelfBot(user: User): Boolean {
     return user.isBot && user.jda.selfUser.idLong == user.idLong
   }
 
+  @WithSpan("Leave Voice Channel")
   @JvmStatic
   fun leaveVoiceChannel(voiceChannel: VoiceChannel, textChannel: TextChannel?, save: Boolean) {
     val guild = voiceChannel.guild
@@ -265,6 +271,7 @@ object BotUtils {
   }
 
   // TODO: I don't think there's a need for the callback for exception handling, just throw
+  @WithSpan("Record Voice Channel")
   fun recordVoiceChannel(
     channel: VoiceChannel,
     defaultChannel: TextChannel?,
@@ -319,6 +326,7 @@ object BotUtils {
   /**
    * General message sending utility with error logging
    */
+  @WithSpan("Send Text Message")
   fun sendMessage(textChannel: MessageChannel?, msg: String) {
     try {
       textChannel
@@ -343,6 +351,7 @@ object BotUtils {
       )
   }
 
+  @WithSpan("Update Guild Activity")
   /**
    * Using an LRU cache, update activity if not in cache, this is not thread safe but also non-critical so wutevs
    */

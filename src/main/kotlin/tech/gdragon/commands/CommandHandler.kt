@@ -1,10 +1,14 @@
 package tech.gdragon.commands
 
+import io.opentelemetry.api.trace.Span
+import io.opentelemetry.api.trace.Tracer
+import io.opentelemetry.context.Context
 import mu.KotlinLogging
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.component.KoinComponent
 import org.koin.java.KoinJavaComponent
+import org.koin.java.KoinJavaComponent.getKoin
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.discord.Command
 import tech.gdragon.i18n.Lang
@@ -26,7 +30,7 @@ abstract class CommandHandler : KoinComponent {
 data class InvalidCommand(val usage: (String) -> String, val reason: String) : Throwable()
 
 @Throws(InvalidCommand::class)
-fun handleCommand(event: GuildMessageReceivedEvent, prefix: String, rawInput: String) {
+fun handleCommand(parentSpan: Span, event: GuildMessageReceivedEvent, prefix: String, rawInput: String) {
   val tokens = rawInput.substring(prefix.length).split(" ")
   val rawCommand = tokens.first()
   val args = tokens.drop(1).toTypedArray()
@@ -52,7 +56,17 @@ fun handleCommand(event: GuildMessageReceivedEvent, prefix: String, rawInput: St
   }
 
   command?.handler?.let {
+
     it.tracer.sendEvent(mapOf("command" to command.name))
-    it.action(args, event)
+    parentSpan.setAttribute("command", command.name.lowercase())
+
+    val span = getKoin().get<Tracer>()
+      .spanBuilder("${command.name} Command")
+      .setParent(Context.current().with(parentSpan))
+      .startSpan()
+    span.makeCurrent().use { _ ->
+      it.action(args, event)
+    }
+    span.end()
   }
 }

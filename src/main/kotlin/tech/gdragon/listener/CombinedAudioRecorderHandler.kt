@@ -3,6 +3,9 @@ package tech.gdragon.listener
 import com.squareup.tape.QueueFile
 import de.sciss.jump3r.lowlevel.LameEncoder
 import io.azam.ulidj.ULID
+import io.opentelemetry.api.trace.Span
+import io.opentelemetry.api.trace.Tracer
+import io.opentelemetry.context.Scope
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
@@ -90,6 +93,9 @@ class CombinedAudioRecorderHandler(
   private val fileFormat: String = getKoin().getProperty("BOT_FILE_FORMAT", "mp3").lowercase()
   private val standalone = getKoin().getProperty<String>("BOT_STANDALONE").toBoolean()
   private val vbr = getKoin().getProperty<String>("BOT_MP3_VBR").toBoolean()
+  private val span: Span = getKoin().get<Tracer>()
+    .spanBuilder("Create Recording")
+    .startSpan()
 
   // State-licious
   private var subject: PublishSubject<CombinedAudio>? = null
@@ -108,10 +114,13 @@ class CombinedAudioRecorderHandler(
 
   private var silencedUsers: MutableSet<Long> = mutableSetOf()
 
+  private var scope: Scope? = null
+
   val session: String
     get() = ulid ?: ""
 
   init {
+    scope = span.makeCurrent()
     single = createRecording()
   }
 
@@ -162,6 +171,10 @@ class CombinedAudioRecorderHandler(
     val queueFilename = "$dataDirectory/recordings/$ulid.queue"
     val queueFile = RecordingQueue(File(queueFilename))
     canReceive = true
+
+    span.run {
+      setAttribute("session-id", ulid)
+    }
 
     val encoder = LameEncoder(
       AudioReceiveHandler.OUTPUT_FORMAT,
@@ -492,6 +505,10 @@ class CombinedAudioRecorderHandler(
 
     // Shut off the Observable
     subject?.onComplete()
+
+    // Close Spans
+    span.end()
+    scope?.close()
   }
 
   private fun cleanup(recording: File) {
