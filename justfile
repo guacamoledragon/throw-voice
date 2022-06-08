@@ -17,7 +17,7 @@ postgres-pf:
   ssh -L 5433:localhost:5432 -N -T pawa.im
 
 # Apply Postgres DB migrations, expects password and optional port
-apply-pg-migrations password port='5432':
+apply-pg-migrations password='password' port='5432':
   docker run --rm \
          -v ($env.PWD + "/sql:/flyway/sql") \
          -v ($env.PWD + "/conf:/flyway/conf") \
