@@ -3,9 +3,11 @@ package tech.gdragon.db.table
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.dao.id.LongIdTable
 import org.jetbrains.exposed.sql.ReferenceOption
+import org.jetbrains.exposed.sql.javatime.timestamp
 import org.joda.time.DateTime
 import tech.gdragon.db.DateColumnType
 import tech.gdragon.db.LanguageColumnType
+import tech.gdragon.db.now
 import tech.gdragon.db.nowUTC
 import tech.gdragon.i18n.Lang
 import java.math.BigDecimal
@@ -15,8 +17,8 @@ object Tables {
     val active = bool("active").default(true)
     val name = text("name")
     val region = text("region")
-    val createdOn = registerColumn<DateTime>("created_on", DateColumnType(true)).clientDefault(::nowUTC)
-    val lastActiveOn = registerColumn<DateTime>("last_active_on", DateColumnType(true)).clientDefault(::nowUTC)
+    val createdOn = timestamp("created_on").clientDefault(::now)
+    val lastActiveOn = timestamp("last_active_on").clientDefault(::now)
   }
 
   object Settings : LongIdTable() {

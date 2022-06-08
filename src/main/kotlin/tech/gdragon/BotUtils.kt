@@ -17,11 +17,12 @@ import org.joda.time.DateTime
 import tech.gdragon.db.asyncTransaction
 import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
-import tech.gdragon.db.nowUTC
+import tech.gdragon.db.now
 import tech.gdragon.db.table.Tables.Guilds
 import tech.gdragon.listener.CombinedAudioRecorderHandler
 import java.io.File
 import java.io.FileInputStream
+import java.time.Instant
 import java.util.concurrent.TimeUnit
 import net.dv8tion.jda.api.entities.Guild as DiscordGuild
 
@@ -33,7 +34,7 @@ object BotUtils {
   private val guildActivityCache = Caffeine.newBuilder()
     .expireAfterWrite(1L, TimeUnit.HOURS)
     .softValues()
-    .build<Long, DateTime>()
+    .build<Long, Instant>()
 
   val guildCache = Caffeine.newBuilder()
     .build<Long, String>()
@@ -361,7 +362,7 @@ object BotUtils {
       updateGuildName(guild)
 
       // Update LRU
-      guildActivityCache.put(guild.idLong, nowUTC())
+      guildActivityCache.put(guild.idLong, now())
 
       // Update active on timestamp
       asyncTransaction {
