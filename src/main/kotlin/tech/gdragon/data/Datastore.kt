@@ -5,8 +5,6 @@ import mu.KotlinLogging
 import net.jodah.failsafe.Failsafe
 import net.jodah.failsafe.RetryPolicy
 import org.apache.commons.io.FileUtils
-import org.joda.time.DateTime
-import org.joda.time.DateTimeZone
 import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.FileInputStream
@@ -14,8 +12,8 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.attribute.BasicFileAttributes
+import java.time.Instant
 import java.time.temporal.ChronoUnit
-import java.util.*
 
 interface Datastore {
   fun upload(key: String, file: File): UploadResult
@@ -100,19 +98,19 @@ class RemoteDatastore(
   }
 }
 
-data class UploadResult(val key: String, val timestamp: DateTime, val size: Long, val url: String) {
+data class UploadResult(val key: String, val timestamp: Instant, val size: Long, val url: String) {
   companion object {
     fun from(baseUrl: String, stat: StatObjectResponse): UploadResult {
-      val createdTime = stat.lastModified().toInstant().toEpochMilli()
-      val tz = DateTimeZone.forTimeZone(TimeZone.getTimeZone(stat.lastModified().zone))
+      val createdTime = stat.lastModified().toInstant()
+      stat.lastModified().toInstant()
 
-      return UploadResult(stat.`object`(), DateTime(createdTime, tz), stat.size(), "$baseUrl/${stat.`object`()}")
+      return UploadResult(stat.`object`(), createdTime, stat.size(), "$baseUrl/${stat.`object`()}")
     }
 
     fun from(path: Path): UploadResult {
       val attributes = Files.readAttributes(path, BasicFileAttributes::class.java)
-      val createdTime = attributes.creationTime().toMillis()
-      return UploadResult(path.fileName.toString(), DateTime(createdTime), attributes.size(), path.toUri().toString())
+      val createdTime = attributes.creationTime().toInstant()
+      return UploadResult(path.fileName.toString(), createdTime, attributes.size(), path.toUri().toString())
     }
   }
 }

@@ -4,11 +4,8 @@ import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.dao.id.LongIdTable
 import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.javatime.timestamp
-import org.joda.time.DateTime
-import tech.gdragon.db.DateColumnType
 import tech.gdragon.db.LanguageColumnType
 import tech.gdragon.db.now
-import tech.gdragon.db.nowUTC
 import tech.gdragon.i18n.Lang
 import java.math.BigDecimal
 
@@ -46,8 +43,8 @@ object Tables {
   object Recordings : LongIdTable() {
     val channel = reference("channel", Channels)
     val size = long("size").default(0)
-    val createdOn = registerColumn<DateTime>("created_on", DateColumnType(true)).clientDefault(::nowUTC)
-    val modifiedOn = registerColumn<DateTime>("modified_on", DateColumnType(true)).nullable()
+    val createdOn = timestamp("created_on").clientDefault(::now)
+    val modifiedOn = timestamp("modified_on").nullable()
     val url = text("url").nullable()
     val guild = reference("guild", Guilds, ReferenceOption.CASCADE)
   }
