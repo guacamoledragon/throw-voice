@@ -30,6 +30,7 @@ import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.dao.Recording
 import tech.gdragon.db.dtf
+import tech.gdragon.db.now
 import tech.gdragon.db.nowUTC
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -440,7 +441,7 @@ class CombinedAudioRecorderHandler(
         transaction {
           recordingRecord?.apply {
             size = recording.length()
-            modifiedOn = DateTime.now()
+            modifiedOn = now()
             url = attachment?.proxyUrl ?: "Discord Only"
           }
         }
