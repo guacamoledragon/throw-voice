@@ -275,7 +275,7 @@ class CombinedAudioRecorderHandler(
       }
 
       FileOutputStream(recordingFile!!).use {
-        withLoggingContext("sessionId" to session) {
+        withLoggingContext("session-id" to session) {
           queueFile.apply {
             try {
               forEach { stream, _ ->
@@ -375,7 +375,7 @@ class CombinedAudioRecorderHandler(
       "Saving audio clip ${recording.name} - $recordingSizeInMB."
     }
 
-    withLoggingContext("sessionId" to session) {
+    withLoggingContext("session-id" to session) {
       uploadRecording(recording, voiceChannel, channel)
     }*/
   }
