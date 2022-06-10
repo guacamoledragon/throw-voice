@@ -13,7 +13,6 @@ import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.SqlExpressionBuilder
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.joda.time.DateTime
 import tech.gdragon.db.asyncTransaction
 import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
@@ -23,6 +22,8 @@ import tech.gdragon.listener.CombinedAudioRecorderHandler
 import java.io.File
 import java.io.FileInputStream
 import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
 import java.util.concurrent.TimeUnit
 import net.dv8tion.jda.api.entities.Guild as DiscordGuild
 
@@ -189,11 +190,14 @@ object BotUtils {
    * In the past, I've been deleting the Guild from the database, but that makes things annoying when you rejoin.
    * For now, we'll just be leaving a Guild, but keeping the settings.
    */
-  fun leaveInactiveGuilds(jda: JDA, afterDays: Int, whitelist: List<Long>): Int {
+  fun leaveInactiveGuilds(jda: JDA, afterDays: Long, whitelist: List<Long>): Int {
     logger.info { "Leaving all Guilds that haven't been active in the past $afterDays days." }
     val op: SqlExpressionBuilder.() -> Op<Boolean> = {
-      val now = DateTime.now()
-      val from = now.minusDays(afterDays)
+      val now = LocalDate.now()
+      val from = now
+        .minusDays(afterDays)
+        .atStartOfDay(ZoneId.systemDefault())
+        .toInstant()
       val inactiveGuildOp = Guilds.active.eq(true).and(Guilds.lastActiveOn.less(from))
 
       if (whitelist.isNotEmpty()) {
