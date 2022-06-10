@@ -1,7 +1,10 @@
 package tech.gdragon.db.table
 
+import org.jetbrains.exposed.dao.id.EntityID
+import org.jetbrains.exposed.dao.id.IdTable
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.dao.id.LongIdTable
+import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.javatime.timestamp
 import tech.gdragon.db.LanguageColumnType
@@ -40,7 +43,10 @@ object Tables {
     val settings = reference("settings", Settings, ReferenceOption.CASCADE)
   }
 
-  object Recordings : LongIdTable() {
+  object Recordings : IdTable<String>() {
+    override val id: Column<EntityID<String>> = text("id").entityId()
+    override val primaryKey: PrimaryKey = PrimaryKey(id)
+
     val channel = reference("channel", Channels)
     val size = long("size").default(0)
     val createdOn = timestamp("created_on").clientDefault(::now)

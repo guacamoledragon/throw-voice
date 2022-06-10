@@ -1,7 +1,7 @@
 package tech.gdragon.db.dao
 
-import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.*
+import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.exposedLogger
 import org.jetbrains.exposed.sql.transactions.TransactionManager
@@ -63,8 +63,8 @@ class Guild(id: EntityID<Long>) : LongEntity(id) {
   val settings by Settings backReferencedOn SettingsTable.guild
 }
 
-class Recording(id: EntityID<Long>) : LongEntity(id) {
-  companion object : LongEntityClass<Recording>(Recordings)
+class Recording(id: EntityID<String>) : Entity<String>(id) {
+  companion object : EntityClass<String, Recording>(Recordings)
 
   val createdOn by Recordings.createdOn
 
