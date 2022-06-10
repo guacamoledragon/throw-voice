@@ -134,7 +134,7 @@ object App {
         Timer("remove-old-guilds", true)
           .scheduleAtFixedRate(0L, Duration.ofDays(1L).toMillis()) {
             val jda = it.api()
-            val afterDays = app.koin.getProperty("BOT_LEAVE_GUILD_AFTER", "30").toInt()
+            val afterDays = app.koin.getProperty("BOT_LEAVE_GUILD_AFTER", "30").toLong()
 
             if (afterDays <= 0) {
               logger.info { "Disabling remove-old-guilds Timer." }
