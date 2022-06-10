@@ -21,7 +21,6 @@ import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.entities.VoiceChannel
 import org.apache.commons.io.FileUtils
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.joda.time.DateTime
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import tech.gdragon.BotUtils
@@ -157,9 +156,10 @@ class CombinedAudioRecorderHandler(
   }
 
   private fun createRecording(): Single<RecordingQueue?>? {
+    ulid = ULID.random()
     recordingRecord = transaction {
       Guild.findById(voiceChannel.guild.idLong)?.let {
-        Recording.new {
+        Recording.new(ulid) {
           channel = Channel.findOrCreate(voiceChannel.idLong, voiceChannel.name, it)
           guild = it
         }
@@ -167,7 +167,6 @@ class CombinedAudioRecorderHandler(
     }
 
     subject = PublishSubject.create()
-    ulid = ULID.random()
     filename = "$dataDirectory/recordings/$ulid.$fileFormat"
     val queueFilename = "$dataDirectory/recordings/$ulid.queue"
     val queueFile = RecordingQueue(File(queueFilename))
