@@ -154,12 +154,6 @@
       (shell {:cmd     (str "mkdir -p " base-dir dir)
               :creates [(str base-dir dir)]}))))
 
-(defn copy-nginx-conf
-  []
-  (upload {:src  "./conf/nginx.conf"
-           :dest "/opt/pawa/nginx.conf"
-           :mode 0755}))
-
 (defn copy-docker-compose
   []
   (upload {:src  "./docker-compose.yml"
@@ -175,7 +169,6 @@
 (defn setup-pawa
   []
   (create-directory-structure)
-  (copy-nginx-conf)
   (copy-docker-compose)
   (copy-secrets))
 

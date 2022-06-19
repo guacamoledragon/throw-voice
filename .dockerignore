@@ -1,6 +1,5 @@
 *
 !conf/flyway.conf
-!conf/nginx.conf
 !docs
 !scripts
 !sql
