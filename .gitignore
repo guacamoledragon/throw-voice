@@ -50,3 +50,5 @@ local-db
 *.queue
 
 .nrepl-port
+.clj-kondo
+.lsp
