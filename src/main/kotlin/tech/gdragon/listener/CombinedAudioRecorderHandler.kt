@@ -89,6 +89,7 @@ class CombinedAudioRecorderHandler(
 
   private val logger = KotlinLogging.logger { }
   private val datastore: Datastore by inject()
+  private val appUrl: String? = getKoin().getProperty("APP_URL")
   private val dataDirectory: String = getKoin().getProperty("BOT_DATA_DIR", "./")
   private val fileFormat: String = getKoin().getProperty("BOT_FILE_FORMAT", "mp3").lowercase()
   private val standalone = getKoin().getProperty<String>("BOT_STANDALONE").toBoolean()
@@ -408,13 +409,6 @@ class CombinedAudioRecorderHandler(
         try {
           val result = datastore.upload(recordingKey, recording)
 
-          val message = """|:microphone2: **Recording for <#${voiceChannel?.id}> has been uploaded!**
-                           |${if (!standalone) result.url else "`" + result.url + "`"}
-                           |${if (!standalone) "\n\n_Recording will only be available for 24hrs_" else ""}
-                           |""".trimMargin()
-
-          BotUtils.sendMessage(channel, message)
-
           transaction {
             recordingRecord?.apply {
               size = result.size
@@ -422,6 +416,20 @@ class CombinedAudioRecorderHandler(
               url = result.url
             }
           }
+
+          // Choose how to display the URL
+          val recordingUrl = if (standalone) {
+            "`${result.url}`"
+          } else if (appUrl != null) {
+            "$appUrl/v1/recordings?guild=${voiceChannel?.guild?.idLong}&session-id=$session"
+          } else result.url
+
+          val message = """|:microphone2: **Recording for <#${voiceChannel?.id}> has been uploaded!**
+                           |$recordingUrl
+                           |${if (!standalone) "\n\n_Recording will only be available for 24hrs_" else ""}
+                           |""".trimMargin()
+
+          BotUtils.sendMessage(channel, message)
 
           cleanup(recording)
         } catch (e: Exception) {
