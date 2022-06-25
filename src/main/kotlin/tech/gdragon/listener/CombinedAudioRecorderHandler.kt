@@ -174,7 +174,7 @@ class CombinedAudioRecorderHandler(
     canReceive = true
 
     span.run {
-      setAttribute("session-id", ulid)
+      setAttribute("session-id", session)
     }
 
     val encoder = LameEncoder(
