@@ -78,7 +78,7 @@
     <dependency>
       <groupId>io.honeycomb</groupId>
       <artifactId>honeycomb-opentelemetry-sdk</artifactId>
-      <version>1.1.1</version>
+      <version>1.2.0</version>
     </dependency>
     <dependency>
       <groupId>io.honeycomb.libhoney</groupId>
