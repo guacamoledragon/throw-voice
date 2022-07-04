@@ -11,7 +11,7 @@
   </scm>
 
   <properties>
-    <exposed.version>0.37.3</exposed.version>
+    <exposed.version>0.38.2</exposed.version>
     <jda.version>4.4.0_352</jda.version>
     <jda-ktx.version>1223d5c</jda-ktx.version>
     <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
