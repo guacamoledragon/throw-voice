@@ -17,16 +17,22 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 ### Changed
 - [Pawa Lite] now supports `!status` command.
 - Update the following dependencies:
-  - Bump flyway-core from 8.3.0 to 8.5.1
-  - Bump h2 from 1.4.200 to 2.1.210
-  - Bump koin-core from 3.1.4 to 3.1.5
-  - Bump koin-core-jvm from 3.1.4 to 3.1.5
-  - Bump libhoney-java from 1.4.0 to 1.4.1
-  - Bump log4j-core from 2.17.0 to 2.17.2
-  - Bump log4j-slf4j18-impl from 2.17.0 to 2.17.2
+  - Bump flyway-core from 8.3.0 to 8.5.13
+  - Bump h2 from 1.4.200 to 2.1.214
+  - Bump honeycomb-opentelemetry-sdk from 1.1.1 to 1.2.0
+  - Bump koin-core from 3.1.4 to 3.2.0
+  - Bump koin-core-jvm from 3.1.4 to 3.2.0
+  - Bump kotlin-logging-jvm from 2.1.21 to 2.1.23
+  - Bump kotlin.version from 1.6.10 to 1.7.0
+  - Bump libhoney-java from 1.4.0 to 1.5.0
+  - Bump log4j-core from 2.17.0 to 2.18.0
+  - Bump log4j-layout-template-json from 2.17.2 to 2.18.0
+  - Bump log4j-slf4j18-impl from 2.17.0 to 2.18.0
+  - Bump maven-assembly-plugin from 3.3.0 to 3.4.0
   - Bump maven-compiler-plugin from 3.8.1 to 3.10.0
-  - Bump minio from 8.3.4 to 8.3.7
-  - Bump postgresql from 42.3.1 to 42.3.3
+  - Bump maven-shade-plugin from 3.2.4 to 3.3.0
+  - Bump minio from 8.3.4 to 8.4.2
+  - Bump postgresql from 42.3.1 to 42.4.0
 
 ### Deprecated
 - [Pawa Lite] cannot upgrade in place for versions after 2.9.8, see User Guide
