@@ -25,7 +25,7 @@ This is the full list of commands available, but on a daily basis, you wont need
 ## Pawa Lite Only Commands
 |                      Command | Description                             |
 |-----------------------------:|-----------------------------------------|
-|   [slash](commands/slash.md) | Manage setting up slash commands.       |
+|   [slash](commands/slash.md) | Manage slash commands settings.         |
 | [status](commands/status.md) | Displays connection status information. |
 
 ## Slash Commands
