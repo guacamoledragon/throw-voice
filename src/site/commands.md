@@ -22,6 +22,11 @@ This is the full list of commands available, but on a daily basis, you wont need
 | [saveLocation](commands/savelocation.md) | Default text channel for all messages                                                           |
 |             [volume](commands/volume.md) | Set the recording volume                                                                        |
 
+## Pawa Lite Only Commands
+|                      Command | Description                             |
+|-----------------------------:|-----------------------------------------|
+|   [slash](commands/slash.md) | Manage setting up slash commands.       |
+| [status](commands/status.md) | Displays connection status information. |
 
 ## Slash Commands
 
