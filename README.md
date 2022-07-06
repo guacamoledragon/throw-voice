@@ -54,7 +54,7 @@ _There is no obligation to do any of this, but this is a way to express your gra
 
 ## Sponsors
 
-- [12g](https://github.com/12g)
+- [torigen](https://github.com/torigen)
 
 ## Attributions
 - Original Java codebase by [ajm1996's](https://github.com/ajm1996) [DiscordEcho](https://github.com/ajm1996/DiscordEcho).
