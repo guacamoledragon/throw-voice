@@ -62,7 +62,7 @@ _There is no obligation to do any of this, but this is a way to express your gra
 ## License
 
 ```
-Copyright (c) 2017-2021 Guacamole Dragon, LLC
+Copyright (c) 2017-2022 Guacamole Dragon, LLC
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
