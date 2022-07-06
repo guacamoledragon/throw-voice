@@ -40,8 +40,8 @@ You can support `pawa` development in any of these ways:
 
 If you want to try hosting your own bot, or website. I've used these hosting platforms in the past, use my referral links:
 
-* **Limited Time** [Vultr](https://www.vultr.com/?ref=8483036-6G): $100 credit to spend over 30 days
-* [DigitalOcean](https://m.do.co/c/d2af1fbee897): $100 credit
+* **Limited Time** [Vultr](https://www.vultr.com/?ref=8984522-8H): $100 credit to spend over 30 days
+* [DigitalOcean](https://m.do.co/c/855a7903940d): $100 credit
 * [Linode](https://www.linode.com/?r=e655d87b0d382f2922e75de841b2f19d7403e2ca)
 * We collect anonymous basic analytics using [Simple Analytics](https://referral.simpleanalytics.com/pawa)
 
