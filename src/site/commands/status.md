@@ -12,3 +12,4 @@ This system command displays information about the active shard [pawa](https://p
 
 ## Video Demonstration
 
+<iframe width="100%" height="560" src="https://youtube.com/embed/neLJIcrz4KI" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
