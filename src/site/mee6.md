@@ -25,7 +25,6 @@ From their [website](https://mee6.xyz/premium):
 | Recording Format | mp3    | mp3            |
 | Multi-Track      | No     | No             |
 | Link Expiration  | 24hrs  | ???            |
-|                  |        |                |
 
 _* pawa's limits are based on size of recording not time, so the time could range between 1hr - 3hrs_  
 _** Requires a Premium subscription_
