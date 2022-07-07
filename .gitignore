@@ -52,3 +52,4 @@ local-db
 .nrepl-port
 .clj-kondo
 .lsp
+agent.jar
