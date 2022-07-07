@@ -22,17 +22,18 @@ This is the full list of commands available, but on a daily basis, you wont need
 | [saveLocation](commands/savelocation.md) | Default text channel for all messages                                                           |
 |             [volume](commands/volume.md) | Set the recording volume                                                                        |
 
-## Pawa Lite Only Commands
-|                      Command | Description                             |
-|-----------------------------:|-----------------------------------------|
-|   [slash](commands/slash.md) | Manage slash commands settings.         |
-| [status](commands/status.md) | Displays connection status information. |
-
 ## Slash Commands
 
 |                  Command | Description                                                                |
 |-------------------------:|----------------------------------------------------------------------------|
 | [info](commands/info.md) | Displays information about[pawa](https://pawa.im) for the caller's server. |
+
+## [Pawa Lite](/pawalite) and Admin Only Commands
+|                              Command | Description                                                                                      |
+|-------------------------------------:|--------------------------------------------------------------------------------------------------|
+| [autorecord](commands/autorecord.md) | Configure the number of users in a voice channel before [pawa](https://pawa.im) begins recording |
+|           [slash](commands/slash.md) | Manage slash commands settings.                                                                  |
+|         [status](commands/status.md) | Displays connection status information.                                                          |
 
 ## Supporter Commands: _Coming Soon!_
 
@@ -49,9 +50,5 @@ These are [supporter](https://github.com/sponsors/jvtrigueros) only commands.
 
 |                              Command | Description                                                                                      |
 |-------------------------------------:|--------------------------------------------------------------------------------------------------|
-| [autorecord](commands/autorecord.md) | Configure the number of users in a voice channel before [pawa](https://pawa.im) begins recording |
 |       [recover](commands/recover.md) | Attempts to recover a recording using Session ID                                                 |
 |             [send](commands/send.md) | Sends a short recording to a user                                                                |
-
-
-?> Also available on [Pawa Lite](pawalite.md)
