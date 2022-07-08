@@ -33,3 +33,5 @@ Adds **all** the Slash commands to the Discord server.
 Removes **all** the Slash commands on the Discord server. _Shouldn't need to run this, used for debugging purposes._
 
 ## Video Demonstration
+
+<iframe width="100%" height="560" src="https://www.youtube.com/embed/oOhcJpz0bNE" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
