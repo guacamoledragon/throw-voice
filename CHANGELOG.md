@@ -15,6 +15,7 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 - Translations for Hungarian 🇭🇺
 
 ### Changed
+- Update Java 11 LTS to 17 LTS
 - [Pawa Lite] now supports `!status` command.
 - Update the following dependencies:
   - Bump flyway-core from 8.3.0 to 8.5.13

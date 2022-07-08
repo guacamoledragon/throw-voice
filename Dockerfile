@@ -1,4 +1,4 @@
-FROM maven:3.6-jdk-11 as builder
+FROM maven:3.8.6-eclipse-temurin-17-alpine as builder
 
 WORKDIR /app
 
@@ -21,7 +21,7 @@ ENV SDK_VERSION 1.3.0
 
 RUN curl -Lo agent.jar https://github.com/honeycombio/honeycomb-opentelemetry-java/releases/download/v${SDK_VERSION}/honeycomb-opentelemetry-javaagent-${SDK_VERSION}.jar
 
-FROM gcr.io/distroless/java:11
+FROM gcr.io/distroless/java:17
 LABEL maintainer="Jose V. Trigueros <jose@gdragon.tech>"
 
 ARG BUILD_DATE

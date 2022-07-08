@@ -7,7 +7,7 @@ variables:
   MAVEN_OPTS: -Dmaven.repo.local=.m2/repository
 
 build:
-  image: maven:3.8-jdk-11
+  image: maven:3.8.6-eclipse-temurin-17-alpine
   only:
     changes: &code-changes
       - Dockerfile
