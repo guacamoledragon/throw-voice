@@ -17,7 +17,9 @@ FROM curlimages/curl:latest as deps
 
 WORKDIR /home/curl_user
 
-RUN curl -Lo agent.jar https://github.com/honeycombio/honeycomb-opentelemetry-java/releases/download/v1.1.1/honeycomb-opentelemetry-javaagent-1.1.1.jar
+ENV SDK_VERSION 1.3.0
+
+RUN curl -Lo agent.jar https://github.com/honeycombio/honeycomb-opentelemetry-java/releases/download/v${SDK_VERSION}/honeycomb-opentelemetry-javaagent-${SDK_VERSION}.jar
 
 FROM gcr.io/distroless/java:11
 LABEL maintainer="Jose V. Trigueros <jose@gdragon.tech>"
