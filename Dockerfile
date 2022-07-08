@@ -21,7 +21,8 @@ ENV SDK_VERSION 1.3.0
 
 RUN curl -Lo agent.jar https://github.com/honeycombio/honeycomb-opentelemetry-java/releases/download/v${SDK_VERSION}/honeycomb-opentelemetry-javaagent-${SDK_VERSION}.jar
 
-FROM gcr.io/distroless/java:17
+# https://console.cloud.google.com/gcr/images/distroless/global/java17@sha256:0aea893ebf78c9d8111d709efd2bd3c6b0975d07fad11317355a2dad032823fc/details?tab=vulnz
+FROM gcr.io/distroless/java17@sha256:0aea893ebf78c9d8111d709efd2bd3c6b0975d07fad11317355a2dad032823fc
 LABEL maintainer="Jose V. Trigueros <jose@gdragon.tech>"
 
 ARG BUILD_DATE
@@ -29,7 +30,7 @@ ARG VCS_REF
 ARG VERSION
 LABEL org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.name="pawa" \
-      org.label-schema.description="A voice channel recording bot for Discord." \
+      org.label-schema.description="Simple audio recording for Discord." \
       org.label-schema.url="https://pawa.im" \
       org.label-schema.vcs-ref=$VCS_REF \
       org.label-schema.vcs-url="https://gitlab.com/pawabot/pawa" \
