@@ -1,0 +1,7 @@
+style:
+  MaxLineLength:
+    maxLineLength: 240
+
+complexity:
+  LongMethod:
+    threshold: 100
