@@ -266,17 +266,22 @@ class CombinedAudioRecorderHandler(
 
     logger.debug { "Creating subscription for recording: $recordingId" }
     val disposable = single?.subscribe { queueFile, e ->
-      e?.let { ex ->
-        logger.error(ex) { "Error on subscription on saveRecording: $recordingId" }
-      }
+      withLoggingContext(
+        "guild" to textChannel.guild.name,
+        "text-channel" to textChannel.name,
+        "session-id" to session
+      ) {
+        e?.let { ex ->
+          logger.error(ex) { "Error on subscription on saveRecording: $recordingId" }
+        }
 
-      val recordingFile = queueFile?.let {
-        logger.info { "Completed recording: $recordingId, queue file size: ${it.size()}" }
-        File(it.fileBuffer.canonicalPath.replace("queue", "mp3"))
-      }
+        val recordingFile = queueFile?.let {
+          logger.info { "Completed recording: $recordingId, queue file size: ${it.size()}" }
+          File(it.fileBuffer.canonicalPath.replace("queue", "mp3"))
+        }
 
-      FileOutputStream(recordingFile!!).use {
-        withLoggingContext("guild" to textChannel.guild.name, "text-channel" to textChannel.name, "session-id" to session) {
+        FileOutputStream(recordingFile!!).use {
+
           queueFile.apply {
             try {
               forEach { stream, _ ->
