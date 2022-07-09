@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [2.10.0] - 2022-07-08
 
 ### Added
 - `!slash` command to manage Slash commands, this is only available to use by me and [Pawa Lite] users
@@ -38,13 +38,9 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 ### Deprecated
 - [Pawa Lite] cannot upgrade in place for versions after 2.9.8, see User Guide
 
-### Removed
-
 ### Fixed
 - If there's an issue creating an MP3 file from a queue file, the queue file would get deleted making it impossible to
   recover. This is a hack, but it'll work for now...
-
-### Security
 
 ## [2.9.8] - 2021-12-25
 
