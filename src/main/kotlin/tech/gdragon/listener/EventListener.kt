@@ -131,7 +131,7 @@ class EventListener : ListenerAdapter(), KoinComponent {
       setAttribute("text-channel", event.channel.idLong)
     }
 
-    span.makeCurrent().use{
+    span.makeCurrent().use {
 
       event.member?.let {
         if (BotUtils.isSelfBot(it.user)) {

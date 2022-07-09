@@ -357,9 +357,9 @@ object BotUtils {
   }
 
   @WithSpan("Update Guild Activity")
-  /**
-   * Using an LRU cache, update activity if not in cache, this is not thread safe but also non-critical so wutevs
-   */
+    /**
+     * Using an LRU cache, update activity if not in cache, this is not thread safe but also non-critical so wutevs
+     */
   fun updateActivity(guild: DiscordGuild): Unit {
     if (guildActivityCache.getIfPresent(guild.idLong) == null) {
       // Update Guild name if necessary
@@ -417,9 +417,12 @@ object BotUtils {
 
     if (oldName != newName) {
       asyncTransaction {
-        Guild[guild.idLong].name = newName
-        logger.info {
-          "Changed name $oldName -> $newName"
+        withLoggingContext("guild" to newName) {
+          Guild[guild.idLong].name = newName
+
+          logger.info {
+            "Changed name $oldName -> $newName"
+          }
         }
       }
     }

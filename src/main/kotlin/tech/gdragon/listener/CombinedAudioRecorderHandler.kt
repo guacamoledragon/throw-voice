@@ -276,7 +276,7 @@ class CombinedAudioRecorderHandler(
       }
 
       FileOutputStream(recordingFile!!).use {
-        withLoggingContext("session-id" to session) {
+        withLoggingContext("guild" to textChannel.guild.name, "text-channel" to textChannel.name, "session-id" to session) {
           queueFile.apply {
             try {
               forEach { stream, _ ->
@@ -473,41 +473,42 @@ class CombinedAudioRecorderHandler(
         }
       }
       ?.subscribe { queueFile, _ ->
-
-        queueFile?.let {
-          recordingLock?.let { lock ->
-            lock.acquire(1)
-            logger.warn {
-              "Acquiring lock in disconnect subscription: ${it.fileBuffer.canonicalPath}"
-            }
-          }
-          try {
-            it.close()
-            val mp3File = File(it.fileBuffer.canonicalPath.replace("queue", "mp3"))
-            if (!standalone && (mp3File.exists() && 0 < mp3File.length())) {
-              logger.info {
-                "Delete queue file: ${it.fileBuffer.name}"
-              }
-              Files.deleteIfExists(Paths.get(it.fileBuffer.toURI()))
-            } else {
-              logger.info {
-                "Skip deleting queue file: ${it.fileBuffer.name}, mp3 file size: ${mp3File.length()}"
+        withLoggingContext("guild" to voiceChannel.guild.name, "text-channel" to defaultChannel.name) {
+          queueFile?.let {
+            recordingLock?.let { lock ->
+              lock.acquire(1)
+              logger.warn {
+                "Acquiring lock in disconnect subscription: ${it.fileBuffer.canonicalPath}"
               }
             }
-          } catch (e: FileSystemException) {
-            logger.warn(e) {
-              "Couldn't delete ${it.fileBuffer.canonicalPath}"
+            try {
+              it.close()
+              val mp3File = File(it.fileBuffer.canonicalPath.replace("queue", "mp3"))
+              if (!standalone && (mp3File.exists() && 0 < mp3File.length())) {
+                logger.info {
+                  "Delete queue file: ${it.fileBuffer.name}"
+                }
+                Files.deleteIfExists(Paths.get(it.fileBuffer.toURI()))
+              } else {
+                logger.info {
+                  "Skip deleting queue file: ${it.fileBuffer.name}, mp3 file size: ${mp3File.length()}"
+                }
+              }
+            } catch (e: FileSystemException) {
+              logger.warn(e) {
+                "Couldn't delete ${it.fileBuffer.canonicalPath}"
+              }
             }
-          }
 
-          // Delete database entry if no URL
-          recording?.apply {
-            transaction {
-              if (url.isNullOrEmpty())
-                delete()
+            // Delete database entry if no URL
+            recording?.apply {
+              transaction {
+                if (url.isNullOrEmpty())
+                  delete()
+              }
             }
+            recordingLock?.release(1)
           }
-          recordingLock?.release(1)
         }
       }
 
