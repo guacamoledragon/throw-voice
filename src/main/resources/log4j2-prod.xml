@@ -57,5 +57,6 @@
     <Logger name="org.flywaydb.core.internal" level="info" additivity="false">
       <AppenderRef ref="DatabaseLogs"/>
     </Logger>
+    <Logger name="net.dv8tion.jda.internal.audio.AudioConnection" level="off" />
   </Loggers>
 </Configuration>
