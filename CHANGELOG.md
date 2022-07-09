@@ -24,12 +24,12 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
   - Bump koin-core from 3.1.4 to 3.2.0
   - Bump koin-core-jvm from 3.1.4 to 3.2.0
   - Bump kotlin-logging-jvm from 2.1.21 to 2.1.23
-  - Bump kotlin.version from 1.6.10 to 1.7.0
+  - Bump kotlin.version from 1.6.10 to 1.7.10
   - Bump libhoney-java from 1.4.0 to 1.5.0
   - Bump log4j-core from 2.17.0 to 2.18.0
   - Bump log4j-layout-template-json from 2.17.2 to 2.18.0
   - Bump log4j-slf4j18-impl from 2.17.0 to 2.18.0
-  - Bump maven-assembly-plugin from 3.3.0 to 3.4.0
+  - Bump maven-assembly-plugin from 3.3.0 to 3.4.1
   - Bump maven-compiler-plugin from 3.8.1 to 3.10.0
   - Bump maven-shade-plugin from 3.2.4 to 3.3.0
   - Bump minio from 8.3.4 to 8.4.2
@@ -186,6 +186,8 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 ### Fixed
 - Remove recording limits and warnings
 
+[Unreleased]: https://gitlab.com/pawabot/pawa/-/compare/v2.10.0...HEAD
+[2.10.0]: https://gitlab.com/pawabot/pawa/-/compare/v2.9.8...v2.10.0
 [2.9.8]: https://gitlab.com/pawabot/pawa/-/compare/v2.9.7...v2.9.8
 [2.9.7]: https://gitlab.com/pawabot/pawa/-/compare/v2.9.6...v2.9.7
 [2.9.6]: https://gitlab.com/pawabot/pawa/-/compare/v2.9.5...v2.9.6
