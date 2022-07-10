@@ -48,7 +48,7 @@ fun handleCommand(parentSpan: Span, event: GuildMessageReceivedEvent, prefix: St
     }
 
     if (alias == null) {
-      val tracer: EventTracer = KoinJavaComponent.getKoin().get()
+      val tracer: EventTracer = getKoin().get()
       tracer.sendEvent(mapOf("command-not-found" to rawCommand.uppercase()))
     }
 

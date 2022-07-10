@@ -1,5 +1,6 @@
 package tech.gdragon.commands.misc
 
+import mu.withLoggingContext
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -69,10 +70,14 @@ class Help : CommandHandler() {
       }
 
     event.author.openPrivateChannel()
-      .flatMap { it.sendMessage(embed.build()) }
+      .flatMap { it.sendMessageEmbeds(embed.build()) }
       .queue(
         { BotUtils.sendMessage(defaultChannel, ":information_source: _${translator.checkDm(event.author.id)}_") },
-        { ex -> logger.warn(ex) { "Couldn't send DM to ${event.author.name}" } })
+        { ex ->
+          withLoggingContext("guild" to event.guild.name) {
+            logger.warn(ex) { "Couldn't send DM to ${event.author.name}" }
+          }
+        })
   }
 
   override fun usage(prefix: String, lang: Lang): String {
