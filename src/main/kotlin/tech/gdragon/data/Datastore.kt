@@ -75,6 +75,7 @@ class RemoteDatastore(
       ByteArrayInputStream(file.readBytes()).use { bais ->
         val putObjectArgs = PutObjectArgs
           .builder()
+          .contentType("audio/mpeg")
           .bucket(bucketName)
           .`object`(key)
           .stream(bais, bais.available().toLong(), -1)
