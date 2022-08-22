@@ -6,19 +6,21 @@ import io.opentelemetry.context.Context
 import mu.KotlinLogging
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.koin.core.component.KoinComponent
-import org.koin.java.KoinJavaComponent
 import org.koin.java.KoinJavaComponent.getKoin
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.discord.Command
 import tech.gdragon.i18n.Lang
 import tech.gdragon.metrics.EventTracer
 
-abstract class CommandHandler : KoinComponent {
+abstract class CommandHandler {
   protected val logger = KotlinLogging.logger {}
-  protected val standalone = getKoin().getProperty<String>("BOT_STANDALONE").toBoolean()
+  protected val standalone by lazy {
+    getKoin().getProperty<String>("BOT_STANDALONE").toBoolean()
+  }
 
-  val tracer: EventTracer = getKoin().get()
+  val tracer: EventTracer by lazy {
+    getKoin().get()
+  }
 
   @Throws(InvalidCommand::class)
   abstract fun action(args: Array<String>, event: GuildMessageReceivedEvent)
