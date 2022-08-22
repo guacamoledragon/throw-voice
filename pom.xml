@@ -356,14 +356,6 @@
 
   <repositories>
     <repository>
-      <id>bintray-kotlin-exposed</id>
-      <name>bintray</name>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <url>http://dl.bintray.com/kotlin/exposed</url>
-    </repository>
-    <repository>
       <id>dv8tion</id>
       <name>m2-dv8tion</name>
       <url>https://m2.dv8tion.net/releases</url>
