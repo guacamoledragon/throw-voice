@@ -4,6 +4,8 @@ import mu.KotlinLogging
 import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.joda.time.DateTimeZone
+import kotlin.io.path.Path
+import kotlin.io.path.createDirectories
 import org.jetbrains.exposed.sql.Database as ExposedDatabase
 
 interface Database {
@@ -20,7 +22,9 @@ class EmbeddedDatabase(dataDirectory: String) : Database {
   override val database = _database
 
   init {
-    val url = "jdbc:h2:file:$dataDirectory/embedded-database/settings.db"
+    val dbPath = "$dataDirectory/embedded-database"
+    Path(dbPath).createDirectories()
+    val url = "jdbc:h2:file:$dbPath/settings.db"
     logger.info {
       "Starting database migration: $url"
     }
