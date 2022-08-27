@@ -3,6 +3,7 @@ package tech.gdragon.commands.settings
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.BotUtils
+import tech.gdragon.api.pawa.Pawa
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.db.dao.Guild
@@ -11,7 +12,7 @@ import tech.gdragon.i18n.Lang
 import java.math.BigDecimal
 
 class Volume : CommandHandler() {
-  override fun action(args: Array<String>, event: GuildMessageReceivedEvent) {
+  override fun action(args: Array<String>, event: GuildMessageReceivedEvent, pawa: Pawa) {
     require(args.size == 1) {
       throw InvalidCommand(::usage, "Incorrect number of arguments: ${args.size}")
     }

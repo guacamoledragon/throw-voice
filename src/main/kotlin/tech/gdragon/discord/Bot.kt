@@ -66,7 +66,7 @@ class Bot(private val token: String, database: Database) {
         .disableCache(CacheFlag.ACTIVITY, CacheFlag.EMOTE, CacheFlag.CLIENT_STATUS, CacheFlag.ONLINE_STATUS)
         .setChunkingFilter(ChunkingFilter.NONE)
         .setMemberCachePolicy(MemberCachePolicy.VOICE)
-        .addEventListeners(EventListener(), SystemEventListener())
+        .addEventListeners(EventListener(pawa), SystemEventListener())
         .injectKTX()
         .build()
       registerSlashCommands()
