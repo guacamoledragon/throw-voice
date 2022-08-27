@@ -30,6 +30,11 @@ class PawaTest : FunSpec() {
         alias.shouldNotBeNull()
       }
 
+      test("command is \"alias\" it shouldn't be created") {
+        val alias = pawa.createAlias(guildId, Command.ALIAS, "a")
+        alias.shouldBeNull()
+      }
+
       test("is a command name, it shouldn't be created") {
         val alias = pawa.createAlias(guildId, Command.RECORD, "record")
         alias.shouldBeNull()

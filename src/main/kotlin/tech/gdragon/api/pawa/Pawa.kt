@@ -18,9 +18,16 @@ class Pawa(val db: Database) {
     return Babel.commandTranslator(lang)
   }
 
-  fun createAlias(guildId: Long, command: Command, alias: String): Alias? =
-    // If the alias isn't the name of an existing command, create a new alias
-    when (Command.values().none { it.name.lowercase() == alias.lowercase() }) {
+  fun createAlias(guildId: Long, command: Command, alias: String): Alias?
+  {
+    // Command cannot be ALIAS and the alias cannot be the name of an existing command
+    val isValidAlias = (Command.ALIAS != command) &&
+      Command
+        .values()
+        .map { it.name.lowercase() }
+        .none { it == alias.lowercase() }
+
+    return when (isValidAlias) {
       true -> transaction(db.database) {
         Settings
           .find { Tables.Settings.guild eq guildId }
@@ -38,4 +45,5 @@ class Pawa(val db: Database) {
         null
       }
     }
+  }
 }
