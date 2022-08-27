@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.sharding.ShardManager
 import net.dv8tion.jda.api.utils.ChunkingFilter
 import net.dv8tion.jda.api.utils.MemberCachePolicy
 import net.dv8tion.jda.api.utils.cache.CacheFlag
+import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.java.KoinJavaComponent
 import tech.gdragon.api.pawa.Pawa
 import tech.gdragon.commands.CommandHandler
@@ -24,6 +25,8 @@ import tech.gdragon.commands.settings.*
 import tech.gdragon.commands.slash.Info
 import tech.gdragon.commands.slash.Slash
 import tech.gdragon.db.Database
+import tech.gdragon.db.dao.Guild
+import tech.gdragon.i18n.Babel
 import tech.gdragon.listener.EventListener
 import tech.gdragon.listener.SystemEventListener
 import tech.gdragon.metrics.EventTracer
@@ -85,11 +88,31 @@ class Bot(private val token: String, database: Database) {
   }
 
   private fun registerSlashCommands() {
-    shardManager
-      .onCommand(Info.command.name) { event ->
-        logger.info {
-          "Received info command: ${event.name}"
+    shardManager.run {
+      onCommand(Alias.command.name) { event ->
+        tracer.sendEvent(mapOf("command" to Command.ALIAS))
+        event.guild?.let {
+          val translator = transaction { Guild[it.idLong].settings.language.let(Babel::alias) }
+
+          val commandName = event.getOption("command")?.asString
+          val alias = event.getOption("alias")?.asString
+          if (commandName != null && alias != null) {
+            val command = Command.valueOf(commandName.uppercase())
+            pawa
+              .createAlias(it.idLong, command, alias)
+              ?.let {
+                event.reply(":dancers: _${translator.new(alias, commandName)}_").queue()
+              }
+              ?: event.reply(":no_entry_sign: _${translator.invalid(commandName)}_").queue()
+          } else {
+            logger.error {
+              "No command or alias was provided"
+            }
+          }
         }
+      }
+
+      onCommand(Info.command.name) { event ->
         tracer.sendEvent(mapOf("command" to Command.INFO))
         if (event.isFromGuild) {
           event.guild?.let {
@@ -103,6 +126,7 @@ class Bot(private val token: String, database: Database) {
             .queue()
         }
       }
+    }
   }
 
   fun shutdown() {

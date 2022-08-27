@@ -12,6 +12,7 @@ class Pawa(val db: Database) {
   val logger = KotlinLogging.logger { }
 
   fun createAlias(guildId: Long, command: Command, alias: String): Alias? =
+    // If the alias isn't the name of an existing command, create a new alias
     when (Command.values().none { it.name.lowercase() == alias.lowercase() }) {
       true -> transaction(db.database) {
         Settings
@@ -22,6 +23,7 @@ class Pawa(val db: Database) {
           }
       }
 
+      // Otherwise, don't create a new alias
       false -> {
         logger.warn {
           "Could not create alias for ${command.name}"

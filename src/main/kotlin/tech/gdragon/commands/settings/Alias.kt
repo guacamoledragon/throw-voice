@@ -1,5 +1,8 @@
 package tech.gdragon.commands.settings
 
+import dev.minn.jda.ktx.interactions.Command
+import dev.minn.jda.ktx.interactions.choice
+import dev.minn.jda.ktx.interactions.option
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.BotUtils
@@ -13,6 +16,20 @@ import tech.gdragon.i18n.Babel
 import tech.gdragon.i18n.Lang
 
 class Alias : CommandHandler() {
+  companion object {
+    val command = Command("alias", "Creates an alias, or alternate name, to a command for customization.") {
+      option<String>("command", "The built-in command you want to alias.", true) {
+        Command
+          .values()
+          .map{ it.name.lowercase() }
+          .filterNot { it == "alias" }
+          .forEach {
+            choice(it,it)
+          }
+      }
+      option<String>("alias", "The alias you want to use.", true)
+    }
+  }
 
   override fun action(args: Array<String>, event: GuildMessageReceivedEvent) {
     require(args.size == 2) {
