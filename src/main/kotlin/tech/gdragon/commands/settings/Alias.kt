@@ -48,30 +48,14 @@ class Alias : CommandHandler() {
     if (Command.ALIAS.name == command || Command.values().none { it.name == command }) {
       BotUtils.sendMessage(defaultChannel, ":no_entry_sign: _${translator.invalid(command.lowercase())}_")
     } else {
-      val aliases = transaction { Guild.findById(event.guild.idLong)?.settings?.aliases?.map { it.alias } }
       val alias = args[1]
 
-      val message =
-        when {
-          // Checks that alias doesn't already exist
-          aliases?.any { it == alias } == true -> ":no_entry_sign: _${translator.exists(alias)}_"
-          // Checks that alias isn't a command
-          command == alias.uppercase() -> ":no_entry_sign: _${translator.command(alias)}_"
-          else -> {
-            asyncTransaction {
-              Guild.findById(event.guild.idLong)?.settings?.let {
-                Alias.new {
-                  name = command
-                  this.alias = alias
-                  settings = it
-                }
-              }
-            }
-            ":dancers: _${translator.new(alias, command.lowercase())}_"
-          }
+      pawa
+        .createAlias(event.guild.idLong, Command.valueOf(command), alias)
+        ?.let {
+          BotUtils.sendMessage(defaultChannel, ":dancers: _${translator.new(alias, it.name.lowercase())}_")
         }
-
-      BotUtils.sendMessage(defaultChannel, message)
+        ?: BotUtils.sendMessage(defaultChannel, ":no_entry_sign: _${translator.invalid(command)}_")
     }
   }
 
