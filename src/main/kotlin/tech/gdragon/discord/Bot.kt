@@ -11,7 +11,6 @@ import net.dv8tion.jda.api.sharding.ShardManager
 import net.dv8tion.jda.api.utils.ChunkingFilter
 import net.dv8tion.jda.api.utils.MemberCachePolicy
 import net.dv8tion.jda.api.utils.cache.CacheFlag
-import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.java.KoinJavaComponent
 import tech.gdragon.api.pawa.Pawa
 import tech.gdragon.commands.CommandHandler
@@ -25,12 +24,11 @@ import tech.gdragon.commands.settings.*
 import tech.gdragon.commands.slash.Info
 import tech.gdragon.commands.slash.Slash
 import tech.gdragon.db.Database
-import tech.gdragon.db.dao.Guild
-import tech.gdragon.i18n.Babel
 import tech.gdragon.listener.EventListener
 import tech.gdragon.listener.SystemEventListener
 import tech.gdragon.metrics.EventTracer
 import javax.security.auth.login.LoginException
+import tech.gdragon.i18n.Alias as AliasTranslator
 
 class Bot(private val token: String, database: Database) {
   private val logger = KotlinLogging.logger {}
@@ -92,7 +90,7 @@ class Bot(private val token: String, database: Database) {
       onCommand(Alias.command.name) { event ->
         tracer.sendEvent(mapOf("command" to Command.ALIAS))
         event.guild?.let {
-          val translator = transaction { Guild[it.idLong].settings.language.let(Babel::alias) }
+          val translator: AliasTranslator = pawa.translator(it.idLong)
 
           val commandName = event.getOption("command")?.asString
           val alias = event.getOption("alias")?.asString

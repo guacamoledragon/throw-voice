@@ -39,7 +39,7 @@ fun handleCommand(parentSpan: Span, event: GuildMessageReceivedEvent, prefix: St
 
   val command = try {
     Command.valueOf(rawCommand.uppercase())
-  } catch (e: IllegalArgumentException) {
+  } catch (_: IllegalArgumentException) {
 
     val alias = transaction {
       Guild.findById(event.guild.idLong)
