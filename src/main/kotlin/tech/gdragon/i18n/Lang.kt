@@ -109,6 +109,13 @@ object Babel {
   } catch (ex: IllegalArgumentException) {
     false
   }
+
+  inline fun <reified T> commandTranslator(lang: Lang): T {
+    return when (T::class) {
+      Alias::class -> alias(lang) as T
+      else -> throw IllegalArgumentException("Language: $lang was not found!")
+    }
+  }
 }
 
 class Alias(lang: Lang) {

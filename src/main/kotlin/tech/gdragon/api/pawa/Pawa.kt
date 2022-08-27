@@ -4,12 +4,19 @@ import mu.KotlinLogging
 import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.db.Database
 import tech.gdragon.db.dao.Alias
+import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.dao.Settings
 import tech.gdragon.db.table.Tables
 import tech.gdragon.discord.Command
+import tech.gdragon.i18n.Babel
 
 class Pawa(val db: Database) {
   val logger = KotlinLogging.logger { }
+
+  inline fun <reified T> translator(guildId: Long): T {
+    val lang = transaction { Guild[guildId].settings.language }
+    return Babel.commandTranslator(lang)
+  }
 
   fun createAlias(guildId: Long, command: Command, alias: String): Alias? =
     // If the alias isn't the name of an existing command, create a new alias
