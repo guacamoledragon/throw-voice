@@ -7,6 +7,10 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 ## [Unreleased]
 
 ### Added
+- `/alias` command that works exacly like `!alias`
+- API layer via the `Pawa` class
+  - This should make it straightforward to add new functionality that can be tested
+- `kotest` testing library
 
 ### Changed
 

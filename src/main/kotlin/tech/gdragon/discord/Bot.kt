@@ -189,4 +189,5 @@ enum class Command {
   };
 
   abstract val handler: CommandHandler
+  // TODO: add a command property here for Slash commands
 }
