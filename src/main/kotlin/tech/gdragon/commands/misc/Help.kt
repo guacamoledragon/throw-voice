@@ -4,7 +4,9 @@ import mu.withLoggingContext
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.koin.java.KoinJavaComponent.getKoin
 import tech.gdragon.BotUtils
+import tech.gdragon.api.pawa.Pawa
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.db.dao.Guild
@@ -14,7 +16,7 @@ import tech.gdragon.i18n.Lang
 import java.awt.Color
 
 class Help : CommandHandler() {
-  override fun action(args: Array<String>, event: GuildMessageReceivedEvent) {
+  override fun action(args: Array<String>, event: GuildMessageReceivedEvent, pawa: Pawa) {
     // Avoid getting DoS'd by bots, bots are helpless anyway :D
     if (event.author.isBot)
       return

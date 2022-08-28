@@ -19,12 +19,13 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.component.KoinComponent
 import tech.gdragon.BotUtils
+import tech.gdragon.api.pawa.Pawa
 import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.commands.handleCommand
 import tech.gdragon.db.asyncTransaction
 import tech.gdragon.db.dao.Guild
 
-class EventListener : ListenerAdapter(), KoinComponent {
+class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
 
   private val logger = KotlinLogging.logger {}
   private val website: String = getKoin().getProperty("BOT_WEBSITE", "http://localhost:8080/")
@@ -166,7 +167,7 @@ class EventListener : ListenerAdapter(), KoinComponent {
           logger.warn("Trying to use while running an update")
         } else if (hasPrefix) {
           try {
-            handleCommand(span, event, prefix, rawContent)
+            handleCommand(span, event, pawa, prefix, rawContent)
             // Update activity
             BotUtils.updateActivity(event.guild)
           } catch (e: InvalidCommand) {

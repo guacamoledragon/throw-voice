@@ -6,22 +6,25 @@ import io.opentelemetry.context.Context
 import mu.KotlinLogging
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.koin.core.component.KoinComponent
-import org.koin.java.KoinJavaComponent
 import org.koin.java.KoinJavaComponent.getKoin
+import tech.gdragon.api.pawa.Pawa
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.discord.Command
 import tech.gdragon.i18n.Lang
 import tech.gdragon.metrics.EventTracer
 
-abstract class CommandHandler : KoinComponent {
+abstract class CommandHandler {
   protected val logger = KotlinLogging.logger {}
-  protected val standalone = getKoin().getProperty<String>("BOT_STANDALONE").toBoolean()
+  protected val standalone by lazy {
+    getKoin().getProperty<String>("BOT_STANDALONE").toBoolean()
+  }
 
-  val tracer: EventTracer = getKoin().get()
+  val tracer: EventTracer by lazy {
+    getKoin().get()
+  }
 
   @Throws(InvalidCommand::class)
-  abstract fun action(args: Array<String>, event: GuildMessageReceivedEvent)
+  abstract fun action(args: Array<String>, event: GuildMessageReceivedEvent, pawa: Pawa)
 
   abstract fun usage(prefix: String, lang: Lang = Lang.EN): String
   abstract fun description(lang: Lang = Lang.EN): String
@@ -30,14 +33,14 @@ abstract class CommandHandler : KoinComponent {
 data class InvalidCommand(val usage: (String) -> String, val reason: String) : Throwable()
 
 @Throws(InvalidCommand::class)
-fun handleCommand(parentSpan: Span, event: GuildMessageReceivedEvent, prefix: String, rawInput: String) {
+fun handleCommand(parentSpan: Span, event: GuildMessageReceivedEvent, pawa: Pawa, prefix: String, rawInput: String) {
   val tokens = rawInput.substring(prefix.length).split(" ")
   val rawCommand = tokens.first()
   val args = tokens.drop(1).toTypedArray()
 
   val command = try {
     Command.valueOf(rawCommand.uppercase())
-  } catch (e: IllegalArgumentException) {
+  } catch (_: IllegalArgumentException) {
 
     val alias = transaction {
       Guild.findById(event.guild.idLong)
@@ -65,7 +68,7 @@ fun handleCommand(parentSpan: Span, event: GuildMessageReceivedEvent, prefix: St
       .setParent(Context.current().with(parentSpan))
       .startSpan()
     span.makeCurrent().use { _ ->
-      it.action(args, event)
+      it.action(args, event, pawa)
     }
     span.end()
   }

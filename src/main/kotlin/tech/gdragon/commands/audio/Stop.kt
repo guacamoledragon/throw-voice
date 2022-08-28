@@ -3,6 +3,7 @@ package tech.gdragon.commands.audio
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.BotUtils
+import tech.gdragon.api.pawa.Pawa
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.db.dao.Guild
@@ -10,7 +11,7 @@ import tech.gdragon.i18n.Babel
 import tech.gdragon.i18n.Lang
 
 class Stop : CommandHandler() {
-  override fun action(args: Array<String>, event: GuildMessageReceivedEvent) {
+  override fun action(args: Array<String>, event: GuildMessageReceivedEvent, pawa: Pawa) {
     require(args.isEmpty()) {
       throw InvalidCommand(::usage, "Incorrect number of arguments: ${args.size}")
     }

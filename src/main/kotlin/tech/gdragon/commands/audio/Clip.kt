@@ -2,13 +2,14 @@ package tech.gdragon.commands.audio
 
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import tech.gdragon.BotUtils
+import tech.gdragon.api.pawa.Pawa
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.i18n.Lang
 import tech.gdragon.listener.CombinedAudioRecorderHandler
 
 class Clip : CommandHandler() {
-  override fun action(args: Array<String>, event: GuildMessageReceivedEvent) {
+  override fun action(args: Array<String>, event: GuildMessageReceivedEvent, pawa: Pawa) {
     require(args.size in 1..2) {
       throw InvalidCommand(::usage, "Incorrect number of arguments: ${args.size}")
     }

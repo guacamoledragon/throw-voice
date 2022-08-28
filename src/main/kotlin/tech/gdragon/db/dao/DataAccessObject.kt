@@ -12,7 +12,17 @@ import tech.gdragon.db.table.Tables.Recordings
 import tech.gdragon.db.table.Tables.Settings as SettingsTable
 
 class Alias(id: EntityID<Int>) : IntEntity(id) {
-  companion object : IntEntityClass<Alias>(Aliases)
+  companion object : IntEntityClass<Alias>(Aliases) {
+    fun findOrCreate(name: String, alias: String, settings: Settings): Alias {
+      return find { (Aliases.name eq name) and (Aliases.alias eq alias) and (Aliases.settings eq settings.id) }
+        .firstOrNull()
+        ?: Alias.new {
+          this.name = name
+          this.alias = alias
+          this.settings = settings
+        }
+    }
+  }
 
   var name by Aliases.name
   var alias by Aliases.alias

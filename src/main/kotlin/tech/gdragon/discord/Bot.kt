@@ -1,6 +1,7 @@
 package tech.gdragon.discord
 
 import dev.minn.jda.ktx.injectKTX
+import dev.minn.jda.ktx.onCommand
 import mu.KotlinLogging
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.Permission
@@ -10,23 +11,29 @@ import net.dv8tion.jda.api.sharding.ShardManager
 import net.dv8tion.jda.api.utils.ChunkingFilter
 import net.dv8tion.jda.api.utils.MemberCachePolicy
 import net.dv8tion.jda.api.utils.cache.CacheFlag
+import org.koin.java.KoinJavaComponent
+import tech.gdragon.api.pawa.Pawa
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.audio.Clip
+import tech.gdragon.commands.audio.Record
 import tech.gdragon.commands.audio.Save
+import tech.gdragon.commands.audio.Stop
 import tech.gdragon.commands.debug.Status
 import tech.gdragon.commands.misc.Help
-import tech.gdragon.commands.audio.Record
-import tech.gdragon.commands.audio.Stop
 import tech.gdragon.commands.settings.*
+import tech.gdragon.commands.slash.Info
 import tech.gdragon.commands.slash.Slash
-import tech.gdragon.commands.slash.registerSlashCommands
 import tech.gdragon.db.Database
 import tech.gdragon.listener.EventListener
 import tech.gdragon.listener.SystemEventListener
+import tech.gdragon.metrics.EventTracer
 import javax.security.auth.login.LoginException
+import tech.gdragon.i18n.Alias as AliasTranslator
 
 class Bot(private val token: String, database: Database) {
   private val logger = KotlinLogging.logger {}
+  private val pawa = Pawa(database)
+  private val tracer: EventTracer = KoinJavaComponent.getKoin().get()
 
   companion object {
     val PERMISSIONS = listOf(
@@ -59,10 +66,10 @@ class Bot(private val token: String, database: Database) {
         .disableCache(CacheFlag.ACTIVITY, CacheFlag.EMOTE, CacheFlag.CLIENT_STATUS, CacheFlag.ONLINE_STATUS)
         .setChunkingFilter(ChunkingFilter.NONE)
         .setMemberCachePolicy(MemberCachePolicy.VOICE)
-        .addEventListeners(EventListener(), SystemEventListener())
+        .addEventListeners(EventListener(pawa), SystemEventListener())
         .injectKTX()
         .build()
-      registerSlashCommands(shardManager)
+      registerSlashCommands()
     } catch (e: LoginException) {
       logger.error(e) {
         "Could not authenticate using token: $token"
@@ -74,6 +81,48 @@ class Bot(private val token: String, database: Database) {
     } catch (e: Exception) {
       logger.error(e) {
         "Some shit went really wrong during the bot creation that I had to summon the big papa Exception"
+      }
+    }
+  }
+
+  private fun registerSlashCommands() {
+    shardManager.run {
+      onCommand(Alias.command.name) { event ->
+        tracer.sendEvent(mapOf("command" to Command.ALIAS))
+        event.guild?.let {
+          val translator: AliasTranslator = pawa.translator(it.idLong)
+
+          val commandName = event.getOption("command")?.asString
+          val alias = event.getOption("alias")?.asString
+          if (commandName != null && alias != null) {
+            val command = Command.valueOf(commandName.uppercase())
+            pawa
+              .createAlias(it.idLong, command, alias)
+              ?.let {
+                event.reply(":dancers: _${translator.new(alias, commandName)}_").queue()
+              }
+              ?: event.reply(":no_entry_sign: _${translator.invalid(commandName)}_").queue()
+          } else {
+            logger.error {
+              "No command or alias was provided"
+            }
+          }
+        }
+      }
+
+      onCommand(Info.command.name) { event ->
+        tracer.sendEvent(mapOf("command" to Command.INFO))
+        if (event.isFromGuild) {
+          event.guild?.let {
+            event
+              .replyEmbeds(Info.retrieveInfo(it))
+              .queue()
+          }
+        } else {
+          event
+            .reply(":no_entry: _Must be in a server to run this command!_")
+            .queue()
+        }
       }
     }
   }
@@ -104,6 +153,9 @@ enum class Command {
   },
   IGNORE {
     override val handler: CommandHandler = Ignore()
+  },
+  INFO {
+    override val handler: CommandHandler = Info()
   },
   LANG {
     override val handler: CommandHandler = Language()

@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.entities.TextChannel
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.BotUtils
+import tech.gdragon.api.pawa.Pawa
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.db.asyncTransaction
@@ -31,7 +32,7 @@ class SaveLocation : CommandHandler() {
     }
   }
 
-  override fun action(args: Array<String>, event: GuildMessageReceivedEvent) {
+  override fun action(args: Array<String>, event: GuildMessageReceivedEvent, pawa: Pawa) {
     require(args.size in 0..1) {
       throw InvalidCommand(::usage, "Incorrect number of arguments: ${args.size}")
     }
