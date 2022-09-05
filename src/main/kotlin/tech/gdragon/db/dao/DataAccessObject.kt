@@ -31,7 +31,18 @@ class Alias(id: EntityID<Int>) : IntEntity(id) {
 
 class Channel(id: EntityID<Long>) : LongEntity(id) {
   companion object : LongEntityClass<Channel>(Channels) {
+    @Deprecated("Pass in Guild ID instead of Guild instance.", level = DeprecationLevel.WARNING)
     fun findOrCreate(id: Long, name: String, guild: Guild): Channel {
+
+      return find { (Channels.settings eq guild.settings.id) and (Channels.id eq id) }.firstOrNull()
+        ?: Channel.new(id) {
+          this.name = name
+          this.settings = guild.settings
+        }
+    }
+
+    fun findOrCreate(id: Long, name: String, guildId: Long): Channel {
+      val guild = Guild[guildId]
 
       return find { (Channels.settings eq guild.settings.id) and (Channels.id eq id) }.firstOrNull()
         ?: Channel.new(id) {
