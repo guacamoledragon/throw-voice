@@ -17,6 +17,7 @@ import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.i18n.Babel
 import tech.gdragon.i18n.Lang
+import tech.gdragon.i18n.AutoStop as AutoStopTranslator
 
 class AutoStop : CommandHandler() {
   companion object {
@@ -57,7 +58,7 @@ class AutoStop : CommandHandler() {
     val message =
       try {
         val channelName = args.dropLast(1).joinToString(" ")
-        val number: Int? = when (args.last()) {
+        val number: Int = when (args.last()) {
           "off" -> null
           "0" -> null
           else -> {
@@ -69,15 +70,15 @@ class AutoStop : CommandHandler() {
               lastArg
             }
           }
-        }
+        } ?: 0
 
-        val translator = transaction { Guild[event.guild.idLong].settings.language.let(Babel::autostop) }
+        val translator: AutoStopTranslator = pawa.translator(event.guild.idLong)
 
         if (channelName == "all") {
           val channels = event.guild.voiceChannels
-          channels.forEach { updateChannelAutoStop(it, number) }
+          channels.forEach { pawa.autoStopChannel(it.idLong, it.name, event.guild.idLong, number.toLong()) }
 
-          if (number != null) {
+          if (0 != number) {
             ":vibration_mode::wave: _${translator.all(number.toString())}_"
           } else {
             ":mobile_phone_off::wave: _${translator.none}_"
@@ -88,10 +89,10 @@ class AutoStop : CommandHandler() {
           if (channels.isEmpty()) {
             "Cannot find voice channel `$channelName`."
           } else {
-            channels.forEach { updateChannelAutoStop(it, number) }
+            channels.forEach { pawa.autoStopChannel(it.idLong, it.name, event.guild.idLong, number.toLong()) }
             val voiceChannel = channels.first()
 
-            if (number != null) {
+            if (0 != number) {
               ":vibration_mode::wave: _${translator.one(voiceChannel.id, number.toString())}_"
             } else {
               ":mobile_phone_off::wave: _${translator.some(voiceChannel.id)}_"
