@@ -4,6 +4,7 @@ import mu.KotlinLogging
 import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.db.Database
 import tech.gdragon.db.dao.Alias
+import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.dao.Settings
 import tech.gdragon.db.table.Tables
@@ -18,8 +19,7 @@ class Pawa(val db: Database) {
     return Babel.commandTranslator(lang)
   }
 
-  fun createAlias(guildId: Long, command: Command, alias: String): Alias?
-  {
+  fun createAlias(guildId: Long, command: Command, alias: String): Alias? {
     // Command cannot be ALIAS and the alias cannot be the name of an existing command
     val isValidAlias = (Command.ALIAS != command) &&
       Command
@@ -44,6 +44,12 @@ class Pawa(val db: Database) {
         }
         null
       }
+    }
+  }
+
+  fun autoStopChannel(channelId: Long, channelName: String, guildId: Long, threshold: Long) {
+    transaction(db.database) {
+      Channel.findOrCreate(channelId, channelName, guildId).autoStop = threshold.toInt()
     }
   }
 }

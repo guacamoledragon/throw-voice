@@ -8,6 +8,7 @@ import tech.gdragon.api.pawa.Pawa
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.commands.settings.Alias
+import tech.gdragon.commands.settings.AutoStop
 import tech.gdragon.discord.Bot
 import tech.gdragon.i18n.Lang
 
@@ -28,19 +29,22 @@ class Slash : CommandHandler() {
         "invite" -> sendMessage {
           "Invite URL: " + it.setRequiredScopes("applications.commands").getInviteUrl(Bot.PERMISSIONS)
         }
+
         "list" -> it.retrieveCommands().queue { commands ->
           sendMessage {
             commands.joinToString(prefix = "Available Commands: ") { command -> command.name }
               .ifEmpty { "No commands!" }
           }
         }
+
         "add" -> it.updateCommands {
-          addCommands(Alias.command, Info.command)
+          addCommands(Alias.command, AutoStop.command, Info.command)
         }.queue { commands ->
           sendMessage {
             commands.joinToString(prefix = "Adding: ") { command -> command.name }.ifEmpty { "No commands!" }
           }
         }
+
         "remove" -> it.retrieveCommands().queue { commands ->
           commands.forEach { command ->
             it.deleteCommandById(command.idLong).queue {
@@ -48,6 +52,7 @@ class Slash : CommandHandler() {
             }
           }
         }
+
         else -> sendMessage { "Invalid command!" }
       }
     }

@@ -29,6 +29,7 @@ import tech.gdragon.listener.SystemEventListener
 import tech.gdragon.metrics.EventTracer
 import javax.security.auth.login.LoginException
 import tech.gdragon.i18n.Alias as AliasTranslator
+import tech.gdragon.i18n.AutoStop as AutoStopTranslator
 
 class Bot(private val token: String, database: Database) {
   private val logger = KotlinLogging.logger {}
@@ -106,6 +107,29 @@ class Bot(private val token: String, database: Database) {
             logger.error {
               "No command or alias was provided"
             }
+          }
+        }
+      }
+
+      onCommand(AutoStop.command.name) { event ->
+        if (event.isFromGuild) {
+          event.guild?.let { guild ->
+            val channel = event.getOption("channel")?.asGuildChannel
+            val threshold = event.getOption("threshold")?.asLong ?: 0
+            val translator: AutoStopTranslator = pawa.translator(guild.idLong)
+
+            channel?.let {
+              pawa.autoStopChannel(it.idLong, it.name, guild.idLong, threshold)
+
+              val replyMessage =
+                if (threshold > 0) {
+                  ":vibration_mode::wave: _${translator.one(it.id, threshold.toString())}_"
+                } else {
+                  ":mobile_phone_off::wave: _${translator.some(it.id)}_"
+                }
+
+              event.reply(replyMessage).queue()
+            } ?: event.reply("Error").queue()
           }
         }
       }

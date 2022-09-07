@@ -1,32 +1,27 @@
 package tech.gdragon.commands.settings
 
-import mu.withLoggingContext
-import net.dv8tion.jda.api.entities.GuildChannel
+import dev.minn.jda.ktx.interactions.Command
+import dev.minn.jda.ktx.interactions.option
+import net.dv8tion.jda.api.entities.ChannelType
+import net.dv8tion.jda.api.entities.VoiceChannel
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
-import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.BotUtils
 import tech.gdragon.api.pawa.Pawa
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
-import tech.gdragon.db.asyncTransaction
-import tech.gdragon.db.dao.Channel
-import tech.gdragon.db.dao.Guild
 import tech.gdragon.i18n.Babel
 import tech.gdragon.i18n.Lang
+import tech.gdragon.i18n.AutoStop as AutoStopTranslator
 
 class AutoStop : CommandHandler() {
-
-  private fun updateChannelAutoStop(channel: GuildChannel, autoStop: Int?) {
-    withLoggingContext("guild" to channel.guild.name, "text-channel" to channel.name) {
-      channel.guild.run {
-        transaction {
-          Guild.findOrCreate(idLong, name, region.name)
+  companion object {
+    val command by lazy {
+      Command("autostop", "Set number of people in channel before leaving") {
+        option<VoiceChannel>("channel", "The channel to autostop", true) {
+          setChannelTypes(ChannelType.VOICE, ChannelType.STAGE)
         }
-      }.let { guild ->
-        asyncTransaction {
-          Channel
-            .findOrCreate(channel.idLong, channel.name, guild)
-            .also { it.autoStop = autoStop }
+        option<Int>("threshold", "Number of people in channel before leaving the voice channel.") {
+          setMinValue(0)
         }
       }
     }
@@ -40,7 +35,7 @@ class AutoStop : CommandHandler() {
     val message =
       try {
         val channelName = args.dropLast(1).joinToString(" ")
-        val number: Int? = when (args.last()) {
+        val number: Int = when (args.last()) {
           "off" -> null
           "0" -> null
           else -> {
@@ -52,15 +47,15 @@ class AutoStop : CommandHandler() {
               lastArg
             }
           }
-        }
+        } ?: 0
 
-        val translator = transaction { Guild[event.guild.idLong].settings.language.let(Babel::autostop) }
+        val translator: AutoStopTranslator = pawa.translator(event.guild.idLong)
 
         if (channelName == "all") {
           val channels = event.guild.voiceChannels
-          channels.forEach { updateChannelAutoStop(it, number) }
+          channels.forEach { pawa.autoStopChannel(it.idLong, it.name, event.guild.idLong, number.toLong()) }
 
-          if (number != null) {
+          if (0 != number) {
             ":vibration_mode::wave: _${translator.all(number.toString())}_"
           } else {
             ":mobile_phone_off::wave: _${translator.none}_"
@@ -71,10 +66,10 @@ class AutoStop : CommandHandler() {
           if (channels.isEmpty()) {
             "Cannot find voice channel `$channelName`."
           } else {
-            channels.forEach { updateChannelAutoStop(it, number) }
+            channels.forEach { pawa.autoStopChannel(it.idLong, it.name, event.guild.idLong, number.toLong()) }
             val voiceChannel = channels.first()
 
-            if (number != null) {
+            if (0 != number) {
               ":vibration_mode::wave: _${translator.one(voiceChannel.id, number.toString())}_"
             } else {
               ":mobile_phone_off::wave: _${translator.some(voiceChannel.id)}_"

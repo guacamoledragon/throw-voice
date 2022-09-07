@@ -4,14 +4,10 @@ import dev.minn.jda.ktx.interactions.Command
 import dev.minn.jda.ktx.interactions.choice
 import dev.minn.jda.ktx.interactions.option
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
-import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.BotUtils
 import tech.gdragon.api.pawa.Pawa
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
-import tech.gdragon.db.asyncTransaction
-import tech.gdragon.db.dao.Alias
-import tech.gdragon.db.dao.Guild
 import tech.gdragon.discord.Command
 import tech.gdragon.i18n.Babel
 import tech.gdragon.i18n.Lang
