@@ -24,9 +24,11 @@ This is the full list of commands available, but on a daily basis, you wont need
 
 ## Slash Commands
 
-|                  Command | Description                                                                |
-|-------------------------:|----------------------------------------------------------------------------|
-| [info](commands/info.md) | Displays information about[pawa](https://pawa.im) for the caller's server. |
+|                          Command | Description                                                                                     |
+|---------------------------------:|-------------------------------------------------------------------------------------------------|
+|       [alias](commands/alias.md) | Creates an alias for a command                                                                  |
+| [autostop](commands/autostop.md) | Configure the number of users in a voice channel before [pawa](https://pawa.im) stops recording |
+|         [info](commands/info.md) | Displays information about[pawa](https://pawa.im) for the caller's server.                      |
 
 ## [Pawa Lite](/pawalite) and Admin Only Commands
 |                              Command | Description                                                                                      |
