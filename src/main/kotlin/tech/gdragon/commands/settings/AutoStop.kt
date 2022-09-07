@@ -1,7 +1,11 @@
 package tech.gdragon.commands.settings
 
+import dev.minn.jda.ktx.interactions.Command
+import dev.minn.jda.ktx.interactions.option
 import mu.withLoggingContext
+import net.dv8tion.jda.api.entities.ChannelType
 import net.dv8tion.jda.api.entities.GuildChannel
+import net.dv8tion.jda.api.entities.VoiceChannel
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.BotUtils
@@ -15,6 +19,19 @@ import tech.gdragon.i18n.Babel
 import tech.gdragon.i18n.Lang
 
 class AutoStop : CommandHandler() {
+  companion object {
+    val command by lazy {
+      Command("autostop", "Set number of people in channel before leaving") {
+        option<VoiceChannel>("channel", "The channel to autostop", true) {
+          setChannelTypes(ChannelType.VOICE, ChannelType.STAGE)
+        }
+        option<Int>("threshold", "Number of people in channel before leaving the voice channel.") {
+          setMinValue(0)
+        }
+      }
+    }
+  }
+
 
   private fun updateChannelAutoStop(channel: GuildChannel, autoStop: Int?) {
     withLoggingContext("guild" to channel.guild.name, "text-channel" to channel.name) {
