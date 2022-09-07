@@ -2,19 +2,13 @@ package tech.gdragon.commands.settings
 
 import dev.minn.jda.ktx.interactions.Command
 import dev.minn.jda.ktx.interactions.option
-import mu.withLoggingContext
 import net.dv8tion.jda.api.entities.ChannelType
-import net.dv8tion.jda.api.entities.GuildChannel
 import net.dv8tion.jda.api.entities.VoiceChannel
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
-import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.BotUtils
 import tech.gdragon.api.pawa.Pawa
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
-import tech.gdragon.db.asyncTransaction
-import tech.gdragon.db.dao.Channel
-import tech.gdragon.db.dao.Guild
 import tech.gdragon.i18n.Babel
 import tech.gdragon.i18n.Lang
 import tech.gdragon.i18n.AutoStop as AutoStopTranslator
@@ -28,23 +22,6 @@ class AutoStop : CommandHandler() {
         }
         option<Int>("threshold", "Number of people in channel before leaving the voice channel.") {
           setMinValue(0)
-        }
-      }
-    }
-  }
-
-
-  private fun updateChannelAutoStop(channel: GuildChannel, autoStop: Int?) {
-    withLoggingContext("guild" to channel.guild.name, "text-channel" to channel.name) {
-      channel.guild.run {
-        transaction {
-          Guild.findOrCreate(idLong, name, region.name)
-        }
-      }.let { guild ->
-        asyncTransaction {
-          Channel
-            .findOrCreate(channel.idLong, channel.name, guild)
-            .also { it.autoStop = autoStop }
         }
       }
     }
