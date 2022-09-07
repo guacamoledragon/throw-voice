@@ -47,13 +47,9 @@ class Pawa(val db: Database) {
     }
   }
 
-  fun autoStopChannels(guildId: Long, channels: List<Pair<Long, String>>, threshold: Int) {
+  fun autoStopChannel(channelId: Long, channelName: String, guildId: Long, threshold: Long) {
     transaction(db.database) {
-      channels
-        .map { (id, name) -> Channel.findOrCreate(id, name, guildId) }
-        .forEach { channel ->
-          channel.autoStop = threshold
-        }
+      Channel.findOrCreate(channelId, channelName, guildId).autoStop = threshold.toInt()
     }
   }
 }
