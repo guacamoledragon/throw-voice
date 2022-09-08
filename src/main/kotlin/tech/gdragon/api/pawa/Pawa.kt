@@ -8,6 +8,7 @@ import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.dao.Settings
 import tech.gdragon.db.table.Tables
+import tech.gdragon.db.table.Tables.Settings.autoSave
 import tech.gdragon.discord.Command
 import tech.gdragon.i18n.Babel
 
@@ -50,6 +51,18 @@ class Pawa(val db: Database) {
   fun autoStopChannel(channelId: Long, channelName: String, guildId: Long, threshold: Long) {
     transaction(db.database) {
       Channel.findOrCreate(channelId, channelName, guildId).autoStop = threshold.toInt()
+    }
+  }
+
+  fun toggleAutoSave(guildId: Long): Boolean? {
+    return transaction(db.database) {
+      Settings
+        .find { Tables.Settings.guild eq guildId }
+        .firstOrNull()
+        ?.apply {
+          autoSave = !autoSave
+        }
+        ?.autoSave
     }
   }
 }
