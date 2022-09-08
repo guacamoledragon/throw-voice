@@ -15,14 +15,12 @@ import tech.gdragon.i18n.AutoStop as AutoStopTranslator
 
 class AutoStop : CommandHandler() {
   companion object {
-    val command by lazy {
-      Command("autostop", "Set number of people in channel before leaving") {
-        option<VoiceChannel>("channel", "The channel to autostop", true) {
-          setChannelTypes(ChannelType.VOICE, ChannelType.STAGE)
-        }
-        option<Int>("threshold", "Number of people in channel before leaving the voice channel.") {
-          setMinValue(0)
-        }
+    val command = Command("autostop", "Set number of people in channel before leaving") {
+      option<VoiceChannel>("channel", "The channel to autostop", true) {
+        setChannelTypes(ChannelType.VOICE, ChannelType.STAGE)
+      }
+      option<Int>("threshold", "Number of people in channel before leaving the voice channel.") {
+        setMinValue(0)
       }
     }
   }
