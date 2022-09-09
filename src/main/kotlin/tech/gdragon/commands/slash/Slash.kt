@@ -8,6 +8,7 @@ import tech.gdragon.api.pawa.Pawa
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.commands.settings.Alias
+import tech.gdragon.commands.settings.AutoSave
 import tech.gdragon.commands.settings.AutoStop
 import tech.gdragon.discord.Bot
 import tech.gdragon.i18n.Lang
@@ -38,7 +39,12 @@ class Slash : CommandHandler() {
         }
 
         "add" -> it.updateCommands {
-          addCommands(Alias.command, AutoStop.command, Info.command)
+          addCommands(
+            Alias.command,
+            AutoStop.command,
+            AutoSave.command,
+            Info.command
+          )
         }.queue { commands ->
           sendMessage {
             commands.joinToString(prefix = "Adding: ") { command -> command.name }.ifEmpty { "No commands!" }
