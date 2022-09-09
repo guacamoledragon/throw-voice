@@ -11,7 +11,7 @@
   </scm>
 
   <properties>
-    <exposed.version>0.38.2</exposed.version>
+    <exposed.version>0.39.2</exposed.version>
     <jda.version>4.4.0_352</jda.version>
     <jda-ktx.version>2ea26b869</jda-ktx.version> <!-- https://github.com/MinnDevelopment/jda-ktx/tree/2ea26b869a380cbe79e974ee4b56ab9bd98c59fc -->
     <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
@@ -340,7 +340,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-resources-plugin</artifactId>
-        <version>3.2.0</version>
+        <version>3.3.0</version>
         <executions>
           <execution>
             <id>resources</id>
