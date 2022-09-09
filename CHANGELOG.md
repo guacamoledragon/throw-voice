@@ -7,6 +7,7 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 ## [Unreleased]
 
 ### Added
+- `/autosave` command that works exactly like `!autosave`
 - `/autostop` command that works exactly like `!autostop`
   - Except that the setting can only be changed for one channel at a time
 - `/alias` command that works exactly like `!alias`
