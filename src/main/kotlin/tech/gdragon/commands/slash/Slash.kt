@@ -10,6 +10,7 @@ import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.commands.settings.Alias
 import tech.gdragon.commands.settings.AutoSave
 import tech.gdragon.commands.settings.AutoStop
+import tech.gdragon.commands.settings.Ignore
 import tech.gdragon.discord.Bot
 import tech.gdragon.i18n.Lang
 
@@ -43,6 +44,7 @@ class Slash : CommandHandler() {
             Alias.command,
             AutoStop.command,
             AutoSave.command,
+            Ignore.command,
             Info.command
           )
         }.queue { commands ->

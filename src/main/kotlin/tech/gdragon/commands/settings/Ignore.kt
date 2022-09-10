@@ -18,6 +18,18 @@ import tech.gdragon.i18n.Ignore as IgnoreTranslator
 
 class Ignore : CommandHandler() {
   companion object {
+    val command = Command("ignore", "Ignore audio from specified during User for current recording.") {
+      option<User>("user", "The user to ignore", true)
+    }
+
+    fun slashHandler(pawa: Pawa): suspend CoroutineEventListener.(SlashCommandEvent) -> Unit = { event ->
+      event.guild?.let {
+        val ignoredUserId = event.getOption("user")?.asUser?.idLong
+        val message = handler(pawa, it, event.user.idLong, listOfNotNull(ignoredUserId))
+        event.reply(message).queue()
+      } ?: event.reply(":no_entry: _${Babel.slash(Lang.EN).inGuild}").queue()
+    }
+
     private fun handler(pawa: Pawa, guild: DiscordGuild, authorId: Long, ignoredUserIds: List<Long>): String {
 
       val translator: IgnoreTranslator = pawa.translator(guild.idLong)
