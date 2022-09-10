@@ -10,6 +10,7 @@ import tech.gdragon.db.dao.Settings
 import tech.gdragon.db.table.Tables
 import tech.gdragon.discord.Command
 import tech.gdragon.i18n.Babel
+import tech.gdragon.i18n.Lang
 
 class Pawa(val db: Database) {
   val logger = KotlinLogging.logger { }
@@ -64,6 +65,18 @@ class Pawa(val db: Database) {
           autoSave = !autoSave
         }
         ?.autoSave
+    }
+  }
+
+  fun setLocale(guildId: Long, locale: String): Pair<Lang, Lang> {
+    return transaction {
+      val guild = Guild[guildId]
+      val prev = guild.settings.language
+      val newLang = Lang.valueOf(locale)
+
+      guild.settings.language = newLang
+
+      Pair(prev, newLang)
     }
   }
 

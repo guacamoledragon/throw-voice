@@ -1,16 +1,44 @@
 package tech.gdragon.commands.settings
 
+import dev.minn.jda.ktx.CoroutineEventListener
+import dev.minn.jda.ktx.interactions.Command
+import dev.minn.jda.ktx.interactions.choice
+import dev.minn.jda.ktx.interactions.option
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
-import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.BotUtils
 import tech.gdragon.api.pawa.Pawa
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
-import tech.gdragon.db.dao.Guild
 import tech.gdragon.i18n.Babel
 import tech.gdragon.i18n.Lang
 
 class Language : CommandHandler() {
+  companion object {
+    val command = Command("lang", "Choose the language of the messages given.") {
+      option<String>("language", "Choose your language", true) {
+        Lang
+          .values()
+          .map { Pair(it.locale.displayName, it.name) }
+          .forEach { choice(it.first, it.second) }
+      }
+    }
+
+    fun slashHandler(pawa: Pawa): suspend CoroutineEventListener.(SlashCommandEvent) -> Unit = { event ->
+      tracer.sendEvent(mapOf("command" to command.name))
+
+      event.guild?.let {
+        val locale = event.getOption("language")!!.asString
+        val message = handler(pawa, it.idLong, locale)
+        event.reply(message).queue()
+      } ?: event.reply(":no_entry: _${Babel.slash(Lang.EN).inGuild}").queue()
+    }
+
+    fun handler(pawa: Pawa, guildId: Long, newLocale: String): String = pawa
+      .setLocale(guildId, newLocale)
+      .let { "${it.first.flagEmoji} :arrow_right: ${it.second.flagEmoji}" }
+  }
+
   override fun action(args: Array<String>, event: GuildMessageReceivedEvent, pawa: Pawa) {
     val lang = args.firstOrNull()?.uppercase() ?: ""
 
@@ -18,17 +46,9 @@ class Language : CommandHandler() {
       throw InvalidCommand(::usage, "Expected one of: ${Lang.values().joinToString { it.name }}, but got $lang")
     }
 
-    val (prevLang, newLang) = transaction {
-      val guild = Guild[event.guild.idLong]
-      val prev = guild.settings.language
-      val newLang = Lang.valueOf(lang)
+    val message = handler(pawa, event.guild.idLong, lang)
 
-      guild.settings.language = newLang
-
-      Pair(prev.flagEmoji, newLang.flagEmoji)
-    }
-
-    BotUtils.sendMessage(event.channel, "$prevLang :arrow_right: $newLang")
+    BotUtils.sendMessage(event.channel, message)
   }
 
   override fun usage(prefix: String, lang: Lang): String {
