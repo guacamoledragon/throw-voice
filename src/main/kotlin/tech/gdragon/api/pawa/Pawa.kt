@@ -8,12 +8,13 @@ import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.dao.Settings
 import tech.gdragon.db.table.Tables
-import tech.gdragon.db.table.Tables.Settings.autoSave
 import tech.gdragon.discord.Command
 import tech.gdragon.i18n.Babel
 
 class Pawa(val db: Database) {
   val logger = KotlinLogging.logger { }
+
+  private var _ignoredUsers: MutableMap<String, List<Long>> = mutableMapOf()
 
   inline fun <reified T> translator(guildId: Long): T {
     val lang = transaction { Guild[guildId].settings.language }
@@ -64,5 +65,9 @@ class Pawa(val db: Database) {
         }
         ?.autoSave
     }
+  }
+
+  fun ignoreUsers(session: String, ignoredUserIds: List<Long>) {
+    _ignoredUsers[session] = ignoredUserIds
   }
 }
