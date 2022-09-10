@@ -3,9 +3,11 @@ package tech.gdragon.commands.settings
 import dev.minn.jda.ktx.CoroutineEventListener
 import dev.minn.jda.ktx.interactions.Command
 import dev.minn.jda.ktx.interactions.option
+import dev.minn.jda.ktx.onCommand
 import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
+import net.dv8tion.jda.api.sharding.ShardManager
 import tech.gdragon.BotUtils
 import tech.gdragon.api.pawa.Pawa
 import tech.gdragon.commands.CommandHandler
@@ -22,12 +24,18 @@ class Ignore : CommandHandler() {
       option<User>("user", "The user to ignore", true)
     }
 
-    fun slashHandler(pawa: Pawa): suspend CoroutineEventListener.(SlashCommandEvent) -> Unit = { event ->
+    private fun slashHandler(pawa: Pawa): suspend CoroutineEventListener.(SlashCommandEvent) -> Unit = { event ->
       event.guild?.let {
         val ignoredUserId = event.getOption("user")?.asUser?.idLong
         val message = handler(pawa, it, event.user.idLong, listOfNotNull(ignoredUserId))
         event.reply(message).queue()
       } ?: event.reply(":no_entry: _${Babel.slash(Lang.EN).inGuild}").queue()
+    }
+
+    fun register(shardManager: ShardManager, pawa: Pawa) {
+      tracer.sendEvent(mapOf("command" to "/${command.name.uppercase()}"))
+      shardManager
+        .onCommand(command.name, slashHandler(pawa))
     }
 
     private fun handler(pawa: Pawa, guild: DiscordGuild, authorId: Long, ignoredUserIds: List<Long>): String {
