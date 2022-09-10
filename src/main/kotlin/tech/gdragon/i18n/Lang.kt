@@ -115,6 +115,7 @@ object Babel {
       Alias::class -> alias(lang) as T
       AutoStop::class -> autostop(lang) as T
       AutoSave::class -> autosave(lang) as T
+      Ignore::class -> ignore(lang) as T
       else -> throw IllegalArgumentException("Language: $lang was not found!")
     }
   }
