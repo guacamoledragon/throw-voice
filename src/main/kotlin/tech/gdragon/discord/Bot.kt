@@ -53,6 +53,9 @@ class Bot(private val token: String, database: Database) {
 
   fun api(): JDA {
     while (!shardManager.statuses.all { it.value == JDA.Status.CONNECTED }) {
+      logger.info {
+        "Connecting: ${shardManager.statuses.map { "${it.key.shardInfo.shardId}: ${it.value.name}" }.joinToString()}"
+      }
       Thread.sleep(500)
     }
 
@@ -67,9 +70,14 @@ class Bot(private val token: String, database: Database) {
         .disableCache(CacheFlag.ACTIVITY, CacheFlag.EMOTE, CacheFlag.CLIENT_STATUS, CacheFlag.ONLINE_STATUS)
         .setChunkingFilter(ChunkingFilter.NONE)
         .setMemberCachePolicy(MemberCachePolicy.VOICE)
-        .addEventListeners(EventListener(pawa), SystemEventListener())
         .injectKTX()
         .build()
+
+      // Wait until all shards are connected
+      api()
+
+      // Register Listeners
+      shardManager.addEventListener(EventListener(pawa), SystemEventListener())
       registerSlashCommands()
     } catch (e: LoginException) {
       logger.error(e) {
