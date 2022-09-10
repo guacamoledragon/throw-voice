@@ -135,7 +135,7 @@ class Bot(private val token: String, database: Database) {
       }
 
       onCommand(AutoSave.command.name, AutoSave.slashHandler(pawa))
-      Ignore.register(this, pawa)
+      onCommand(Ignore.command.name, Ignore.slashHandler(pawa))
       onCommand(Info.command.name) { event ->
         tracer.sendEvent(mapOf("command" to Command.INFO))
         if (event.isFromGuild) {
