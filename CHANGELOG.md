@@ -7,6 +7,7 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 ## [Unreleased]
 
 ### Added
+- `/lang` command that works exactly like `!lang`
 - `/ignore` command that works exactly like `!ignore`
   - Except that you can only ignore one user at time, must run command multiple times
 - `/autosave` command that works exactly like `!autosave`
