@@ -97,6 +97,9 @@ object Babel {
   private val savelocation: MutableMap<Lang, SaveLocation> = mutableMapOf()
   fun savelocation(lang: Lang) = savelocation.getOrPut(lang) { SaveLocation(lang) }
 
+  private val slash: MutableMap<Lang, Slash> = mutableMapOf()
+  fun slash(lang: Lang) = slash.getOrPut(lang) { Slash(lang) }
+
   private val stop: MutableMap<Lang, Stop> = mutableMapOf()
   fun stop(lang: Lang) = stop.getOrPut(lang) { Stop(lang) }
 
@@ -226,6 +229,12 @@ class SaveLocation(lang: Lang) {
   val notFound: (String) -> String = { channel -> resource.getString("savelocation.not_found").format("**$channel**") }
   val fail: String = resource.getString("savelocation.fail")
   val usage: (String) -> String = { prefix -> resource.getString("savelocation.usage").format(prefix, prefix) }
+}
+
+class Slash(lang: Lang) {
+  private val resource = Babel.resource(lang)
+
+  val inGuild = resource.getString("slash.in_guild")
 }
 
 class Stop(lang: Lang) {
