@@ -1,46 +1,49 @@
 package tech.gdragon.commands.settings
 
+import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
-import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.BotUtils
 import tech.gdragon.api.pawa.Pawa
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
-import tech.gdragon.db.dao.Guild
 import tech.gdragon.i18n.Babel
 import tech.gdragon.i18n.Lang
 import tech.gdragon.listener.CombinedAudioRecorderHandler
+import net.dv8tion.jda.api.entities.Guild as DiscordGuild
+import tech.gdragon.i18n.Ignore as IgnoreTranslator
 
 class Ignore : CommandHandler() {
+  companion object {
+    private fun handler(pawa: Pawa, guild: DiscordGuild, authorId: Long, ignoredUserIds: List<Long>): String {
+
+      val translator: IgnoreTranslator = pawa.translator(guild.idLong)
+
+      val isRecording = guild.audioManager.connectedChannel
+        ?.members
+        ?.map { it.idLong }
+        ?.containsAll(listOf(authorId, guild.jda.selfUser.idLong)) ?: false
+
+      return if (isRecording) {
+        (guild.audioManager.receivingHandler as? CombinedAudioRecorderHandler)!!.let { audioRecorderHandler ->
+          // These two are redundant, eventually need to migrate the source of truth to the Pawa API class
+          ignoredUserIds.forEach(audioRecorderHandler::silenceUser)
+          pawa.ignoreUsers(audioRecorderHandler.session, ignoredUserIds)
+
+          val ignoredUsersMentions = ignoredUserIds.joinToString { "<@$it>" }
+          ":hear_no_evil: _${translator.ignore(ignoredUsersMentions)}_"
+        }
+      } else ":no_entry_sign: _${translator.notRecording}_"
+    }
+  }
+
   override fun action(args: Array<String>, event: GuildMessageReceivedEvent, pawa: Pawa) {
     require(args.isNotEmpty()) {
       throw InvalidCommand(::usage, "Incorrect number of arguments: ${args.size}")
     }
 
-    val translator = transaction { Guild[event.guild.idLong].settings.language.let(Babel::ignore) }
-
-    BotUtils.sendMessage(event.channel, ":construction: _${translator.beta}_")
-
-    val audioManager = event.guild.audioManager
-
-    val isRecording = audioManager.connectedChannel
-      ?.members
-      ?.map { it.idLong }
-      ?.containsAll(listOf(event.author.idLong, event.jda.selfUser.idLong)) ?: false
-
-    if (isRecording) {
-      val handler = audioManager.receivingHandler as? CombinedAudioRecorderHandler
-      val ignoredUsers = event.message
-        .mentionedUsers
-        .mapNotNull {
-          val isSuccess = handler?.silenceUser(it) ?: false
-          if (isSuccess) it else null
-        }
-        .joinToString { it.asMention }
-      BotUtils.sendMessage(event.channel, ":hear_no_evil: _${translator.ignore(ignoredUsers)}_")
-    } else {
-      BotUtils.sendMessage(event.channel, ":no_entry_sign: _${translator.notRecording}_")
-    }
+    val ignoredUserIds = event.message.mentionedUsers.map(User::getIdLong)
+    val message = handler(pawa, event.guild, event.author.idLong, ignoredUserIds)
+    BotUtils.sendMessage(event.channel, message)
   }
 
   override fun usage(prefix: String, lang: Lang): String = Babel.ignore(lang).usage(prefix)
