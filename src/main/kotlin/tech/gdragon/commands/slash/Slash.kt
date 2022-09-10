@@ -7,10 +7,7 @@ import tech.gdragon.BotUtils
 import tech.gdragon.api.pawa.Pawa
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
-import tech.gdragon.commands.settings.Alias
-import tech.gdragon.commands.settings.AutoSave
-import tech.gdragon.commands.settings.AutoStop
-import tech.gdragon.commands.settings.Ignore
+import tech.gdragon.commands.settings.*
 import tech.gdragon.discord.Bot
 import tech.gdragon.i18n.Lang
 
@@ -45,7 +42,8 @@ class Slash : CommandHandler() {
             AutoStop.command,
             AutoSave.command,
             Ignore.command,
-            Info.command
+            Info.command,
+            Language.command
           )
         }.queue { commands ->
           sendMessage {

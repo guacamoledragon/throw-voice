@@ -150,6 +150,7 @@ class Bot(private val token: String, database: Database) {
             .queue()
         }
       }
+      onCommand(Language.command.name, Language.slashHandler(pawa))
     }
   }
 
