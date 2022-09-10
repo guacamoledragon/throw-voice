@@ -14,6 +14,12 @@ import tech.gdragon.i18n.Lang
 import tech.gdragon.metrics.EventTracer
 
 abstract class CommandHandler {
+  companion object {
+    val tracer: EventTracer by lazy {
+      getKoin().get()
+    }
+  }
+
   protected val logger = KotlinLogging.logger {}
   protected val standalone by lazy {
     getKoin().getProperty<String>("BOT_STANDALONE").toBoolean()

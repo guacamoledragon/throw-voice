@@ -535,7 +535,7 @@ class CombinedAudioRecorderHandler(
       logger.warn { "Could not delete file ${recording.name}." }
   }
 
-  fun silenceUser(user: User) = silencedUsers.add(user.idLong)
+  fun silenceUser(userId: Long) = silencedUsers.add(userId)
 
   override fun canReceiveUser(): Boolean = false
 
