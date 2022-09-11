@@ -5,13 +5,15 @@ import dev.minn.jda.ktx.onCommand
 import mu.KotlinLogging
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.Permission
+import net.dv8tion.jda.api.entities.Activity
 import net.dv8tion.jda.api.requests.GatewayIntent
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder
 import net.dv8tion.jda.api.sharding.ShardManager
 import net.dv8tion.jda.api.utils.ChunkingFilter
 import net.dv8tion.jda.api.utils.MemberCachePolicy
 import net.dv8tion.jda.api.utils.cache.CacheFlag
-import org.koin.java.KoinJavaComponent
+import org.jetbrains.exposed.sql.transactions.transaction
+import org.koin.java.KoinJavaComponent.getKoin
 import tech.gdragon.api.pawa.Pawa
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.audio.Clip
@@ -24,6 +26,7 @@ import tech.gdragon.commands.settings.*
 import tech.gdragon.commands.slash.Info
 import tech.gdragon.commands.slash.Slash
 import tech.gdragon.db.Database
+import tech.gdragon.db.dao.Guild
 import tech.gdragon.listener.EventListener
 import tech.gdragon.listener.SystemEventListener
 import tech.gdragon.metrics.EventTracer
@@ -34,7 +37,7 @@ import tech.gdragon.i18n.AutoStop as AutoStopTranslator
 class Bot(private val token: String, database: Database) {
   private val logger = KotlinLogging.logger {}
   private val pawa = Pawa(database)
-  private val tracer: EventTracer = KoinJavaComponent.getKoin().get()
+  private val tracer: EventTracer = getKoin().get()
 
   companion object {
     val PERMISSIONS = listOf(
@@ -75,6 +78,8 @@ class Bot(private val token: String, database: Database) {
 
       // Wait until all shards are connected
       api()
+      setActivity()
+      addMissingGuilds()
 
       // Register Listeners
       shardManager.addEventListener(EventListener(pawa), SystemEventListener())
@@ -92,6 +97,28 @@ class Bot(private val token: String, database: Database) {
         "Some shit went really wrong during the bot creation that I had to summon the big papa Exception"
       }
     }
+  }
+
+  private fun setActivity() {
+    // Set the presence for all shards
+    val version: String = getKoin().getProperty("BOT_ACTIVITY", "dev")
+    val website: String = getKoin().getProperty("BOT_WEBSITE", "http://localhost:8080/")
+
+    shardManager.shards.forEach { shard ->
+      shard.presence.activity = Activity.of(Activity.ActivityType.LISTENING, "$version | $website", website)
+    }
+  }
+
+  private fun addMissingGuilds() {
+    // Add guild if not present
+    logger.info { "Add any missing Guilds to the Database..." }
+    shardManager.guilds.forEach {
+      transaction {
+        Guild.findOrCreate(it.idLong, it.name, it.region.name)
+      }
+    }
+
+    logger.info { "ONLINE: Connected to ${shardManager.guilds.size} guilds!" }
   }
 
   private fun registerSlashCommands() {

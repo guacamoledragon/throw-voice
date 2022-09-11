@@ -4,8 +4,6 @@ import io.opentelemetry.api.trace.StatusCode
 import io.opentelemetry.api.trace.Tracer
 import mu.KotlinLogging
 import mu.withLoggingContext
-import net.dv8tion.jda.api.entities.Activity
-import net.dv8tion.jda.api.events.ReadyEvent
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent
 import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateNicknameEvent
@@ -16,7 +14,6 @@ import net.dv8tion.jda.api.events.guild.voice.GuildVoiceMoveEvent
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
-import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.component.KoinComponent
 import tech.gdragon.BotUtils
 import tech.gdragon.api.pawa.Pawa
@@ -207,23 +204,5 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
         BotUtils.recordingStatus(event.member, true)
       }
     }
-  }
-
-  override fun onReady(event: ReadyEvent) {
-    val version: String = getKoin().getProperty("BOT_ACTIVITY", "dev")
-    event
-      .jda
-      .presence
-      .activity = Activity.of(Activity.ActivityType.LISTENING, "$version | $website", website)
-
-    // Add guild if not present
-    logger.info { "Add any missing Guilds to the Database..." }
-    event.jda.shardManager?.guilds?.forEach {
-      transaction {
-        Guild.findOrCreate(it.idLong, it.name, it.region.name)
-      }
-    }
-
-    logger.info { "ONLINE: Connected to ${event.jda.shardManager?.guilds?.size} guilds!" }
   }
 }
