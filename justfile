@@ -37,3 +37,9 @@ db-backup password='password' port='5432':
 db-restore backup password='password' port='5432':
   docker run --rm -it --entrypoint= -e PGPASSWORD={{ password }} -v {{ backup }}:/tmp/backup.db postgres@sha256:b6a3459825427f08ab886545c64d4e5754aa425c5eea678d5359f06a9bf7faab bash -c \
   'psql -h host.docker.internal -p {{ port }} -U postgres settings < /tmp/backup.db'
+
+recover-mp3 id:
+  scp pawa.im:/opt/pawa/data/recordings/{{ id }}.mp3 .
+
+recover-queue id:
+  scp pawa.im:/opt/pawa/data/recordings/{{ id }}.queue .
