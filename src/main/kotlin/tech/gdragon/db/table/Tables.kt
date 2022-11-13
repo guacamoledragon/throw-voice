@@ -36,6 +36,10 @@ object Tables {
     val settings = reference("settings", Settings, ReferenceOption.CASCADE)
   }
 
+  object Applications : LongIdTable() {
+    val createdOn = timestamp("created_on").clientDefault(::now)
+  }
+
   object Channels : LongIdTable() {
     val name = text("name")
     val autoRecord = integer("autorecord").nullable()
@@ -55,5 +59,5 @@ object Tables {
     val guild = reference("guild", Guilds, ReferenceOption.CASCADE)
   }
 
-  val allTables = arrayOf(Aliases, Channels, Guilds, Recordings, Settings)
+  val allTables = arrayOf(Applications, Aliases, Channels, Guilds, Recordings, Settings)
 }
