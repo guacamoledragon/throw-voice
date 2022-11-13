@@ -6,6 +6,7 @@ import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.exposedLogger
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import tech.gdragon.db.table.Tables.Aliases
+import tech.gdragon.db.table.Tables.Applications
 import tech.gdragon.db.table.Tables.Channels
 import tech.gdragon.db.table.Tables.Guilds
 import tech.gdragon.db.table.Tables.Recordings
@@ -27,6 +28,14 @@ class Alias(id: EntityID<Int>) : IntEntity(id) {
   var name by Aliases.name
   var alias by Aliases.alias
   var settings by Settings referencedOn Aliases.settings
+}
+
+class Application(id: EntityID<Long>) : LongEntity(id) {
+  companion object : LongEntityClass<Application>(Applications) {
+    fun findOrCreate(id: Long) = Application.findById(id) ?: Application.new(id) {}
+  }
+
+  val createdOn by Applications.createdOn
 }
 
 class Channel(id: EntityID<Long>) : LongEntity(id) {

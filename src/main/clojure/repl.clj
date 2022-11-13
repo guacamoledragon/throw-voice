@@ -92,7 +92,7 @@
     (.. bot api getPresence (setActivity activity))))
 
 (comment
-  (let [jda           (.api bot)
+  (let [jda           (.api @bot)
         guild         (first (.getGuildsByName jda "Guacamole Dragon" true))
         audio-manager (.getAudioManager guild)]
     (.. audio-manager getConnectedChannel getName)))
@@ -113,3 +113,9 @@
     (do (.start shard-manager 6)
         (.start shard-manager 5))
     (.start shard-manager 4)))
+
+(comment
+  (-> @bot
+      .api
+      .getSelfUser
+      .getApplicationIdLong))

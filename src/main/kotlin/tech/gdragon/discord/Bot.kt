@@ -26,6 +26,7 @@ import tech.gdragon.commands.settings.*
 import tech.gdragon.commands.slash.Info
 import tech.gdragon.commands.slash.Slash
 import tech.gdragon.db.Database
+import tech.gdragon.db.dao.Application
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.listener.EventListener
 import tech.gdragon.listener.SystemEventListener
@@ -80,6 +81,7 @@ class Bot(private val token: String, database: Database) {
       api()
       setActivity()
       addMissingGuilds()
+      addMissingApp()
 
       // Register Listeners
       shardManager.addEventListener(EventListener(pawa), SystemEventListener())
@@ -106,6 +108,13 @@ class Bot(private val token: String, database: Database) {
 
     shardManager.shards.forEach { shard ->
       shard.presence.activity = Activity.of(Activity.ActivityType.LISTENING, "$version | $website", website)
+    }
+  }
+
+  private fun addMissingApp() {
+    logger.info { "Add Application to Database..." }
+    transaction {
+      Application.findOrCreate(api().selfUser.applicationIdLong)
     }
   }
 

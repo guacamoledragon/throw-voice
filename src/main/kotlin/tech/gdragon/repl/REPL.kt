@@ -10,6 +10,7 @@ import java.io.Closeable
 class REPL {
   val logger = KotlinLogging.logger { }
   val port = "7888"
+  val host = "127.0.0.1"
   private var _server: Closeable? = null
 
   init {
@@ -17,16 +18,16 @@ class REPL {
     require.invoke(Clojure.read("nrepl.server"))
 
     val start = Clojure.`var`("nrepl.server", "start-server")
-    _server = start.invoke(Clojure.read(":port"), Clojure.read(port)) as Closeable
+    _server = start.invoke(Clojure.read(":port"), Clojure.read(port), Clojure.read(":bind"), host) as Closeable
 
     logger.info {
-      "Starting nREPL Server on port $port"
+      "Starting nREPL Server on port $host:$port"
     }
   }
 
   fun shutdown(): Unit {
     logger.info {
-      "Stopping nREPL Server on port $port"
+      "Stopping nREPL Server on port $host:$port"
     }
     _server?.close()
   }
