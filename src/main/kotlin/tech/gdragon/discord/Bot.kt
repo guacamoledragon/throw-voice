@@ -60,7 +60,7 @@ class Bot(private val token: String, database: Database) {
       logger.info {
         "Connecting: ${shardManager.statuses.map { "${it.key.shardInfo.shardId}: ${it.value.name}" }.joinToString()}"
       }
-      Thread.sleep(500)
+      Thread.sleep(1000)
     }
 
     return shardManager.shards.find { shard -> shard.status == JDA.Status.CONNECTED }!!
@@ -70,7 +70,7 @@ class Bot(private val token: String, database: Database) {
     try {
       // create shard manager
       shardManager = DefaultShardManagerBuilder
-        .create(token, GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_VOICE_STATES)
+        .create(token, GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_VOICE_STATES)
         .disableCache(CacheFlag.ACTIVITY, CacheFlag.EMOTE, CacheFlag.CLIENT_STATUS, CacheFlag.ONLINE_STATUS)
         .setChunkingFilter(ChunkingFilter.NONE)
         .setMemberCachePolicy(MemberCachePolicy.VOICE)
