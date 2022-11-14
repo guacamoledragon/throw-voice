@@ -10,7 +10,7 @@
   <summary>Example</summary>
 
   ```
-  !save @bot1 @bot2
+  !ignore @bot1 @bot2
   ```
 </details>
 
