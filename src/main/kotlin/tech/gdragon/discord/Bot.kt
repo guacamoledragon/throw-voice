@@ -60,7 +60,7 @@ class Bot(private val token: String, database: Database) {
       logger.info {
         "Connecting: ${shardManager.statuses.map { "${it.key.shardInfo.shardId}: ${it.value.name}" }.joinToString()}"
       }
-      Thread.sleep(500)
+      Thread.sleep(1000)
     }
 
     return shardManager.shards.find { shard -> shard.status == JDA.Status.CONNECTED }!!
