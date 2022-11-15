@@ -268,8 +268,10 @@ class CombinedAudioRecorderHandler(
     val disposable = single?.subscribe { queueFile, e ->
       withLoggingContext(
         "guild" to textChannel.guild.name,
+        "guild.id" to textChannel.guild.id,
         "text-channel" to textChannel.name,
-        "session-id" to session
+        "session-id" to session,
+        "recording.size-mb" to (recordingSize * 1024 * 1024).toString()
       ) {
         e?.let { ex ->
           logger.error(ex) { "Error on subscription on saveRecording: $recordingId" }
