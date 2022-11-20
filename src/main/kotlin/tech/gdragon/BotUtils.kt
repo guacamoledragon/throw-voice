@@ -57,7 +57,7 @@ object BotUtils {
 
           withLoggingContext("guild" to guild.name, "voice-channel" to channel.name) {
             try {
-              recordVoiceChannel(channel, defaultChannel) { ex ->
+              recordVoiceChannel(channel) { ex ->
                 val message =
                   ":no_entry_sign: _Cannot record on **<#${channel.id}>**, need permission:_ ```${ex.permission}```"
                 sendMessage(defaultChannel, message)
@@ -279,7 +279,7 @@ object BotUtils {
   @WithSpan("Record Voice Channel")
   fun recordVoiceChannel(
     channel: VoiceChannel,
-    defaultChannel: TextChannel?,
+    defaultChannel: TextChannel? = defaultTextChannel(channel.guild),
     onError: (InsufficientPermissionException) -> Unit = {}
   ) {
 
