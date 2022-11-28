@@ -56,11 +56,11 @@ class Record : CommandHandler() {
   }
 
   override fun action(args: Array<String>, event: GuildMessageReceivedEvent, pawa: Pawa) {
-    require((pawa.isStandalone && args.size in setOf(0, 1)) || args.isEmpty()) {
+    require(pawa.isStandalone || args.isEmpty()) {
       throw InvalidCommand(::usage, "Incorrect number of arguments: ${args.size}")
     }
 
-    val voiceChannel: VoiceChannel? = if (standalone) {
+    val voiceChannel: VoiceChannel? = if (pawa.isStandalone && args.isNotEmpty()) {
       val channelName = args.joinToString(separator = " ")
       event.jda
         .getVoiceChannelsByName(channelName, false)
