@@ -275,57 +275,42 @@ object BotUtils {
     }
   }
 
-  // TODO: I don't think there's a need for the callback for exception handling, just throw
+  /**
+   * Starts recording on [channel] and sends any communication to [defaultChannel]
+   *
+   * @throws IllegalStateException when bot cannot write in provided [defaultChannel]
+   * @throws InsufficientPermissionException when bot cannot record [channel]
+   */
   @WithSpan("Record Voice Channel")
   fun recordVoiceChannel(
     channel: VoiceChannel,
-    defaultChannel: TextChannel? = defaultTextChannel(channel.guild),
-    onError: (InsufficientPermissionException) -> Unit = {}
-  ) {
-
-    /** Begin assertions **/
-    require(defaultChannel != null && channel.guild.getTextChannelById(defaultChannel.id)?.canTalk() ?: false) {
-      val msg = "Attempted to record, but bot cannot write to any channel."
-      updateNickname(channel.guild.selfMember, "FIX ME")
-      msg
+    defaultChannel: TextChannel? = defaultTextChannel(channel.guild) ?: findPublicChannel(channel.guild)
+  ): CombinedAudioRecorderHandler {
+    require(defaultChannel != null && defaultChannel.canTalk()) {
+      updateNickname(channel.guild.selfMember, "CANNOT WRITE")
+      "no-write-permission"
     }
 
-    // Bot won't connect to AFK channels
     require(channel != channel.guild.afkChannel) {
-      val msg = ":no_entry_sign: _I'm not allowed to record AFK channels._"
-      sendMessage(defaultChannel, msg)
-      msg
+      "afk-channel"
     }
-
-    /** End assertions **/
 
     val audioManager = channel.guild.audioManager
+    audioManager.openAudioConnection(channel)
+    logger.info { "Connected to voice channel" }
 
-    if (audioManager.isConnected) {
-      logger.debug { "vc:${channel.name} - Already connected to ${audioManager.connectedChannel?.name}" }
-    } else {
+    val volume = transaction {
+      Guild.findById(channel.guild.idLong)
+        ?.settings
+        ?.volume
+        ?.toDouble()
+    } ?: 1.0
 
-      try {
-        audioManager.openAudioConnection(channel)
-        logger.info { "Connected to voice channel" }
-      } catch (e: InsufficientPermissionException) {
-        logger.warn { "Need permission: ${e.permission}" }
-        onError(e)
-        return
-      }
+    val recorder = CombinedAudioRecorderHandler(volume, channel, defaultChannel)
+    audioManager.receivingHandler = recorder
+    recordingStatus(channel.guild.selfMember, true)
 
-      val volume = transaction {
-        Guild.findById(channel.guild.idLong)
-          ?.settings
-          ?.volume
-          ?.toDouble()
-      } ?: 1.0
-
-      val recorder = CombinedAudioRecorderHandler(volume, channel, defaultChannel)
-      audioManager.receivingHandler = recorder
-
-      recordingStatus(channel.guild.selfMember, true)
-    }
+    return recorder
   }
 
   /**

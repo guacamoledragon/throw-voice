@@ -185,15 +185,6 @@ class CombinedAudioRecorderHandler(
       vbr
     )
 
-    BotUtils.sendMessage(
-      defaultChannel, """:red_circle: **Recording audio on <#${voiceChannel.id}>**
-      |_Session ID: `${session}`_
-      |.
-      |.
-      |.
-      |:warning: _`save` before stopping recording, otherwise recording will be deleted FOREVER!_
-      """.trimMargin()
-    )
     logger.info { "Creating recording session - $queueFilename" }
 
     val singleObservable = subject
