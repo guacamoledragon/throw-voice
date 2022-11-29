@@ -81,20 +81,26 @@ object BotUtils {
   }
 
   fun autoStop(guild: DiscordGuild, channel: VoiceChannel) {
-    val channelMemberCount = voiceChannelSize(channel)
-    logger.debug { "${guild.name}#${channel.name} - Channel member count: $channelMemberCount" }
+    if (guild.audioManager.connectedChannel == channel) {
+      val channelMemberCount = voiceChannelSize(channel)
+      logger.debug { "${guild.name}#${channel.name} - Channel member count: $channelMemberCount" }
 
-    transaction { Channel.findById(channel.idLong)?.autoStop }
-      ?.let {
-        val autoStop = it
-        logger.debug { "${guild.name}#${channel.name} - autostop value: $autoStop" }
+      transaction { Channel.findById(channel.idLong)?.autoStop }
+        ?.let {
+          val autoStop = it
+          logger.debug { "${guild.name}#${channel.name} - autostop value: $autoStop" }
 
-        if (channelMemberCount <= autoStop) {
-          val defaultChannel = defaultTextChannel(guild) ?: findPublicChannel(guild)
-          val save = autoSave(guild)
-          leaveVoiceChannel(channel, defaultChannel, save)
+          if (channelMemberCount <= autoStop) {
+            val defaultChannel = defaultTextChannel(guild) ?: findPublicChannel(guild)
+            val save = autoSave(guild)
+            leaveVoiceChannel(channel, defaultChannel, save)
+          }
         }
+    } else {
+      logger.debug {
+        "Not connected to $channel, can't leave it ;)"
       }
+    }
   }
 
   /**

@@ -94,14 +94,12 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
   }
 
   override fun onGuildVoiceLeave(event: GuildVoiceLeaveEvent) {
-    event.guild.audioManager.connectedChannel?.let {
-      withLoggingContext("guild" to event.guild.name) {
-        logger.debug {
-          "${event.guild.name}#${event.channelLeft.name} - ${event.member.effectiveName} left voice channel"
-        }
-        if (BotUtils.isSelfBot(event.member.user).not() && it == event.channelLeft) {
-          BotUtils.autoStop(event.guild, event.channelLeft)
-        }
+    withLoggingContext("guild" to event.guild.name) {
+      logger.debug {
+        "${event.guild.name}#${event.channelLeft.name} - ${event.member.effectiveName} left voice channel"
+      }
+      if (BotUtils.isSelfBot(event.member.user).not()) {
+        BotUtils.autoStop(event.guild, event.channelLeft)
       }
     }
   }
