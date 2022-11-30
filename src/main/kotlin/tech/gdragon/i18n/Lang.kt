@@ -119,6 +119,7 @@ object Babel {
       AutoStop::class -> autostop(lang) as T
       AutoSave::class -> autosave(lang) as T
       Ignore::class -> ignore(lang) as T
+      Record::class -> record(lang) as T
       else -> throw IllegalArgumentException("Language: $lang was not found!")
     }
   }
@@ -193,11 +194,27 @@ class Prefix(lang: Lang) {
 class Record(lang: Lang) {
   private val resource = Babel.resource(lang)
 
+  val afkChannel: (String) -> String = { channelId ->
+    resource.getString("record.afk_channel").format("**<#$channelId>**")
+  }
   val alreadyInChannel: (String) -> String =
     { channelId -> resource.getString("record.already_in_channel").format("**<#$channelId>**") }
-  val cannotRecord: (String) -> String =
-    { channelId -> resource.getString("record.cannot_record").format("**<#$channelId>**") }
+  val cannotRecord: (String, String) -> String = { channelId, permission ->
+    val permission = permission.replace('_', ' ')
+    resource.getString("record.cannot_record").format("**<#$channelId>**", "`$permission`")
+  }
   val joinChannel: String = resource.getString("record.join_channel")
+  fun recording(channelId: String, session: String): String {
+    val recording = resource.getString("record.recording").format("<#$channelId>")
+    val warning = resource.getString("record.warning")
+    return """:red_circle: **$recording**
+           |_Session ID: `$session`_
+           |.
+           |.
+           |.
+           |:warning: _${warning}_
+           """.trimMargin()
+  }
   val usage: (String) -> String = { prefix -> resource.getString("record.usage").format(prefix) }
 }
 

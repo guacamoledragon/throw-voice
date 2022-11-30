@@ -185,15 +185,6 @@ class CombinedAudioRecorderHandler(
       vbr
     )
 
-    BotUtils.sendMessage(
-      defaultChannel, """:red_circle: **Recording audio on <#${voiceChannel.id}>**
-      |_Session ID: `${session}`_
-      |.
-      |.
-      |.
-      |:warning: _`save` before stopping recording, otherwise recording will be deleted FOREVER!_
-      """.trimMargin()
-    )
     logger.info { "Creating recording session - $queueFilename" }
 
     val singleObservable = subject
@@ -268,8 +259,10 @@ class CombinedAudioRecorderHandler(
     val disposable = single?.subscribe { queueFile, e ->
       withLoggingContext(
         "guild" to textChannel.guild.name,
+        "guild.id" to textChannel.guild.id,
         "text-channel" to textChannel.name,
-        "session-id" to session
+        "session-id" to session,
+        "recording.size-mb" to (recordingSize * 1024 * 1024).toString()
       ) {
         e?.let { ex ->
           logger.error(ex) { "Error on subscription on saveRecording: $recordingId" }

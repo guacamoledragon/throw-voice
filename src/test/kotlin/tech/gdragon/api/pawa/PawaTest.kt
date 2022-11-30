@@ -44,7 +44,7 @@ class PawaTest : FunSpec() {
 
   override suspend fun beforeSpec(spec: Spec) {
     db = EmbeddedDatabase("./target")
-    pawa = Pawa(db)
+    pawa = Pawa(1L, db, false)
     transaction(db.database) {
       Guild.findOrCreate(guildId, "Test Guild", "US")
     }

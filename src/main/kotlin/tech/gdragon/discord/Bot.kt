@@ -37,7 +37,6 @@ import tech.gdragon.i18n.AutoStop as AutoStopTranslator
 
 class Bot(private val token: String, database: Database) {
   private val logger = KotlinLogging.logger {}
-  private val pawa = Pawa(database)
   private val tracer: EventTracer = getKoin().get()
 
   companion object {
@@ -53,6 +52,7 @@ class Bot(private val token: String, database: Database) {
     )
   }
 
+  private lateinit var pawa: Pawa
   lateinit var shardManager: ShardManager
 
   fun api(): JDA {
@@ -82,6 +82,10 @@ class Bot(private val token: String, database: Database) {
       setActivity()
       addMissingGuilds()
       addMissingApp()
+
+      // Initialize Pawa object
+      val standalone = getKoin().getProperty<String>("BOT_STANDALONE").toBoolean()
+      pawa = Pawa(api().selfUser.applicationIdLong, database, standalone)
 
       // Register Listeners
       shardManager.addEventListener(EventListener(pawa), SystemEventListener())
@@ -195,6 +199,7 @@ class Bot(private val token: String, database: Database) {
         }
       }
       onCommand(Language.command.name, Language.slashHandler(pawa))
+      onCommand(Record.command.name, Record.slashHandler(pawa))
     }
   }
 
