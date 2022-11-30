@@ -13,13 +13,6 @@ import tech.gdragon.i18n.Babel
 import tech.gdragon.i18n.Lang
 
 class Pawa(val id: Long, val db: Database, val isStandalone: Boolean) {
-  companion object {
-    inline fun <reified T> translator(guildId: Long): T {
-      val lang = transaction { Guild[guildId].settings.language }
-      return Babel.commandTranslator(lang)
-    }
-  }
-
   val logger = KotlinLogging.logger { }
 
   private var _ignoredUsers: MutableMap<String, List<Long>> = mutableMapOf()
