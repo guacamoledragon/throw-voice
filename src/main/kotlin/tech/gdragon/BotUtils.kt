@@ -309,7 +309,6 @@ object BotUtils {
    * Starts recording on [channel] and sends any communication to [defaultChannel]
    *
    * @throws IllegalStateException when bot cannot write in provided [defaultChannel]
-   * @throws InsufficientPermissionException when bot cannot record [channel]
    */
   @WithSpan("Record Voice Channel")
   fun recordVoiceChannel(
