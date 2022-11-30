@@ -199,6 +199,7 @@ class Bot(private val token: String, database: Database) {
         }
       }
       onCommand(Language.command.name, Language.slashHandler(pawa))
+      onCommand(Record.command.name, Record.slashHandler(pawa))
     }
   }
 

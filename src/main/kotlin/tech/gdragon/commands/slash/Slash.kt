@@ -7,6 +7,7 @@ import tech.gdragon.BotUtils
 import tech.gdragon.api.pawa.Pawa
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
+import tech.gdragon.commands.audio.Record
 import tech.gdragon.commands.settings.*
 import tech.gdragon.discord.Bot
 import tech.gdragon.i18n.Lang
@@ -17,7 +18,7 @@ class Slash : CommandHandler() {
       throw InvalidCommand({ "Command can only be used by server admins." }, "Unauthorized use.")
     }
 
-    val action = args.first()
+    val action = args.firstOrNull()
     val sendMessage = { msg: () -> String ->
       val channel by event.channel.ref()
       BotUtils.sendMessage(channel, msg())
@@ -43,7 +44,8 @@ class Slash : CommandHandler() {
             AutoSave.command,
             Ignore.command,
             Info.command,
-            Language.command
+            Language.command,
+            Record.command
           )
         }.queue { commands ->
           sendMessage {
@@ -59,7 +61,7 @@ class Slash : CommandHandler() {
           }
         }
 
-        else -> sendMessage { "Invalid command!" }
+        else -> sendMessage { "Invalid command!\nChoose one of: `invite, list, add, or remove`." }
       }
     }
   }

@@ -1,5 +1,6 @@
 package tech.gdragon.commands.audio
 
+import dev.minn.jda.ktx.CoroutineEventListener
 import dev.minn.jda.ktx.interactions.Command
 import dev.minn.jda.ktx.interactions.option
 import mu.withLoggingContext
@@ -7,6 +8,7 @@ import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.ChannelType
 import net.dv8tion.jda.api.entities.TextChannel
 import net.dv8tion.jda.api.entities.VoiceChannel
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import tech.gdragon.BotUtils
 import tech.gdragon.api.pawa.Pawa
@@ -22,6 +24,28 @@ class Record : CommandHandler() {
     val command = Command("record", "Start recording voice channel.") {
       option<VoiceChannel>("channel", "Record this channel without joining. _PawaLite only_") {
         setChannelTypes(ChannelType.VOICE, ChannelType.STAGE)
+      }
+    }
+
+    fun slashHandler(pawa: Pawa): suspend CoroutineEventListener.(SlashCommandEvent) -> Unit = { event ->
+      tracer.sendEvent(mapOf("command" to command.name))
+
+      event.guild?.let {
+        val selectedChannel = event.getOption("channel")?.asGuildChannel as VoiceChannel?
+        val voiceChannel: VoiceChannel? = if (pawa.isStandalone && selectedChannel != null) {
+          selectedChannel
+        } else null ?: event.member?.voiceState?.channel
+
+        val textChannel = try {
+          event.textChannel
+        } catch (_: Exception) {
+          // This will happen if the event is triggered from a Voice Channel chat
+          // Source: https://support.discord.com/hc/en-us/articles/4412085582359-Text-Channels-Text-Chat-In-Voice-Channels#h_01FMJT3SP072ZFJCZWR0EW6CJ1
+          BotUtils.defaultTextChannel(it) ?: BotUtils.findPublicChannel(it)
+        }
+
+        val message = handler(pawa, it, voiceChannel, textChannel)
+        event.reply(message).queue()
       }
     }
 

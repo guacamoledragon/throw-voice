@@ -146,7 +146,7 @@ object BotUtils {
   /**
    * Finds an open channel where messages can be sent.
    */
-  private fun findPublicChannel(guild: DiscordGuild): TextChannel? {
+  fun findPublicChannel(guild: DiscordGuild): TextChannel? {
     return guild
       .textChannels
       .find(TextChannel::canTalk)
