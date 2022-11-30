@@ -456,11 +456,11 @@ object BotUtils {
       bot.guild
         .modifyNickname(bot, nickname)
         .reason("Represent bot's recording state.")
-        .queue(null, { t ->
+        .queue(null) { t ->
           logger.error(t) {
             "Could not change nickname: $prevNick -> $nickname"
           }
-        })
+        }
     } catch (e: InsufficientPermissionException) {
       logger.warn {
         "Missing ${e.permission} permission to change $prevNick -> $nickname"
