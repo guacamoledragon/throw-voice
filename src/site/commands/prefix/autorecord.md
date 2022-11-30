@@ -1,6 +1,7 @@
 # autorecord
-TODO: FIX THE DESCRIPTION
-> Sets the number of players for the bot to autorecord a voice channel, or disables autorecord-ing. 'all' will apply number to all voice channels.
+> Automatically start recording if the number of members in a voice channel reaches <number>.
+
+This command is only available in [PawaLite](pawalite.md).
 
 ```
 !autorecord <voice-channel | all> <number | off>`
