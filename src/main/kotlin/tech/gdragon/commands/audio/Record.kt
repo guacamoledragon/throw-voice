@@ -3,11 +3,11 @@ package tech.gdragon.commands.audio
 import dev.minn.jda.ktx.interactions.Command
 import dev.minn.jda.ktx.interactions.option
 import mu.withLoggingContext
+import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.ChannelType
 import net.dv8tion.jda.api.entities.TextChannel
 import net.dv8tion.jda.api.entities.VoiceChannel
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
-import net.dv8tion.jda.api.exceptions.InsufficientPermissionException
 import tech.gdragon.BotUtils
 import tech.gdragon.api.pawa.Pawa
 import tech.gdragon.commands.CommandHandler
@@ -42,12 +42,18 @@ class Record : CommandHandler() {
               translator.recording(voiceChannel.id, recorder.session)
             } catch (e: IllegalArgumentException) {
               when (e.message) {
-                "no-write-permission" -> "Attempted to record, but bot cannot write to any channel."
-                "afk-channel" -> ":no_entry_sign: _${translator.afkChannel(voiceChannel.id)}_"
-                else -> ":no_entry_sign: _Unknown bad argument: ${e.message}_"
+                "no-write-permission" ->
+                  "Attempted to record, but bot cannot write to any channel."
+
+                "no-speak-permission" ->
+                  ":no_entry_sign: _${translator.cannotRecord(voiceChannel.id, Permission.VOICE_CONNECT.name)}_"
+
+                "afk-channel" ->
+                  ":no_entry_sign: _${translator.afkChannel(voiceChannel.id)}_"
+
+                else ->
+                  ":no_entry_sign: _Unknown bad argument: ${e.message}_"
               }
-            } catch (e: InsufficientPermissionException) {
-              ":no_entry_sign: _${translator.cannotRecord(voiceChannel.id, e.permission.name)}_"
             }
           }
         }

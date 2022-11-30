@@ -5,6 +5,7 @@ import io.opentelemetry.extension.annotations.WithSpan
 import mu.KotlinLogging
 import mu.withLoggingContext
 import net.dv8tion.jda.api.JDA
+import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.*
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException
 import org.jetbrains.exposed.dao.exceptions.EntityNotFoundException
@@ -13,6 +14,7 @@ import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.SqlExpressionBuilder
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.transactions.transaction
+import tech.gdragon.api.pawa.Pawa
 import tech.gdragon.db.asyncTransaction
 import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
@@ -26,6 +28,7 @@ import java.time.LocalDate
 import java.time.ZoneId
 import java.util.concurrent.TimeUnit
 import net.dv8tion.jda.api.entities.Guild as DiscordGuild
+import tech.gdragon.i18n.Record as RecordTranslator
 
 object BotUtils {
   private val logger = KotlinLogging.logger {}
@@ -43,7 +46,7 @@ object BotUtils {
   /**
    * AutoRecord voice channel if it meets the auto record criterion
    */
-  fun autoRecord(guild: DiscordGuild, channel: VoiceChannel) {
+  fun autoRecord(pawa: Pawa, guild: DiscordGuild, channel: VoiceChannel) {
     val channelMemberCount = voiceChannelSize(channel)
     logger.debug { "Channel member count: $channelMemberCount" }
 
@@ -56,14 +59,35 @@ object BotUtils {
           val defaultChannel = defaultTextChannel(guild) ?: findPublicChannel(guild)
 
           withLoggingContext("guild" to guild.name, "voice-channel" to channel.name) {
-            try {
-              recordVoiceChannel(channel) { ex ->
-                val message =
-                  ":no_entry_sign: _Cannot record on **<#${channel.id}>**, need permission:_ ```${ex.permission}```"
-                sendMessage(defaultChannel, message)
-              }
-            } catch (e: IllegalArgumentException) {
-              logger.warn(e::message)
+            val audioManager = guild.audioManager
+            val translator: RecordTranslator = pawa.translator(guild.idLong)
+            if (audioManager.isConnected) {
+              sendMessage(
+                defaultChannel,
+                ":no_entry_sign: _${translator.alreadyInChannel(audioManager.connectedChannel!!.id)}_"
+              )
+            } else {
+              val message =
+                try {
+                  val recorder = recordVoiceChannel(channel)
+                  pawa.startRecording(recorder.session, guild.idLong)
+                  translator.recording(channel.id, recorder.session)
+                } catch (e: IllegalArgumentException) {
+                  when (e.message) {
+                    "no-write-permission" ->
+                      "Attempted to record, but bot cannot write to any channel."
+
+                    "no-speak-permission" ->
+                      ":no_entry_sign: _${translator.cannotRecord(channel.id, Permission.VOICE_CONNECT.name)}_"
+
+                    "afk-channel" ->
+                      ":no_entry_sign: _${translator.afkChannel(channel.id)}_"
+
+                    else ->
+                      ":no_entry_sign: _Unknown bad argument: ${e.message}_"
+                  }
+                }
+              sendMessage(defaultChannel, message)
             }
           }
         }
@@ -295,6 +319,13 @@ object BotUtils {
     require(defaultChannel != null && defaultChannel.canTalk()) {
       updateNickname(channel.guild.selfMember, "CANNOT WRITE")
       "no-write-permission"
+    }
+
+    require(channel.guild.selfMember.hasPermission(channel, Permission.VOICE_CONNECT)) {
+      logger.info {
+        "User ${channel.guild.selfMember.effectiveName} does not have permission to connect to ${channel.name}"
+      }
+      "no-speak-permission"
     }
 
     require(channel != channel.guild.afkChannel) {

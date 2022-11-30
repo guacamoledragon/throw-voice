@@ -88,7 +88,7 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
       BotUtils.updateActivity(event.guild)
 
       if (standalone) {
-        BotUtils.autoRecord(event.guild, event.channelJoined)
+        BotUtils.autoRecord(pawa, event.guild, event.channelJoined)
       }
     }
   }
@@ -116,7 +116,7 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
       if (BotUtils.isSelfBot(user).not()) {
         BotUtils.autoStop(event.guild, event.channelLeft)
         if (standalone) {
-          BotUtils.autoRecord(event.guild, event.channelJoined)
+          BotUtils.autoRecord(pawa, event.guild, event.channelJoined)
         }
       }
     }
