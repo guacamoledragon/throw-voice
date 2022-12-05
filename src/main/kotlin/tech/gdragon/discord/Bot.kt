@@ -1,6 +1,7 @@
 package tech.gdragon.discord
 
 import dev.minn.jda.ktx.injectKTX
+import dev.minn.jda.ktx.interactions.updateCommands
 import dev.minn.jda.ktx.onCommand
 import mu.KotlinLogging
 import net.dv8tion.jda.api.JDA
@@ -90,6 +91,9 @@ class Bot(private val token: String, database: Database) {
       // Register Listeners
       shardManager.addEventListener(EventListener(pawa), SystemEventListener())
       registerSlashCommands()
+
+      // Update Slash commands
+      updateSlashCommands()
     } catch (e: LoginException) {
       logger.error(e) {
         "Could not authenticate using token: $token"
@@ -201,6 +205,26 @@ class Bot(private val token: String, database: Database) {
       onCommand(Language.command.name, Language.slashHandler(pawa))
       onCommand(Record.command.name, Record.slashHandler(pawa))
     }
+  }
+
+  private fun updateSlashCommands() {
+    api()
+      .updateCommands {
+        addCommands(
+          Alias.command,
+          AutoStop.command,
+          AutoSave.command,
+          Ignore.command,
+          Info.command,
+          Language.command,
+          Record.command
+        )
+      }
+      .queue { commands ->
+        logger.info {
+          commands.joinToString(prefix = "Adding: ") { command -> command.name }.ifEmpty { "No commands!" }
+        }
+      }
   }
 
   fun shutdown() {
