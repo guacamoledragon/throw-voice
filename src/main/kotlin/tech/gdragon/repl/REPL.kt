@@ -10,7 +10,7 @@ import java.io.Closeable
 class REPL {
   val logger = KotlinLogging.logger { }
   val port = "7888"
-  val host = "127.0.0.1"
+  val host = "0.0.0.0"
   private var _server: Closeable? = null
 
   init {
