@@ -6,8 +6,10 @@ import mu.KotlinLogging
 import mu.withLoggingContext
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.Permission
+import net.dv8tion.jda.api.audio.hooks.ConnectionStatus
 import net.dv8tion.jda.api.entities.*
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException
+import net.dv8tion.jda.internal.managers.AudioManagerImpl
 import org.jetbrains.exposed.dao.exceptions.EntityNotFoundException
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.Op
@@ -183,35 +185,35 @@ object BotUtils {
 
   @WithSpan("Leave Voice Channel")
   @JvmStatic
-  fun leaveVoiceChannel(voiceChannel: VoiceChannel, textChannel: TextChannel?, save: Boolean) {
+  fun leaveVoiceChannel(
+    voiceChannel: VoiceChannel,
+    textChannel: TextChannel?,
+    save: Boolean
+  ): CombinedAudioRecorderHandler {
     val guild = voiceChannel.guild
-    val audioManager =
-      guild.audioManager // TODO try using AudioManagerImpl so that we can call .audioConnection.shutdown()
-    val audioRecorderHandler = audioManager.receivingHandler as CombinedAudioRecorderHandler?
+    val audioManager = guild.audioManager as AudioManagerImpl
+    val recorder = audioManager.receivingHandler as CombinedAudioRecorderHandler
 
     withLoggingContext("guild" to voiceChannel.guild.name, "text-channel" to textChannel?.name.orEmpty()) {
+      val (recording, recordingLock) =
+        if (save && textChannel != null) {
+          sendMessage(textChannel, ":floppy_disk: **Saving <#${voiceChannel.id}>'s recording...**")
+          recorder.saveRecording(voiceChannel, textChannel, false)
+        } else Pair(null, null)
 
-      audioRecorderHandler?.let {
-        val (recording, recordingLock) =
-          if (save && textChannel != null) {
-            sendMessage(textChannel, ":floppy_disk: **Saving <#${voiceChannel.id}>'s recording...**")
-            it.saveRecording(voiceChannel, textChannel, false)
-
-          } else Pair(null, null)
-
-        it.disconnect(!save, recording, recordingLock)
-      }
+      recorder.disconnect(!save, recording, recordingLock)
 
       logger.debug { "Leaving voice channel" }
       audioManager.apply {
-        receivingHandler = null
-        sendingHandler = null
+        audioConnection.close(ConnectionStatus.NOT_CONNECTED)
         closeAudioConnection()
         logger.debug { "Destroyed audio handlers" }
       }
 
       recordingStatus(voiceChannel.guild.selfMember, false)
     }
+
+    return recorder
   }
 
   /**
