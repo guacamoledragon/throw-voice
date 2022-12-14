@@ -51,6 +51,15 @@ class Pawa(val id: Long, val db: Database, val isStandalone: Boolean) {
     }
   }
 
+  fun autoSave(guildId: Long): Boolean {
+    return transaction(db.database) {
+      Settings
+         .find { Tables.Settings.guild eq guildId }
+         .firstOrNull()?.autoSave
+       ?: false
+    }
+  }
+
   fun autoStopChannel(channelId: Long, channelName: String, guildId: Long, threshold: Long) {
     transaction(db.database) {
       Channel.findOrCreate(channelId, channelName, guildId).autoStop = threshold.toInt()

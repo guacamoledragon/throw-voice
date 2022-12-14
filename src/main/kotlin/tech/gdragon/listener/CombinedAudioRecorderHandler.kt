@@ -337,7 +337,8 @@ class CombinedAudioRecorderHandler(
   }
 
   fun saveClip(seconds: Long, voiceChannel: VoiceChannel?, channel: TextChannel) {
-/*    // Stop recording so that we can copy Queue File
+    /*
+    // Stop recording so that we can copy Queue File
     canReceive = false
 
     val path = Paths.get(queueFilename)
@@ -376,7 +377,8 @@ class CombinedAudioRecorderHandler(
 
     withLoggingContext("session-id" to session) {
       uploadRecording(recording, voiceChannel, channel)
-    }*/
+    }
+    */
   }
 
   private fun uploadRecording(recording: File, voiceChannel: VoiceChannel?, channel: TextChannel) {

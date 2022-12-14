@@ -204,6 +204,7 @@ class Bot(private val token: String, database: Database) {
       }
       onCommand(Language.command.name, Language.slashHandler(pawa))
       onCommand(Record.command.name, Record.slashHandler(pawa))
+      onCommand(Stop.command.name, Stop.slashHandler(pawa))
     }
   }
 
@@ -217,7 +218,8 @@ class Bot(private val token: String, database: Database) {
           Ignore.command,
           Info.command,
           Language.command,
-          Record.command
+          Record.command,
+          Stop.command
         )
       }
       .queue { commands ->
