@@ -121,6 +121,7 @@ object Babel {
       Ignore::class -> ignore(lang) as T
       Record::class -> record(lang) as T
       Stop::class -> stop(lang) as T
+      Save::class -> save(lang) as T
       else -> throw IllegalArgumentException("Language: $lang was not found!")
     }
   }

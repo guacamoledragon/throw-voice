@@ -8,6 +8,7 @@ import tech.gdragon.api.pawa.Pawa
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.commands.audio.Record
+import tech.gdragon.commands.audio.Save
 import tech.gdragon.commands.audio.Stop
 import tech.gdragon.commands.settings.*
 import tech.gdragon.discord.Bot
@@ -48,6 +49,7 @@ class Slash : CommandHandler() {
             Language.command,
             Record.command,
             Stop.command,
+            Save.command
           )
         }.queue { commands ->
           sendMessage {

@@ -59,7 +59,7 @@ class Record : CommandHandler() {
         }
 
         else -> {
-          withLoggingContext("guild" to guild.name, "voice-channel" to voiceChannel.name) {
+          withLoggingContext("guild" to guild.name, "voice-channel" to voiceChannel.name, "text-channel" to textChannel?.name) {
             try {
               val recorder = BotUtils.recordVoiceChannel(voiceChannel, textChannel)
               pawa.startRecording(recorder.session, guild.idLong)
