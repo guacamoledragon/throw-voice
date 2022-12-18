@@ -12,6 +12,10 @@ import tech.gdragon.i18n.Lang
 import java.math.BigDecimal
 
 class Volume : CommandHandler() {
+  companion object {
+    const val MAX_VOLUME = 100
+  }
+
   override fun action(args: Array<String>, event: GuildMessageReceivedEvent, pawa: Pawa) {
     require(args.size == 1) {
       throw InvalidCommand(::usage, "Incorrect number of arguments: ${args.size}")
@@ -21,8 +25,8 @@ class Volume : CommandHandler() {
       try {
         val volume = args.first().toInt()
 
-        if (volume in 1..100) {
-          val percentage = volume.toDouble() / 100f
+        if (volume in 1..MAX_VOLUME) {
+          val percentage = volume.toDouble() / MAX_VOLUME
 
           val settings = transaction {
             Guild[event.guild.idLong].settings
