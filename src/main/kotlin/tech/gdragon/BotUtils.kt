@@ -190,6 +190,7 @@ object BotUtils {
     textChannel: TextChannel?,
     save: Boolean
   ): CombinedAudioRecorderHandler {
+    // TODO: This method should be broken up into two, one that stops and saves and another one that leaves voice channel
     val guild = voiceChannel.guild
     val audioManager = guild.audioManager as AudioManagerImpl
     val recorder = audioManager.receivingHandler as CombinedAudioRecorderHandler
