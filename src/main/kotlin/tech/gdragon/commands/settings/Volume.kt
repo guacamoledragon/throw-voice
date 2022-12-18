@@ -1,5 +1,7 @@
 package tech.gdragon.commands.settings
 
+import dev.minn.jda.ktx.interactions.Command
+import dev.minn.jda.ktx.interactions.option
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.BotUtils
@@ -14,6 +16,13 @@ import java.math.BigDecimal
 class Volume : CommandHandler() {
   companion object {
     const val MAX_VOLUME = 100
+
+    val command = Command("volume", "Set the recording volume.") {
+      option<Int>("volume", "The volume for the current recording in % from 1-100.") {
+        setMinValue(1)
+        setMaxValue(100)
+      }
+    }
   }
 
   override fun action(args: Array<String>, event: GuildMessageReceivedEvent, pawa: Pawa) {

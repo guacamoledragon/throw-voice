@@ -49,7 +49,8 @@ class Slash : CommandHandler() {
             Language.command,
             Record.command,
             Stop.command,
-            Save.command
+            Save.command,
+            Volume.command
           )
         }.queue { commands ->
           sendMessage {

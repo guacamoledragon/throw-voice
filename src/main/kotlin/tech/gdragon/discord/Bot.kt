@@ -221,7 +221,8 @@ class Bot(private val token: String, database: Database) {
           Language.command,
           Record.command,
           Stop.command,
-          Save.command
+          Save.command,
+          Volume.command
         )
       }
       .queue { commands ->
