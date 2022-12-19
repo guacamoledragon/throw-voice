@@ -19,7 +19,7 @@ class Volume : CommandHandler() {
     val command = Command("volume", "Set the recording volume.") {
       option<Int>("volume", "The recording volume in percent from 1-100.") {
         setMinValue(1)
-        setMaxValue(100)
+        setMaxValue(MAX_VOLUME.toLong())
       }
     }
 
