@@ -11,6 +11,7 @@ import tech.gdragon.db.table.Tables
 import tech.gdragon.discord.Command
 import tech.gdragon.i18n.Babel
 import tech.gdragon.i18n.Lang
+import java.math.BigDecimal
 
 class Pawa(val id: Long, val db: Database, val isStandalone: Boolean) {
   val logger = KotlinLogging.logger { }
@@ -54,9 +55,9 @@ class Pawa(val id: Long, val db: Database, val isStandalone: Boolean) {
   fun autoSave(guildId: Long): Boolean {
     return transaction(db.database) {
       Settings
-         .find { Tables.Settings.guild eq guildId }
-         .firstOrNull()?.autoSave
-       ?: false
+        .find { Tables.Settings.guild eq guildId }
+        .firstOrNull()?.autoSave
+        ?: false
     }
   }
 
@@ -100,5 +101,22 @@ class Pawa(val id: Long, val db: Database, val isStandalone: Boolean) {
 
   fun stopRecording(session: String) {
     _recordings -= session
+  }
+
+  /**
+   * Set the recording volume for a given [guildId], and return the set value 0.0 otherwise.
+   * [volumePercent] will be clamped between 0.0 and 1.0.
+   */
+  fun volume(guildId: Long, volumePercent: Double): Double {
+    return transaction {
+      val actualVolume = volumePercent.coerceIn(0.0..1.0)
+      Settings
+        .find { Tables.Settings.guild eq guildId }
+        .firstOrNull()
+        ?.let {
+          it.volume = BigDecimal.valueOf(actualVolume)
+          actualVolume
+        } ?: 0.0
+    }
   }
 }
