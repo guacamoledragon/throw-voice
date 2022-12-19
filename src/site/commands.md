@@ -33,6 +33,9 @@ This is the full list of commands available, but on a daily basis, you wont need
 | [ignore (beta)](commands/slash/ignore.md) | Ignore a bot during recording session.                                                          |
 |            [info](commands/slash/info.md) | Displays information about [pawa](https://pawa.im) for the caller's server.                     |
 |            [lang](commands/slash/lang.md) | Specifies the language to use.                                                                  |
+|            [save](commands/slash/save.md) | Saves current recording, either provides a link or uploads directly to Discord                  |
+|            [stop](commands/slash/stop.md) | Stop recording                                                                                  |
+|        [volume](commands/slash/volume.md) | Set the recording volume                                                                        |
 
 ## [Pawa Lite](/pawalite) and Admin Only Commands
 |                                     Command | Description                                                                                      |
