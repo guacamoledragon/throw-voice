@@ -410,21 +410,9 @@ object BotUtils {
     var msgResult: Message? = null
 
     FileInputStream(file).use {
-      try {
-        msgResult = textChannel
-          .sendFile(it, filename)
-          .complete()
-      } catch (e: InsufficientPermissionException) {
-        withLoggingContext("guild" to textChannel.guild.name, "text-channel" to textChannel.name) {
-          sendMessage(
-            textChannel,
-            ":no_entry_sign: _Couldn't upload recording directly to <#${textChannel.id}>, to enable this give `Attach Files` permissions._"
-          )
-          logger.warn(e) {
-            "Couldn't upload recording: ${file.name}"
-          }
-        }
-      }
+      msgResult = textChannel
+        .sendFile(it, filename)
+        .complete()
     }
 
     return msgResult
