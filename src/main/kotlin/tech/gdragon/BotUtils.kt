@@ -82,6 +82,9 @@ object BotUtils {
                     "no-speak-permission" ->
                       ":no_entry_sign: _${translator.cannotRecord(channel.id, Permission.VOICE_CONNECT.name)}_"
 
+                    "no-attach-files-permission" ->
+                      translator.cannotUpload(defaultChannel!!.id, Permission.MESSAGE_ATTACH_FILES.name)
+
                     "afk-channel" ->
                       ":no_entry_sign: _${translator.afkChannel(channel.id)}_"
 
