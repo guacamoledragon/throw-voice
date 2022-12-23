@@ -330,6 +330,13 @@ object BotUtils {
       "no-speak-permission"
     }
 
+    require(defaultChannel.guild.selfMember.hasPermission(defaultChannel, Permission.MESSAGE_ATTACH_FILES)) {
+      logger.info {
+        "User ${defaultChannel.guild.selfMember.effectiveName} does not have permission to attach files to ${defaultChannel.name}"
+      }
+      "no-attach-files-permission"
+    }
+
     require(channel != channel.guild.afkChannel) {
       "afk-channel"
     }
