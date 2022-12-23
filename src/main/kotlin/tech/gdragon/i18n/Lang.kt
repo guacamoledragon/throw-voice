@@ -206,7 +206,16 @@ class Record(lang: Lang) {
     val permission = permission.replace('_', ' ')
     resource.getString("record.cannot_record").format("**<#$channelId>**", "`$permission`")
   }
+
   val joinChannel: String = resource.getString("record.join_channel")
+
+  fun cannotUpload(channelId: String, permission: String): String {
+    val permission = permission.replace('_', ' ')
+    return """:no_entry_sign: _${
+      resource.getString("record.cannot_upload").format("**<#$channelId>**", "`$permission`")
+    }_"""
+  }
+
   fun recording(channelId: String, session: String): String {
     val recording = resource.getString("record.recording").format("<#$channelId>")
     val warning = resource.getString("record.warning")
@@ -218,6 +227,7 @@ class Record(lang: Lang) {
            |:warning: _${warning}_
            """.trimMargin()
   }
+
   val usage: (String) -> String = { prefix -> resource.getString("record.usage").format(prefix) }
 }
 

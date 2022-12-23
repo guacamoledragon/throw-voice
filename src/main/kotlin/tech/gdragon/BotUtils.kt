@@ -82,6 +82,9 @@ object BotUtils {
                     "no-speak-permission" ->
                       ":no_entry_sign: _${translator.cannotRecord(channel.id, Permission.VOICE_CONNECT.name)}_"
 
+                    "no-attach-files-permission" ->
+                      translator.cannotUpload(defaultChannel!!.id, Permission.MESSAGE_ATTACH_FILES.name)
+
                     "afk-channel" ->
                       ":no_entry_sign: _${translator.afkChannel(channel.id)}_"
 
@@ -330,6 +333,13 @@ object BotUtils {
       "no-speak-permission"
     }
 
+    require(defaultChannel.guild.selfMember.hasPermission(defaultChannel, Permission.MESSAGE_ATTACH_FILES)) {
+      logger.info {
+        "User ${defaultChannel.guild.selfMember.effectiveName} does not have permission to attach files to ${defaultChannel.name}"
+      }
+      "no-attach-files-permission"
+    }
+
     require(channel != channel.guild.afkChannel) {
       "afk-channel"
     }
@@ -403,21 +413,9 @@ object BotUtils {
     var msgResult: Message? = null
 
     FileInputStream(file).use {
-      try {
-        msgResult = textChannel
-          .sendFile(it, filename)
-          .complete()
-      } catch (e: InsufficientPermissionException) {
-        withLoggingContext("guild" to textChannel.guild.name, "text-channel" to textChannel.name) {
-          sendMessage(
-            textChannel,
-            ":no_entry_sign: _Couldn't upload recording directly to <#${textChannel.id}>, to enable this give `Attach Files` permissions._"
-          )
-          logger.warn(e) {
-            "Couldn't upload recording: ${file.name}"
-          }
-        }
-      }
+      msgResult = textChannel
+        .sendFile(it, filename)
+        .complete()
     }
 
     return msgResult

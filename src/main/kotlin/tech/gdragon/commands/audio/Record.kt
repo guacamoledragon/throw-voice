@@ -72,6 +72,9 @@ class Record : CommandHandler() {
                 "no-speak-permission" ->
                   ":no_entry_sign: _${translator.cannotRecord(voiceChannel.id, Permission.VOICE_CONNECT.name)}_"
 
+                "no-attach-files-permission" ->
+                  translator.cannotUpload(textChannel!!.id, Permission.MESSAGE_ATTACH_FILES.name)
+
                 "afk-channel" ->
                   ":no_entry_sign: _${translator.afkChannel(voiceChannel.id)}_"
 
