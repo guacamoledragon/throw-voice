@@ -13,7 +13,7 @@
   <properties>
     <exposed.version>0.39.2</exposed.version>
     <jda.version>5.0.0-beta.2</jda.version>
-    <jda-ktx.version>2ea26b869</jda-ktx.version> <!-- https://github.com/MinnDevelopment/jda-ktx/tree/2ea26b869a380cbe79e974ee4b56ab9bd98c59fc -->
+    <jda-ktx.version>0.10.0-beta.1</jda-ktx.version>
     <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
     <kotlin.compiler.jvmTarget>17</kotlin.compiler.jvmTarget>
     <kotlin.version>1.7.10</kotlin.version>
