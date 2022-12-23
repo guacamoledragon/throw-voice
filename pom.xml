@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>tech.gdragon.pawabot</groupId>
   <artifactId>pawa</artifactId>
-  <version>2.10.0</version>
+  <version>2.11.0</version>
   <description>Simple audio recording for Discord</description>
   <scm>
     <connection>scm:git:https://gitlab.com/pawabot/pawa.git</connection>

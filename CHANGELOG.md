@@ -4,9 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [2.11.0] - 2022-12-23
 
 ### Added
+- `/volume` command that works exactly like `!volume`
+- `/save` command that works exactly like `!save`, except that the slash command must reply so it
+  sends a check mark ✔️ 
+- `/stop` command that works exactly like `!stop`
+- `/record` command that works exactly like `!record`
 - `/lang` command that works exactly like `!lang`
 - `/ignore` command that works exactly like `!ignore`
   - Except that you can only ignore one user at time, must run command multiple times
@@ -19,13 +24,15 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 - `kotest` testing library
 
 ### Changed
+- [Pawa Lite] slash commands are now automatically registered upon start
+- Slash commands don't seem to respect permissions, this may be an issue in the current version of
+  JDA, will be updating to the latest version in the coming weeks
 - `autostop` can now accept 0 as the threshold which is equivalent to `off`
 
-### Deprecated
-
 ### Fixed
-
-### Security
+- #44 Recording would get lost if channel didn't have MESSAGE_ATTACH_FILES permissions,
+  now a recording wont start if this permission is missing.
+- #54 No more double AutoStop message
 
 ## [2.10.0] - 2022-07-08
 
@@ -205,7 +212,8 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 ### Fixed
 - Remove recording limits and warnings
 
-[Unreleased]: https://gitlab.com/pawabot/pawa/-/compare/v2.10.0...master
+[Unreleased]: https://gitlab.com/pawabot/pawa/-/compare/v2.11.0...master
+[2.11.0]: https://gitlab.com/pawabot/pawa/-/compare/v2.11.0...v2.10.0
 [2.10.0]: https://gitlab.com/pawabot/pawa/-/compare/v2.9.8...v2.10.0
 [2.9.8]: https://gitlab.com/pawabot/pawa/-/compare/v2.9.7...v2.9.8
 [2.9.7]: https://gitlab.com/pawabot/pawa/-/compare/v2.9.6...v2.9.7
