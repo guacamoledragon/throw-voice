@@ -3,8 +3,8 @@ package tech.gdragon.commands.audio
 import dev.minn.jda.ktx.CoroutineEventListener
 import dev.minn.jda.ktx.interactions.Command
 import dev.minn.jda.ktx.interactions.option
-import net.dv8tion.jda.api.entities.ChannelType
-import net.dv8tion.jda.api.entities.TextChannel
+import net.dv8tion.jda.api.entities.channel.ChannelType
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import tech.gdragon.BotUtils

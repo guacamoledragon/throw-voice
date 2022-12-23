@@ -2,7 +2,7 @@ package tech.gdragon.commands.audio
 
 import dev.minn.jda.ktx.CoroutineEventListener
 import dev.minn.jda.ktx.interactions.Command
-import net.dv8tion.jda.api.entities.TextChannel
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import tech.gdragon.BotUtils

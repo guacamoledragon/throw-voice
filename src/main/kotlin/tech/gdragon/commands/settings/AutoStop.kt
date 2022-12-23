@@ -2,8 +2,8 @@ package tech.gdragon.commands.settings
 
 import dev.minn.jda.ktx.interactions.Command
 import dev.minn.jda.ktx.interactions.option
-import net.dv8tion.jda.api.entities.ChannelType
-import net.dv8tion.jda.api.entities.VoiceChannel
+import net.dv8tion.jda.api.entities.channel.ChannelType
+import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import tech.gdragon.BotUtils
 import tech.gdragon.api.pawa.Pawa
