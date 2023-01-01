@@ -1,6 +1,7 @@
 package tech.gdragon
 
 import com.github.benmanes.caffeine.cache.Caffeine
+import dev.minn.jda.ktx.messages.MessageCreate
 import io.opentelemetry.extension.annotations.WithSpan
 import mu.KotlinLogging
 import mu.withLoggingContext
@@ -12,6 +13,7 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException
+import net.dv8tion.jda.api.utils.FileUpload
 import net.dv8tion.jda.internal.managers.AudioManagerImpl
 import org.jetbrains.exposed.dao.exceptions.EntityNotFoundException
 import org.jetbrains.exposed.dao.id.EntityID
@@ -385,8 +387,12 @@ object BotUtils {
   }
 
   fun sendEmbedMessage(textChannel: MessageChannel, embedMessage: MessageEmbed) {
+    val message = MessageCreate {
+      embeds += embedMessage
+    }
+
     textChannel
-      .sendMessage(embedMessage)
+      .sendMessage(message)
       .queue(
         { m -> logger.debug { "Send message - ${m.contentDisplay}" } },
         { t -> logger.error { "Error sending message - $embedMessage.: ${t.message}" } }
@@ -417,7 +423,7 @@ object BotUtils {
 
     FileInputStream(file).use {
       msgResult = textChannel
-        .sendFile(it, filename)
+        .sendFiles(FileUpload.fromData(it, filename))
         .complete()
     }
 
