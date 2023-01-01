@@ -45,7 +45,7 @@ fun basicTest() {
     SchemaUtils.create(*Tables.allTables)
   }
 
-  val guild = Guild.findOrCreate(333055724198559745L, "Guacamole Dragon", "US West")
+  val guild = Guild.findOrCreate(333055724198559745L, "Guacamole Dragon")
 
   transaction {
     Channel.new(346340766039146506L) {

@@ -18,7 +18,7 @@ class AutoRecord : CommandHandler() {
     withLoggingContext("guild" to channel.guild.name, "text-channel" to channel.name) {
       channel.guild.run {
         transaction {
-          Guild.findOrCreate(idLong, name, region.name)
+          Guild.findOrCreate(idLong, name)
         }
       }.let { guild ->
         asyncTransaction {

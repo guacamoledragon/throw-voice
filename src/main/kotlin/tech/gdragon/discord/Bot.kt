@@ -1,7 +1,6 @@
 package tech.gdragon.discord
 
 import dev.minn.jda.ktx.injectKTX
-import dev.minn.jda.ktx.interactions.updateCommands
 import dev.minn.jda.ktx.onCommand
 import mu.KotlinLogging
 import net.dv8tion.jda.api.JDA
@@ -131,7 +130,7 @@ class Bot(private val token: String, database: Database) {
     logger.info { "Add any missing Guilds to the Database..." }
     shardManager.guilds.forEach {
       transaction {
-        Guild.findOrCreate(it.idLong, it.name, it.region.name)
+        Guild.findOrCreate(it.idLong, it.name)
       }
     }
 

@@ -33,7 +33,7 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
       val guild = event.guild
       asyncTransaction {
         Guild
-          .findOrCreate(guild.idLong, guild.name, guild.region.name)
+          .findOrCreate(guild.idLong, guild.name)
           .also {
             it.active = true
           }
@@ -55,22 +55,6 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
       }
 
       logger.info { "Left server '${event.guild.name}', connected to ${event.jda.guilds.size} guilds." }
-    }
-  }
-
-  override fun onGuildUpdateRegion(event: GuildUpdateRegionEvent) {
-    withLoggingContext("guild" to event.guild.name) {
-      event.run {
-        asyncTransaction {
-          Guild.findOrCreate(guild.idLong, guild.name, event.oldRegion.name)
-            .also {
-              it.region = newRegion.name
-            }
-        }
-        logger.info {
-          "Changed region $oldRegion -> $newRegion"
-        }
-      }
     }
   }
 
