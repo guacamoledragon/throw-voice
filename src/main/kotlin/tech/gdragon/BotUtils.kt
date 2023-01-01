@@ -10,8 +10,8 @@ import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.audio.hooks.ConnectionStatus
 import net.dv8tion.jda.api.entities.*
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
-import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel
+import net.dv8tion.jda.api.entities.channel.unions.AudioChannelUnion
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException
 import net.dv8tion.jda.api.utils.FileUpload
 import net.dv8tion.jda.internal.managers.AudioManagerImpl
@@ -53,7 +53,7 @@ object BotUtils {
   /**
    * AutoRecord voice channel if it meets the auto record criterion
    */
-  fun autoRecord(pawa: Pawa, guild: DiscordGuild, channel: VoiceChannel) {
+  fun autoRecord(pawa: Pawa, guild: DiscordGuild, channel: AudioChannelUnion) {
     val channelMemberCount = voiceChannelSize(channel)
     logger.debug { "Channel member count: $channelMemberCount" }
 
@@ -114,7 +114,7 @@ object BotUtils {
     } ?: false
   }
 
-  fun autoStop(guild: DiscordGuild, channel: VoiceChannel) {
+  fun autoStop(guild: DiscordGuild, channel: AudioChannelUnion) {
     if (guild.audioManager.connectedChannel == channel) {
       val channelMemberCount = voiceChannelSize(channel)
       logger.debug { "${guild.name}#${channel.name} - Channel member count: $channelMemberCount" }
@@ -194,7 +194,7 @@ object BotUtils {
   @WithSpan("Leave Voice Channel")
   @JvmStatic
   fun leaveVoiceChannel(
-    voiceChannel: VoiceChannel,
+    voiceChannel: AudioChannelUnion,
     textChannel: TextChannel?,
     save: Boolean
   ): CombinedAudioRecorderHandler {
@@ -323,7 +323,7 @@ object BotUtils {
    */
   @WithSpan("Record Voice Channel")
   fun recordVoiceChannel(
-    channel: VoiceChannel,
+    channel: AudioChannelUnion,
     defaultChannel: TextChannel? = defaultTextChannel(channel.guild) ?: findPublicChannel(channel.guild)
   ): CombinedAudioRecorderHandler {
     require(defaultChannel != null && defaultChannel.canTalk()) {
@@ -490,5 +490,5 @@ object BotUtils {
   /**
    * Returns the effective size of the voice channel, excluding bots.
    */
-  private fun voiceChannelSize(voiceChannel: VoiceChannel?): Int = voiceChannel?.members?.count() ?: 0
+  private fun voiceChannelSize(voiceChannel: AudioChannelUnion?): Int = voiceChannel?.members?.count() ?: 0
 }
