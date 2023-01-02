@@ -16,7 +16,6 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.java.KoinJavaComponent.getKoin
 import tech.gdragon.api.pawa.Pawa
 import tech.gdragon.commands.CommandHandler
-import tech.gdragon.commands.audio.Clip
 import tech.gdragon.commands.audio.Record
 import tech.gdragon.commands.audio.Save
 import tech.gdragon.commands.audio.Stop
@@ -249,9 +248,6 @@ enum class Command {
   },
   AUTOSTOP {
     override val handler: CommandHandler = AutoStop()
-  },
-  CLIP {
-    override val handler: CommandHandler = Clip()
   },
   HELP {
     override val handler: CommandHandler = Help()
