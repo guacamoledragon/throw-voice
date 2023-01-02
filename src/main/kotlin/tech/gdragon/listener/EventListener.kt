@@ -4,12 +4,12 @@ import io.opentelemetry.api.trace.StatusCode
 import io.opentelemetry.api.trace.Tracer
 import mu.KotlinLogging
 import mu.withLoggingContext
+import net.dv8tion.jda.api.entities.channel.ChannelType
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent
 import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateNicknameEvent
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
-import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import org.koin.core.component.KoinComponent
 import tech.gdragon.BotUtils
@@ -120,7 +120,8 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
     }
   }
 
-  override fun onGuildMessageReceived(event: GuildMessageReceivedEvent) {
+
+  fun onGuildMessageReceived(event: MessageReceivedEvent) {
     val tracer = getKoin().get<Tracer>()
     val span = tracer.spanBuilder("Event Message Received").startSpan()
     span.run {
@@ -178,7 +179,7 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
     span.end()
   }
 
-  override fun onPrivateMessageReceived(event: PrivateMessageReceivedEvent) {
+  private fun onPrivateMessageReceived(event: MessageReceivedEvent) {
     if (event.author.isBot.not()) {
       val message = """
         For more information on ${event.jda.selfUser.asMention}, please visit https://www.pawa.im.
@@ -188,6 +189,14 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
         .channel
         .sendMessage(message)
         .queue()
+    }
+  }
+
+  override fun onMessageReceived(event: MessageReceivedEvent) {
+    when {
+      event.isFromType(ChannelType.PRIVATE) -> onPrivateMessageReceived(event)
+      event.isFromGuild -> onGuildMessageReceived(event)
+      else -> super.onMessageReceived(event)
     }
   }
 
