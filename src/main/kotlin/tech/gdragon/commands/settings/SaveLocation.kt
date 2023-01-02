@@ -24,10 +24,12 @@ class SaveLocation : CommandHandler() {
         asyncTransaction { settings.defaultTextChannel = null }
         ":file_folder: _${translator.current}_"
       }
+
       channel.canTalk() -> {
         asyncTransaction { settings.defaultTextChannel = channel.idLong }
         ":file_folder: _${translator.channel(channel.asMention)}_"
       }
+
       else -> ":no_entry_sign: _${translator.permissions(channel.asMention)}_"
     }
   }
@@ -47,7 +49,7 @@ class SaveLocation : CommandHandler() {
     }
 
     val message = when {
-      args.isEmpty() -> setSaveLocation(guildId, event.channel, translator)
+      args.isEmpty() -> setSaveLocation(guildId, event.channel.asTextChannel(), translator)
       args.first() == "off" -> setSaveLocation(guildId, null, translator)
       else -> {
         val channelName = if (args.first().startsWith("#")) args.first().substring(1) else args.first()
