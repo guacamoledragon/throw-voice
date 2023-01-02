@@ -42,13 +42,13 @@ class Bot(private val token: String, database: Database) {
   companion object {
     val PERMISSIONS = listOf(
       Permission.MESSAGE_ATTACH_FILES,
-      Permission.MESSAGE_READ,
-      Permission.MESSAGE_WRITE,
+      Permission.MESSAGE_SEND,
       Permission.NICKNAME_CHANGE,
+      Permission.USE_APPLICATION_COMMANDS,
+      Permission.VIEW_CHANNEL,
       Permission.VOICE_CONNECT,
       Permission.VOICE_SPEAK,
       Permission.VOICE_USE_VAD,
-      Permission.USE_SLASH_COMMANDS
     )
   }
 
