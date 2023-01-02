@@ -1,9 +1,9 @@
 package tech.gdragon.commands.slash
 
+import dev.minn.jda.ktx.interactions.commands.Command
 import dev.minn.jda.ktx.messages.Embed
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
-import net.dv8tion.jda.api.interactions.commands.build.CommandData
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.api.pawa.Pawa
@@ -16,7 +16,7 @@ import net.dv8tion.jda.api.entities.Guild as DiscordGuild
 
 class Info : CommandHandler() {
   companion object {
-    val command = CommandData("info", "Display information about the bot for this specific server.")
+    val command = Command("info", "Display information about the bot for this specific server.")
 
     fun retrieveInfo(guild: DiscordGuild): MessageEmbed {
       return transaction {
