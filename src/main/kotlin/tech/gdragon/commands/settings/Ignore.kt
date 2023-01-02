@@ -59,7 +59,7 @@ class Ignore : CommandHandler() {
       throw InvalidCommand(::usage, "Incorrect number of arguments: ${args.size}")
     }
 
-    val ignoredUserIds = event.message.mentionedUsers.map(User::getIdLong)
+    val ignoredUserIds = event.message.mentions.users.map(User::getIdLong)
     val message = handler(pawa, event.guild, event.author.idLong, ignoredUserIds)
     BotUtils.sendMessage(event.channel, message)
   }
