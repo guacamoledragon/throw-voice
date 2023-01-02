@@ -1,8 +1,8 @@
 package tech.gdragon.commands.settings
 
-import dev.minn.jda.ktx.interactions.Command
-import dev.minn.jda.ktx.interactions.choice
-import dev.minn.jda.ktx.interactions.option
+import dev.minn.jda.ktx.interactions.commands.Command
+import dev.minn.jda.ktx.interactions.commands.choice
+import dev.minn.jda.ktx.interactions.commands.option
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import tech.gdragon.BotUtils
 import tech.gdragon.api.pawa.Pawa

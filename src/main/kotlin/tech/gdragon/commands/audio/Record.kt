@@ -1,14 +1,14 @@
 package tech.gdragon.commands.audio
 
-import dev.minn.jda.ktx.CoroutineEventListener
-import dev.minn.jda.ktx.interactions.Command
-import dev.minn.jda.ktx.interactions.option
+import dev.minn.jda.ktx.events.CoroutineEventListener
+import dev.minn.jda.ktx.interactions.commands.Command
+import dev.minn.jda.ktx.interactions.commands.option
 import mu.withLoggingContext
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.channel.ChannelType
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent
+import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import tech.gdragon.BotUtils
 import tech.gdragon.api.pawa.Pawa
@@ -27,7 +27,7 @@ class Record : CommandHandler() {
       }
     }
 
-    fun slashHandler(pawa: Pawa): suspend CoroutineEventListener.(SlashCommandEvent) -> Unit = { event ->
+    fun slashHandler(pawa: Pawa): suspend CoroutineEventListener.(GenericCommandInteractionEvent) -> Unit = { event ->
       tracer.sendEvent(mapOf("command" to command.name))
 
       event.guild?.let {

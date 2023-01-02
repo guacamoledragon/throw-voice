@@ -1,10 +1,10 @@
 package tech.gdragon.commands.settings
 
-import dev.minn.jda.ktx.CoroutineEventListener
-import dev.minn.jda.ktx.interactions.Command
-import dev.minn.jda.ktx.interactions.option
+import dev.minn.jda.ktx.events.CoroutineEventListener
+import dev.minn.jda.ktx.interactions.commands.Command
+import dev.minn.jda.ktx.interactions.commands.option
 import net.dv8tion.jda.api.entities.User
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent
+import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import tech.gdragon.BotUtils
 import tech.gdragon.api.pawa.Pawa
@@ -22,7 +22,7 @@ class Ignore : CommandHandler() {
       option<User>("user", "The user to ignore", true)
     }
 
-    fun slashHandler(pawa: Pawa): suspend CoroutineEventListener.(SlashCommandEvent) -> Unit = { event ->
+    fun slashHandler(pawa: Pawa): suspend CoroutineEventListener.(GenericCommandInteractionEvent) -> Unit = { event ->
       tracer.sendEvent(mapOf("command" to command.name))
 
       event.guild?.let {

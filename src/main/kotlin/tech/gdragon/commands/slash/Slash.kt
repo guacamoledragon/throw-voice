@@ -1,7 +1,5 @@
 package tech.gdragon.commands.slash
 
-import dev.minn.jda.ktx.interactions.updateCommands
-import dev.minn.jda.ktx.ref
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import tech.gdragon.BotUtils
 import tech.gdragon.api.pawa.Pawa
@@ -22,7 +20,7 @@ class Slash : CommandHandler() {
 
     val action = args.firstOrNull()
     val sendMessage = { msg: () -> String ->
-      val channel by event.channel.ref()
+      val channel = event.channel
       BotUtils.sendMessage(channel, msg())
     }
 
@@ -39,8 +37,9 @@ class Slash : CommandHandler() {
           }
         }
 
-        "add" -> it.updateCommands {
-          addCommands(
+        "add" -> it.updateCommands().
+        also { commands ->
+          commands.addCommands(
             Alias.command,
             AutoStop.command,
             AutoSave.command,

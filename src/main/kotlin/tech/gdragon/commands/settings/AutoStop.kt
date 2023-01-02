@@ -1,7 +1,7 @@
 package tech.gdragon.commands.settings
 
-import dev.minn.jda.ktx.interactions.Command
-import dev.minn.jda.ktx.interactions.option
+import dev.minn.jda.ktx.interactions.commands.Command
+import dev.minn.jda.ktx.interactions.commands.option
 import net.dv8tion.jda.api.entities.channel.ChannelType
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent

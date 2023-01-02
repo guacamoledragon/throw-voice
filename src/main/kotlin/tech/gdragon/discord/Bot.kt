@@ -1,7 +1,7 @@
 package tech.gdragon.discord
 
-import dev.minn.jda.ktx.injectKTX
-import dev.minn.jda.ktx.onCommand
+import dev.minn.jda.ktx.events.onCommand
+import dev.minn.jda.ktx.jdabuilder.injectKTX
 import mu.KotlinLogging
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.Permission
@@ -164,7 +164,7 @@ class Bot(private val token: String, database: Database) {
       onCommand(AutoStop.command.name) { event ->
         if (event.isFromGuild) {
           event.guild?.let { guild ->
-            val channel = event.getOption("channel")?.asGuildChannel
+            val channel = event.getOption("channel")?.asChannel?.asTextChannel()
             val threshold = event.getOption("threshold")?.asLong ?: 0
             val translator: AutoStopTranslator = pawa.translator(guild.idLong)
 
@@ -184,8 +184,8 @@ class Bot(private val token: String, database: Database) {
         }
       }
 
-      onCommand(AutoSave.command.name, AutoSave.slashHandler(pawa))
-      onCommand(Ignore.command.name, Ignore.slashHandler(pawa))
+      onCommand(AutoSave.command.name, consumer = AutoSave.slashHandler(pawa))
+      onCommand(Ignore.command.name, consumer = Ignore.slashHandler(pawa))
       onCommand(Info.command.name) { event ->
         tracer.sendEvent(mapOf("command" to Command.INFO))
         if (event.isFromGuild) {
@@ -200,18 +200,19 @@ class Bot(private val token: String, database: Database) {
             .queue()
         }
       }
-      onCommand(Language.command.name, Language.slashHandler(pawa))
-      onCommand(Record.command.name, Record.slashHandler(pawa))
-      onCommand(Stop.command.name, Stop.slashHandler(pawa))
-      onCommand(Save.command.name, Save.slashHandler(pawa))
-      onCommand(Volume.command.name, Volume.slashHandler(pawa))
+      onCommand(Language.command.name, consumer = Language.slashHandler(pawa))
+      onCommand(Record.command.name, consumer = Record.slashHandler(pawa))
+      onCommand(Stop.command.name, consumer = Stop.slashHandler(pawa))
+      onCommand(Save.command.name, consumer = Save.slashHandler(pawa))
+      onCommand(Volume.command.name, consumer = Volume.slashHandler(pawa))
     }
   }
 
   private fun updateSlashCommands() {
     api()
-      .updateCommands {
-        addCommands(
+      .updateCommands()
+      .also {
+        it.addCommands(
           Alias.command,
           AutoStop.command,
           AutoSave.command,

@@ -1,6 +1,6 @@
 package tech.gdragon.commands.slash
 
-import dev.minn.jda.ktx.Embed
+import dev.minn.jda.ktx.messages.Embed
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.interactions.commands.build.CommandData
