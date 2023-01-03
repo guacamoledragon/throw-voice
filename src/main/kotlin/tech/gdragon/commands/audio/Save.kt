@@ -39,9 +39,9 @@ class Save : CommandHandler() {
       tracer.sendEvent(mapOf("command" to command.name))
       event.guild?.let {
         val channel = try {
-          val guildChannel = event.getOption("channel")?.asChannel?.asTextChannel() ?: event.messageChannel
+          val guildChannel = event.getOption("channel")?.asChannel?.asGuildMessageChannel() ?: event.messageChannel
           require(guildChannel.canTalk())
-          guildChannel
+          event.jda.getTextChannelById(guildChannel.idLong)
         } catch (_: Exception) {
           // This will happen if the event is triggered from a Voice Channel chat
           // Source: https://support.discord.com/hc/en-us/articles/4412085582359-Text-Channels-Text-Chat-In-Voice-Channels#h_01FMJT3SP072ZFJCZWR0EW6CJ1
@@ -63,7 +63,7 @@ class Save : CommandHandler() {
 
     val translator: SaveTranslator = pawa.translator(event.guild.idLong)
     val message = if (args.isEmpty()) {
-      handler(pawa, event.guild, event.channel)
+      handler(pawa, event.guild, event.channel.asTextChannel())
     } else {
       val channelName = if (args.first().startsWith("#")) args.first().substring(1) else args.first()
       val channels = event.guild.getTextChannelsByName(channelName, true)

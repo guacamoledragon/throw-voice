@@ -19,7 +19,7 @@ class Volume : CommandHandler() {
     const val MAX_VOLUME = 100L
 
     val command = Command("volume", "Set the recording volume.") {
-      option<Int>("volume", "The recording volume in percent from 1-100.", required = true) {
+      option<Long>("volume", "The recording volume in percent from 1-100.", required = true) {
         setMinValue(1)
         setMaxValue(MAX_VOLUME)
       }
@@ -35,7 +35,7 @@ class Volume : CommandHandler() {
     }
 
     fun slashHandler(pawa: Pawa): suspend CoroutineEventListener.(GenericCommandInteractionEvent) -> Unit = { event ->
-      tracer.sendEvent(mapOf("command" to command))
+      tracer.sendEvent(mapOf("command" to command.name))
       event.guild?.let {
         val volume = event.getOption("volume")?.asLong!!
         val message = handler(pawa, it, volume)

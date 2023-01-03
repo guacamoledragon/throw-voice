@@ -18,6 +18,7 @@ import net.dv8tion.jda.api.audio.AudioReceiveHandler
 import net.dv8tion.jda.api.audio.CombinedAudio
 import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
+import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel
 import net.dv8tion.jda.api.entities.channel.unions.AudioChannelUnion
 import org.apache.commons.io.FileUtils
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -71,7 +72,7 @@ data class RecordingQueue(val fileBuffer: File) : QueueFile(fileBuffer)
 
 class CombinedAudioRecorderHandler(
   var volume: Double,
-  val voiceChannel: AudioChannelUnion,
+  val voiceChannel: AudioChannel,
   val defaultChannel: TextChannel
 ) : AudioReceiveHandler, KoinComponent {
   companion object {
@@ -247,7 +248,7 @@ class CombinedAudioRecorderHandler(
   }
 
   fun saveRecording(
-    voiceChannel: AudioChannelUnion?,
+    voiceChannel: AudioChannel?,
     textChannel: TextChannel,
     resumeRecording: Boolean = true
   ): Pair<Recording?, Semaphore> {
@@ -336,7 +337,7 @@ class CombinedAudioRecorderHandler(
     return Pair(recording, recordingLock)
   }
 
-  private fun uploadRecording(recording: File, voiceChannel: AudioChannelUnion?, channel: TextChannel) {
+  private fun uploadRecording(recording: File, voiceChannel: AudioChannel?, channel: TextChannel) {
     if (recording.length() <= 0) {
       val message = ":no_entry_sign: _Recording is empty, not uploading._"
       BotUtils.sendMessage(channel, message)

@@ -36,7 +36,7 @@ class Stop : CommandHandler() {
 
       event.guild?.let {
         val textChannel = try {
-          event.textChannel
+          event.guild?.getTextChannelById(event.messageChannel.idLong)
         } catch (_: Exception) {
           // This will happen if the event is triggered from a Voice Channel chat
           // Source: https://support.discord.com/hc/en-us/articles/4412085582359-Text-Channels-Text-Chat-In-Voice-Channels#h_01FMJT3SP072ZFJCZWR0EW6CJ1
@@ -54,7 +54,7 @@ class Stop : CommandHandler() {
       throw InvalidCommand(::usage, "Incorrect number of arguments: ${args.size}")
     }
 
-    val message = handler(pawa, event.guild, event.channel)
+    val message = handler(pawa, event.guild, event.channel.asTextChannel())
     BotUtils.sendMessage(event.channel, message)
   }
 

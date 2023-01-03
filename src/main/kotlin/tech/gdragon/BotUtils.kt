@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.audio.hooks.ConnectionStatus
 import net.dv8tion.jda.api.entities.*
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
+import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel
 import net.dv8tion.jda.api.entities.channel.unions.AudioChannelUnion
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException
@@ -194,7 +195,7 @@ object BotUtils {
   @WithSpan("Leave Voice Channel")
   @JvmStatic
   fun leaveVoiceChannel(
-    voiceChannel: AudioChannelUnion,
+    voiceChannel: AudioChannel,
     textChannel: TextChannel?,
     save: Boolean
   ): CombinedAudioRecorderHandler {
@@ -323,7 +324,7 @@ object BotUtils {
    */
   @WithSpan("Record Voice Channel")
   fun recordVoiceChannel(
-    channel: AudioChannelUnion,
+    channel: AudioChannel,
     defaultChannel: TextChannel? = defaultTextChannel(channel.guild) ?: findPublicChannel(channel.guild)
   ): CombinedAudioRecorderHandler {
     require(defaultChannel != null && defaultChannel.canTalk()) {

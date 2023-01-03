@@ -164,7 +164,7 @@ class Bot(private val token: String, database: Database) {
       onCommand(AutoStop.command.name) { event ->
         if (event.isFromGuild) {
           event.guild?.let { guild ->
-            val channel = event.getOption("channel")?.asChannel?.asTextChannel()
+            val channel = event.getOption("channel")?.asChannel?.asAudioChannel()
             val threshold = event.getOption("threshold")?.asLong ?: 0
             val translator: AutoStopTranslator = pawa.translator(guild.idLong)
 
