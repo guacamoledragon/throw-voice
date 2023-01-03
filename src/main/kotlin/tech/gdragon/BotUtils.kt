@@ -1,6 +1,7 @@
 package tech.gdragon
 
 import com.github.benmanes.caffeine.cache.Caffeine
+import dev.minn.jda.ktx.messages.MessageCreate
 import io.opentelemetry.extension.annotations.WithSpan
 import mu.KotlinLogging
 import mu.withLoggingContext
@@ -8,7 +9,12 @@ import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.audio.hooks.ConnectionStatus
 import net.dv8tion.jda.api.entities.*
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
+import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel
+import net.dv8tion.jda.api.entities.channel.unions.AudioChannelUnion
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException
+import net.dv8tion.jda.api.utils.FileUpload
 import net.dv8tion.jda.internal.managers.AudioManagerImpl
 import org.jetbrains.exposed.dao.exceptions.EntityNotFoundException
 import org.jetbrains.exposed.dao.id.EntityID
@@ -48,7 +54,7 @@ object BotUtils {
   /**
    * AutoRecord voice channel if it meets the auto record criterion
    */
-  fun autoRecord(pawa: Pawa, guild: DiscordGuild, channel: VoiceChannel) {
+  fun autoRecord(pawa: Pawa, guild: DiscordGuild, channel: AudioChannelUnion) {
     val channelMemberCount = voiceChannelSize(channel)
     logger.debug { "Channel member count: $channelMemberCount" }
 
@@ -109,7 +115,7 @@ object BotUtils {
     } ?: false
   }
 
-  fun autoStop(guild: DiscordGuild, channel: VoiceChannel) {
+  fun autoStop(guild: DiscordGuild, channel: AudioChannelUnion) {
     if (guild.audioManager.connectedChannel == channel) {
       val channelMemberCount = voiceChannelSize(channel)
       logger.debug { "${guild.name}#${channel.name} - Channel member count: $channelMemberCount" }
@@ -164,7 +170,7 @@ object BotUtils {
         logger.debug { "Cache Miss! Obtaining prefix for $idLong" }
         // HACK: Create settings for a guild that needs to be accessed. This is a problem when restarting bot.
         // TODO: On bot initialization, I should be able to check which Guilds the bot is connected to and purge/add respectively
-        val prefix = Guild.findOrCreate(idLong, name, region.name).settings.prefix
+        val prefix = Guild.findOrCreate(idLong, name).settings.prefix
         guildCache.put(idLong, prefix)
         prefix
       }
@@ -189,7 +195,7 @@ object BotUtils {
   @WithSpan("Leave Voice Channel")
   @JvmStatic
   fun leaveVoiceChannel(
-    voiceChannel: VoiceChannel,
+    voiceChannel: AudioChannel,
     textChannel: TextChannel?,
     save: Boolean
   ): CombinedAudioRecorderHandler {
@@ -318,7 +324,7 @@ object BotUtils {
    */
   @WithSpan("Record Voice Channel")
   fun recordVoiceChannel(
-    channel: VoiceChannel,
+    channel: AudioChannel,
     defaultChannel: TextChannel? = defaultTextChannel(channel.guild) ?: findPublicChannel(channel.guild)
   ): CombinedAudioRecorderHandler {
     require(defaultChannel != null && defaultChannel.canTalk()) {
@@ -382,8 +388,12 @@ object BotUtils {
   }
 
   fun sendEmbedMessage(textChannel: MessageChannel, embedMessage: MessageEmbed) {
+    val message = MessageCreate {
+      embeds += embedMessage
+    }
+
     textChannel
-      .sendMessage(embedMessage)
+      .sendMessage(message)
       .queue(
         { m -> logger.debug { "Send message - ${m.contentDisplay}" } },
         { t -> logger.error { "Error sending message - $embedMessage.: ${t.message}" } }
@@ -414,7 +424,7 @@ object BotUtils {
 
     FileInputStream(file).use {
       msgResult = textChannel
-        .sendFile(it, filename)
+        .sendFiles(FileUpload.fromData(it, filename))
         .complete()
     }
 
@@ -481,5 +491,5 @@ object BotUtils {
   /**
    * Returns the effective size of the voice channel, excluding bots.
    */
-  private fun voiceChannelSize(voiceChannel: VoiceChannel?): Int = voiceChannel?.members?.count() ?: 0
+  private fun voiceChannelSize(voiceChannel: AudioChannelUnion?): Int = voiceChannel?.members?.count() ?: 0
 }

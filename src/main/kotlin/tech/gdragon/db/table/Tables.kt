@@ -16,7 +16,7 @@ object Tables {
   object Guilds : LongIdTable() {
     val active = bool("active").default(true)
     val name = text("name")
-    val region = text("region")
+    val region = text("region").default("UNKNOWN")
     val createdOn = timestamp("created_on").clientDefault(::now)
     val lastActiveOn = timestamp("last_active_on").clientDefault(::now)
   }

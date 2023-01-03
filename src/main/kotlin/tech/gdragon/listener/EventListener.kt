@@ -4,15 +4,12 @@ import io.opentelemetry.api.trace.StatusCode
 import io.opentelemetry.api.trace.Tracer
 import mu.KotlinLogging
 import mu.withLoggingContext
+import net.dv8tion.jda.api.entities.channel.ChannelType
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent
 import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateNicknameEvent
-import net.dv8tion.jda.api.events.guild.update.GuildUpdateRegionEvent
-import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent
-import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent
-import net.dv8tion.jda.api.events.guild.voice.GuildVoiceMoveEvent
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
-import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent
+import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import org.koin.core.component.KoinComponent
 import tech.gdragon.BotUtils
@@ -33,7 +30,7 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
       val guild = event.guild
       asyncTransaction {
         Guild
-          .findOrCreate(guild.idLong, guild.name, guild.region.name)
+          .findOrCreate(guild.idLong, guild.name)
           .also {
             it.active = true
           }
@@ -58,71 +55,73 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
     }
   }
 
-  override fun onGuildUpdateRegion(event: GuildUpdateRegionEvent) {
-    withLoggingContext("guild" to event.guild.name) {
-      event.run {
-        asyncTransaction {
-          Guild.findOrCreate(guild.idLong, guild.name, event.oldRegion.name)
-            .also {
-              it.region = newRegion.name
-            }
-        }
-        logger.info {
-          "Changed region $oldRegion -> $newRegion"
-        }
-      }
-    }
-  }
-
-  override fun onGuildVoiceJoin(event: GuildVoiceJoinEvent) {
+  fun onGuildVoiceJoin(event: GuildVoiceUpdateEvent) {
     withLoggingContext("guild" to event.guild.name) {
       val user = event.member.user
-      logger.debug { "${event.guild.name}#${event.channelJoined.name} - ${user.name} joined voice channel" }
+      event.channelJoined?.let { voiceChannel ->
+        logger.debug { "${event.guild.name}#${voiceChannel.name} - ${user.name} joined voice channel" }
 
-      if (BotUtils.isSelfBot(user)) {
-        logger.debug { "${event.guild.name}#${event.channelJoined.name} - ${user.name} is self-bot" }
-        return
-      }
+        if (BotUtils.isSelfBot(user)) {
+          logger.debug { "${event.guild.name}#${voiceChannel.name} - ${user.name} is self-bot" }
+          return
+        }
 
-      // Update activity
-      BotUtils.updateActivity(event.guild)
+        // Update activity
+        BotUtils.updateActivity(event.guild)
 
-      if (standalone) {
-        BotUtils.autoRecord(pawa, event.guild, event.channelJoined)
-      }
-    }
-  }
-
-  override fun onGuildVoiceLeave(event: GuildVoiceLeaveEvent) {
-    withLoggingContext("guild" to event.guild.name) {
-      logger.debug {
-        "${event.guild.name}#${event.channelLeft.name} - ${event.member.effectiveName} left voice channel"
-      }
-      if (BotUtils.isSelfBot(event.member.user).not()) {
-        BotUtils.autoStop(event.guild, event.channelLeft)
-      }
-    }
-  }
-
-  override fun onGuildVoiceMove(event: GuildVoiceMoveEvent) {
-    withLoggingContext("guild" to event.guild.name) {
-      val user = event.member.user
-      logger.debug { "${event.guild.name}#${event.channelLeft.name} - ${user.name} left voice channel" }
-      logger.debug { "${event.guild.name}#${event.channelJoined.name} - ${user.name} joined voice channel" }
-
-      // Update activity
-      BotUtils.updateActivity(event.guild)
-
-      if (BotUtils.isSelfBot(user).not()) {
-        BotUtils.autoStop(event.guild, event.channelLeft)
         if (standalone) {
-          BotUtils.autoRecord(pawa, event.guild, event.channelJoined)
+          BotUtils.autoRecord(pawa, event.guild, voiceChannel)
         }
       }
     }
   }
 
-  override fun onGuildMessageReceived(event: GuildMessageReceivedEvent) {
+  fun onGuildVoiceLeave(event: GuildVoiceUpdateEvent) {
+    withLoggingContext("guild" to event.guild.name) {
+      event.channelLeft?.let { voiceChannel ->
+        logger.debug {
+          "${event.guild.name}#${voiceChannel.name} - ${event.member.effectiveName} left voice channel"
+        }
+        if (BotUtils.isSelfBot(event.member.user).not()) {
+          BotUtils.autoStop(event.guild, voiceChannel)
+        }
+      }
+    }
+  }
+
+  fun onGuildVoiceMove(event: GuildVoiceUpdateEvent) {
+    withLoggingContext("guild" to event.guild.name) {
+      val user = event.member.user
+      val voiceChannelJoined = event.channelJoined
+      val voiceChannelLeft = event.channelLeft
+      if (voiceChannelJoined != null && voiceChannelLeft != null) {
+        logger.debug { "${event.guild.name}#${voiceChannelLeft.name} - ${user.name} left voice channel" }
+        logger.debug { "${event.guild.name}#${voiceChannelJoined.name} - ${user.name} joined voice channel" }
+
+        // Update activity
+        BotUtils.updateActivity(event.guild)
+
+        if (BotUtils.isSelfBot(user).not()) {
+          BotUtils.autoStop(event.guild, voiceChannelLeft)
+          if (standalone) {
+            BotUtils.autoRecord(pawa, event.guild, voiceChannelJoined)
+          }
+        }
+      }
+    }
+  }
+
+  override fun onGuildVoiceUpdate(event: GuildVoiceUpdateEvent) {
+    when {
+      event.channelLeft == null -> onGuildVoiceJoin(event)
+      event.channelLeft != null && event.channelJoined == null -> onGuildVoiceLeave(event)
+      event.channelLeft != null && event.channelJoined != null -> onGuildVoiceMove(event)
+      else -> super.onGuildVoiceUpdate(event)
+    }
+  }
+
+
+  fun onGuildMessageReceived(event: MessageReceivedEvent) {
     val tracer = getKoin().get<Tracer>()
     val span = tracer.spanBuilder("Event Message Received").startSpan()
     span.run {
@@ -180,7 +179,7 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
     span.end()
   }
 
-  override fun onPrivateMessageReceived(event: PrivateMessageReceivedEvent) {
+  private fun onPrivateMessageReceived(event: MessageReceivedEvent) {
     if (event.author.isBot.not()) {
       val message = """
         For more information on ${event.jda.selfUser.asMention}, please visit https://www.pawa.im.
@@ -190,6 +189,14 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
         .channel
         .sendMessage(message)
         .queue()
+    }
+  }
+
+  override fun onMessageReceived(event: MessageReceivedEvent) {
+    when {
+      event.isFromType(ChannelType.PRIVATE) -> onPrivateMessageReceived(event)
+      event.isFromGuild -> onGuildMessageReceived(event)
+      else -> super.onMessageReceived(event)
     }
   }
 

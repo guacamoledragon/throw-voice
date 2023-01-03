@@ -4,7 +4,7 @@ import io.opentelemetry.api.trace.Span
 import io.opentelemetry.api.trace.Tracer
 import io.opentelemetry.context.Context
 import mu.KotlinLogging
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.java.KoinJavaComponent.getKoin
 import tech.gdragon.api.pawa.Pawa
@@ -30,7 +30,7 @@ abstract class CommandHandler {
   }
 
   @Throws(InvalidCommand::class)
-  abstract fun action(args: Array<String>, event: GuildMessageReceivedEvent, pawa: Pawa)
+  abstract fun action(args: Array<String>, event: MessageReceivedEvent, pawa: Pawa)
 
   abstract fun usage(prefix: String, lang: Lang = Lang.EN): String
   abstract fun description(lang: Lang = Lang.EN): String
@@ -39,7 +39,7 @@ abstract class CommandHandler {
 data class InvalidCommand(val usage: (String) -> String, val reason: String) : Throwable()
 
 @Throws(InvalidCommand::class)
-fun handleCommand(parentSpan: Span, event: GuildMessageReceivedEvent, pawa: Pawa, prefix: String, rawInput: String) {
+fun handleCommand(parentSpan: Span, event: MessageReceivedEvent, pawa: Pawa, prefix: String, rawInput: String) {
   val tokens = rawInput.substring(prefix.length).split(" ")
   val rawCommand = tokens.first()
   val args = tokens.drop(1).toTypedArray()

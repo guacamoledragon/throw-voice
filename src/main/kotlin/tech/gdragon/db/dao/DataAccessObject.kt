@@ -71,10 +71,9 @@ class Guild(id: EntityID<Long>) : LongEntity(id) {
   companion object : LongEntityClass<Guild>(Guilds) {
 
     @JvmStatic
-    fun findOrCreate(id: Long, name: String, region: String): Guild {
+    fun findOrCreate(id: Long, name: String): Guild {
       return Guild.findById(id) ?: Guild.new(id) {
         this.name = name
-        this.region = region
       }.also { guild ->
         // Please ensure Guild is created before proceeding
         exposedLogger.info("Creating Guild database entry for: ${guild.name}")
@@ -89,7 +88,6 @@ class Guild(id: EntityID<Long>) : LongEntity(id) {
   val createdOn by Guilds.createdOn
   var name by Guilds.name
   var lastActiveOn by Guilds.lastActiveOn
-  var region by Guilds.region
   val settings by Settings backReferencedOn SettingsTable.guild
 }
 

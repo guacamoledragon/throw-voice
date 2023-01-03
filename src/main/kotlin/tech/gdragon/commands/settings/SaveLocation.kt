@@ -1,7 +1,7 @@
 package tech.gdragon.commands.settings
 
-import net.dv8tion.jda.api.entities.TextChannel
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.BotUtils
 import tech.gdragon.api.pawa.Pawa
@@ -24,15 +24,17 @@ class SaveLocation : CommandHandler() {
         asyncTransaction { settings.defaultTextChannel = null }
         ":file_folder: _${translator.current}_"
       }
+
       channel.canTalk() -> {
         asyncTransaction { settings.defaultTextChannel = channel.idLong }
         ":file_folder: _${translator.channel(channel.asMention)}_"
       }
+
       else -> ":no_entry_sign: _${translator.permissions(channel.asMention)}_"
     }
   }
 
-  override fun action(args: Array<String>, event: GuildMessageReceivedEvent, pawa: Pawa) {
+  override fun action(args: Array<String>, event: MessageReceivedEvent, pawa: Pawa) {
     require(args.size in 0..1) {
       throw InvalidCommand(::usage, "Incorrect number of arguments: ${args.size}")
     }
@@ -47,7 +49,7 @@ class SaveLocation : CommandHandler() {
     }
 
     val message = when {
-      args.isEmpty() -> setSaveLocation(guildId, event.channel, translator)
+      args.isEmpty() -> setSaveLocation(guildId, event.channel.asTextChannel(), translator)
       args.first() == "off" -> setSaveLocation(guildId, null, translator)
       else -> {
         val channelName = if (args.first().startsWith("#")) args.first().substring(1) else args.first()

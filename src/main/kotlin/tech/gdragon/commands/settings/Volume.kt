@@ -1,10 +1,10 @@
 package tech.gdragon.commands.settings
 
-import dev.minn.jda.ktx.CoroutineEventListener
-import dev.minn.jda.ktx.interactions.Command
-import dev.minn.jda.ktx.interactions.option
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
+import dev.minn.jda.ktx.events.CoroutineEventListener
+import dev.minn.jda.ktx.interactions.commands.Command
+import dev.minn.jda.ktx.interactions.commands.option
+import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import tech.gdragon.BotUtils
 import tech.gdragon.api.pawa.Pawa
 import tech.gdragon.commands.CommandHandler
@@ -19,7 +19,7 @@ class Volume : CommandHandler() {
     const val MAX_VOLUME = 100L
 
     val command = Command("volume", "Set the recording volume.") {
-      option<Int>("volume", "The recording volume in percent from 1-100.", required = true) {
+      option<Long>("volume", "The recording volume in percent from 1-100.", required = true) {
         setMinValue(1)
         setMaxValue(MAX_VOLUME)
       }
@@ -34,8 +34,8 @@ class Volume : CommandHandler() {
       return ":loud_sound: _${translator.recording(volume.toString())}_"
     }
 
-    fun slashHandler(pawa: Pawa): suspend CoroutineEventListener.(SlashCommandEvent) -> Unit = { event ->
-      tracer.sendEvent(mapOf("command" to command))
+    fun slashHandler(pawa: Pawa): suspend CoroutineEventListener.(GenericCommandInteractionEvent) -> Unit = { event ->
+      tracer.sendEvent(mapOf("command" to command.name))
       event.guild?.let {
         val volume = event.getOption("volume")?.asLong!!
         val message = handler(pawa, it, volume)
@@ -44,7 +44,7 @@ class Volume : CommandHandler() {
     }
   }
 
-  override fun action(args: Array<String>, event: GuildMessageReceivedEvent, pawa: Pawa) {
+  override fun action(args: Array<String>, event: MessageReceivedEvent, pawa: Pawa) {
     require(args.size == 1) {
       throw InvalidCommand(::usage, "Incorrect number of arguments: ${args.size}")
     }

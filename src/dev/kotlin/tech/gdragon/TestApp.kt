@@ -2,10 +2,6 @@ package tech.gdragon
 
 import de.sciss.jump3r.lowlevel.LameEncoder
 import net.dv8tion.jda.api.audio.AudioReceiveHandler
-import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent
-import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent
-import net.dv8tion.jda.api.hooks.ListenerAdapter
-import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder
 import org.apache.commons.io.FileUtils
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -49,7 +45,7 @@ fun basicTest() {
     SchemaUtils.create(*Tables.allTables)
   }
 
-  val guild = Guild.findOrCreate(333055724198559745L, "Guacamole Dragon", "US West")
+  val guild = Guild.findOrCreate(333055724198559745L, "Guacamole Dragon")
 
   transaction {
     Channel.new(346340766039146506L) {
@@ -61,40 +57,6 @@ fun basicTest() {
   val aliases: List<Alias> = transaction { guild.settings.aliases.toList() }
 
   aliases.forEach { println("${it.name} -> ${it.alias}") }
-}
-
-fun testBiggestChannel() {
-//  initializeDatabase("settings.db")
-  DefaultShardManagerBuilder
-    .createDefault(System.getenv("TOKEN"))
-    .addEventListeners(object : ListenerAdapter() {
-      override fun onGuildVoiceJoin(event: GuildVoiceJoinEvent) {
-        println("event.guild = ${event.guild}")
-        println("Joined ${event.channelJoined}")
-//        println("Largest channel: ${BotUtils.biggestChannel(event.guild)}")
-        super.onGuildVoiceJoin(event)
-      }
-
-      override fun onGuildVoiceLeave(event: GuildVoiceLeaveEvent) {
-        println("Leaving ${event.channelLeft}")
-        super.onGuildVoiceLeave(event)
-      }
-    })
-    .build()
-}
-
-fun testAlerts() {
-//  initializeDatabase("settings.db")
-  DefaultShardManagerBuilder
-    .createDefault(System.getenv("TOKEN"))
-    .addEventListeners(object : ListenerAdapter() {
-      override fun onGuildVoiceJoin(event: GuildVoiceJoinEvent) {
-        println("Sending alerts to users that joined ${event.channelJoined}.")
-        BotUtils.sendMessage(null, "")
-        super.onGuildVoiceJoin(event)
-      }
-    })
-    .build()
 }
 
 fun testAutoJoin() {

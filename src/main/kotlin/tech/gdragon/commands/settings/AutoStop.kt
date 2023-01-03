@@ -1,10 +1,10 @@
 package tech.gdragon.commands.settings
 
-import dev.minn.jda.ktx.interactions.Command
-import dev.minn.jda.ktx.interactions.option
-import net.dv8tion.jda.api.entities.ChannelType
-import net.dv8tion.jda.api.entities.VoiceChannel
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
+import dev.minn.jda.ktx.interactions.commands.Command
+import dev.minn.jda.ktx.interactions.commands.option
+import net.dv8tion.jda.api.entities.channel.ChannelType
+import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import tech.gdragon.BotUtils
 import tech.gdragon.api.pawa.Pawa
 import tech.gdragon.commands.CommandHandler
@@ -25,7 +25,7 @@ class AutoStop : CommandHandler() {
     }
   }
 
-  override fun action(args: Array<String>, event: GuildMessageReceivedEvent, pawa: Pawa) {
+  override fun action(args: Array<String>, event: MessageReceivedEvent, pawa: Pawa) {
     require(args.size >= 2) {
       throw InvalidCommand(::usage, "Incorrect number of arguments: ${args.size}")
     }

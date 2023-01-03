@@ -46,7 +46,7 @@ class PawaTest : FunSpec() {
     db = EmbeddedDatabase("./target")
     pawa = Pawa(1L, db, false)
     transaction(db.database) {
-      Guild.findOrCreate(guildId, "Test Guild", "US")
+      Guild.findOrCreate(guildId, "Test Guild")
     }
     super.beforeSpec(spec)
   }

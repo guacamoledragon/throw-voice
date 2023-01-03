@@ -1,9 +1,9 @@
 package tech.gdragon.commands.settings
 
-import dev.minn.jda.ktx.CoroutineEventListener
-import dev.minn.jda.ktx.interactions.Command
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
+import dev.minn.jda.ktx.events.CoroutineEventListener
+import dev.minn.jda.ktx.interactions.commands.Command
+import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import tech.gdragon.BotUtils
 import tech.gdragon.api.pawa.Pawa
 import tech.gdragon.commands.CommandHandler
@@ -16,7 +16,7 @@ class AutoSave : CommandHandler() {
   companion object {
     val command = Command("autosave", "Toggle setting to save all recordings automatically.")
 
-    fun slashHandler(pawa: Pawa): suspend CoroutineEventListener.(SlashCommandEvent) -> Unit = { event ->
+    fun slashHandler(pawa: Pawa): suspend CoroutineEventListener.(GenericCommandInteractionEvent) -> Unit = { event ->
       event.guild?.let { guild ->
         event.reply(handler(pawa, guild.idLong)).queue()
       }
@@ -36,7 +36,7 @@ class AutoSave : CommandHandler() {
     }
   }
 
-  override fun action(args: Array<String>, event: GuildMessageReceivedEvent, pawa: Pawa) {
+  override fun action(args: Array<String>, event: MessageReceivedEvent, pawa: Pawa) {
     require(args.isEmpty()) {
       throw InvalidCommand(::usage, "Incorrect number of arguments: ${args.size}")
     }

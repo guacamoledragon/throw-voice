@@ -1,6 +1,6 @@
 package tech.gdragon.commands.settings
 
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.BotUtils
 import tech.gdragon.api.pawa.Pawa
@@ -11,7 +11,7 @@ import tech.gdragon.i18n.Babel
 import tech.gdragon.i18n.Lang
 
 class Prefix : CommandHandler() {
-  override fun action(args: Array<String>, event: GuildMessageReceivedEvent, pawa: Pawa) {
+  override fun action(args: Array<String>, event: MessageReceivedEvent, pawa: Pawa) {
     require(args.size == 1) {
       throw InvalidCommand(::usage, "Incorrect number of arguments: ${args.size}")
     }

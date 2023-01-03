@@ -16,9 +16,10 @@ import mu.KotlinLogging
 import mu.withLoggingContext
 import net.dv8tion.jda.api.audio.AudioReceiveHandler
 import net.dv8tion.jda.api.audio.CombinedAudio
-import net.dv8tion.jda.api.entities.TextChannel
 import net.dv8tion.jda.api.entities.User
-import net.dv8tion.jda.api.entities.VoiceChannel
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
+import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel
+import net.dv8tion.jda.api.entities.channel.unions.AudioChannelUnion
 import org.apache.commons.io.FileUtils
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.component.KoinComponent
@@ -71,7 +72,7 @@ data class RecordingQueue(val fileBuffer: File) : QueueFile(fileBuffer)
 
 class CombinedAudioRecorderHandler(
   var volume: Double,
-  val voiceChannel: VoiceChannel,
+  val voiceChannel: AudioChannel,
   val defaultChannel: TextChannel
 ) : AudioReceiveHandler, KoinComponent {
   companion object {
@@ -247,7 +248,7 @@ class CombinedAudioRecorderHandler(
   }
 
   fun saveRecording(
-    voiceChannel: VoiceChannel?,
+    voiceChannel: AudioChannel?,
     textChannel: TextChannel,
     resumeRecording: Boolean = true
   ): Pair<Recording?, Semaphore> {
@@ -336,52 +337,7 @@ class CombinedAudioRecorderHandler(
     return Pair(recording, recordingLock)
   }
 
-  fun saveClip(seconds: Long, voiceChannel: VoiceChannel?, channel: TextChannel) {
-    /*
-    // Stop recording so that we can copy Queue File
-    canReceive = false
-
-    val path = Paths.get(queueFilename)
-    val clipPath = Paths.get("$dataDirectory/recordings/clip-${UUID.randomUUID()}.queue")
-
-    // Copy the original Queue File so that we can resume receiving audio
-    Files.copy(path, clipPath, StandardCopyOption.REPLACE_EXISTING)
-    canReceive = true
-
-    val queueFile = QueueFile(clipPath.toFile())
-    val filenameExtension = if (pcmMode) "pcm" else "mp3"
-    val recording = File(clipPath.toString().replace("queue", filenameExtension))
-    var clipRecordingSize = recordingSize.toLong()
-
-    // Reduce the queue size until it's just over the expected clip size
-    while (clipRecordingSize - queueFile.peek().size > BYTES_PER_SECOND * seconds) {
-      queueFile.remove()
-      clipRecordingSize -= queueFile.peek().size
-    }
-
-    FileOutputStream(recording).use {
-      queueFile.apply {
-        forEach { stream, _ ->
-          stream.transferTo(it)
-        }
-
-        close()
-        Files.delete(clipPath)
-      }
-    }
-
-    val recordingSizeInMB = FileUtils.byteCountToDisplaySize(recording.length())
-    logger.info {
-      "Saving audio clip ${recording.name} - $recordingSizeInMB."
-    }
-
-    withLoggingContext("session-id" to session) {
-      uploadRecording(recording, voiceChannel, channel)
-    }
-    */
-  }
-
-  private fun uploadRecording(recording: File, voiceChannel: VoiceChannel?, channel: TextChannel) {
+  private fun uploadRecording(recording: File, voiceChannel: AudioChannel?, channel: TextChannel) {
     if (recording.length() <= 0) {
       val message = ":no_entry_sign: _Recording is empty, not uploading._"
       BotUtils.sendMessage(channel, message)

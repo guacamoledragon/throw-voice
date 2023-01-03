@@ -1,8 +1,8 @@
 package tech.gdragon.commands.settings
 
 import mu.withLoggingContext
-import net.dv8tion.jda.api.entities.GuildChannel
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
+import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.BotUtils
 import tech.gdragon.api.pawa.Pawa
@@ -18,7 +18,7 @@ class AutoRecord : CommandHandler() {
     withLoggingContext("guild" to channel.guild.name, "text-channel" to channel.name) {
       channel.guild.run {
         transaction {
-          Guild.findOrCreate(idLong, name, region.name)
+          Guild.findOrCreate(idLong, name)
         }
       }.let { guild ->
         asyncTransaction {
@@ -35,7 +35,7 @@ class AutoRecord : CommandHandler() {
    * channel is disabled.
    * TODO: Minor optimization, delete rows that have the defaults
    */
-  override fun action(args: Array<String>, event: GuildMessageReceivedEvent, pawa: Pawa) {
+  override fun action(args: Array<String>, event: MessageReceivedEvent, pawa: Pawa) {
     require(standalone) {
       BotUtils.sendMessage(
         event.channel,

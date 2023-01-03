@@ -1,15 +1,16 @@
 package tech.gdragon.commands.audio
 
-import dev.minn.jda.ktx.CoroutineEventListener
-import dev.minn.jda.ktx.interactions.Command
-import dev.minn.jda.ktx.interactions.option
+import dev.minn.jda.ktx.events.CoroutineEventListener
+import dev.minn.jda.ktx.interactions.commands.Command
+import dev.minn.jda.ktx.interactions.commands.option
 import mu.withLoggingContext
 import net.dv8tion.jda.api.Permission
-import net.dv8tion.jda.api.entities.ChannelType
-import net.dv8tion.jda.api.entities.TextChannel
-import net.dv8tion.jda.api.entities.VoiceChannel
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
+import net.dv8tion.jda.api.entities.channel.ChannelType
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
+import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel
+import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel
+import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import tech.gdragon.BotUtils
 import tech.gdragon.api.pawa.Pawa
 import tech.gdragon.commands.CommandHandler
@@ -27,17 +28,17 @@ class Record : CommandHandler() {
       }
     }
 
-    fun slashHandler(pawa: Pawa): suspend CoroutineEventListener.(SlashCommandEvent) -> Unit = { event ->
+    fun slashHandler(pawa: Pawa): suspend CoroutineEventListener.(GenericCommandInteractionEvent) -> Unit = { event ->
       tracer.sendEvent(mapOf("command" to command.name))
 
       event.guild?.let {
-        val selectedChannel = event.getOption("channel")?.asGuildChannel as VoiceChannel?
-        val voiceChannel: VoiceChannel? = if (pawa.isStandalone && selectedChannel != null) {
+        val selectedChannel = event.getOption("channel")?.asChannel?.asAudioChannel()
+        val voiceChannel: AudioChannel? = if (pawa.isStandalone && selectedChannel != null) {
           selectedChannel
         } else null ?: event.member?.voiceState?.channel
 
         val textChannel = try {
-          event.textChannel
+          event.jda.getTextChannelById(event.messageChannel.idLong)
         } catch (_: Exception) {
           // This will happen if the event is triggered from a Voice Channel chat
           // Source: https://support.discord.com/hc/en-us/articles/4412085582359-Text-Channels-Text-Chat-In-Voice-Channels#h_01FMJT3SP072ZFJCZWR0EW6CJ1
@@ -49,7 +50,7 @@ class Record : CommandHandler() {
       }
     }
 
-    fun handler(pawa: Pawa, guild: DiscordGuild, voiceChannel: VoiceChannel?, textChannel: TextChannel?): String {
+    fun handler(pawa: Pawa, guild: DiscordGuild, voiceChannel: AudioChannel?, textChannel: TextChannel?): String {
       val translator: RecordTranslator = pawa.translator(guild.idLong)
       return when {
         voiceChannel == null -> ":no_entry_sign: _${translator.joinChannel}_"
@@ -59,7 +60,11 @@ class Record : CommandHandler() {
         }
 
         else -> {
-          withLoggingContext("guild" to guild.name, "voice-channel" to voiceChannel.name, "text-channel" to textChannel?.name) {
+          withLoggingContext(
+            "guild" to guild.name,
+            "voice-channel" to voiceChannel.name,
+            "text-channel" to textChannel?.name
+          ) {
             try {
               val recorder = BotUtils.recordVoiceChannel(voiceChannel, textChannel)
               pawa.startRecording(recorder.session, guild.idLong)
@@ -88,19 +93,22 @@ class Record : CommandHandler() {
     }
   }
 
-  override fun action(args: Array<String>, event: GuildMessageReceivedEvent, pawa: Pawa) {
+  override fun action(args: Array<String>, event: MessageReceivedEvent, pawa: Pawa) {
     require(pawa.isStandalone || args.isEmpty()) {
       throw InvalidCommand(::usage, "Incorrect number of arguments: ${args.size}")
     }
 
-    val voiceChannel: VoiceChannel? = if (pawa.isStandalone && args.isNotEmpty()) {
+    val voiceChannel: AudioChannel? = if (pawa.isStandalone && args.isNotEmpty()) {
       val channelName = args.joinToString(separator = " ")
       event.jda
         .getVoiceChannelsByName(channelName, false)
         .firstOrNull()
+        ?: event.jda
+          .getStageChannelsByName(channelName, false)
+          .firstOrNull()
     } else null ?: event.member?.voiceState?.channel
 
-    val message = handler(pawa, event.guild, voiceChannel, event.channel)
+    val message = handler(pawa, event.guild, voiceChannel, event.channel.asTextChannel())
     BotUtils.sendMessage(event.channel, message)
   }
 

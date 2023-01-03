@@ -1,8 +1,6 @@
 package tech.gdragon.commands.slash
 
-import dev.minn.jda.ktx.interactions.updateCommands
-import dev.minn.jda.ktx.ref
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import tech.gdragon.BotUtils
 import tech.gdragon.api.pawa.Pawa
 import tech.gdragon.commands.CommandHandler
@@ -15,14 +13,14 @@ import tech.gdragon.discord.Bot
 import tech.gdragon.i18n.Lang
 
 class Slash : CommandHandler() {
-  override fun action(args: Array<String>, event: GuildMessageReceivedEvent, pawa: Pawa) {
+  override fun action(args: Array<String>, event: MessageReceivedEvent, pawa: Pawa) {
     require(standalone || BotUtils.trigoman == event.author.idLong) {
       throw InvalidCommand({ "Command can only be used by server admins." }, "Unauthorized use.")
     }
 
     val action = args.firstOrNull()
     val sendMessage = { msg: () -> String ->
-      val channel by event.channel.ref()
+      val channel = event.channel
       BotUtils.sendMessage(channel, msg())
     }
 
@@ -39,8 +37,9 @@ class Slash : CommandHandler() {
           }
         }
 
-        "add" -> it.updateCommands {
-          addCommands(
+        "add" -> it.updateCommands().
+        also { commands ->
+          commands.addCommands(
             Alias.command,
             AutoStop.command,
             AutoSave.command,

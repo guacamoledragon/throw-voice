@@ -1,10 +1,10 @@
 package tech.gdragon.commands.audio
 
-import dev.minn.jda.ktx.CoroutineEventListener
-import dev.minn.jda.ktx.interactions.Command
-import net.dv8tion.jda.api.entities.TextChannel
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
+import dev.minn.jda.ktx.events.CoroutineEventListener
+import dev.minn.jda.ktx.interactions.commands.Command
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
+import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import tech.gdragon.BotUtils
 import tech.gdragon.api.pawa.Pawa
 import tech.gdragon.commands.CommandHandler
@@ -31,12 +31,12 @@ class Stop : CommandHandler() {
       }
     }
 
-    fun slashHandler(pawa: Pawa): suspend CoroutineEventListener.(SlashCommandEvent) -> Unit = { event ->
+    fun slashHandler(pawa: Pawa): suspend CoroutineEventListener.(GenericCommandInteractionEvent) -> Unit = { event ->
       tracer.sendEvent(mapOf("command" to command.name))
 
       event.guild?.let {
         val textChannel = try {
-          event.textChannel
+          event.guild?.getTextChannelById(event.messageChannel.idLong)
         } catch (_: Exception) {
           // This will happen if the event is triggered from a Voice Channel chat
           // Source: https://support.discord.com/hc/en-us/articles/4412085582359-Text-Channels-Text-Chat-In-Voice-Channels#h_01FMJT3SP072ZFJCZWR0EW6CJ1
@@ -49,12 +49,12 @@ class Stop : CommandHandler() {
     }
   }
 
-  override fun action(args: Array<String>, event: GuildMessageReceivedEvent, pawa: Pawa) {
+  override fun action(args: Array<String>, event: MessageReceivedEvent, pawa: Pawa) {
     require(args.isEmpty()) {
       throw InvalidCommand(::usage, "Incorrect number of arguments: ${args.size}")
     }
 
-    val message = handler(pawa, event.guild, event.channel)
+    val message = handler(pawa, event.guild, event.channel.asTextChannel())
     BotUtils.sendMessage(event.channel, message)
   }
 
