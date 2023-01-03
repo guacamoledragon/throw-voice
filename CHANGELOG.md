@@ -4,6 +4,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+
+### Changed
+- Update JDA 4 -> [JDA 5 Beta 2](https://github.com/DV8FromTheWorld/JDA/releases/tag/v5.0.0-beta.2)
+  - This was massive change, and will be testing it before updating [Pawa Lite]
+- Update [jda-ktx](https://github.com/MinnDevelopment/jda-ktx/releases/tag/0.10.0-beta.1)
+
+### Deprecated
+
+
+### Removed
+- `clip` command is now gone from the codebase
+  - This command was supposed to extract a short section from the current recording but I could never get the
+    implementation quite right, so decided to remove it.
+
+
+### Fixed
+
+
+### Security
+
+
 ## [2.11.0] - 2022-12-23
 
 ### Added
