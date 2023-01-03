@@ -67,10 +67,23 @@ class Bot(private val token: String, database: Database) {
 
   init {
     try {
+      val intents = listOf(
+        GatewayIntent.GUILD_MESSAGES,
+        GatewayIntent.GUILD_VOICE_STATES,
+        GatewayIntent.MESSAGE_CONTENT,
+      )
+      val disabledCache = listOf(
+        CacheFlag.ACTIVITY,
+        CacheFlag.CLIENT_STATUS,
+        CacheFlag.EMOJI,
+        CacheFlag.ONLINE_STATUS,
+        CacheFlag.SCHEDULED_EVENTS,
+        CacheFlag.STICKER,
+      )
       // create shard manager
       shardManager = DefaultShardManagerBuilder
-        .create(token, GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_VOICE_STATES)
-        .disableCache(CacheFlag.ACTIVITY, CacheFlag.EMOJI, CacheFlag.CLIENT_STATUS, CacheFlag.ONLINE_STATUS)
+        .create(token, intents)
+        .disableCache(disabledCache)
         .setChunkingFilter(ChunkingFilter.NONE)
         .setMemberCachePolicy(MemberCachePolicy.VOICE)
         .injectKTX()
