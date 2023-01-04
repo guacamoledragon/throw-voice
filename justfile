@@ -10,7 +10,7 @@ package-h2-script:
   mvn -Pdev,h2-script package
 
 package-pawa-lite:
-  mvn -Plite package
+  mvn -Plite clean package
 
 # Generate a backup of the Settings table on an instance of PostgresQL
 pg-backup password='password' port='5432':
