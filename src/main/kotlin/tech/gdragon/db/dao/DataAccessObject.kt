@@ -86,6 +86,7 @@ class Guild(id: EntityID<Long>) : LongEntity(id) {
 
   var active by Guilds.active
   val createdOn by Guilds.createdOn
+  var unjoinedOn by Guilds.unjoinedOn
   var name by Guilds.name
   var lastActiveOn by Guilds.lastActiveOn
   val settings by Settings backReferencedOn SettingsTable.guild

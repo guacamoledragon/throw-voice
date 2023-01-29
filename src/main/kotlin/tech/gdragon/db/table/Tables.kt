@@ -18,6 +18,7 @@ object Tables {
     val name = text("name")
     val region = text("region").default("UNKNOWN")
     val createdOn = timestamp("created_on").clientDefault(::now)
+    val unjoinedOn = timestamp("unjoined_on").nullable()
     val lastActiveOn = timestamp("last_active_on").clientDefault(::now)
   }
 
