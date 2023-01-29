@@ -53,3 +53,4 @@ local-db
 .clj-kondo
 .lsp
 agent.jar
+.DS_Store
