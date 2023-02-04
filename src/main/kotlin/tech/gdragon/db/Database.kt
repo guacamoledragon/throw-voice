@@ -21,39 +21,51 @@ interface Database {
   fun migrate(): MigrateResult
 }
 
-class EmbeddedDatabase(dataDirectory: String) : Database {
+/**
+ * Creates a container for an embedded H2 database.
+ *
+ * @param url The JDBC URL of the database. eg. "jdbc:h2:file:./settings.db"
+ */
+class EmbeddedDatabase(private val url: String) : Database {
   val logger = KotlinLogging.logger { }
   private var _database: ExposedDatabase? = null
   override val database = _database
 
-  init {
-    val dbPath = "$dataDirectory/embedded-database"
-    Path(dbPath).createDirectories()
-    val url = "jdbc:h2:file:$dbPath/settings.db"
+  override fun connect() {
+    if (_database != null) {
+      return
+    }
+    _database = ExposedDatabase.connect(url, "org.h2.Driver")
+  }
+
+  override fun migrate(): MigrateResult {
+    require(_database != null) {
+      "Database not initialized"
+    }
+
+    val url = _database?.url
+
     logger.info {
       "Starting database migration: $url"
     }
+
     val flyway = Flyway.configure()
       .dataSource(url, "", "")
       .baselineOnMigrate(true)
       .locations("h2")
       .load()
 
-    flyway
-      .migrate()
-      .migrations
-      .forEach { migration ->
-        logger.info {
-          "Performed migration step: ${migration.description}"
+    val result = flyway.migrate().also {
+      it
+        .migrations
+        .forEach { migration ->
+          logger.info {
+            "Performed migration step: ${migration.description}"
+          }
         }
-      }
-  override fun connect() {
-    TODO("Not yet implemented")
-  }
+    }
 
-    _database = ExposedDatabase.connect(url, "org.h2.Driver")
-  override fun migrate(): MigrateResult {
-    TODO("Not yet implemented")
+    return result
   }
 }
 

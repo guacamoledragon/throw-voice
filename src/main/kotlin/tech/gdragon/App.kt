@@ -33,6 +33,8 @@ import java.nio.file.Paths
 import java.time.Duration
 import java.util.*
 import kotlin.concurrent.scheduleAtFixedRate
+import kotlin.io.path.Path
+import kotlin.io.path.createDirectories
 
 object App {
   val logger = KotlinLogging.logger { }
@@ -66,8 +68,17 @@ object App {
       val databaseModule = module {
         single<Database>(createdAtStart = true) {
           logger.info("Creating Database Module")
-          if (getProperty<String>("BOT_STANDALONE").toBoolean())
-            EmbeddedDatabase(getProperty("BOT_DATA_DIR", "./"))
+          if (getProperty<String>("BOT_STANDALONE").toBoolean()) {
+            val dataDirectory = getProperty("BOT_DATA_DIR", "./")
+            val dbPath = "$dataDirectory/embedded-database"
+            Path(dbPath).createDirectories()
+            val url = "jdbc:h2:file:$dbPath/settings.db"
+
+            EmbeddedDatabase(url).apply {
+              connect()
+              migrate()
+            }
+          }
           else
             RemoteDatabase(
               getProperty("DB_NAME"),
