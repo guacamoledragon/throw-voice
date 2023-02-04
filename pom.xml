@@ -16,8 +16,8 @@
     <jda-ktx.version>0.10.0-beta.1</jda-ktx.version>
     <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
     <kotlin.compiler.jvmTarget>17</kotlin.compiler.jvmTarget>
-    <kotlin.version>1.7.10</kotlin.version>
-    <kotlin-test.version>5.4.2</kotlin-test.version>
+    <kotlin.version>1.8.10</kotlin.version>
+    <kotest.version>5.5.4</kotest.version>
     <main.class>tech.gdragon.App</main.class>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <slf4j.version>2.0.0-alpha2</slf4j.version>
@@ -233,13 +233,13 @@
     <dependency>
       <groupId>io.kotest</groupId>
       <artifactId>kotest-runner-junit5-jvm</artifactId>
-      <version>${kotlin-test.version}</version>
+      <version>${kotest.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>io.kotest</groupId>
       <artifactId>kotest-assertions-core-jvm</artifactId>
-      <version>${kotlin-test.version}</version>
+      <version>${kotest.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
