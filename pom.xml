@@ -245,6 +245,8 @@
   </dependencies>
 
   <build>
+    <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
+    <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
     <plugins>
       <plugin>
         <artifactId>kotlin-maven-plugin</artifactId>
@@ -261,9 +263,6 @@
               <args>
                 <arg>-Xuse-ir</arg>
               </args>
-              <sourceDirs>
-                <source>src/main/kotlin</source>
-              </sourceDirs>
             </configuration>
           </execution>
           <execution>
@@ -276,9 +275,6 @@
               <args>
                 <arg>-Xuse-ir</arg>
               </args>
-              <sourceDirs>
-                <sourceDir>src/test/kotlin</sourceDir>
-              </sourceDirs>
             </configuration>
           </execution>
         </executions>
