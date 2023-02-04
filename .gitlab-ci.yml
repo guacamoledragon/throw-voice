@@ -13,6 +13,8 @@ build:
       - Dockerfile
       - pom.xml
       - src/main/**/*
+  services:
+    - docker:20.10.17-dind
   script:
     - mvn --batch-mode de.qaware.maven:go-offline-maven-plugin:resolve-dependencies
     - mvn --batch-mode test
