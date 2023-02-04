@@ -5,6 +5,7 @@ import org.flywaydb.core.Flyway
 import org.flywaydb.core.api.output.MigrateResult
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.joda.time.DateTimeZone
+import org.koin.dsl.module
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 import org.jetbrains.exposed.sql.Database as ExposedDatabase
@@ -84,6 +85,30 @@ class RemoteDatabase(database: String?, hostname: String?, username: String?, pa
   init {
     // Ensure that Joda Time deals with time as UTC
     DateTimeZone.setDefault(DateTimeZone.UTC)
-    _database = ExposedDatabase.connect("jdbc:postgresql://$hostname/$database", "org.postgresql.Driver", username!!, password!!)
+    _database =
+      ExposedDatabase.connect("jdbc:postgresql://$hostname/$database", "org.postgresql.Driver", username!!, password!!)
+  }
+}
+
+val databaseModule = module {
+  single<Database>(createdAtStart = true) {
+    logger.info("Creating Database Module")
+    if (getProperty<String>("BOT_STANDALONE").toBoolean()) {
+      val dataDirectory = getProperty("BOT_DATA_DIR", "./")
+      val dbPath = "$dataDirectory/embedded-database"
+      Path(dbPath).createDirectories()
+      val url = "jdbc:h2:file:$dbPath/settings.db"
+
+      EmbeddedDatabase(url).apply {
+        connect()
+        migrate()
+      }
+    } else
+      RemoteDatabase(
+        getProperty("DB_NAME"),
+        getProperty("DB_HOST"),
+        getProperty("DB_USER"),
+        getProperty("DB_PASSWORD")
+      )
   }
 }

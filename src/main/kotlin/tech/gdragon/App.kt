@@ -17,8 +17,6 @@ import tech.gdragon.data.Datastore
 import tech.gdragon.data.LocalDatastore
 import tech.gdragon.data.RemoteDatastore
 import tech.gdragon.db.Database
-import tech.gdragon.db.EmbeddedDatabase
-import tech.gdragon.db.RemoteDatabase
 import tech.gdragon.discord.Bot
 import tech.gdragon.koin.getBooleanProperty
 import tech.gdragon.koin.getStringProperty
@@ -33,8 +31,6 @@ import java.nio.file.Paths
 import java.time.Duration
 import java.util.*
 import kotlin.concurrent.scheduleAtFixedRate
-import kotlin.io.path.Path
-import kotlin.io.path.createDirectories
 
 object App {
   val logger = KotlinLogging.logger { }
@@ -65,29 +61,6 @@ object App {
       }
         ?: if (koin.logger.isAt(Level.INFO)) koin.logger.info("No override file provided. Please set OVERRIDE_FILE environment variable if desired.")
 
-      val databaseModule = module {
-        single<Database>(createdAtStart = true) {
-          logger.info("Creating Database Module")
-          if (getProperty<String>("BOT_STANDALONE").toBoolean()) {
-            val dataDirectory = getProperty("BOT_DATA_DIR", "./")
-            val dbPath = "$dataDirectory/embedded-database"
-            Path(dbPath).createDirectories()
-            val url = "jdbc:h2:file:$dbPath/settings.db"
-
-            EmbeddedDatabase(url).apply {
-              connect()
-              migrate()
-            }
-          }
-          else
-            RemoteDatabase(
-              getProperty("DB_NAME"),
-              getProperty("DB_HOST"),
-              getProperty("DB_USER"),
-              getProperty("DB_PASSWORD")
-            )
-        }
-      }
       val datastoreModule = module {
         single<Datastore>(createdAtStart = true) {
           val bucketName = getProperty<String>("DS_BUCKET")
@@ -126,7 +99,7 @@ object App {
         }
       }
       val modules = listOf(
-        databaseModule,
+        tech.gdragon.db.databaseModule,
         module {
           single { Bot(getProperty("BOT_TOKEN"), get()) }
         },
