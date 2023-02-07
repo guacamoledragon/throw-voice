@@ -11,7 +11,7 @@ COPY src src
 ARG BUILD_DATE
 ARG VCS_REF
 ARG VERSION
-RUN mvn -B -Dversion="${VERSION}" -Dtimestamp="${BUILD_DATE}" -Drevision="${VCS_REF}" package
+RUN mvn -B -Dversion="${VERSION}" -Dtimestamp="${BUILD_DATE}" -Drevision="${VCS_REF}" package -DskipTests
 
 FROM curlimages/curl:latest as deps
 
