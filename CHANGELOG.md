@@ -7,12 +7,20 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 ## [Unreleased]
 
 ### Added
+- Database migration tests
+  - Not a feature, but will let us make changes to the database more often.
+- Add testcontainers dependencies, this makes it straightforward to run database tests
 
 
 ### Changed
 - Update JDA 4 -> [JDA 5 Beta 2](https://github.com/DV8FromTheWorld/JDA/releases/tag/v5.0.0-beta.2)
   - This was massive change, and will be testing it before updating [Pawa Lite]
 - Update [jda-ktx](https://github.com/MinnDevelopment/jda-ktx/releases/tag/0.10.0-beta.1)
+- Update the following dependencies:
+  - Bump kotlin.version 1.7.10 -> 1.8.10
+  - Bump kotest.version 5.4.2 -> 5.5.4
+  - Bump flyway-core 9.3.0 -> 9.14.1
+
 
 ### Deprecated
 
