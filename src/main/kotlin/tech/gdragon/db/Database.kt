@@ -70,23 +70,39 @@ class EmbeddedDatabase(private val url: String) : Database {
   }
 }
 
-class RemoteDatabase(database: String?, hostname: String?, username: String?, password: String?) : Database {
+class RemoteDatabase(val url: String, private val username: String, private val password: String) : Database {
   private var _database: ExposedDatabase? = null
   override val database = _database
 
+//  private val url = "jdbc:postgresql://$hostname/$url"
+
   override fun connect() {
-    TODO("Not yet implemented")
-  }
+    if (_database != null) {
+      return
+    }
 
-  override fun migrate(): MigrateResult {
-    TODO("Not yet implemented")
-  }
-
-  init {
     // Ensure that Joda Time deals with time as UTC
     DateTimeZone.setDefault(DateTimeZone.UTC)
     _database =
-      ExposedDatabase.connect("jdbc:postgresql://$hostname/$database", "org.postgresql.Driver", username!!, password!!)
+      ExposedDatabase.connect(url, "org.postgresql.Driver", username, password)
+  }
+
+  override fun migrate(): MigrateResult {
+    require(_database != null) {
+      "Database not initialized"
+    }
+
+    logger.info {
+      "Starting database migration: $url"
+    }
+
+    val flyway = Flyway.configure()
+      .dataSource(url, username, password)
+      .baselineOnMigrate(true)
+      .locations("filesystem:./sql/common", "filesystem:./sql/postgres")
+      .load()
+
+    return flyway.migrate()
   }
 }
 
@@ -103,12 +119,18 @@ val databaseModule = module {
         connect()
         migrate()
       }
-    } else
+    } else {
+      val host: String = getProperty("DB_HOST")
+      val dbName: String = getProperty("DB_NAME")
+      val url = "jdbc:postgresql://$host/$dbName"
+
       RemoteDatabase(
-        getProperty("DB_NAME"),
-        getProperty("DB_HOST"),
+        url,
         getProperty("DB_USER"),
         getProperty("DB_PASSWORD")
-      )
+      ).apply {
+        connect()
+      }
+    }
   }
 }
