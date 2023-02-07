@@ -16,8 +16,8 @@
     <jda-ktx.version>0.10.0-beta.1</jda-ktx.version>
     <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
     <kotlin.compiler.jvmTarget>17</kotlin.compiler.jvmTarget>
-    <kotlin.version>1.7.10</kotlin.version>
-    <kotlin-test.version>5.4.2</kotlin-test.version>
+    <kotlin.version>1.8.10</kotlin.version>
+    <kotest.version>5.5.4</kotest.version>
     <main.class>tech.gdragon.App</main.class>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <slf4j.version>2.0.0-alpha2</slf4j.version>
@@ -146,7 +146,7 @@
     <dependency>
       <groupId>org.flywaydb</groupId>
       <artifactId>flyway-core</artifactId>
-      <version>9.3.0</version>
+      <version>9.14.1</version>
     </dependency>
     <dependency>
       <groupId>org.jetbrains.exposed</groupId>
@@ -231,20 +231,34 @@
     </dependency>
 
     <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>testcontainers</artifactId>
+      <version>1.17.6</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>postgresql</artifactId>
+      <version>1.17.6</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>io.kotest</groupId>
       <artifactId>kotest-runner-junit5-jvm</artifactId>
-      <version>${kotlin-test.version}</version>
+      <version>${kotest.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>io.kotest</groupId>
       <artifactId>kotest-assertions-core-jvm</artifactId>
-      <version>${kotlin-test.version}</version>
+      <version>${kotest.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
 
   <build>
+    <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
+    <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
     <plugins>
       <plugin>
         <artifactId>kotlin-maven-plugin</artifactId>
@@ -261,9 +275,6 @@
               <args>
                 <arg>-Xuse-ir</arg>
               </args>
-              <sourceDirs>
-                <source>src/main/kotlin</source>
-              </sourceDirs>
             </configuration>
           </execution>
           <execution>
@@ -276,9 +287,6 @@
               <args>
                 <arg>-Xuse-ir</arg>
               </args>
-              <sourceDirs>
-                <sourceDir>src/test/kotlin</sourceDir>
-              </sourceDirs>
             </configuration>
           </execution>
         </executions>

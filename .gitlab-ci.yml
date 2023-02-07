@@ -13,9 +13,20 @@ build:
       - Dockerfile
       - pom.xml
       - src/main/**/*
+  services:
+    - name: docker:20.10.17-dind
+      command: ["--tls=false"]
   script:
     - mvn --batch-mode de.qaware.maven:go-offline-maven-plugin:resolve-dependencies
     - mvn --batch-mode test
+  variables:
+    TESTCONTAINERS_HOST_OVERRIDE: "host.docker.internal"
+    # Instruct Testcontainers to use the daemon of DinD, use port 2735 for non-tls connections.
+    DOCKER_HOST: "tcp://docker:2375"
+    # Instruct Docker not to start over TLS.
+    DOCKER_TLS_CERTDIR: ""
+    # Improve performance with overlayfs.
+    DOCKER_DRIVER: overlay2
   stage: build
 
 container:

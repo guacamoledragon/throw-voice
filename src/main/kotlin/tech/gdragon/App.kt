@@ -17,8 +17,6 @@ import tech.gdragon.data.Datastore
 import tech.gdragon.data.LocalDatastore
 import tech.gdragon.data.RemoteDatastore
 import tech.gdragon.db.Database
-import tech.gdragon.db.EmbeddedDatabase
-import tech.gdragon.db.RemoteDatabase
 import tech.gdragon.discord.Bot
 import tech.gdragon.koin.getBooleanProperty
 import tech.gdragon.koin.getStringProperty
@@ -58,25 +56,13 @@ object App {
        * If provided, the override file is a properties file that will override anything in the previous configurations.
        * When bundled, this should be where users are expected to interact with the settings.
        */
-      System.getenv("OVERRIDE_FILE")?.let { overrideFile ->
+      val overrideFile = System.getenv("OVERRIDE_FILE")
+      if (overrideFile.isNullOrEmpty() && koin.logger.isAt(Level.INFO)) {
+        koin.logger.info("No override file provided. Please set OVERRIDE_FILE environment variable if desired.")
+      } else {
         overrideFileProperties(overrideFile)
       }
-        ?: if (koin.logger.isAt(Level.INFO)) koin.logger.info("No override file provided. Please set OVERRIDE_FILE environment variable if desired.")
 
-      val databaseModule = module {
-        single<Database>(createdAtStart = true) {
-          logger.info("Creating Database Module")
-          if (getProperty<String>("BOT_STANDALONE").toBoolean())
-            EmbeddedDatabase(getProperty("BOT_DATA_DIR", "./"))
-          else
-            RemoteDatabase(
-              getProperty("DB_NAME"),
-              getProperty("DB_HOST"),
-              getProperty("DB_USER"),
-              getProperty("DB_PASSWORD")
-            )
-        }
-      }
       val datastoreModule = module {
         single<Datastore>(createdAtStart = true) {
           val bucketName = getProperty<String>("DS_BUCKET")
@@ -115,7 +101,7 @@ object App {
         }
       }
       val modules = listOf(
-        databaseModule,
+        tech.gdragon.db.databaseModule,
         module {
           single { Bot(getProperty("BOT_TOKEN"), get()) }
         },
