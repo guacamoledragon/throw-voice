@@ -77,16 +77,17 @@ container:
 coverage:
   image: registry.gitlab.com/haynes/jacoco2cobertura:1.0.9
   cache: {}
+  only:
+    changes: *code-changes
   script:
     # convert report from jacoco to cobertura, using relative project path
     - python /opt/cover2cover.py target/site/jacoco/jacoco.xml $CI_PROJECT_DIR/src/main/kotlin/ > target/site/cobertura.xml
-  needs: [ "test" ]
   artifacts:
     reports:
       coverage_report:
         coverage_format: cobertura
         path: target/site/cobertura.xml
-  stage: build
+  stage: deploy
 
 pages:
   artifacts:
