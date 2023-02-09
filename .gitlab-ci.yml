@@ -6,19 +6,28 @@ variables:
   BOT_VERSION: 2.11.0
   MAVEN_OPTS: -Dmaven.repo.local=.m2/repository
 
-build:
+dependencies:
   image: maven:3.8.6-eclipse-temurin-17-alpine
   only:
     changes: &code-changes
       - Dockerfile
       - pom.xml
       - src/main/**/*
-  services:
-    - name: docker:20.10.17-dind
-      command: ["--tls=false"]
+      - src/test/**/*
+      - sql/**/*
   script:
     - mvn --batch-mode de.qaware.maven:go-offline-maven-plugin:resolve-dependencies
-    - mvn --batch-mode test
+  stage: .pre
+
+test:
+  image: maven:3.8.6-eclipse-temurin-17-alpine
+  only:
+    changes: *code-changes
+  services:
+    - name: docker:20.10.17-dind
+      command: [ "--tls=false" ]
+  script:
+    - mvn --batch-mode org.jacoco:jacoco-maven-plugin:prepare-agent test org.jacoco:jacoco-maven-plugin:report
   variables:
     TESTCONTAINERS_HOST_OVERRIDE: "host.docker.internal"
     # Instruct Testcontainers to use the daemon of DinD, use port 2735 for non-tls connections.
@@ -27,7 +36,10 @@ build:
     DOCKER_TLS_CERTDIR: ""
     # Improve performance with overlayfs.
     DOCKER_DRIVER: overlay2
-  stage: build
+  artifacts:
+    paths:
+      - target/site/jacoco/jacoco.xml
+  stage: test
 
 container:
   image: docker:20.10.17
