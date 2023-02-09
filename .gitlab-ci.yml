@@ -86,7 +86,7 @@ coverage:
       coverage_report:
         coverage_format: cobertura
         path: target/site/cobertura.xml
-  stage: deploy
+  stage: build
 
 pages:
   artifacts:
