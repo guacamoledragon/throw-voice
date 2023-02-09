@@ -17,6 +17,7 @@ import tech.gdragon.api.pawa.Pawa
 import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.commands.handleCommand
 import tech.gdragon.db.asyncTransaction
+import tech.gdragon.db.now
 import tech.gdragon.db.dao.Guild
 
 class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
@@ -48,10 +49,11 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
           .findById(event.guild.idLong)
           ?.let {
             it.active = false
+            it.unjoinedOn = now()
           }
       }
 
-      logger.info { "Left server '${event.guild.name}', connected to ${event.jda.guilds.size} guilds." }
+      logger.info { "Server '${event.guild.name}' unjoined, connected to ${event.jda.guilds.size} guilds." }
     }
   }
 
