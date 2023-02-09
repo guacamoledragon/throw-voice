@@ -28,6 +28,8 @@ test:
       command: [ "--tls=false" ]
   script:
     - mvn --batch-mode org.jacoco:jacoco-maven-plugin:prepare-agent test org.jacoco:jacoco-maven-plugin:report
+    - awk -F"," '{ instructions += $4 + $5; covered += $5 } END { print "Total", 100*covered/instructions, "%" }' target/site/jacoco/jacoco.csv
+  coverage: '/Total (\d+.\d+) %/'
   variables:
     TESTCONTAINERS_HOST_OVERRIDE: "host.docker.internal"
     # Instruct Testcontainers to use the daemon of DinD, use port 2735 for non-tls connections.
