@@ -408,6 +408,13 @@ class CombinedAudioRecorderHandler(
             url = attachment?.proxyUrl ?: "Discord Only"
           }
         }
+
+        val recordingUrl = "$appUrl/v1/recordings?guild=${voiceChannel?.guild?.idLong}&session-id=$session"
+        val message = """|:microphone2: **Recording for <#${voiceChannel?.id}> has been uploaded!**
+                         |$recordingUrl
+                         |""".trimMargin()
+
+        BotUtils.sendMessage(channel, message)
         cleanup(recording)
       }
     }
