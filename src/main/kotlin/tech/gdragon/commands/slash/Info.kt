@@ -21,7 +21,7 @@ class Info : CommandHandler() {
     fun retrieveInfo(guild: DiscordGuild): MessageEmbed {
       return transaction {
         val prefix = Guild[guild.idLong].settings.prefix
-        val dateJoined = Guild[guild.idLong].createdOn
+        val dateJoined = Guild[guild.idLong].joinedOn
         val recordingCount = Recordings.select { Recordings.guild eq guild.idLong }.count().toString()
 
         Embed {
