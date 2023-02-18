@@ -13,10 +13,17 @@ object Recover {
   }
 
   fun slashHandler(pawa: Pawa): suspend CoroutineEventListener.(GenericCommandInteractionEvent) -> Unit = { event ->
-    println("Do nothing.")
+    val sessionId = event.getOption<String>("session-id")!!
+    val result = pawa.recoverRecording(sessionId)
+
+    val message = if (result.error == null) {
+      result.url
+    } else {
+      "Not Found."
+    }
 
     event
-      .reply(event.getOption<String>("session-id")!!)
+      .reply(message)
       .queue()
   }
 }
