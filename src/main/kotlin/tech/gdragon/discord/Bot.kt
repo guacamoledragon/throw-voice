@@ -31,6 +31,8 @@ import tech.gdragon.listener.EventListener
 import tech.gdragon.listener.SystemEventListener
 import tech.gdragon.metrics.EventTracer
 import javax.security.auth.login.LoginException
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.toJavaDuration
 import tech.gdragon.i18n.Alias as AliasTranslator
 import tech.gdragon.i18n.AutoStop as AutoStopTranslator
 
@@ -247,6 +249,13 @@ class Bot(private val token: String, database: Database) {
 
   fun shutdown() {
     shardManager.shutdown()
+
+    shardManager.shards.map { shard ->
+      if (!shard.awaitShutdown(10.seconds.toJavaDuration())) {
+        shard.shutdownNow()
+        shard.awaitShutdown()
+      }
+    }
   }
 }
 
