@@ -23,6 +23,7 @@ import tech.gdragon.commands.debug.Status
 import tech.gdragon.commands.misc.Help
 import tech.gdragon.commands.settings.*
 import tech.gdragon.commands.slash.Info
+import tech.gdragon.commands.slash.Recover
 import tech.gdragon.commands.slash.Slash
 import tech.gdragon.db.Database
 import tech.gdragon.db.dao.Application
@@ -217,6 +218,7 @@ class Bot(private val token: String, database: Database) {
       }
       onCommand(Language.command.name, consumer = Language.slashHandler(pawa))
       onCommand(Record.command.name, consumer = Record.slashHandler(pawa))
+      onCommand(Recover.command.name, consumer = Recover.slashHandler(pawa))
       onCommand(Stop.command.name, consumer = Stop.slashHandler(pawa))
       onCommand(Save.command.name, consumer = Save.slashHandler(pawa))
       onCommand(Volume.command.name, consumer = Volume.slashHandler(pawa))
@@ -235,6 +237,7 @@ class Bot(private val token: String, database: Database) {
           Info.command,
           Language.command,
           Record.command,
+          Recover.command,
           Stop.command,
           Save.command,
           Volume.command
