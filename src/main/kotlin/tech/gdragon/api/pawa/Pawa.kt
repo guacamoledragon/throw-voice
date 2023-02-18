@@ -13,6 +13,8 @@ import tech.gdragon.i18n.Babel
 import tech.gdragon.i18n.Lang
 import java.math.BigDecimal
 
+data class RecoverResult(val url: String, val error: String?)
+
 class Pawa(val id: Long, val db: Database, val isStandalone: Boolean) {
   val logger = KotlinLogging.logger { }
 
@@ -118,5 +120,9 @@ class Pawa(val id: Long, val db: Database, val isStandalone: Boolean) {
           actualVolume
         } ?: 0.0
     }
+  }
+
+  fun recoverRecording(sessionId: String): RecoverResult {
+    return RecoverResult("", "Not Found.")
   }
 }
