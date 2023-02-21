@@ -1,6 +1,7 @@
 package tech.gdragon.discord
 
 import dev.minn.jda.ktx.events.onCommand
+import dev.minn.jda.ktx.interactions.commands.updateCommands
 import dev.minn.jda.ktx.jdabuilder.injectKTX
 import mu.KotlinLogging
 import net.dv8tion.jda.api.JDA
@@ -227,9 +228,8 @@ class Bot(private val token: String, database: Database) {
 
   private fun updateSlashCommands() {
     api()
-      .updateCommands()
-      .also {
-        it.addCommands(
+      .updateCommands {
+        addCommands(
           Alias.command,
           AutoStop.command,
           AutoSave.command,
@@ -242,8 +242,7 @@ class Bot(private val token: String, database: Database) {
           Save.command,
           Volume.command
         )
-      }
-      .queue { commands ->
+      }.queue { commands ->
         logger.info {
           commands.joinToString(prefix = "Adding: ") { command -> command.name }.ifEmpty { "No commands!" }
         }
