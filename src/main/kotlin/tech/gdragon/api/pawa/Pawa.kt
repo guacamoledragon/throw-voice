@@ -2,18 +2,16 @@ package tech.gdragon.api.pawa
 
 import mu.KotlinLogging
 import org.jetbrains.exposed.sql.transactions.transaction
+import tech.gdragon.api.tape.queueFileIntoMp3
+import tech.gdragon.data.Datastore
 import tech.gdragon.db.Database
-import tech.gdragon.db.dao.Alias
-import tech.gdragon.db.dao.Channel
-import tech.gdragon.db.dao.Guild
-import tech.gdragon.db.dao.Settings
+import tech.gdragon.db.dao.*
 import tech.gdragon.db.table.Tables
 import tech.gdragon.discord.Command
 import tech.gdragon.i18n.Babel
 import tech.gdragon.i18n.Lang
+import java.io.File
 import java.math.BigDecimal
-
-data class RecoverResult(val url: String, val error: String?)
 
 class Pawa(val id: Long, val db: Database, val isStandalone: Boolean) {
   val logger = KotlinLogging.logger { }
@@ -122,7 +120,51 @@ class Pawa(val id: Long, val db: Database, val isStandalone: Boolean) {
     }
   }
 
-  fun recoverRecording(sessionId: String): RecoverResult {
-    return RecoverResult("", "Not Found.")
+  /**
+   * Given the Session ID, we need to attempt to find the recording as from
+   * a URL in the database, mp3 file, or queue file.
+   */
+  fun recoverRecording(dataDirectory: String, datastore: Datastore, guildId: Long, sessionId: String): Recording? {
+    val recording = transaction {
+      Recording
+        .findById(sessionId)
+        ?: Recording.new(sessionId) {
+          guild = Guild.findById(guildId)!!
+        }
+    }
+
+    if (recording.url == null) {
+      val mp3File = File("$dataDirectory/recordings", "$sessionId.mp3")
+      val queueFile = File("$dataDirectory/recordings", "$sessionId.queue")
+
+      /* STATE WARNING! Restoring the mp3 into mp3File unless it's already there. */
+      when {
+        queueFile.exists() && mp3File.exists().not() -> {
+          logger.info { "Restoring $sessionId mp3 from queue file." }
+          queueFileIntoMp3(queueFile, mp3File)
+        }
+
+        queueFile.exists().not() && mp3File.exists().not() -> {
+          logger.warn {
+            "Recording $sessionId was not found."
+          }
+          transaction {
+            recording.delete()
+          }
+          return null
+        }
+      }
+
+      val result = datastore.upload("$guildId/${mp3File.name}", mp3File)
+      transaction {
+        recording.apply {
+          size = result.size
+          modifiedOn = result.timestamp
+          url = result.url
+        }
+      }
+    }
+
+    return recording
   }
 }
