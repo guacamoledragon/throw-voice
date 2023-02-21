@@ -10,6 +10,7 @@ import tech.gdragon.db.table.Tables.Applications
 import tech.gdragon.db.table.Tables.Channels
 import tech.gdragon.db.table.Tables.Guilds
 import tech.gdragon.db.table.Tables.Recordings
+import java.time.Duration
 import tech.gdragon.db.table.Tables.Settings as SettingsTable
 
 class Alias(id: EntityID<Int>) : IntEntity(id) {
@@ -102,6 +103,17 @@ class Recording(id: EntityID<String>) : Entity<String>(id) {
   var modifiedOn by Recordings.modifiedOn
   var url by Recordings.url
   var guild by Guild referencedOn Recordings.guild
+
+  /**
+   * Since we don't keep track of the actual duration of a recording, this is as
+   * approximate duration based on when we first create the Recording row and when
+   * we last update it.
+   *
+   * This works in a typical workflow, but not when attempting to recover.
+   */
+  fun pseudoDuration(): Duration {
+    return Duration.between(createdOn, modifiedOn)
+  }
 }
 
 class Settings(id: EntityID<Long>) : LongEntity(id) {
