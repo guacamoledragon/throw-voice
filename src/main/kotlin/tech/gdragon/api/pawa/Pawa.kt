@@ -2,15 +2,15 @@ package tech.gdragon.api.pawa
 
 import mu.KotlinLogging
 import org.jetbrains.exposed.sql.transactions.transaction
+import tech.gdragon.api.tape.queueFileIntoMp3
+import tech.gdragon.data.Datastore
 import tech.gdragon.db.Database
-import tech.gdragon.db.dao.Alias
-import tech.gdragon.db.dao.Channel
-import tech.gdragon.db.dao.Guild
-import tech.gdragon.db.dao.Settings
+import tech.gdragon.db.dao.*
 import tech.gdragon.db.table.Tables
 import tech.gdragon.discord.Command
 import tech.gdragon.i18n.Babel
 import tech.gdragon.i18n.Lang
+import java.io.File
 import java.math.BigDecimal
 
 class Pawa(val id: Long, val db: Database, val isStandalone: Boolean) {
@@ -118,5 +118,49 @@ class Pawa(val id: Long, val db: Database, val isStandalone: Boolean) {
           actualVolume
         } ?: 0.0
     }
+  }
+
+  /**
+   * Given the Session ID, return the database record, or re-upload recording if it exists.
+   * If recording cannot be recovered, return null.
+   */
+  fun recoverRecording(dataDirectory: String, datastore: Datastore, guildId: Long, sessionId: String): Recording? {
+    val recording = transaction {
+      Recording.findById(sessionId)
+    }
+
+    recording?.let {
+      if (it.url == null) {
+        val mp3File = File("$dataDirectory/recordings", "$sessionId.mp3")
+        val queueFile = File("$dataDirectory/recordings", "$sessionId.queue")
+
+        when {
+          queueFile.exists() && mp3File.exists().not() -> {
+            logger.info { "Restoring $sessionId mp3 from queue file." }
+            queueFileIntoMp3(queueFile, mp3File)
+          }
+
+          queueFile.exists().not() && mp3File.exists().not() -> {
+            logger.warn {
+              "Recording $sessionId was not found."
+            }
+            return null
+          }
+        }
+
+        val result = datastore.upload("$guildId/${mp3File.name}", mp3File)
+        transaction {
+          it.apply {
+            size = result.size
+            modifiedOn = result.timestamp
+            url = result.url
+          }
+        }
+      }
+    } ?: logger.warn {
+      "Recording $sessionId was not found."
+    }
+
+    return recording
   }
 }

@@ -1,21 +1,28 @@
 package tech.gdragon.api.pawa
 
+import io.azam.ulidj.ULID
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.spec.style.funSpec
 import io.kotest.engine.spec.tempdir
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
+import tech.gdragon.data.Datastore
+import tech.gdragon.data.LocalDatastore
 import tech.gdragon.db.Database
 import tech.gdragon.db.EmbeddedDatabase
 import tech.gdragon.db.RemoteDatabase
+import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
+import tech.gdragon.db.dao.Recording
+import tech.gdragon.db.now
 import tech.gdragon.discord.Command
 
-fun pawaTests(db: Database, isStandalone: Boolean) = funSpec {
+fun pawaTests(db: Database, ds: Datastore, isStandalone: Boolean) = funSpec {
   val guildId = 1L
 
   val pawa: Pawa by lazy {
@@ -54,6 +61,67 @@ fun pawaTests(db: Database, isStandalone: Boolean) = funSpec {
       alias.shouldBeNull()
     }
   }
+
+  context("when recover") {
+    test("it should return null when Session ID doesn't exist") {
+      val recording = pawa.recoverRecording("./", ds, guildId, "fake-session-id")
+
+      recording.shouldBeNull()
+    }
+
+    test("it should return null when queue and mp3 files are missing") {
+      val record = transaction(db.database) {
+        val guild = Guild.findOrCreate(guildId, "Test Guild")
+        val channel = Channel.findOrCreate(1L, "fake-voice-channel", guildId)
+
+        Recording.new(ULID.random()) {
+          this.channel = channel
+          this.guild = guild
+        }
+      }
+      val recording = pawa.recoverRecording("./", ds, guildId, record.id.value)
+
+      record.shouldNotBeNull()
+      recording.shouldBeNull()
+    }
+
+    test("it should return Recording when record with URL exists") {
+      val record = transaction(db.database) {
+        val guild = Guild.findOrCreate(guildId, "Test Guild")
+        val channel = Channel.findOrCreate(1L, "fake-voice-channel", guildId)
+
+        Recording.new(ULID.random()) {
+          this.channel = channel
+          this.guild = guild
+          size = 1024
+          modifiedOn = now().plusSeconds(60L)
+          url = "https://fake-link.com"
+        }
+      }
+      val recording = pawa.recoverRecording("./", ds, guildId, record.id.value)
+
+      recording.shouldNotBeNull()
+      recording.id.shouldBe(record.id)
+      recording.url.shouldBe(record.url)
+    }
+
+    xtest("it should return recovered Recording when URL does not exist") {
+      val record = transaction(db.database) {
+        val guild = Guild.findOrCreate(guildId, "Test Guild")
+        val channel = Channel.findOrCreate(1L, "fake-voice-channel", guildId)
+
+        Recording.new(ULID.random()) {
+          this.channel = channel
+          this.guild = guild
+        }
+      }
+      val recording = pawa.recoverRecording("./", ds, guildId, record.id.value)
+
+      recording.shouldNotBeNull()
+      recording.id.shouldBe(record.id)
+      recording.url.shouldNotBe(record.url)
+    }
+  }
 }
 
 class PawaTest : FunSpec({
@@ -69,11 +137,12 @@ class PawaTest : FunSpec({
     postgres.start()
     RemoteDatabase(postgres.jdbcUrl, postgres.username, postgres.password)
   }
+  val localDatastore: Datastore = LocalDatastore("./data-store")
 
   afterSpec {
     postgres.stop()
   }
 
-  include("H2:", pawaTests(embeddedDatabase, isStandalone = true))
-  include("Postgres:", pawaTests(remoteDatabase, isStandalone = false))
+  include("H2:", pawaTests(embeddedDatabase, localDatastore, isStandalone = true))
+  include("Postgres:", pawaTests(remoteDatabase, localDatastore, isStandalone = false))
 })

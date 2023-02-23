@@ -1,6 +1,7 @@
 package tech.gdragon.discord
 
 import dev.minn.jda.ktx.events.onCommand
+import dev.minn.jda.ktx.interactions.commands.updateCommands
 import dev.minn.jda.ktx.jdabuilder.injectKTX
 import mu.KotlinLogging
 import net.dv8tion.jda.api.JDA
@@ -23,6 +24,7 @@ import tech.gdragon.commands.debug.Status
 import tech.gdragon.commands.misc.Help
 import tech.gdragon.commands.settings.*
 import tech.gdragon.commands.slash.Info
+import tech.gdragon.commands.slash.Recover
 import tech.gdragon.commands.slash.Slash
 import tech.gdragon.db.Database
 import tech.gdragon.db.dao.Application
@@ -31,6 +33,8 @@ import tech.gdragon.listener.EventListener
 import tech.gdragon.listener.SystemEventListener
 import tech.gdragon.metrics.EventTracer
 import javax.security.auth.login.LoginException
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.toJavaDuration
 import tech.gdragon.i18n.Alias as AliasTranslator
 import tech.gdragon.i18n.AutoStop as AutoStopTranslator
 
@@ -215,6 +219,7 @@ class Bot(private val token: String, database: Database) {
       }
       onCommand(Language.command.name, consumer = Language.slashHandler(pawa))
       onCommand(Record.command.name, consumer = Record.slashHandler(pawa))
+      onCommand(Recover.command.name, consumer = Recover.slashHandler(pawa))
       onCommand(Stop.command.name, consumer = Stop.slashHandler(pawa))
       onCommand(Save.command.name, consumer = Save.slashHandler(pawa))
       onCommand(Volume.command.name, consumer = Volume.slashHandler(pawa))
@@ -223,9 +228,8 @@ class Bot(private val token: String, database: Database) {
 
   private fun updateSlashCommands() {
     api()
-      .updateCommands()
-      .also {
-        it.addCommands(
+      .updateCommands {
+        addCommands(
           Alias.command,
           AutoStop.command,
           AutoSave.command,
@@ -233,12 +237,12 @@ class Bot(private val token: String, database: Database) {
           Info.command,
           Language.command,
           Record.command,
+          Recover.command,
           Stop.command,
           Save.command,
           Volume.command
         )
-      }
-      .queue { commands ->
+      }.queue { commands ->
         logger.info {
           commands.joinToString(prefix = "Adding: ") { command -> command.name }.ifEmpty { "No commands!" }
         }
@@ -247,6 +251,13 @@ class Bot(private val token: String, database: Database) {
 
   fun shutdown() {
     shardManager.shutdown()
+
+    shardManager.shards.map { shard ->
+      if (!shard.awaitShutdown(10.seconds.toJavaDuration())) {
+        shard.shutdownNow()
+        shard.awaitShutdown()
+      }
+    }
   }
 }
 

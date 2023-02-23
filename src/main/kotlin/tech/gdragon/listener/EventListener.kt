@@ -9,22 +9,44 @@ import net.dv8tion.jda.api.events.guild.GuildJoinEvent
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent
 import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateNicknameEvent
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent
+import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent
+import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
+import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.component.KoinComponent
 import tech.gdragon.BotUtils
+import tech.gdragon.BotUtils.trigoman
 import tech.gdragon.api.pawa.Pawa
 import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.commands.handleCommand
 import tech.gdragon.db.asyncTransaction
-import tech.gdragon.db.now
 import tech.gdragon.db.dao.Guild
+import tech.gdragon.db.dao.Recording
+import tech.gdragon.db.now
 
 class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
 
   private val logger = KotlinLogging.logger {}
   private val website: String = getKoin().getProperty("BOT_WEBSITE", "http://localhost:8080/")
   private val standalone = getKoin().getProperty<String>("BOT_STANDALONE").toBoolean()
+
+  override fun onCommandAutoCompleteInteraction(event: CommandAutoCompleteInteractionEvent) {
+    if (event.name == "recover" && event.focusedOption.name == "session-id") {
+      val partialSessionId = event.focusedOption.value
+      val choices = if (trigoman == event.user.idLong) {
+        transaction {
+          Recording
+            .findIdLike("$partialSessionId%", 10)
+            .map { r -> r.id.value }
+        }
+      } else emptyList()
+
+      event
+        .replyChoiceStrings(choices)
+        .queue()
+    }
+  }
 
   override fun onGuildJoin(event: GuildJoinEvent) {
     withLoggingContext("guild" to event.guild.name) {
@@ -122,7 +144,6 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
     }
   }
 
-
   fun onGuildMessageReceived(event: MessageReceivedEvent) {
     val tracer = getKoin().get<Tracer>()
     val span = tracer.spanBuilder("Event Message Received").startSpan()
@@ -179,6 +200,24 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
     }
 
     span.end()
+  }
+
+  override fun onModalInteraction(event: ModalInteractionEvent) {
+    if (event.modalId == "request-access") {
+      val request = event.getValue("request-body")?.asString
+
+      event.jda
+        .openPrivateChannelById(trigoman)
+        .flatMap { channel ->
+          channel.sendMessage("${event.user} would like to request access to command and said:\n> $request")
+        }
+        .queue()
+
+      event
+        .reply("Your request has been submitted!")
+        .setEphemeral(true)
+        .queue()
+    }
   }
 
   private fun onPrivateMessageReceived(event: MessageReceivedEvent) {
