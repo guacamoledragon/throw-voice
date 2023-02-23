@@ -98,11 +98,9 @@ class Guild(id: EntityID<Long>) : LongEntity(id) {
 class Recording(id: EntityID<String>) : Entity<String>(id) {
   companion object : EntityClass<String, Recording>(Recordings) {
     fun findIdLike(pattern: String, limit: Int) = run {
-      transaction {
-        find { Recordings.id like pattern }
-          .orderBy(Recordings.createdOn to SortOrder.DESC)
-          .limit(limit)
-      }
+      find { Recordings.id like pattern }
+        .orderBy(Recordings.createdOn to SortOrder.DESC)
+        .limit(limit)
     }
   }
 

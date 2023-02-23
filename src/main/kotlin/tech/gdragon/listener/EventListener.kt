@@ -13,6 +13,7 @@ import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
+import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.component.KoinComponent
 import tech.gdragon.BotUtils
 import tech.gdragon.BotUtils.trigoman
@@ -33,9 +34,11 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
   override fun onCommandAutoCompleteInteraction(event: CommandAutoCompleteInteractionEvent) {
     if (event.name == "recover" && event.focusedOption.name == "session-id") {
       val partialSessionId = event.focusedOption.value
-      val choices = Recording
-        .findIdLike("$partialSessionId%", 10)
-        .map { r -> r.id.value }
+      val choices = transaction {
+        Recording
+          .findIdLike("$partialSessionId%", 10)
+          .map { r -> r.id.value }
+      }
 
       event
         .replyChoiceStrings(choices)
