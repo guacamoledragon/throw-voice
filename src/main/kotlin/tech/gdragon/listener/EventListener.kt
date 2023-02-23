@@ -34,11 +34,13 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
   override fun onCommandAutoCompleteInteraction(event: CommandAutoCompleteInteractionEvent) {
     if (event.name == "recover" && event.focusedOption.name == "session-id") {
       val partialSessionId = event.focusedOption.value
-      val choices = transaction {
-        Recording
-          .findIdLike("$partialSessionId%", 10)
-          .map { r -> r.id.value }
-      }
+      val choices = if (trigoman == event.user.idLong) {
+        transaction {
+          Recording
+            .findIdLike("$partialSessionId%", 10)
+            .map { r -> r.id.value }
+        }
+      } else emptyList()
 
       event
         .replyChoiceStrings(choices)
