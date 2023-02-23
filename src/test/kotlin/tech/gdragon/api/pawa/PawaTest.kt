@@ -84,6 +84,26 @@ fun pawaTests(db: Database, ds: Datastore, isStandalone: Boolean) = funSpec {
       record.shouldNotBeNull()
       recording.shouldBeNull()
     }
+
+    test("it should return Recording when record with URL exists") {
+      val record = transaction(db.database) {
+        val guild = Guild.findOrCreate(guildId, "Test Guild")
+        val channel = Channel.findOrCreate(1L, "fake-voice-channel", guildId)
+
+        Recording.new(ULID.random()) {
+          this.channel = channel
+          this.guild = guild
+          size = 1024
+          modifiedOn = now().plusSeconds(60L)
+          url = "https://fake-link.com"
+        }
+      }
+      val recording = pawa.recoverRecording("./", ds, guildId, record.id.value)
+
+      recording.shouldNotBeNull()
+      recording.id.shouldBe(record.id)
+      recording.url.shouldBe(record.url)
+    }
   }
 }
 
