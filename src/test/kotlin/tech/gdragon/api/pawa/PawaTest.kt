@@ -9,13 +9,15 @@ import io.kotest.matchers.shouldBe
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
+import tech.gdragon.data.Datastore
+import tech.gdragon.data.LocalDatastore
 import tech.gdragon.db.Database
 import tech.gdragon.db.EmbeddedDatabase
 import tech.gdragon.db.RemoteDatabase
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.discord.Command
 
-fun pawaTests(db: Database, isStandalone: Boolean) = funSpec {
+fun pawaTests(db: Database, ds: Datastore, isStandalone: Boolean) = funSpec {
   val guildId = 1L
 
   val pawa: Pawa by lazy {
@@ -54,6 +56,14 @@ fun pawaTests(db: Database, isStandalone: Boolean) = funSpec {
       alias.shouldBeNull()
     }
   }
+
+  context("when recover") {
+    test("it should return null when Session ID doesn't exist") {
+      val recording = pawa.recoverRecording("./", ds, guildId, "fake-session-id")
+
+      recording.shouldBeNull()
+    }
+  }
 }
 
 class PawaTest : FunSpec({
@@ -69,11 +79,12 @@ class PawaTest : FunSpec({
     postgres.start()
     RemoteDatabase(postgres.jdbcUrl, postgres.username, postgres.password)
   }
+  val localDatastore: Datastore = LocalDatastore("./data-store")
 
   afterSpec {
     postgres.stop()
   }
 
-  include("H2:", pawaTests(embeddedDatabase, isStandalone = true))
-  include("Postgres:", pawaTests(remoteDatabase, isStandalone = false))
+  include("H2:", pawaTests(embeddedDatabase, localDatastore, isStandalone = true))
+  include("Postgres:", pawaTests(remoteDatabase, localDatastore, isStandalone = false))
 })
