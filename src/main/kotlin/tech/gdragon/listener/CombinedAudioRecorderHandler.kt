@@ -120,6 +120,9 @@ class CombinedAudioRecorderHandler(
   val session: String
     get() = ulid ?: ""
 
+  val recording: Recording?
+    get() = recordingRecord
+
   init {
     scope = span.makeCurrent()
     single = createRecording()

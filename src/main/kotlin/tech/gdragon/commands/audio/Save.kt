@@ -11,8 +11,10 @@ import tech.gdragon.BotUtils
 import tech.gdragon.api.pawa.Pawa
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
+import tech.gdragon.discord.message.RecordingReply
 import tech.gdragon.i18n.Babel
 import tech.gdragon.i18n.Lang
+import tech.gdragon.listener.CombinedAudioRecorderHandler
 import net.dv8tion.jda.api.entities.Guild as DiscordGuild
 import tech.gdragon.i18n.Save as SaveTranslator
 
@@ -48,9 +50,16 @@ class Save : CommandHandler() {
           BotUtils.defaultTextChannel(it) ?: BotUtils.findPublicChannel(it)
         }
 
-        handler(pawa, it, channel!!)?.let { message ->
-          event.reply(message).queue()
-        } ?: event.reply("✅").queue()
+        event.deferReply().queue()
+        val message = handler(pawa, it, channel!!)
+        if (message != null) {
+          event.hook.sendMessage(message).queue()
+        } else {
+          val recorder = event.guild?.audioManager?.receivingHandler as? CombinedAudioRecorderHandler
+          val recording = recorder?.recording!!
+          val recordingEmbed = RecordingReply(recording, pawa.config.appUrl)
+          event.hook.sendMessage(recordingEmbed.message).queue()
+        }
       }
 
     }
