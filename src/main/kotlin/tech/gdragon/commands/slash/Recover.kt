@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionE
 import org.koin.core.context.GlobalContext
 import tech.gdragon.BotUtils.trigoman
 import tech.gdragon.api.pawa.Pawa
+import tech.gdragon.commands.CommandHandler
 import tech.gdragon.data.Datastore
 import tech.gdragon.discord.message.ErrorEmbed
 import tech.gdragon.discord.message.RecordingReply
@@ -26,6 +27,7 @@ object Recover {
       val modal = RequestAccessModal("Request access to /recover command").modal
       event.replyModal(modal).queue()
     }
+    CommandHandler.tracer.sendEvent(mapOf("command" to command.name))
 
     val sessionId = event.getOption<String>("session-id")!!
 
