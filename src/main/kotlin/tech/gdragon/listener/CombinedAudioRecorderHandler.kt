@@ -255,10 +255,11 @@ class CombinedAudioRecorderHandler(
     resumeRecording: Boolean = true
   ): Pair<Recording?, Semaphore> {
     canReceive = false
-    val recordingLock = Semaphore(1, false)
+    val recordingLock = Semaphore(1, true)
     val recordingId = ulid
 
     logger.debug { "Creating subscription for recording: $recordingId" }
+    recordingLock.acquire()
     val disposable = single?.subscribe { queueFile, e ->
       withLoggingContext(
         "guild" to textChannel.guild.name,
@@ -323,9 +324,9 @@ class CombinedAudioRecorderHandler(
     logger.debug {
       "Acquiring lock in saveRecording on recording: $recordingId"
     }
-    recordingLock.acquire(1) // what could go wrong?
     logger.debug { "Marking observable as completed for recording: $recordingId" }
     subject?.onComplete()
+    recordingLock.acquire() // what could go wrong?
 
     val recording = recordingRecord
 
