@@ -2,9 +2,13 @@ cache: &global_cache
   paths:
     - .m2/repository
 
-variables:
-  BOT_VERSION: 2.11.0
-  MAVEN_OPTS: -Dmaven.repo.local=.m2/repository
+default:
+  tags:
+    - pawa
+  variables:
+    DOCKER_DEFAULT_PLATFORM: linux/amd64
+    BOT_VERSION: 2.11.0
+    MAVEN_OPTS: -Dmaven.repo.local=.m2/repository
 
 dependencies:
   image: maven:3.8.6-eclipse-temurin-17-alpine
