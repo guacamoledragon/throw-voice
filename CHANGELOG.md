@@ -4,38 +4,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [2.11.1] - 2022-03-01
 
 ### Added
+- Added `/recover` command
+  - This command can help us restore recordings that failed to upload with a Session ID.
 - Database migration tests
   - Not a feature, but will let us make changes to the database more often.
 - Add testcontainers dependencies, this makes it straightforward to run database tests
 
-
 ### Changed
-- Update JDA 4 -> [JDA 5 Beta 2](https://github.com/DV8FromTheWorld/JDA/releases/tag/v5.0.0-beta.2)
+- Update JDA 4 -> [JDA 5 Beta 5](https://github.com/DV8FromTheWorld/JDA/releases/tag/v5.0.0-beta.5)
   - This was massive change, and will be testing it before updating [Pawa Lite]
 - Update [jda-ktx](https://github.com/MinnDevelopment/jda-ktx/releases/tag/0.10.0-beta.1)
 - Update the following dependencies:
-  - Bump kotlin.version 1.7.10 -> 1.8.10
-  - Bump kotest.version 5.4.2 -> 5.5.4
   - Bump flyway-core 9.3.0 -> 9.14.1
-
-
-### Deprecated
-
+  - Bump jda.ktx -> 0.10.0.beta.1
+  - Bump jda.version 4.4.0_352 -> 5.0.0.beta.5
+  - Bump kotest.version 5.4.2 -> 5.5.4
+  - Bump kotlin.version 1.7.10 -> 1.8.10
+  - Bump maven-surefire-plugin 2.22.2 -> 3.0.0-M8
 
 ### Removed
 - `clip` command is now gone from the codebase
-  - This command was supposed to extract a short section from the current recording but I could never get the
+  - This command was supposed to extract a short section from the current recording, but I could never get the
     implementation quite right, so decided to remove it.
 
-
 ### Fixed
-
-
-### Security
-
+- One 2022-03-01 Discord made a change to the Voice handshake protocol which broke the audio recording feature.
+  More details on the [JDA release](https://github.com/DV8FromTheWorld/JDA/releases/tag/v5.0.0-beta.5)
 
 ## [2.11.0] - 2022-12-23
 
@@ -64,7 +61,7 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 
 ### Fixed
 - #44 Recording would get lost if channel didn't have MESSAGE_ATTACH_FILES permissions,
-  now a recording wont start if this permission is missing.
+  now a recording won't start if this permission is missing.
 - #54 No more double AutoStop message
 
 ## [2.10.0] - 2022-07-08
@@ -245,7 +242,8 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 ### Fixed
 - Remove recording limits and warnings
 
-[Unreleased]: https://gitlab.com/pawabot/pawa/-/compare/v2.11.0...master
+[Unreleased]: https://gitlab.com/pawabot/pawa/-/compare/v2.11.1...master
+[2.11.1]: https://gitlab.com/pawabot/pawa/-/compare/v2.11.0...v2.11.1
 [2.11.0]: https://gitlab.com/pawabot/pawa/-/compare/v2.11.0...v2.10.0
 [2.10.0]: https://gitlab.com/pawabot/pawa/-/compare/v2.9.8...v2.10.0
 [2.9.8]: https://gitlab.com/pawabot/pawa/-/compare/v2.9.7...v2.9.8
