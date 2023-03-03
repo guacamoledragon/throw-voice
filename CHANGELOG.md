@@ -4,6 +4,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+
+### Changed
+- `/record` displays an embed, this will replace the original message eventually
+
+
+### Deprecated
+
+
+### Removed
+
+
+### Fixed
+
+
+### Security
+
 ## [2.11.1] - 2022-03-01
 
 ### Added
