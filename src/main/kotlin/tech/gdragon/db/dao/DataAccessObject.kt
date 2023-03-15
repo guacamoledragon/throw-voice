@@ -2,11 +2,12 @@ package tech.gdragon.db.dao
 
 import org.jetbrains.exposed.dao.*
 import org.jetbrains.exposed.dao.id.EntityID
+import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.SortOrder
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.exposedLogger
 import org.jetbrains.exposed.sql.transactions.TransactionManager
-import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.db.table.Tables.Aliases
 import tech.gdragon.db.table.Tables.Applications
 import tech.gdragon.db.table.Tables.Channels
@@ -97,8 +98,9 @@ class Guild(id: EntityID<Long>) : LongEntity(id) {
 
 class Recording(id: EntityID<String>) : Entity<String>(id) {
   companion object : EntityClass<String, Recording>(Recordings) {
-    fun findIdLike(pattern: String, limit: Int) = run {
-      find { Recordings.id like pattern }
+    fun findIdLike(pattern: String, guildId: Long?, limit: Int) = run {
+      val withGuild = if (guildId != null) Recordings.guild.eq(guildId) else Op.TRUE
+      find { withGuild.and(Recordings.id like pattern) }
         .orderBy(Recordings.createdOn to SortOrder.DESC)
         .limit(limit)
     }

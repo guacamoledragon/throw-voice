@@ -24,6 +24,7 @@ import tech.gdragon.db.asyncTransaction
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.dao.Recording
 import tech.gdragon.db.now
+import tech.gdragon.discord.message.RequestAccessReply
 
 class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
 
@@ -34,13 +35,13 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
   override fun onCommandAutoCompleteInteraction(event: CommandAutoCompleteInteractionEvent) {
     if (event.name == "recover" && event.focusedOption.name == "session-id") {
       val partialSessionId = event.focusedOption.value
-      val choices = if (trigoman == event.user.idLong) {
-        transaction {
-          Recording
-            .findIdLike("$partialSessionId%", 10)
-            .map { r -> r.id.value }
-        }
-      } else emptyList()
+      val choices = transaction {
+        if (trigoman == event.user.idLong) {
+          Recording.findIdLike("$partialSessionId%", null, 10)
+        } else {
+          Recording.findIdLike("$partialSessionId%", event.guild!!.idLong, 10)
+        }.map { r -> r.id.value }
+      }
 
       event
         .replyChoiceStrings(choices)
@@ -204,17 +205,19 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
 
   override fun onModalInteraction(event: ModalInteractionEvent) {
     if (event.modalId == "request-access") {
-      val request = event.getValue("request-body")?.asString
+      val request = event.getValue("request-body")?.asString.orEmpty()
+      val sessionId = event.getValue("session-id")?.asString.orEmpty()
 
       event.jda
         .openPrivateChannelById(trigoman)
         .flatMap { channel ->
-          channel.sendMessage("${event.user} would like to request access to command and said:\n> $request")
+          val requestReply = RequestAccessReply(event.user, request, sessionId)
+          channel.sendMessageEmbeds(requestReply.embed)
         }
         .queue()
 
       event
-        .reply("Your request has been submitted!")
+        .reply("Your request has been submitted!\nJoin support server https://discord.gg/gkvsNw8")
         .setEphemeral(true)
         .queue()
     }
