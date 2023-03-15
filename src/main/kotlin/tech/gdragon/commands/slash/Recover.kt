@@ -25,7 +25,7 @@ object Recover {
   fun slashHandler(pawa: Pawa): suspend CoroutineEventListener.(GenericCommandInteractionEvent) -> Unit = { event ->
     val sessionId = event.getOption<String>("session-id")!!
 
-    require(trigoman != event.user.idLong) {
+    require(trigoman == event.user.idLong) {
       val modalRequest = RequestAccessModal("Request access to /recover command", sessionId)
       val modal = modalRequest.modal
       event.replyModal(modal).queue()
