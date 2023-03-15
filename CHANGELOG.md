@@ -11,6 +11,7 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 
 ### Changed
 - `/record` displays an embed, this will replace the original message eventually
+- `/recover` run by normal user will send the SessionID and Discord username, the response will also include a server invite.
 
 
 ### Deprecated
