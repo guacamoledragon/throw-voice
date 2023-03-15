@@ -8,16 +8,21 @@ import net.dv8tion.jda.api.interactions.components.text.TextInputStyle
 import net.dv8tion.jda.api.interactions.modals.Modal
 import java.awt.Color
 
-class RequestAccessModal(val title: String) {
+class RequestAccessModal(val title: String, val sessionId: String) {
 
   val request = TextInput.create("request-body", "Request", TextInputStyle.PARAGRAPH)
     .setPlaceholder("Explain why you want access to this feature?")
     .setMaxLength(1000)
     .build()
 
+  val session = TextInput.create("session-id", "Session ID", TextInputStyle.SHORT)
+    .setValue(sessionId)
+    .build()
+
   val modal = Modal
     .create("request-access", "Request Access")
     .setTitle(title)
+    .addComponents(ActionRow.of(session))
     .addComponents(ActionRow.of(request))
     .build()
 }

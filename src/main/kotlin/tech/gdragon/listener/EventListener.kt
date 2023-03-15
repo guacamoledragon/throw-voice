@@ -24,6 +24,7 @@ import tech.gdragon.db.asyncTransaction
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.dao.Recording
 import tech.gdragon.db.now
+import tech.gdragon.discord.message.RequestAccessReply
 
 class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
 
@@ -204,17 +205,19 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
 
   override fun onModalInteraction(event: ModalInteractionEvent) {
     if (event.modalId == "request-access") {
-      val request = event.getValue("request-body")?.asString
+      val request = event.getValue("request-body")?.asString.orEmpty()
+      val sessionId = event.getValue("session-id")?.asString.orEmpty()
 
       event.jda
         .openPrivateChannelById(trigoman)
         .flatMap { channel ->
-          channel.sendMessage("${event.user} would like to request access to command and said:\n> $request")
+          val requestReply = RequestAccessReply(event.user, request, sessionId)
+          channel.sendMessageEmbeds(requestReply.embed)
         }
         .queue()
 
       event
-        .reply("Your request has been submitted!")
+        .reply("Your request has been submitted!\nJoin support server https://discord.gg/gkvsNw8")
         .setEphemeral(true)
         .queue()
     }
