@@ -264,7 +264,7 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
 
   override fun onSlashCommandInteraction(event: SlashCommandInteractionEvent) {
     tracer.sendEvent(mapOf("command" to event.interaction.name))
-
+    event.guild?.let(BotUtils::updateActivity)
     super.onSlashCommandInteraction(event)
   }
 }
