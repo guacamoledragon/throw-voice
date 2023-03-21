@@ -156,7 +156,6 @@ class Bot(private val token: String, database: Database) {
   private fun registerSlashCommands() {
     shardManager.run {
       onCommand(Alias.command.name) { event ->
-        tracer.sendEvent(mapOf("command" to Command.ALIAS))
         event.guild?.let {
           val translator: AliasTranslator = pawa.translator(it.idLong)
 
@@ -204,7 +203,6 @@ class Bot(private val token: String, database: Database) {
       onCommand(AutoSave.command.name, consumer = AutoSave.slashHandler(pawa))
       onCommand(Ignore.command.name, consumer = Ignore.slashHandler(pawa))
       onCommand(Info.command.name) { event ->
-        tracer.sendEvent(mapOf("command" to Command.INFO))
         if (event.isFromGuild) {
           event.guild?.let {
             event

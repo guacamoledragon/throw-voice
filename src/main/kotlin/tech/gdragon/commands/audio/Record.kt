@@ -29,8 +29,6 @@ class Record : CommandHandler() {
     }
 
     fun slashHandler(pawa: Pawa): suspend CoroutineEventListener.(GenericCommandInteractionEvent) -> Unit = { event ->
-      tracer.sendEvent(mapOf("command" to command.name))
-
       event.guild?.let {
         val selectedChannel = event.getOption("channel")?.asChannel?.asAudioChannel()
         val voiceChannel: AudioChannel? = if (pawa.isStandalone && selectedChannel != null) {

@@ -32,8 +32,6 @@ class Stop : CommandHandler() {
     }
 
     fun slashHandler(pawa: Pawa): suspend CoroutineEventListener.(GenericCommandInteractionEvent) -> Unit = { event ->
-      tracer.sendEvent(mapOf("command" to command.name))
-
       event.guild?.let {
         val textChannel = try {
           event.guild?.getTextChannelById(event.messageChannel.idLong)

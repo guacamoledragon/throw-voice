@@ -25,8 +25,6 @@ class Language : CommandHandler() {
     }
 
     fun slashHandler(pawa: Pawa): suspend CoroutineEventListener.(GenericCommandInteractionEvent) -> Unit = { event ->
-      tracer.sendEvent(mapOf("command" to command.name))
-
       event.guild?.let {
         val locale = event.getOption("language")!!.asString
         val message = handler(pawa, it.idLong, locale)

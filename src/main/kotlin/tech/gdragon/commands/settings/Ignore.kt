@@ -23,8 +23,6 @@ class Ignore : CommandHandler() {
     }
 
     fun slashHandler(pawa: Pawa): suspend CoroutineEventListener.(GenericCommandInteractionEvent) -> Unit = { event ->
-      tracer.sendEvent(mapOf("command" to command.name))
-
       event.guild?.let {
         val ignoredUserId = event.getOption("user")?.asUser?.idLong
         val message = handler(pawa, it, event.user.idLong, listOfNotNull(ignoredUserId))

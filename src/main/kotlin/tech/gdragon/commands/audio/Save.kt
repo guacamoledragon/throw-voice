@@ -38,7 +38,6 @@ class Save : CommandHandler() {
     }
 
     fun slashHandler(pawa: Pawa): suspend CoroutineEventListener.(GenericCommandInteractionEvent) -> Unit = { event ->
-      tracer.sendEvent(mapOf("command" to command.name))
       event.guild?.let {
         val channel = try {
           val guildChannel = event.getOption("channel")?.asChannel?.asGuildMessageChannel() ?: event.messageChannel

@@ -35,7 +35,6 @@ class Volume : CommandHandler() {
     }
 
     fun slashHandler(pawa: Pawa): suspend CoroutineEventListener.(GenericCommandInteractionEvent) -> Unit = { event ->
-      tracer.sendEvent(mapOf("command" to command.name))
       event.guild?.let {
         val volume = event.getOption("volume")?.asLong!!
         val message = handler(pawa, it, volume)

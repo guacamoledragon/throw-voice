@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateNicknameE
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -25,12 +26,14 @@ import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.dao.Recording
 import tech.gdragon.db.now
 import tech.gdragon.discord.message.RequestAccessReply
+import tech.gdragon.metrics.EventTracer
 
 class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
 
   private val logger = KotlinLogging.logger {}
   private val website: String = getKoin().getProperty("BOT_WEBSITE", "http://localhost:8080/")
   private val standalone = getKoin().getProperty<String>("BOT_STANDALONE").toBoolean()
+  private val tracer: EventTracer = getKoin().get()
 
   override fun onCommandAutoCompleteInteraction(event: CommandAutoCompleteInteractionEvent) {
     if (event.name == "recover" && event.focusedOption.name == "session-id") {
@@ -257,5 +260,11 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
         BotUtils.recordingStatus(event.member, true)
       }
     }
+  }
+
+  override fun onSlashCommandInteraction(event: SlashCommandInteractionEvent) {
+    tracer.sendEvent(mapOf("command" to event.interaction.name))
+
+    super.onSlashCommandInteraction(event)
   }
 }

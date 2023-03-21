@@ -31,8 +31,6 @@ object Recover {
       event.replyModal(modal).queue()
     }
 
-    CommandHandler.tracer.sendEvent(mapOf("command" to command.name))
-
     val koin = GlobalContext.get()
     val datastore = koin.get<Datastore>()
     val dataDirectory = koin.getStringProperty("BOT_DATA_DIR")
