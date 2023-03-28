@@ -60,7 +60,6 @@ class Save : CommandHandler() {
           event.hook.sendMessage(recordingEmbed.message).queue()
         }
       }
-
     }
   }
 
