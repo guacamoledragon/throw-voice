@@ -205,14 +205,6 @@ object BotUtils {
     val recorder = audioManager.receivingHandler as CombinedAudioRecorderHandler
 
     withLoggingContext("guild" to voiceChannel.guild.name, "text-channel" to textChannel?.name.orEmpty()) {
-      val (recording, recordingLock) =
-        if (save && textChannel != null) {
-          sendMessage(textChannel, ":floppy_disk: **Saving <#${voiceChannel.id}>'s recording...**")
-          recorder.saveRecording(voiceChannel, textChannel, false)
-        } else Pair(null, null)
-
-      recorder.disconnect(!save, recording, recordingLock)
-
       logger.debug { "Leaving voice channel" }
       audioManager.apply {
         audioConnection.close(ConnectionStatus.NOT_CONNECTED)
@@ -221,6 +213,14 @@ object BotUtils {
       }
 
       recordingStatus(voiceChannel.guild.selfMember, false)
+
+      val (recording, recordingLock) =
+        if (save && textChannel != null) {
+          sendMessage(textChannel, ":floppy_disk: **Saving <#${voiceChannel.id}>'s recording...**")
+          recorder.saveRecording(voiceChannel, textChannel, false)
+        } else Pair(null, null)
+
+      recorder.disconnect(!save, recording, recordingLock)
     }
 
     return recorder
