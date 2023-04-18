@@ -18,6 +18,7 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
   - Bump flyway-core from 9.14.1 to 9.16.3
   - Bump honeycomb-opentelemetry-sdk from 1.3.0 to 1.4.2
   - Bump jackson-databind from 2.13.4 to 2.15.0-rc3
+  - Bump jda.version 5.0.0-beta.5 to 5.0.0-beta.8
   - Bump koin-core from 3.2.0 to 3.4.0
   - Bump koin-core-jvm from 3.2.0 to 3.4.0
   - Bump kotest.version from 5.5.4 to 5.6.1
