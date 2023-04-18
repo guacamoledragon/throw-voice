@@ -12,6 +12,29 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 ### Changed
 - `/record` displays an embed, this will replace the original message eventually
 - `/recover` run by normal user will send the SessionID and Discord username, the response will also include a server invite.
+- Update the following dependencies:
+  - Bump caffeine from 3.1.1 to 3.1.6
+  - Bump exposed.version from 0.39.2 to 0.41.1
+  - Bump flyway-core from 9.14.1 to 9.16.3
+  - Bump honeycomb-opentelemetry-sdk from 1.3.0 to 1.4.2
+  - Bump jackson-databind from 2.13.4 to 2.15.0-rc3
+  - Bump koin-core from 3.2.0 to 3.4.0
+  - Bump koin-core-jvm from 3.2.0 to 3.4.0
+  - Bump kotest.version from 5.5.4 to 5.6.1
+  - Bump kotlin-logging-jvm from 2.1.23 to 3.0.5
+  - Bump kotlin.version from 1.8.10 to 1.8.20
+  - Bump libhoney-java from 1.5.2 to 1.5.4
+  - Bump log4j-core from 2.18.0 to 2.20.0
+  - Bump log4j-layout-template-json from 2.18.0 to 2.20.0
+  - Bump maven-assembly-plugin from 3.4.2 to 3.5.0
+  - Bump maven-compiler-plugin from 3.10.1 to 3.11.0
+  - Bump maven-resources-plugin from 3.3.0 to 3.3.1
+  - Bump maven-shade-plugin from 3.3.0 to 3.4.1 
+  - Bump maven-surefire-plugin from 3.0.0-M8 to 3.0.0
+  - Bump testcontainers/postgresql from 1.17.6 to 1.18.0
+  - Bump postgresql from 42.5.0 to 42.6.0
+  - Bump testcontainers from 1.17.6 to 1.18.0
+  - Bump ulidj from 1.0.1 to 1.0.4
 
 
 ### Deprecated
