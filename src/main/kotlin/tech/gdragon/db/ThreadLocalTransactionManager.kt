@@ -19,7 +19,13 @@ val threadPool: ExecutorService = Executors.newSingleThreadExecutor()
 
 fun <T> asyncTransaction(db: Database? = null, statement: Transaction.() -> T): Future<T?> {
   val supplier = Supplier<T> {
-    txn(db.transactionManager.defaultIsolationLevel, db.transactionManager.defaultRepetitionAttempts, db, statement)
+    txn(
+      db.transactionManager.defaultIsolationLevel,
+      db.transactionManager.defaultRepetitionAttempts,
+      false,
+      db,
+      statement
+    )
   }
 
   return CompletableFuture
