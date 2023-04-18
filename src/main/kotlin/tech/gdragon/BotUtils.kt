@@ -2,7 +2,7 @@ package tech.gdragon
 
 import com.github.benmanes.caffeine.cache.Caffeine
 import dev.minn.jda.ktx.messages.MessageCreate
-import io.opentelemetry.extension.annotations.WithSpan
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import mu.KotlinLogging
 import mu.withLoggingContext
 import net.dv8tion.jda.api.JDA
