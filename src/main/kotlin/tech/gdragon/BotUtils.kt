@@ -14,10 +14,10 @@ import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel
 import net.dv8tion.jda.api.entities.channel.unions.AudioChannelUnion
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException
+import net.dv8tion.jda.api.requests.Route
 import net.dv8tion.jda.api.utils.FileUpload
 import net.dv8tion.jda.internal.managers.AudioManagerImpl
 import net.dv8tion.jda.internal.requests.RestActionImpl
-import net.dv8tion.jda.internal.requests.Route
 import org.jetbrains.exposed.dao.exceptions.EntityNotFoundException
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.Op
