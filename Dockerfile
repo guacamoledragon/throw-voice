@@ -1,4 +1,12 @@
 ## -*- dockerfile-image-name: "registry.gitlab.com/pawabot/pawa" -*-
+FROM curlimages/curl:latest as deps
+
+WORKDIR /home/curl_user
+
+ENV SDK_VERSION 1.3.0
+
+RUN curl -Lo agent.jar https://github.com/honeycombio/honeycomb-opentelemetry-java/releases/download/v${SDK_VERSION}/honeycomb-opentelemetry-javaagent-${SDK_VERSION}.jar
+
 FROM maven:3.9.1-eclipse-temurin-17-alpine as builder
 
 WORKDIR /app
@@ -13,14 +21,6 @@ ARG BUILD_DATE
 ARG VCS_REF
 ARG VERSION
 RUN mvn -B -Dversion="${VERSION:-dev}" -Dtimestamp="${BUILD_DATE}" -Drevision="${VCS_REF}" package -DskipTests
-
-FROM curlimages/curl:latest as deps
-
-WORKDIR /home/curl_user
-
-ENV SDK_VERSION 1.3.0
-
-RUN curl -Lo agent.jar https://github.com/honeycombio/honeycomb-opentelemetry-java/releases/download/v${SDK_VERSION}/honeycomb-opentelemetry-javaagent-${SDK_VERSION}.jar
 
 # https://console.cloud.google.com/gcr/images/distroless/global/java17@sha256:0aea893ebf78c9d8111d709efd2bd3c6b0975d07fad11317355a2dad032823fc/details?tab=vulnz
 FROM gcr.io/distroless/java17@sha256:0aea893ebf78c9d8111d709efd2bd3c6b0975d07fad11317355a2dad032823fc
