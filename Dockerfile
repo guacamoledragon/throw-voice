@@ -1,3 +1,4 @@
+## -*- dockerfile-image-name: "registry.gitlab.com/pawabot/pawa" -*-
 FROM maven:3.9.1-eclipse-temurin-17-alpine as builder
 
 WORKDIR /app
