@@ -12,7 +12,7 @@ COPY src src
 ARG BUILD_DATE
 ARG VCS_REF
 ARG VERSION
-RUN mvn -B -Dversion="${VERSION}" -Dtimestamp="${BUILD_DATE}" -Drevision="${VCS_REF}" package -DskipTests
+RUN mvn -B -Dversion="${VERSION:-dev}" -Dtimestamp="${BUILD_DATE}" -Drevision="${VCS_REF}" package -DskipTests
 
 FROM curlimages/curl:latest as deps
 
@@ -44,7 +44,7 @@ ENTRYPOINT []
 EXPOSE 8080
 
 ENV APP_DIR /app
-ENV VERSION $VERSION
+ENV VERSION ${VERSION:-dev}
 
 WORKDIR $APP_DIR
 COPY --from=deps /home/curl_user/agent.jar .
