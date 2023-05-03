@@ -1,4 +1,22 @@
 ## -*- dockerfile-image-name: "registry.gitlab.com/pawabot/pawa" -*-
+FROM debian:11 as audiowaveform
+
+RUN apt update \
+ && apt install -y \
+    git make cmake gcc g++ libmad0-dev \
+    libid3tag0-dev libsndfile1-dev libgd-dev libboost-filesystem-dev \
+    libboost-program-options-dev \
+    libboost-regex-dev
+
+RUN git clone -n https://github.com/bbc/audiowaveform.git \
+ && cd audiowaveform \
+ && git checkout 1.7.1 \
+ && mkdir build \
+ && cd build \
+ && cmake -D ENABLE_TESTS=0 -D BUILD_STATIC=1 .. \
+ && make -j $(nproc) \
+ && make install
+
 FROM curlimages/curl:latest as deps
 
 WORKDIR /home/curl_user
@@ -47,6 +65,7 @@ ENV APP_DIR /app
 ENV VERSION ${VERSION:-dev}
 
 WORKDIR $APP_DIR
+COPY --from=audiowaveform /usr/local/bin/audiowaveform .
 COPY --from=deps /home/curl_user/agent.jar .
 COPY --from=builder /app/target/pawa-release/lib lib
 COPY --from=builder /app/target/pawa-release/*.jar .
