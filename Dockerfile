@@ -41,7 +41,7 @@ ARG VERSION
 RUN mvn -B -Dversion="${VERSION:-dev}" -Dtimestamp="${BUILD_DATE}" -Drevision="${VCS_REF}" package -DskipTests
 
 # https://console.cloud.google.com/gcr/images/distroless/global/java17-debian11@sha256:92f34f18951118ac1c8261c128cdf2001b4e74340050f557dcd1ac4ddd6a07ad/details?tab=vulnz
-# FROM gcr.io/distroless/java17-debian11@sha256:92f34f18951118ac1c8261c128cdf2001b4e74340050f557dcd1ac4ddd6a07ad
+FROM gcr.io/distroless/java17-debian11@sha256:92f34f18951118ac1c8261c128cdf2001b4e74340050f557dcd1ac4ddd6a07ad
 LABEL maintainer="Jose V. Trigueros <jose@gdragon.tech>"
 
 ARG BUILD_DATE
