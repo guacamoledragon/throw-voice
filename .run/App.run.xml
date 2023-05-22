@@ -1,0 +1,14 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="App" type="JetRunConfigurationType">
+    <envs>
+      <env name="BOT_STANDALONE" value="false" />
+      <env name="OVERRIDE_FILE" value="overrides.properties" />
+    </envs>
+    <option name="MAIN_CLASS_NAME" value="tech.gdragon.App" />
+    <module name="pawa" />
+    <shortenClasspath name="NONE" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
