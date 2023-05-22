@@ -16,6 +16,7 @@ import mu.KotlinLogging
 import mu.withLoggingContext
 import net.dv8tion.jda.api.audio.AudioReceiveHandler
 import net.dv8tion.jda.api.audio.CombinedAudio
+import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel
@@ -76,14 +77,14 @@ class CombinedAudioRecorderHandler(
 ) : AudioReceiveHandler, KoinComponent {
   companion object {
     private const val AFK_MINUTES = 2
-    private const val AFK_LIMIT = (AFK_MINUTES * 60 * 1000) / 20            // 2 minutes in ms over 20ms increments
-    private const val MAX_RECORDING_MB = 110L
-    private const val MIN_RECORDING_SIZE = 5L * 1024 * 1024                 // 5MB
-    private const val MAX_RECORDING_SIZE = MAX_RECORDING_MB * 1024 * 1024   // 110MB
-    private const val DISCORD_MAX_RECORDING_SIZE = 8L * 1024 * 1024         // 8MB
-    private const val BUFFER_TIMEOUT = 200L                                 // 200 milliseconds
+    private const val AFK_LIMIT = (AFK_MINUTES * 60 * 1000) / 20                      // 2 minutes in ms over 20ms increments
+    private const val MAX_RECORDING_MB = 256L
+    private const val MIN_RECORDING_SIZE = Message.MAX_FILE_SIZE - (1L * 1024 * 1024) // 24MB
+    private const val MAX_RECORDING_SIZE = MAX_RECORDING_MB * 1024 * 1024             // 256MB
+    private const val DISCORD_MAX_RECORDING_SIZE = Message.MAX_FILE_SIZE              // 25MB
+    private const val BUFFER_TIMEOUT = 200L                                           // 200 milliseconds
     private const val BUFFER_MAX_COUNT = 8
-    private const val BITRATE = 128                                         // 128 kbps
+    private const val BITRATE = 128                                                   // 128 kbps
     private const val BYTES_PER_SECOND = 16_000L                            // 128 kbps == 16000 bytes per second
   }
 
