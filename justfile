@@ -1,6 +1,13 @@
 set shell := ["nu.exe", "-c"]
 set dotenv-load := false
 
+# Start local Minio instance for development
+minio-start:
+  docker run --rm -it --name minio -p 9090:9000 -p 9091:9091 \
+  -e MINIO_ROOT_USER=minio -e MINIO_ROOT_PASSWORD=password -e MINIO_CONSOLE_ADDRESS=:9091 \
+  minio/minio:RELEASE.2022-03-11T23-57-45Z \
+  server /opt/data
+
 # Create uberjar for H2 restore script
 package-h2-runscript:
   mvn -Pdev,h2-runscript package
@@ -40,7 +47,7 @@ pg-restore backup password='password' port='5432':
 
 # Start local PostgresQL instance for development
 pg-start:
-  docker run --rm --cpus 1.0 --name postgres -p 5432:5432 \
+  docker run -it --rm --cpus 1.0 --name postgres -p 5432:5432 \
   -e POSTGRES_PASSWORD=password -e POSTGRES_DB=settings \
   -v pgdata:/var/lib/postgresql/data -v ($env.PWD + "/data/db-logs:/logs") \
   postgres:13
