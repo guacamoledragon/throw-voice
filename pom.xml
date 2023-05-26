@@ -17,7 +17,7 @@
     <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
     <kotlin.compiler.jvmTarget>17</kotlin.compiler.jvmTarget>
     <kotlin.version>1.8.21</kotlin.version>
-    <kotest.version>5.6.1</kotest.version>
+    <kotest.version>5.6.2</kotest.version>
     <main.class>tech.gdragon.App</main.class>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <slf4j.version>2.0.0-alpha2</slf4j.version>
