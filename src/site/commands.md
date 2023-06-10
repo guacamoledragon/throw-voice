@@ -57,7 +57,7 @@ This is the full list of commands available, but on a daily basis, you wont need
 
 These are [supporter](https://github.com/sponsors/jvtrigueros) only commands.
 
-|                              Command | Description                                                                                      |
-|-------------------------------------:|--------------------------------------------------------------------------------------------------|
-|       [recover](commands/recover.md) | Attempts to recover a recording using Session ID                                                 |
-|             [send](commands/send.md) | Sends a short recording to a user                                                                |
+|                              Command | Description                                      |
+|-------------------------------------:|--------------------------------------------------|
+| [recover](commands/slash/recover.md) | Attempts to recover a recording using Session ID |
+|             [send](commands/send.md) | Sends a short recording to a user                |
