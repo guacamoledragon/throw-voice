@@ -14,10 +14,8 @@ import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel
 import net.dv8tion.jda.api.entities.channel.unions.AudioChannelUnion
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException
-import net.dv8tion.jda.api.requests.Route
 import net.dv8tion.jda.api.utils.FileUpload
 import net.dv8tion.jda.internal.managers.AudioManagerImpl
-import net.dv8tion.jda.internal.requests.RestActionImpl
 import org.jetbrains.exposed.dao.exceptions.EntityNotFoundException
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.Op
@@ -257,6 +255,7 @@ object BotUtils {
       Guild.find(op).map {
         object {
           val id = it.id.value
+          val name = it.name
         }
       }
     }
@@ -264,14 +263,19 @@ object BotUtils {
     guilds
       .forEach {
         val guild = jda.shardManager?.getGuildById(it.id)
-        val route = Route.Self.LEAVE_GUILD.compile(guild?.id)
-        val action = RestActionImpl<Void>(guild?.jda, route)
-        action
-          .queue({
+        guild
+          ?.leave()
+          ?.queue({
             logger.info { "Left server '$guild', reached inactivity period." }
           }, { e ->
             logger.error(e) { "Could not leave server '$guild'!" }
           })
+          ?: logger.warn {
+            asyncTransaction {
+              Guild[it.id].active = false
+            }
+            "No longer in this guild ${it.name}, but marking as inactive"
+          }
       }
 
     // Delete all ancient guilds using the same query as above
