@@ -16,6 +16,7 @@ import org.koin.fileProperties
 import tech.gdragon.data.Datastore
 import tech.gdragon.data.LocalDatastore
 import tech.gdragon.data.RemoteDatastore
+import tech.gdragon.data.S3Datastore
 import tech.gdragon.db.Database
 import tech.gdragon.discord.Bot
 import tech.gdragon.koin.getBooleanProperty
@@ -70,12 +71,13 @@ object App {
             LocalDatastore(bucketName)
           } else {
             val endpoint = getProperty<String>("DS_HOST")
-            RemoteDatastore(
-              getProperty("DS_ACCESS_KEY"),
-              bucketName,
+            val region = getProperty<String>("DS_REGION")
+            val baseUrl = getProperty<String>("DS_BASEURL")
+            S3Datastore(
               endpoint,
-              getProperty("DS_SECRET_KEY"),
-              getProperty("DS_BASEURL", "$endpoint/$bucketName")
+              region,
+              bucketName,
+              baseUrl
             )
           }
         }

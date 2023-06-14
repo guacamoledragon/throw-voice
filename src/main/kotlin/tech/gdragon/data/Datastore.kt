@@ -1,6 +1,13 @@
 package tech.gdragon.data
 
+import aws.sdk.kotlin.runtime.auth.credentials.EnvironmentCredentialsProvider
+import aws.sdk.kotlin.services.s3.S3Client
+import aws.sdk.kotlin.services.s3.putObject
+import aws.smithy.kotlin.runtime.content.ByteStream
+import aws.smithy.kotlin.runtime.content.fromFile
+import aws.smithy.kotlin.runtime.net.Url
 import io.minio.*
+import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import net.jodah.failsafe.Failsafe
 import net.jodah.failsafe.RetryPolicy
@@ -37,6 +44,7 @@ class LocalDatastore(val localBucket: String) : Datastore {
   }
 }
 
+@Deprecated("Use S3Datastore instead.")
 class RemoteDatastore(
   accessKey: String,
   val bucketName: String,
@@ -99,6 +107,45 @@ class RemoteDatastore(
   }
 }
 
+class S3Datastore(
+  endpoint: String,
+  region: String,
+  val bucketName: String,
+  val baseUrl: String,
+) : Datastore {
+  val logger = KotlinLogging.logger { }
+
+  val client = S3Client {
+    this.endpointUrl = Url.parse(endpoint)
+    this.region = region
+    this.credentialsProvider = EnvironmentCredentialsProvider()
+  }
+
+  private val retryPolicy: RetryPolicy<Unit> = RetryPolicy<Unit>()
+    .withBackoff(2, 30, ChronoUnit.SECONDS)
+    .withJitter(.25)
+    .onRetry { ex -> logger.warn { "Failure #${ex.attemptCount}. Retrying!" } }
+
+  override fun upload(key: String, file: File): UploadResult {
+    Failsafe.with(retryPolicy).run { ->
+      runBlocking {
+        client.putObject {
+          bucket = bucketName
+          this.key = key
+          body = ByteStream.fromFile(file)
+          contentType = "audio/mpeg"
+        }
+      }
+    }
+
+    logger.info {
+      "Finished uploading file - (${FileUtils.byteCountToDisplaySize(file.length())}) $key"
+    }
+
+    return UploadResult.from(file.toPath(), "$baseUrl/$key")
+  }
+}
+
 data class UploadResult(val key: String, val timestamp: Instant, val size: Long, val url: String) {
   companion object {
     fun from(baseUrl: String, stat: StatObjectResponse): UploadResult {
@@ -108,10 +155,10 @@ data class UploadResult(val key: String, val timestamp: Instant, val size: Long,
       return UploadResult(stat.`object`(), createdTime, stat.size(), "$baseUrl/${stat.`object`()}")
     }
 
-    fun from(path: Path): UploadResult {
+    fun from(path: Path, url: String = path.toUri().toString()): UploadResult {
       val attributes = Files.readAttributes(path, BasicFileAttributes::class.java)
       val createdTime = attributes.creationTime().toInstant()
-      return UploadResult(path.fileName.toString(), createdTime, attributes.size(), path.toUri().toString())
+      return UploadResult(path.fileName.toString(), createdTime, attributes.size(), url)
     }
   }
 }
