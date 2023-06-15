@@ -64,7 +64,7 @@ fun pawaTests(db: Database, ds: Datastore, isStandalone: Boolean) = funSpec {
 
   context("when recover") {
     test("it should return null when Session ID doesn't exist") {
-      val recording = pawa.recoverRecording("./", ds, guildId, "fake-session-id")
+      val recording = pawa.recoverRecording("./", ds, "fake-session-id")
 
       recording.shouldBeNull()
     }
@@ -79,7 +79,7 @@ fun pawaTests(db: Database, ds: Datastore, isStandalone: Boolean) = funSpec {
           this.guild = guild
         }
       }
-      val recording = pawa.recoverRecording("./", ds, guildId, record.id.value)
+      val recording = pawa.recoverRecording("./", ds, record.id.value)
 
       record.shouldNotBeNull()
       recording.shouldBeNull()
@@ -98,7 +98,7 @@ fun pawaTests(db: Database, ds: Datastore, isStandalone: Boolean) = funSpec {
           url = "https://fake-link.com"
         }
       }
-      val recording = pawa.recoverRecording("./", ds, guildId, record.id.value)
+      val recording = pawa.recoverRecording("./", ds, record.id.value)
 
       recording.shouldNotBeNull()
       recording.id.shouldBe(record.id)
@@ -115,7 +115,7 @@ fun pawaTests(db: Database, ds: Datastore, isStandalone: Boolean) = funSpec {
           this.guild = guild
         }
       }
-      val recording = pawa.recoverRecording("./", ds, guildId, record.id.value)
+      val recording = pawa.recoverRecording("./", ds, record.id.value)
 
       recording.shouldNotBeNull()
       recording.id.shouldBe(record.id)

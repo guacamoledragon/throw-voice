@@ -125,7 +125,7 @@ class Pawa(val id: Long, val db: Database, val isStandalone: Boolean, config: Pa
    * Given the Session ID, return the database record, or re-upload recording if it exists.
    * If recording cannot be recovered, return null.
    */
-  fun recoverRecording(dataDirectory: String, datastore: Datastore, guildId: Long, sessionId: String): Recording? {
+  fun recoverRecording(dataDirectory: String, datastore: Datastore, sessionId: String): Recording? {
     val recording = transaction {
       Recording.findById(sessionId)
     }
@@ -149,11 +149,11 @@ class Pawa(val id: Long, val db: Database, val isStandalone: Boolean, config: Pa
           }
         }
 
-        val result = datastore.upload("$guildId/${mp3File.name}", mp3File)
         transaction {
+          val result = datastore.upload("${it.guild.id.value}/${mp3File.name}", mp3File)
           it.apply {
             size = result.size
-            modifiedOn = result.timestamp
+            modifiedOn = this.modifiedOn ?: result.timestamp
             url = result.url
           }
         }

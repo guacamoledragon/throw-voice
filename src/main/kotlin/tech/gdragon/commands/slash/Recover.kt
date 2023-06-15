@@ -9,7 +9,6 @@ import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionE
 import org.koin.core.context.GlobalContext
 import tech.gdragon.BotUtils.trigoman
 import tech.gdragon.api.pawa.Pawa
-import tech.gdragon.commands.CommandHandler
 import tech.gdragon.data.Datastore
 import tech.gdragon.discord.message.ErrorEmbed
 import tech.gdragon.discord.message.RecordingReply
@@ -36,11 +35,9 @@ object Recover {
     val dataDirectory = koin.getStringProperty("BOT_DATA_DIR")
     val appUrl = koin.getStringProperty("APP_URL")
 
-    val guildId = event.guild!!.idLong
-
     // Reply to the user, the upcoming request requires database interaction
     event.deferReply().queue()
-    val recording = pawa.recoverRecording(dataDirectory, datastore, guildId, sessionId)
+    val recording = pawa.recoverRecording(dataDirectory, datastore, sessionId)
 
     val interaction =
       if (recording == null) {
