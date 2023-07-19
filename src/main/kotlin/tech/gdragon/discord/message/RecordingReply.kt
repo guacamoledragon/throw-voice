@@ -4,6 +4,7 @@ import dev.minn.jda.ktx.interactions.components.link
 import dev.minn.jda.ktx.interactions.components.row
 import dev.minn.jda.ktx.messages.Embed
 import dev.minn.jda.ktx.messages.MessageCreate
+import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.emoji.Emoji
 import org.apache.commons.io.FileUtils
 import tech.gdragon.db.dao.Recording
@@ -17,6 +18,12 @@ class RecordingReply(recording: Recording, appBaseUrl: String) {
   private val duration = "${recording.pseudoDuration().toMinutes()} minutes"
   private val size = FileUtils.byteCountToDisplaySize(recording.size)
   private val appRecordingUrl = "$appBaseUrl/v1/recordings?guild=$guildId&session-id=$sessionId"
+  private val recordingUrl = recording.url?.let { url ->
+    if (EmbedBuilder.URL_PATTERN.matcher(url).matches())
+      recording.url
+    else
+      null
+  }
 
   private val voteUrl = "https://top.gg/bot/pawa/vote"
 
@@ -24,7 +31,7 @@ class RecordingReply(recording: Recording, appBaseUrl: String) {
     title = sessionId
     description = "Here's your recording, enjoy!"
     color = Color.decode("#596800").rgb
-    url = recording.url
+    url = recordingUrl
     field {
       name = "Created On"
       value = createdOn
