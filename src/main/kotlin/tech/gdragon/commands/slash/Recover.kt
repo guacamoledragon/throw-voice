@@ -12,7 +12,6 @@ import tech.gdragon.api.pawa.Pawa
 import tech.gdragon.data.Datastore
 import tech.gdragon.discord.message.ErrorEmbed
 import tech.gdragon.discord.message.RecordingReply
-import tech.gdragon.discord.message.RequestAccessModal
 import tech.gdragon.koin.getStringProperty
 
 object Recover {
@@ -24,35 +23,37 @@ object Recover {
   fun slashHandler(pawa: Pawa): suspend CoroutineEventListener.(GenericCommandInteractionEvent) -> Unit = { event ->
     val sessionId = event.getOption<String>("session-id")!!
 
-    require(trigoman == event.user.idLong) {
-      val modalRequest = RequestAccessModal("Request access to /recover command", sessionId)
-      val modal = modalRequest.modal
-      event.replyModal(modal).queue()
+    if (trigoman == event.user.idLong || pawa.isStandalone) {
+      val koin = GlobalContext.get()
+      val datastore = koin.get<Datastore>()
+      val dataDirectory = koin.getStringProperty("BOT_DATA_DIR")
+      val appUrl = koin.getStringProperty("APP_URL")
+
+      // Reply to the user, the upcoming request requires database interaction
+      event.deferReply().queue()
+      val recording = pawa.recoverRecording(dataDirectory, datastore, sessionId)
+
+      val interaction =
+        if (recording == null) {
+          val errorEmbed = ErrorEmbed("Recording Not Found", "Couldn't find recording with Session ID: $sessionId")
+          event
+            .hook
+            .sendMessage(errorEmbed.message)
+        } else {
+          val embed = RecordingReply(recording, appUrl)
+
+          event
+            .hook
+            .sendMessage(embed.message)
+        }
+
+      interaction.queue()
+    } else {
+      val errorEmbed = ErrorEmbed(
+        "You cannot use /recover command in this server.",
+        "Join support server and post your SessionID:\n ```\n$sessionId```"
+      )
+      event.reply(errorEmbed.message).queue()
     }
-
-    val koin = GlobalContext.get()
-    val datastore = koin.get<Datastore>()
-    val dataDirectory = koin.getStringProperty("BOT_DATA_DIR")
-    val appUrl = koin.getStringProperty("APP_URL")
-
-    // Reply to the user, the upcoming request requires database interaction
-    event.deferReply().queue()
-    val recording = pawa.recoverRecording(dataDirectory, datastore, sessionId)
-
-    val interaction =
-      if (recording == null) {
-        val errorEmbed = ErrorEmbed("Recording Not Found", "Couldn't find recording with Session ID: $sessionId")
-        event
-          .hook
-          .sendMessage(errorEmbed.message)
-      } else {
-        val embed = RecordingReply(recording, appUrl)
-
-        event
-          .hook
-          .sendMessage(embed.message)
-      }
-
-    interaction.queue()
   }
 }
