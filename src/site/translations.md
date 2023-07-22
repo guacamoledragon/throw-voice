@@ -1,20 +1,20 @@
 # Translations
 [pawa](https://pawa.im) supports "speaking" in the following languages:
 
-| Language                                                                                | Code    | Status           | Contributors         |
-|-----------------------------------------------------------------------------------------|:-------:|:----------------:|:--------------------:|
-| English                                                                                 | `en`    | Done             | Kinglester           |
-| German                                                                                  | `de`    | Done             | Mathis               |
-| [Filipino](https://poeditor.com/projects/po_edit?id_language=219&per_page=20&id=294405) | `fil`   | Incomplete (79%) | pranchiii            |
-| French                                                                                  | `fr`    | Done             | CedriCDAR77          |
-| Hungarian                                                                               | `hu`    | Done             | Bence                |
-| Indonesian                                                                              | `id`    | Done             | Aldiwild77           |
-| Italian                                                                                 | `ita`   | Done             | Anko                 |
-| Polish                                                                                  | `pl`    | Done             | EverythingerTruten   |
-| Portuguese (Brazil)                                                                     | `pt_BR` | Done             | Zeus Portella, icebb |
-| Spanish                                                                                 | `es`    | Done             | ChangoMC             |
-| [Thai](https://poeditor.com/projects/po_edit?id_language=163&per_page=20&id=294405)     | `tha`   | Incomplete (8%)  | Kariburahack         |
-| Vietnamese                                                                              | `vi`    | Done             | taa·mee              |
+| Language                                                                                            | Code    | Status | Contributors                |
+|-----------------------------------------------------------------------------------------------------|:-------:|:------:|:---------------------------:|
+| English                                                                                             | `en`    | 100%   | Kinglester                  |
+| French                                                                                              | `fr`    | 100%   | Bence, CedriCDAR77, Gallium |
+| [Filipino](https://poeditor.com/projects/po_edit?id_language=219&per_page=20&id=294405)             | `fil`   | 71%    | pranchiii                   |
+| [German](https://poeditor.com/projects/po_edit?id_language=55&per_page=100&id=294405)               | `de`    | 88%    | Mathis                      |
+| [Hungarian](https://poeditor.com/projects/po_edit?id_language=65&per_page=100&id=294405)            | `hu`    | 90%    | Bence                       |
+| [Indonesian](https://poeditor.com/projects/po_edit?id_language=69&per_page=100&id=294405)           | `id`    | 90%    | Aldiwild77                  |
+| [Italian](https://poeditor.com/projects/po_edit?id_language=75&per_page=100&id=294405)              | `ita`   | 90%    | Anko                        |
+| [Polish](https://poeditor.com/projects/po_edit?id_language=127&per_page=100&id=294405)              | `pl`    | 90%    | EverythingerTruten          |
+| [Portuguese (Brazil)](https://poeditor.com/projects/po_edit?id_language=190&per_page=100&id=294405) | `pt_BR` | 90%    | Zeus Portella, icebb        |
+| [Spanish](https://poeditor.com/projects/po_edit?id_language=196&per_page=100&id=294405)             | `es`    | 90%    | ChangoMC                    |
+| [Thai](https://poeditor.com/projects/po_edit?id_language=163&per_page=20&id=294405)                 | `tha`   | 8%     | Kariburahack                |
+| [Vietnamese](https://poeditor.com/projects/po_edit?id_language=177&per_page=100&id=294405)          | `vi`    | 98%    | taa·mee                     |
 
 ## Contribute
 We need your help! [pawa](https://pawa.im) will only be able to speak other languages if contributed by the community.
