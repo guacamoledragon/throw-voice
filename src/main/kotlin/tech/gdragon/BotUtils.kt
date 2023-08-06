@@ -8,7 +8,10 @@ import mu.withLoggingContext
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.audio.hooks.ConnectionStatus
-import net.dv8tion.jda.api.entities.*
+import net.dv8tion.jda.api.entities.Member
+import net.dv8tion.jda.api.entities.Message
+import net.dv8tion.jda.api.entities.MessageEmbed
+import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel
@@ -420,15 +423,13 @@ object BotUtils {
   }
 
   fun uploadFile(textChannel: TextChannel, file: File, filename: String): Message? {
-    var msgResult: Message? = null
-
-    FileInputStream(file).use {
-      msgResult = textChannel
-        .sendFiles(FileUpload.fromData(it, filename))
-        .complete()
+    val fileUpload = FileUpload.fromStreamSupplier(filename) {
+      FileInputStream(file)
     }
 
-    return msgResult
+    return textChannel
+      .sendFiles(fileUpload)
+      .complete()
   }
 
   /**
