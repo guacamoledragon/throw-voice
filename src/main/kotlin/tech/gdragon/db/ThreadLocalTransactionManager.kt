@@ -21,8 +21,7 @@ fun <T> asyncTransaction(db: Database? = null, statement: Transaction.() -> T): 
   val supplier = Supplier<T> {
     txn(
       db.transactionManager.defaultIsolationLevel,
-      db.transactionManager.defaultRepetitionAttempts,
-      false,
+      db.transactionManager.defaultReadOnly,
       db,
       statement
     )
