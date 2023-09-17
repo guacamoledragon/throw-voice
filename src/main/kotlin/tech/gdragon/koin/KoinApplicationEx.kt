@@ -1,11 +1,19 @@
 package tech.gdragon.koin
 
-import com.google.common.collect.Maps
 import org.koin.core.KoinApplication
 import org.koin.core.logger.Level
 import java.io.File
 import java.io.FileInputStream
 import java.util.*
+
+/**
+ * Generate a hashmap from a Properties object.
+ */
+private fun fromProperties(properties: Properties): Map<String, Any> = buildMap {
+  properties.forEach { property ->
+    put(property.key as String, property.value)
+  }
+}
 
 fun KoinApplication.overrideFileProperties(overrideFilename: String): KoinApplication {
   val overrideFile = File(overrideFilename)
@@ -16,7 +24,7 @@ fun KoinApplication.overrideFileProperties(overrideFilename: String): KoinApplic
         it.load(inputStream)
       }
 
-      properties(Maps.fromProperties(overrideProperties))
+      properties(fromProperties(overrideProperties))
       if (koin.logger.isAt(Level.INFO)) {
         koin.logger.info("loaded properties from file:'${overrideFile.canonicalPath}'")
       }
