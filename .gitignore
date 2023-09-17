@@ -55,3 +55,5 @@ local-db
 agent.jar
 .DS_Store
 *.class
+dev.properties
+dev*.properties
