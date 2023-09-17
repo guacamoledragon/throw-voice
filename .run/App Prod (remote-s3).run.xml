@@ -1,8 +1,8 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="App" type="JetRunConfigurationType">
+  <configuration default="false" name="App Prod (remote-s3)" type="JetRunConfigurationType">
     <envs>
       <env name="BOT_STANDALONE" value="false" />
-      <env name="OVERRIDE_FILE" value="overrides.properties" />
+      <env name="OVERRIDE_FILE" value="prod.properties" />
     </envs>
     <option name="MAIN_CLASS_NAME" value="tech.gdragon.App" />
     <module name="pawa" />

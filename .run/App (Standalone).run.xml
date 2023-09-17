@@ -1,0 +1,15 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="App (Standalone)" type="JetRunConfigurationType">
+    <envs>
+      <env name="BOT_STANDALONE" value="true" />
+      <env name="OVERRIDE_FILE" value="overrides.properties" />
+    </envs>
+    <option name="MAIN_CLASS_NAME" value="tech.gdragon.App" />
+    <module name="pawa" />
+    <shortenClasspath name="NONE" />
+    <option name="VM_PARAMETERS" value="-Dlog4j.configurationFile=log4j2-prod.xml" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
