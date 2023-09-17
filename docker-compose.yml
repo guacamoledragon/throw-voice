@@ -9,6 +9,7 @@ x-logging: &logging
 services:
   bot:
     image: registry.gitlab.com/pawabot/pawa:${VERSION}
+    init: true
     depends_on:
       - datastore
     deploy:
@@ -46,6 +47,8 @@ services:
                           -XX:MaxRAMPercentage=${JVM_MAX_RAM_PERCENTAGE}
       - HONEYCOMB_API_KEY=${HONEYCOMB_API_KEY}
       - SERVICE_NAME=${SERVICE_NAME}
+      - SAMPLE_RATE=${SAMPLE_RATE}
+      - OTEL_JAVAAGENT_ENABLED=false
     ports:
       - "127.0.0.1:1112:1112"
     restart: on-failure:100
