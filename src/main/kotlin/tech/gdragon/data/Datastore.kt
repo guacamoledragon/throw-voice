@@ -1,7 +1,9 @@
 package tech.gdragon.data
 
-import aws.sdk.kotlin.runtime.auth.credentials.EnvironmentCredentialsProvider
+import aws.sdk.kotlin.runtime.auth.credentials.StaticCredentialsProvider
 import aws.sdk.kotlin.services.s3.S3Client
+import aws.sdk.kotlin.services.s3.headBucket
+import aws.sdk.kotlin.services.s3.model.CreateBucketRequest
 import aws.sdk.kotlin.services.s3.putObject
 import aws.smithy.kotlin.runtime.content.ByteStream
 import aws.smithy.kotlin.runtime.content.fromFile
@@ -108,23 +110,35 @@ class RemoteDatastore(
 }
 
 class S3Datastore(
+  private val accessKey: String,
+  private val secretKey: String,
   endpoint: String,
   region: String,
   val bucketName: String,
-  val baseUrl: String,
+  private val baseUrl: String
 ) : Datastore {
   val logger = KotlinLogging.logger { }
 
   val client = S3Client {
-    this.endpointUrl = Url.parse(endpoint)
+    endpointUrl = Url.parse(endpoint)
     this.region = region
-    this.credentialsProvider = EnvironmentCredentialsProvider()
+    credentialsProvider = StaticCredentialsProvider {
+      accessKeyId = accessKey
+      secretAccessKey = secretKey
+    }
   }
 
   private val retryPolicy: RetryPolicy<Unit> = RetryPolicy<Unit>()
     .withBackoff(2, 30, ChronoUnit.SECONDS)
     .withJitter(.25)
     .onRetry { ex -> logger.warn { "Failure #${ex.attemptCount}. Retrying!" } }
+    .onFailure { ex -> logger.error(ex.failure) { "Failed to upload file!" } }
+
+  init {
+    runBlocking {
+      client.ensureBucketExists(bucketName)
+    }
+  }
 
   override fun upload(key: String, file: File): UploadResult {
     Failsafe.with(retryPolicy).run { ->
@@ -144,6 +158,31 @@ class S3Datastore(
 
     return UploadResult.from(file.toPath(), "$baseUrl/$key")
   }
+
+  /** Check for valid S3 configuration based on account
+   *  Source: https://github.com/awslabs/aws-sdk-kotlin/blob/f8c91219b8ba6cea738d964d711495fa89d5b4be/examples/s3-media-ingestion/src/main/kotlin/aws/sdk/kotlin/example/Main.kt
+   */
+  private suspend fun S3Client.ensureBucketExists(bucketName: String) {
+    if (!bucketExists(bucketName)) {
+      val createBucketRequest = CreateBucketRequest {
+        bucket = bucketName
+      }
+      createBucket(createBucketRequest)
+    } else {
+      logger.info { "Bucket already exists, carry on!" }
+    }
+  }
+
+  /** Determine if a object exists in a bucket
+   *  Source: https://github.com/awslabs/aws-sdk-kotlin/blob/f8c91219b8ba6cea738d964d711495fa89d5b4be/examples/s3-media-ingestion/src/main/kotlin/aws/sdk/kotlin/example/Main.kt
+   */
+  private suspend fun S3Client.bucketExists(s3bucket: String) =
+    try {
+      headBucket { bucket = s3bucket }
+      true
+    } catch (e: Exception) { // Checking Service Exception coming in future release
+      false
+    }
 }
 
 data class UploadResult(val key: String, val timestamp: Instant, val size: Long, val url: String) {
