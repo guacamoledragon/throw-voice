@@ -57,8 +57,8 @@ object App {
        * When bundled, this should be where users are expected to interact with the settings.
        */
       val overrideFile = System.getenv("OVERRIDE_FILE")
-      if (overrideFile.isNullOrEmpty() && koin.logger.isAt(Level.INFO)) {
-        koin.logger.info("No override file provided. Please set OVERRIDE_FILE environment variable if desired.")
+      if (overrideFile.isNullOrEmpty()) {
+        logger.info("No override file provided. Please set OVERRIDE_FILE environment variable if desired.")
       } else {
         overrideFileProperties(overrideFile)
       }

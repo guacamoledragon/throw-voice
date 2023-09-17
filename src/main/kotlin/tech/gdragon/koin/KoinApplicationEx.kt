@@ -1,6 +1,7 @@
 package tech.gdragon.koin
 
 import org.koin.core.KoinApplication
+import org.koin.core.annotation.KoinInternalApi
 import org.koin.core.logger.Level
 import java.io.File
 import java.io.FileInputStream
@@ -15,6 +16,7 @@ private fun fromProperties(properties: Properties): Map<String, Any> = buildMap 
   }
 }
 
+@OptIn(KoinInternalApi::class)
 fun KoinApplication.overrideFileProperties(overrideFilename: String): KoinApplication {
   val overrideFile = File(overrideFilename)
 
