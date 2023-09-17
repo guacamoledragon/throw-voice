@@ -5,7 +5,7 @@ set dotenv-load := false
 minio-start:
   docker run --rm -it --name minio -p 9090:9000 -p 9091:9091 \
   -e MINIO_ROOT_USER=minio -e MINIO_ROOT_PASSWORD=password -e MINIO_CONSOLE_ADDRESS=:9091 \
-  minio/minio:RELEASE.2022-03-11T23-57-45Z \
+  minio/minio:RELEASE.2023-09-16T01-01-47Z \
   server /opt/data
 
 # Create uberjar for H2 restore script
