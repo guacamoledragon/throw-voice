@@ -24,9 +24,10 @@ import java.time.temporal.ChronoUnit
 
 interface Datastore {
   fun upload(key: String, file: File): UploadResult
+  fun shutdown()
 }
 
-class LocalDatastore(val localBucket: String) : Datastore {
+class LocalDatastore(private val localBucket: String) : Datastore {
   init {
     val localBucketDirectory = Paths.get(localBucket)
     if (!Files.isDirectory(localBucketDirectory)) {
@@ -42,6 +43,8 @@ class LocalDatastore(val localBucket: String) : Datastore {
       return UploadResult.from(newFile)
     }
   }
+
+  override fun shutdown() {}
 }
 
 class S3Datastore(
@@ -92,6 +95,10 @@ class S3Datastore(
     }
 
     return UploadResult.from(file.toPath(), "$baseUrl/$key")
+  }
+
+  override fun shutdown() {
+    client.close()
   }
 
   /** Check for valid S3 configuration based on account

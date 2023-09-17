@@ -158,6 +158,7 @@ object App {
 
       if (getProperty<String>("BOT_STANDALONE").toBoolean().not()) {
         getOrNull<REPL>()?.shutdown()
+        getOrNull<Datastore>()?.shutdown()
       }
     }
 
