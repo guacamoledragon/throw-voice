@@ -34,7 +34,6 @@ recordings/
 .factorypath
 .project
 .settings/
-overrides.properties
 *.log
 node_modules/
 logs/
@@ -57,3 +56,5 @@ agent.jar
 *.class
 dev.properties
 dev*.properties
+prod.properties
+
