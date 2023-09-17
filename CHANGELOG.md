@@ -42,6 +42,9 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 
 
 ### Removed
+- `RemoteDatastore` class in exchange for a generic S3 API compatible `S3Datastore`
+- `minio` pom dependency
+- `minio` from docker-compose.yml
 
 
 ### Fixed
@@ -49,7 +52,7 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 
 ### Security
 
-## [2.11.1] - 2022-03-01
+## [2.11.1] - 2023-03-01
 
 ### Added
 - Added `/recover` command
