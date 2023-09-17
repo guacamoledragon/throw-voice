@@ -34,7 +34,6 @@ recordings/
 .factorypath
 .project
 .settings/
-overrides.properties
 *.log
 node_modules/
 logs/
@@ -55,3 +54,7 @@ local-db
 agent.jar
 .DS_Store
 *.class
+dev.properties
+dev*.properties
+prod.properties
+

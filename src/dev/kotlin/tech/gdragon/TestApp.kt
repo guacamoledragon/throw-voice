@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.audio.AudioReceiveHandler
 import org.apache.commons.io.FileUtils
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.between
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.not
 import org.jetbrains.exposed.sql.transactions.TransactionManager

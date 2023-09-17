@@ -1,18 +1,18 @@
 package tech.gdragon.data
 
-import aws.sdk.kotlin.runtime.auth.credentials.EnvironmentCredentialsProvider
+import aws.sdk.kotlin.runtime.auth.credentials.StaticCredentialsProvider
 import aws.sdk.kotlin.services.s3.S3Client
+import aws.sdk.kotlin.services.s3.headBucket
+import aws.sdk.kotlin.services.s3.model.CreateBucketRequest
 import aws.sdk.kotlin.services.s3.putObject
 import aws.smithy.kotlin.runtime.content.ByteStream
 import aws.smithy.kotlin.runtime.content.fromFile
 import aws.smithy.kotlin.runtime.net.Url
-import io.minio.*
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import net.jodah.failsafe.Failsafe
 import net.jodah.failsafe.RetryPolicy
 import org.apache.commons.io.FileUtils
-import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.FileInputStream
 import java.nio.file.Files
@@ -24,9 +24,10 @@ import java.time.temporal.ChronoUnit
 
 interface Datastore {
   fun upload(key: String, file: File): UploadResult
+  fun shutdown()
 }
 
-class LocalDatastore(val localBucket: String) : Datastore {
+class LocalDatastore(private val localBucket: String) : Datastore {
   init {
     val localBucketDirectory = Paths.get(localBucket)
     if (!Files.isDirectory(localBucketDirectory)) {
@@ -42,89 +43,40 @@ class LocalDatastore(val localBucket: String) : Datastore {
       return UploadResult.from(newFile)
     }
   }
-}
 
-@Deprecated("Use S3Datastore instead.")
-class RemoteDatastore(
-  accessKey: String,
-  val bucketName: String,
-  endpoint: String,
-  secretKey: String,
-  val baseUrl: String
-) : Datastore {
-  val logger = KotlinLogging.logger { }
-
-  private val client: MinioClient = MinioClient
-    .builder()
-    .endpoint(endpoint)
-    .credentials(accessKey, secretKey)
-    .build()
-
-  private val retryPolicy: RetryPolicy<Unit> = RetryPolicy<Unit>()
-    .withBackoff(2, 30, ChronoUnit.SECONDS)
-    .withJitter(.25)
-    .onRetry { ex -> logger.warn { "Failure #${ex.attemptCount}. Retrying!" } }
-
-  init {
-    if (!client.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build())) {
-      logger.warn {
-        "$bucketName bucket does not exist! Creating..."
-      }
-      client.makeBucket(MakeBucketArgs.builder().bucket(bucketName).build())
-    }
-  }
-
-  override fun upload(key: String, file: File): UploadResult {
-    logger.info {
-      "Uploading: $baseUrl/$key"
-    }
-
-    Failsafe.with(retryPolicy).run { ->
-      ByteArrayInputStream(file.readBytes()).use { bais ->
-        val putObjectArgs = PutObjectArgs
-          .builder()
-          .contentType("audio/mpeg")
-          .bucket(bucketName)
-          .`object`(key)
-          .stream(bais, bais.available().toLong(), -1)
-          .build()
-        client.putObject(putObjectArgs)
-      }
-    }
-
-    val statObjectArgs = StatObjectArgs
-      .builder()
-      .bucket(bucketName)
-      .`object`(key)
-      .build()
-    val stat = UploadResult.from(baseUrl, client.statObject(statObjectArgs))
-
-    logger.info {
-      "Finished uploading file - (${FileUtils.byteCountToDisplaySize(stat.size)}) ${stat.key}"
-    }
-
-    return stat
-  }
+  override fun shutdown() {}
 }
 
 class S3Datastore(
+  private val accessKey: String,
+  private val secretKey: String,
   endpoint: String,
   region: String,
   val bucketName: String,
-  val baseUrl: String,
+  private val baseUrl: String
 ) : Datastore {
   val logger = KotlinLogging.logger { }
 
   val client = S3Client {
-    this.endpointUrl = Url.parse(endpoint)
+    endpointUrl = Url.parse(endpoint)
     this.region = region
-    this.credentialsProvider = EnvironmentCredentialsProvider()
+    credentialsProvider = StaticCredentialsProvider {
+      accessKeyId = accessKey
+      secretAccessKey = secretKey
+    }
   }
 
   private val retryPolicy: RetryPolicy<Unit> = RetryPolicy<Unit>()
     .withBackoff(2, 30, ChronoUnit.SECONDS)
     .withJitter(.25)
     .onRetry { ex -> logger.warn { "Failure #${ex.attemptCount}. Retrying!" } }
+    .onFailure { ex -> logger.error(ex.failure) { "Failed to upload file!" } }
+
+  init {
+    runBlocking {
+      client.ensureBucketExists(bucketName)
+    }
+  }
 
   override fun upload(key: String, file: File): UploadResult {
     Failsafe.with(retryPolicy).run { ->
@@ -144,17 +96,39 @@ class S3Datastore(
 
     return UploadResult.from(file.toPath(), "$baseUrl/$key")
   }
+
+  override fun shutdown() {
+    client.close()
+  }
+
+  /** Check for valid S3 configuration based on account
+   *  Source: https://github.com/awslabs/aws-sdk-kotlin/blob/f8c91219b8ba6cea738d964d711495fa89d5b4be/examples/s3-media-ingestion/src/main/kotlin/aws/sdk/kotlin/example/Main.kt
+   */
+  private suspend fun S3Client.ensureBucketExists(bucketName: String) {
+    if (!bucketExists(bucketName)) {
+      val createBucketRequest = CreateBucketRequest {
+        bucket = bucketName
+      }
+      createBucket(createBucketRequest)
+    } else {
+      logger.info { "Bucket already exists, carry on!" }
+    }
+  }
+
+  /** Determine if a object exists in a bucket
+   *  Source: https://github.com/awslabs/aws-sdk-kotlin/blob/f8c91219b8ba6cea738d964d711495fa89d5b4be/examples/s3-media-ingestion/src/main/kotlin/aws/sdk/kotlin/example/Main.kt
+   */
+  private suspend fun S3Client.bucketExists(s3bucket: String) =
+    try {
+      headBucket { bucket = s3bucket }
+      true
+    } catch (e: Exception) { // Checking Service Exception coming in future release
+      false
+    }
 }
 
 data class UploadResult(val key: String, val timestamp: Instant, val size: Long, val url: String) {
   companion object {
-    fun from(baseUrl: String, stat: StatObjectResponse): UploadResult {
-      val createdTime = stat.lastModified().toInstant()
-      stat.lastModified().toInstant()
-
-      return UploadResult(stat.`object`(), createdTime, stat.size(), "$baseUrl/${stat.`object`()}")
-    }
-
     fun from(path: Path, url: String = path.toUri().toString()): UploadResult {
       val attributes = Files.readAttributes(path, BasicFileAttributes::class.java)
       val createdTime = attributes.creationTime().toInstant()
