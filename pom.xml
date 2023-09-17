@@ -191,7 +191,7 @@
     <dependency>
       <groupId>io.insert-koin</groupId>
       <artifactId>koin-core-jvm</artifactId>
-      <version>3.4.0</version>
+      <version>3.5.0</version>
       <exclusions>
         <exclusion>
           <groupId>org.jetbrains.kotlin</groupId>
