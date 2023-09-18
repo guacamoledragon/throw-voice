@@ -4,7 +4,7 @@
 package tech.gdragon.repl
 
 import clojure.java.api.Clojure
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import java.io.Closeable
 
 class REPL {

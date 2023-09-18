@@ -1,6 +1,6 @@
 package tech.gdragon.commands.settings
 
-import mu.withLoggingContext
+import io.github.oshai.kotlinlogging.withLoggingContext
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import org.jetbrains.exposed.sql.transactions.transaction

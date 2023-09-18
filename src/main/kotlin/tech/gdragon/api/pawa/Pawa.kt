@@ -1,6 +1,6 @@
 package tech.gdragon.api.pawa
 
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.api.tape.queueFileIntoMp3
 import tech.gdragon.data.Datastore
