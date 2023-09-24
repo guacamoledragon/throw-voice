@@ -58,15 +58,17 @@ object App {
        */
       val overrideFile = System.getenv("OVERRIDE_FILE")
       if (overrideFile.isNullOrEmpty()) {
-        logger.info("No override file provided. Please set OVERRIDE_FILE environment variable if desired.")
+        logger.info { "No override file provided. Please set OVERRIDE_FILE environment variable if desired." }
       } else {
         overrideFileProperties(overrideFile)
       }
 
+      val isStandalone = koin.getBooleanProperty("BOT_STANDALONE")
+
       val datastoreModule = module {
         single<Datastore>(createdAtStart = true) {
           val bucketName = getProperty<String>("DS_BUCKET")
-          if (getProperty<String>("BOT_STANDALONE").toBoolean()) {
+          if (isStandalone) {
             LocalDatastore(bucketName)
           } else {
             val accessKey = getProperty<String>("DS_ACCESS_KEY")
@@ -85,20 +87,21 @@ object App {
           }
         }
       }
+
       val optionalModules = module {
-        val createdAtStart = !koin.getBooleanProperty("BOT_STANDALONE")
+        val createdAtStart = !isStandalone
         single(createdAtStart = createdAtStart) {
           REPL()
         }
         single<EventTracer>(createdAtStart = true) {
-          if (koin.getBooleanProperty("BOT_STANDALONE"))
+          if (isStandalone)
             NoHoney()
           else
             Honey(getProperty("TRACING_API_KEY"))
         }
         single<Tracer>(createdAtStart = true) {
           val scopeName = "tech.gdragon.pawa"
-          if (koin.getBooleanProperty("BOT_STANDALONE"))
+          if (isStandalone)
             OpenTelemetry.noop().getTracer(scopeName)
           else {
             GlobalOpenTelemetry.get().getTracer(scopeName)
