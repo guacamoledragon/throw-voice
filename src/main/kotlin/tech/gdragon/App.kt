@@ -109,7 +109,7 @@ object App {
         }
       }
       val modules = listOf(
-        tech.gdragon.db.databaseModule,
+        Database.module(isEmbedded = isStandalone),
         module {
           single { Bot(getProperty("BOT_TOKEN"), get()) }
         },
