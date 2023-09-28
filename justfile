@@ -8,14 +8,6 @@ minio-start:
   minio/minio:RELEASE.2023-09-16T01-01-47Z \
   server /opt/data
 
-# Create uberjar for H2 restore script
-package-h2-runscript:
-  mvn -Pdev,h2-runscript package
-
-# Create uberjar for H2 backup script
-package-h2-script:
-  mvn -Pdev,h2-script package
-
 package-pawa-lite:
   mvn -Plite clean package
 
