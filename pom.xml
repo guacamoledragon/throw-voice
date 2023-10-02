@@ -14,6 +14,7 @@
     <exposed.version>0.43.0</exposed.version>
     <jda.version>5.0.0-beta.13</jda.version>
     <jda-ktx.version>0.10.0-beta.1</jda-ktx.version>
+    <koin.version>3.5.0</koin.version>
     <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
     <kotlin.compiler.jvmTarget>17</kotlin.compiler.jvmTarget>
     <kotlin.version>1.9.10</kotlin.version>
@@ -324,7 +325,7 @@
     <dependency>
       <groupId>io.insert-koin</groupId>
       <artifactId>koin-core</artifactId>
-      <version>3.5.0</version>
+      <version>${koin.version}</version>
       <exclusions>
         <exclusion>
           <groupId>org.jetbrains.kotlin</groupId>
@@ -335,7 +336,7 @@
     <dependency>
       <groupId>io.insert-koin</groupId>
       <artifactId>koin-core-jvm</artifactId>
-      <version>3.5.0</version>
+      <version>${koin.version}</version>
       <exclusions>
         <exclusion>
           <groupId>org.jetbrains.kotlin</groupId>
@@ -350,6 +351,11 @@
           <artifactId>kotlin-stdlib-common</artifactId>
         </exclusion>
       </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>io.insert-koin</groupId>
+      <artifactId>koin-logger-slf4j</artifactId>
+      <version>${koin.version}</version>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
