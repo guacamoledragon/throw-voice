@@ -13,6 +13,7 @@ import org.koin.core.logger.Level
 import org.koin.dsl.module
 import org.koin.environmentProperties
 import org.koin.fileProperties
+import org.koin.logger.SLF4JLogger
 import tech.gdragon.data.Datastore
 import tech.gdragon.data.LocalDatastore
 import tech.gdragon.data.S3Datastore
@@ -33,14 +34,14 @@ import java.util.*
 import kotlin.concurrent.scheduleAtFixedRate
 
 object App {
-  val logger = KotlinLogging.logger { }
+  private val logger = KotlinLogging.logger { }
 
   lateinit var app: KoinApplication
 
   @JvmStatic
   fun start(): KoinApplication {
     val app = startKoin {
-      printLogger(Level.INFO)
+      logger(SLF4JLogger(Level.INFO))
       /**
        * Default properties are here to set values that I want "baked" into the application whenever bundled.
        */
