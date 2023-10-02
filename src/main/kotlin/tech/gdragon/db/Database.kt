@@ -6,6 +6,7 @@ import org.flywaydb.core.api.output.MigrateResult
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.joda.time.DateTimeZone
 import org.koin.dsl.module
+import tech.gdragon.db.h2.Upgrader
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 import org.jetbrains.exposed.sql.Database as ExposedDatabase
@@ -22,10 +23,11 @@ interface Database {
           logger.info("Ensure directory exists: $dbPath")
           Path(dbPath).createDirectories()
 
-          val url = "jdbc:h2:file:$dbPath/settings.db"
+          val dbFilename = "$dbPath/settings.db"
 
-          EmbeddedDatabase(url).apply {
+          EmbeddedDatabase(dbFilename).apply {
             connect()
+            upgrade()
             migrate()
           }
         } else {
@@ -59,9 +61,9 @@ interface Database {
 /**
  * Creates a container for an embedded H2 database.
  *
- * @param url The JDBC URL of the database. eg. "jdbc:h2:file:./settings.db"
+ * @param dbFilename The file path of the database. e.g. "./settings.db"
  */
-class EmbeddedDatabase(private val url: String) : Database {
+class EmbeddedDatabase(private val dbFilename: String) : Database {
   val logger = KotlinLogging.logger { }
   private var _database: ExposedDatabase? = null
   override val database = _database
@@ -70,6 +72,8 @@ class EmbeddedDatabase(private val url: String) : Database {
     if (_database != null) {
       return
     }
+
+    val url = "jdbc:h2:file:$dbFilename"
     _database = ExposedDatabase.connect(url, "org.h2.Driver")
   }
 
@@ -101,6 +105,29 @@ class EmbeddedDatabase(private val url: String) : Database {
     }
 
     return result
+  }
+
+  /**
+   * Updates the H2 version on the fly.
+   */
+  fun upgrade() {
+    require(_database != null) {
+      "Database not initialized"
+    }
+
+    try {
+      // This will trigger a failure if the database is NOT already at the latest version.
+      val dbVersion = _database?.version
+      logger.info {
+        "Database version: $dbVersion, already up to date."
+      }
+    } catch (_: Exception) {
+      val upgrader = Upgrader(dbFilename)
+      upgrader.upgrade()
+
+      // Reconnect to the database to the updated version.
+      connect()
+    }
   }
 }
 
