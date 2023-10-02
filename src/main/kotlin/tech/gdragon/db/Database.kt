@@ -62,18 +62,21 @@ interface Database {
  * Creates a container for an embedded H2 database.
  *
  * @param dbFilename The file path of the database. e.g. "./settings.db"
+ * @param type The type of database to create, e.g. "file" or "mem"
+ * @param options The database options, e.g. "DB_CLOSE_DELAY=-1"
  */
-class EmbeddedDatabase(private val dbFilename: String) : Database {
-  val logger = KotlinLogging.logger { }
+class EmbeddedDatabase(private val dbFilename: String, type: String = "file", options: String = "") : Database {
+  private val logger = KotlinLogging.logger { }
   private var _database: ExposedDatabase? = null
   override val database = _database
+
+  val url: String = "jdbc:h2:$type:$dbFilename;$options"
 
   override fun connect() {
     if (_database != null) {
       return
     }
 
-    val url = "jdbc:h2:file:$dbFilename"
     _database = ExposedDatabase.connect(url, "org.h2.Driver")
   }
 
