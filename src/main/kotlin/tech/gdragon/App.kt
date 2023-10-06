@@ -13,6 +13,7 @@ import org.koin.core.logger.Level
 import org.koin.dsl.module
 import org.koin.environmentProperties
 import org.koin.fileProperties
+import org.koin.logger.SLF4JLogger
 import tech.gdragon.data.Datastore
 import tech.gdragon.data.LocalDatastore
 import tech.gdragon.data.S3Datastore
@@ -33,14 +34,14 @@ import java.util.*
 import kotlin.concurrent.scheduleAtFixedRate
 
 object App {
-  val logger = KotlinLogging.logger { }
+  private val logger = KotlinLogging.logger { }
 
   lateinit var app: KoinApplication
 
   @JvmStatic
   fun start(): KoinApplication {
     val app = startKoin {
-      printLogger(Level.INFO)
+      logger(SLF4JLogger(Level.INFO))
       /**
        * Default properties are here to set values that I want "baked" into the application whenever bundled.
        */
@@ -58,15 +59,17 @@ object App {
        */
       val overrideFile = System.getenv("OVERRIDE_FILE")
       if (overrideFile.isNullOrEmpty()) {
-        logger.info("No override file provided. Please set OVERRIDE_FILE environment variable if desired.")
+        logger.info { "No override file provided. Please set OVERRIDE_FILE environment variable if desired." }
       } else {
         overrideFileProperties(overrideFile)
       }
 
+      val isStandalone = koin.getBooleanProperty("BOT_STANDALONE")
+
       val datastoreModule = module {
         single<Datastore>(createdAtStart = true) {
           val bucketName = getProperty<String>("DS_BUCKET")
-          if (getProperty<String>("BOT_STANDALONE").toBoolean()) {
+          if (isStandalone) {
             LocalDatastore(bucketName)
           } else {
             val accessKey = getProperty<String>("DS_ACCESS_KEY")
@@ -85,20 +88,21 @@ object App {
           }
         }
       }
+
       val optionalModules = module {
-        val createdAtStart = !koin.getBooleanProperty("BOT_STANDALONE")
+        val createdAtStart = !isStandalone
         single(createdAtStart = createdAtStart) {
           REPL()
         }
         single<EventTracer>(createdAtStart = true) {
-          if (koin.getBooleanProperty("BOT_STANDALONE"))
+          if (isStandalone)
             NoHoney()
           else
             Honey(getProperty("TRACING_API_KEY"))
         }
         single<Tracer>(createdAtStart = true) {
           val scopeName = "tech.gdragon.pawa"
-          if (koin.getBooleanProperty("BOT_STANDALONE"))
+          if (isStandalone)
             OpenTelemetry.noop().getTracer(scopeName)
           else {
             GlobalOpenTelemetry.get().getTracer(scopeName)
@@ -106,7 +110,7 @@ object App {
         }
       }
       val modules = listOf(
-        tech.gdragon.db.databaseModule,
+        Database.module(isEmbedded = isStandalone),
         module {
           single { Bot(getProperty("BOT_TOKEN"), get()) }
         },

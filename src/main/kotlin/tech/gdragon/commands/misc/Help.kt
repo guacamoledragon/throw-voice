@@ -43,12 +43,14 @@ class Help : CommandHandler() {
       throw InvalidCommand(::usage, "Empty arguments")
     }
 
-    val website: String = getKoin().getProperty("BOT_WEBSITE", "http://localhost:8080/")
+    val website: String? = getKoin().getProperty("BOT_WEBSITE")
 
     val embed = EmbedBuilder().apply {
       setAuthor("pawa", website, event.jda.selfUser.avatarUrl)
       setColor(Color.decode("#596800"))
-      setTitle(translator.embedTitle(website))
+      website?.let {
+        setTitle(translator.embedTitle(it), it)
+      }
       setThumbnail(event.jda.selfUser.avatarUrl)
     }
 

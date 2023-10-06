@@ -21,6 +21,8 @@ abstract class CommandHandler {
   }
 
   protected val logger = KotlinLogging.logger {}
+
+  @Deprecated("No need to be injected", ReplaceWith("pawa.isStandalone"), DeprecationLevel.WARNING)
   protected val standalone by lazy {
     getKoin().getProperty<String>("BOT_STANDALONE").toBoolean()
   }

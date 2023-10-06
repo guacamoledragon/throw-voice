@@ -32,6 +32,6 @@
     <maxVersion></maxVersion>
     <jdkPreference>jdkOnly</jdkPreference>
     <runtimeBits>64</runtimeBits>
-    <opt>-Dlog4j.configurationFile=log4j2-prod.xml</opt>
+    <opt>-Dlog4j.configurationFile=log4j2-lite.xml</opt>
   </jre>
 </launch4jConfig>

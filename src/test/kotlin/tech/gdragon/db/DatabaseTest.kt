@@ -9,7 +9,7 @@ import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
 
 class DatabaseTest : FunSpec({
-  val embedded = EmbeddedDatabase("jdbc:h2:mem:settings;DB_CLOSE_DELAY=-1")
+  val embedded = EmbeddedDatabase("settings", "mem", "DB_CLOSE_DELAY=-1")
 
   val image = "postgres@sha256:b6a3459825427f08ab886545c64d4e5754aa425c5eea678d5359f06a9bf7faab"
   val postgres = PostgreSQLContainer<Nothing>(DockerImageName.parse(image))

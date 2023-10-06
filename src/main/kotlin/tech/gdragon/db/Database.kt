@@ -6,11 +6,47 @@ import org.flywaydb.core.api.output.MigrateResult
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.joda.time.DateTimeZone
 import org.koin.dsl.module
+import tech.gdragon.db.h2.Upgrader
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 import org.jetbrains.exposed.sql.Database as ExposedDatabase
 
 interface Database {
+  companion object {
+    fun module(isEmbedded: Boolean) = module(createdAtStart = true) {
+      single<Database> {
+        if (isEmbedded) {
+          logger.info("Creating Embedded Database Module")
+          val dataDirectory: String = getProperty("BOT_DATA_DIR")
+          val dbPath = "$dataDirectory/embedded-database"
+
+          logger.info("Ensure directory exists: $dbPath")
+          Path(dbPath).createDirectories()
+
+          val dbFilename = "$dbPath/settings.db"
+
+          EmbeddedDatabase(dbFilename).apply {
+            connect()
+            upgrade()
+            migrate()
+          }
+        } else {
+          logger.info("Creating Remote Database Module")
+          val host: String = getProperty("DB_HOST")
+          val dbName: String = getProperty("DB_NAME")
+          val username: String = getProperty("DB_USER")
+          val password: String = getProperty("DB_PASSWORD")
+
+          val url = "jdbc:postgresql://$host/$dbName"
+
+          RemoteDatabase(url, username, password).apply {
+            connect()
+          }
+        }
+      }
+    }
+  }
+
   val database: ExposedDatabase?
 
   fun connect()
@@ -25,17 +61,22 @@ interface Database {
 /**
  * Creates a container for an embedded H2 database.
  *
- * @param url The JDBC URL of the database. eg. "jdbc:h2:file:./settings.db"
+ * @param dbFilename The file path of the database. e.g. "./settings.db"
+ * @param type The type of database to create, e.g. "file" or "mem"
+ * @param options The database options, e.g. "DB_CLOSE_DELAY=-1"
  */
-class EmbeddedDatabase(private val url: String) : Database {
-  val logger = KotlinLogging.logger { }
+class EmbeddedDatabase(private val dbFilename: String, type: String = "file", options: String = "") : Database {
+  private val logger = KotlinLogging.logger { }
   private var _database: ExposedDatabase? = null
   override val database = _database
+
+  val url: String = "jdbc:h2:$type:$dbFilename;$options"
 
   override fun connect() {
     if (_database != null) {
       return
     }
+
     _database = ExposedDatabase.connect(url, "org.h2.Driver")
   }
 
@@ -67,6 +108,29 @@ class EmbeddedDatabase(private val url: String) : Database {
     }
 
     return result
+  }
+
+  /**
+   * Updates the H2 version on the fly.
+   */
+  fun upgrade() {
+    require(_database != null) {
+      "Database not initialized"
+    }
+
+    try {
+      // This will trigger a failure if the database is NOT already at the latest version.
+      val dbVersion = _database?.version
+      logger.info {
+        "Database version: $dbVersion, already up to date."
+      }
+    } catch (_: Exception) {
+      val upgrader = Upgrader(dbFilename)
+      upgrader.upgrade()
+
+      // Reconnect to the database to the updated version.
+      connect()
+    }
   }
 }
 
@@ -103,34 +167,5 @@ class RemoteDatabase(val url: String, private val username: String, private val 
       .load()
 
     return flyway.migrate()
-  }
-}
-
-val databaseModule = module {
-  single<Database>(createdAtStart = true) {
-    logger.info("Creating Database Module")
-    if (getProperty<String>("BOT_STANDALONE").toBoolean()) {
-      val dataDirectory = getProperty("BOT_DATA_DIR", "./")
-      val dbPath = "$dataDirectory/embedded-database"
-      Path(dbPath).createDirectories()
-      val url = "jdbc:h2:file:$dbPath/settings.db"
-
-      EmbeddedDatabase(url).apply {
-        connect()
-        migrate()
-      }
-    } else {
-      val host: String = getProperty("DB_HOST")
-      val dbName: String = getProperty("DB_NAME")
-      val url = "jdbc:postgresql://$host/$dbName"
-
-      RemoteDatabase(
-        url,
-        getProperty("DB_USER"),
-        getProperty("DB_PASSWORD")
-      ).apply {
-        connect()
-      }
-    }
   }
 }

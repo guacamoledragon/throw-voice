@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+  <Properties>
+    <Property name="globalPattern">
+      %d{YYYY-MM-dd'T'HH:mm:ssZ} [%level] %logger{1.} - %X{jda.shard} %mdc{session-id} %mdc{guild}#%mdc{text-channel}: %msg%n
+    </Property>
+    <Property name="baseDir">logs</Property>
+  </Properties>
+  <Appenders>
+    <Console name="Console">
+      <PatternLayout pattern="${globalPattern}" charset="UTF-8"/>
+    </Console>
+    <RollingRandomAccessFile
+      name="DatabaseLogs"
+      fileName="${baseDir}/database.log"
+      filePattern="${baseDir}/$${date:yyyy-MM}/db-%d{MM-dd-yyyy}-%i.log">
+      <PatternLayout pattern="${globalPattern}" charset="UTF-8"/>
+      <Policies>
+        <SizeBasedTriggeringPolicy size="1 MB"/>
+      </Policies>
+      <DefaultRolloverStrategy>
+        <Delete basePath="${baseDir}" maxDepth="2">
+          <IfFileName glob="*/database-*.log" />
+          <IfAccumulatedFileSize exceeds="8 MB" />
+        </Delete>
+      </DefaultRolloverStrategy>
+    </RollingRandomAccessFile>
+  </Appenders>
+  <Loggers>
+    <Root level="info">
+      <AppenderRef ref="Console" />
+    </Root>
+    <Logger name="Exposed" level="info" additivity="false">
+      <AppenderRef ref="DatabaseLogs"/>
+    </Logger>
+    <Logger name="org.flywaydb.core.internal" level="info" additivity="false">
+      <AppenderRef ref="DatabaseLogs"/>
+    </Logger>
+    <Logger name="net.dv8tion.jda.internal.audio.AudioConnection" level="off" />
+  </Loggers>
+</Configuration>
