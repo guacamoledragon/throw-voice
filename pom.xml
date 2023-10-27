@@ -11,7 +11,7 @@
   </scm>
 
   <properties>
-    <exposed.version>0.44.0</exposed.version>
+    <exposed.version>0.44.1</exposed.version>
     <jda.version>5.0.0-beta.16</jda.version>
     <jda-ktx.version>0.10.0-beta.1</jda-ktx.version>
     <koin.version>3.5.0</koin.version>
