@@ -17,7 +17,7 @@
     <koin.version>3.5.0</koin.version>
     <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
     <kotlin.compiler.jvmTarget>17</kotlin.compiler.jvmTarget>
-    <kotlin.version>1.9.10</kotlin.version>
+    <kotlin.version>1.9.20</kotlin.version>
     <kotest.version>5.7.2</kotest.version>
     <main.class>tech.gdragon.App</main.class>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
