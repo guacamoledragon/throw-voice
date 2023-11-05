@@ -141,9 +141,12 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
 
   override fun onGuildVoiceUpdate(event: GuildVoiceUpdateEvent) {
     when {
+      // Joining a channel without bot being connected
       event.channelLeft == null -> onGuildVoiceJoin(event)
-      event.channelLeft != null && event.channelJoined == null -> onGuildVoiceLeave(event)
-      event.channelLeft != null && event.channelJoined != null -> onGuildVoiceMove(event)
+      // Leaving a channel that we were previously connected to
+      event.channelLeft != null && event.guild.audioManager.connectedChannel == event.channelLeft && event.channelJoined == null -> onGuildVoiceLeave(event)
+      // Leaving a channel that we were previously connected to another channel
+      event.channelLeft != null && event.guild.audioManager.connectedChannel == event.channelLeft && event.channelJoined != null -> onGuildVoiceMove(event)
       else -> super.onGuildVoiceUpdate(event)
     }
   }
