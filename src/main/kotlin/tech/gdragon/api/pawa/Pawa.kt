@@ -62,9 +62,11 @@ class Pawa(val id: Long, val db: Database, val isStandalone: Boolean, config: Pa
     }
   }
 
-  fun autoStopChannel(channelId: Long, channelName: String, guildId: Long, threshold: Long) {
+  fun autoStopChannel(channelId: Long, channelName: String, guildId: Long, threshold: Int) {
     transaction(db.database) {
-      Channel.findOrCreate(channelId, channelName, guildId).autoStop = threshold.toInt()
+      Channel
+        .findOrCreate(channelId, channelName, guildId)
+        .autoStop = threshold
     }
   }
 

@@ -51,7 +51,7 @@ class AutoStop : CommandHandler() {
 
         if (channelName == "all") {
           val channels = event.guild.voiceChannels
-          channels.forEach { pawa.autoStopChannel(it.idLong, it.name, event.guild.idLong, number.toLong()) }
+          channels.forEach { pawa.autoStopChannel(it.idLong, it.name, event.guild.idLong, number) }
 
           if (0 != number) {
             ":vibration_mode::wave: _${translator.all(number.toString())}_"
@@ -64,7 +64,7 @@ class AutoStop : CommandHandler() {
           if (channels.isEmpty()) {
             "Cannot find voice channel `$channelName`."
           } else {
-            channels.forEach { pawa.autoStopChannel(it.idLong, it.name, event.guild.idLong, number.toLong()) }
+            channels.forEach { pawa.autoStopChannel(it.idLong, it.name, event.guild.idLong, number) }
             val voiceChannel = channels.first()
 
             if (0 != number) {
