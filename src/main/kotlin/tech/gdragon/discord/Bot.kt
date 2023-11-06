@@ -177,6 +177,7 @@ class Bot(private val token: String, database: Database) {
         }
       }
 
+      onCommand(AutoRecord.command.name, consumer = AutoRecord.slashHandler(pawa))
       onCommand(AutoStop.command.name) { event ->
         if (event.isFromGuild) {
           event.guild?.let { guild ->
@@ -229,6 +230,7 @@ class Bot(private val token: String, database: Database) {
       .updateCommands {
         addCommands(
           Alias.command,
+          AutoRecord.command,
           AutoStop.command,
           AutoSave.command,
           Ignore.command,

@@ -70,6 +70,14 @@ class Pawa(val id: Long, val db: Database, val isStandalone: Boolean, config: Pa
     }
   }
 
+  fun autoRecordChannel(channelId: Long, channelName: String, guildId: Long, threshold: Int) {
+    transaction(db.database) {
+      Channel
+        .findOrCreate(channelId, channelName, guildId)
+        .autoRecord = threshold
+    }
+  }
+
   fun toggleAutoSave(guildId: Long): Boolean? {
     return transaction(db.database) {
       Settings
