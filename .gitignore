@@ -58,3 +58,5 @@ dev.properties
 dev*.properties
 prod.properties
 
+.cpcache
+pawalite-data/
