@@ -1,12 +1,15 @@
 (ns repl
-  (:import (tech.gdragon.discord Bot)
-           (net.dv8tion.jda.api JDA JDA$Status EmbedBuilder JDA$ShardInfo)
-           (net.dv8tion.jda.api.entities Activity Activity$ActivityType Guild TextChannel)
-           (net.dv8tion.jda.api.sharding DefaultShardManager)
-           (com.squareup.tape QueueFile QueueFile$ElementReader)
-           (org.koin.java KoinJavaComponent))
-  (:require [clojure.java.io :as io]
-            [clojure.string :as str]))
+  (:require
+   [clojure.java.io :as io]
+   [clojure.string :as str])
+  (:import
+   (com.squareup.tape QueueFile QueueFile$ElementReader)
+   (net.dv8tion.jda.api EmbedBuilder JDA)
+   (net.dv8tion.jda.api.entities Activity Activity$ActivityType Guild)
+   (net.dv8tion.jda.api.entities.channel.concrete TextChannel)
+   (net.dv8tion.jda.api.sharding DefaultShardManager)
+   (org.koin.java KoinJavaComponent)
+   (tech.gdragon.discord Bot)))
 
 (def ^Bot bot "bot" (delay (KoinJavaComponent/get Bot)))
 
@@ -86,8 +89,8 @@
   "Set bot's activity"
   [^Bot bot activity]
   (let [activity (Activity/of
-                   Activity$ActivityType/DEFAULT
-                   (str "2.9.2 | https://pawa.im")
+                   Activity$ActivityType/LISTENING
+                   (str "2.11.1 | https://pawa.im")
                    activity)]
     (.. bot api getPresence (setActivity activity))))
 

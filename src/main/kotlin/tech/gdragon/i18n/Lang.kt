@@ -60,12 +60,15 @@ enum class Lang {
 }
 
 object Babel {
-  val languages = Lang.values().joinToString("|") { it.name.lowercase() }
+  val languages = Lang.entries.joinToString("|") { it.name.lowercase() }
 
   fun resource(lang: Lang): ResourceBundle = ResourceBundle.getBundle("translations", lang.locale)
 
   private val autosave: MutableMap<Lang, AutoSave> = mutableMapOf()
   fun autosave(lang: Lang) = autosave.getOrPut(lang) { AutoSave(lang) }
+
+  private val autorecord: MutableMap<Lang, AutoRecord> = mutableMapOf()
+  fun autorecord(lang: Lang) = autorecord.getOrPut(lang) { AutoRecord(lang) }
 
   private val autostop: MutableMap<Lang, AutoStop> = mutableMapOf()
   fun autostop(lang: Lang) = autostop.getOrPut(lang) { AutoStop(lang) }
@@ -116,6 +119,7 @@ object Babel {
   inline fun <reified T> commandTranslator(lang: Lang): T {
     return when (T::class) {
       Alias::class -> alias(lang) as T
+      AutoRecord::class -> autorecord(lang) as T
       AutoStop::class -> autostop(lang) as T
       AutoSave::class -> autosave(lang) as T
       Ignore::class -> ignore(lang) as T
@@ -146,6 +150,18 @@ class AutoSave(lang: Lang) {
   val off = resource.getString("autosave.off")
   val on = resource.getString("autosave.on")
   val usage: (String) -> String = { prefix -> resource.getString("autosave.usage").format(prefix) }
+}
+
+class AutoRecord(lang: Lang) {
+  private val resource = Babel.resource(lang)
+
+  val all: (String) -> String = { number -> resource.getString("autorecord.all").format("**$number**") }
+  val none: String = resource.getString("autorecord.none")
+  val one: (String, String) -> String = { channelId, number -> resource.getString("autorecord.one").format("**<#$channelId>**", "**$number**") }
+  val some: (String) -> String = { channelId -> resource.getString("autorecord.some").format("**<#$channelId>**") }
+  val notFound: String = resource.getString("autorecord.not_found")
+  val usage: (String) -> String = { prefix -> resource.getString("autorecord.usage").format(prefix) }
+  val description: String = resource.getString("autorecord.description")
 }
 
 class AutoStop(lang: Lang) {

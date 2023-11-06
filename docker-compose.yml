@@ -50,7 +50,7 @@ services:
       - SAMPLE_RATE=${SAMPLE_RATE}
       - OTEL_JAVAAGENT_ENABLED=false
     ports:
-      - "127.0.0.1:1112:1112"
+      - "127.0.0.1:7888:7888"
     restart: on-failure:100
     volumes:
       - data:${BOT_DATA_DIR}

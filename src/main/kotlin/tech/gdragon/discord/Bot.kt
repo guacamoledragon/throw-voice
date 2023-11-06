@@ -177,11 +177,12 @@ class Bot(private val token: String, database: Database) {
         }
       }
 
+      onCommand(AutoRecord.command.name, consumer = AutoRecord.slashHandler(pawa))
       onCommand(AutoStop.command.name) { event ->
         if (event.isFromGuild) {
           event.guild?.let { guild ->
             val channel = event.getOption("channel")?.asChannel?.asAudioChannel()
-            val threshold = event.getOption("threshold")?.asLong ?: 0
+            val threshold = event.getOption("threshold")?.asInt ?: 0
             val translator: AutoStopTranslator = pawa.translator(guild.idLong)
 
             channel?.let {
@@ -229,6 +230,7 @@ class Bot(private val token: String, database: Database) {
       .updateCommands {
         addCommands(
           Alias.command,
+          AutoRecord.command,
           AutoStop.command,
           AutoSave.command,
           Ignore.command,
