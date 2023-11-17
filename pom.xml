@@ -29,7 +29,7 @@
     <dependency>
       <groupId>aws.sdk.kotlin</groupId>
       <artifactId>s3-jvm</artifactId>
-      <version>0.33.1-beta</version>
+      <version>0.34.9-beta</version>
       <exclusions>
         <exclusion>
           <artifactId>slf4j-api</artifactId>
