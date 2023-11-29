@@ -99,6 +99,7 @@ pages:
     - cp -r src/site/ public
   stage: deploy
   rules:
+    - if: $DEPLOY_SITE
     - if: $CI_COMMIT_REF_NAME == 'master'
       changes:
         - CHANGELOG.md
