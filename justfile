@@ -49,3 +49,8 @@ recover-mp3 id:
 
 recover-queue id:
   scp pawa.im:/opt/pawa/data/recordings/{{ id }}.queue .
+  java -jar ($env.PWD + "/../pawa-lite/pawa-recovery-tool.jar") {{ id }}.queue
+
+# Expose Clojure REPL
+repl-port-forward:
+  ssh -L 7888:localhost:7888 -N -T pawa.im
