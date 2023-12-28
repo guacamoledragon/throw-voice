@@ -9,11 +9,28 @@
    (net.dv8tion.jda.api.entities.channel.concrete TextChannel)
    (net.dv8tion.jda.api.sharding DefaultShardManager)
    (org.koin.java KoinJavaComponent)
-   (tech.gdragon.discord Bot)))
+   (tech.gdragon.discord Bot)
+   (java.sql Connection Date DriverManager)
+   (java.util Properties)))
 
 (def ^Bot bot "bot" (delay (KoinJavaComponent/get Bot)))
 
 (def ^DefaultShardManager shard-manager (delay (-> @bot .api .getShardManager)))
+
+(defn create-pg-connection
+  []
+  (let [user     (System/getenv "DB_USER")
+        password (System/getenv "DB_PASSWORD")
+        host     (System/getenv "DB_HOST")
+        db-name  (System/getenv "DB_NAME")
+        url      (str "jdbc:postgresql://" host "/" db-name)
+        props    (Properties.)]
+    (.setProperty props "user" user)
+    (.setProperty props "password" password)
+
+    (DriverManager/getConnection url props)))
+
+(def ^Connection conn (delay (create-pg-connection)))
 
 (defn get-channel
   "Find Discord channel and return"
@@ -122,3 +139,78 @@
       .api
       .getSelfUser
       .getApplicationIdLong))
+
+(defn leave-guilds
+  [guild-ids whitelist]
+  (let [shard-manager (.. @bot api getShardManager)]
+    (doseq [guild-id guild-ids
+            :let [guild (.. shard-manager (getGuildById guild-id))]
+            :when (nil? (whitelist guild-id))]
+
+      (if (nil? guild)
+        (print ".")
+        (do
+          (println "Leaving guild" guild-id)
+          (.. shard-manager (getGuildById guild-id) leave complete)
+          (Thread/sleep 1000))))))
+
+(defn try-times*
+  "Executes thunk. If an exception is thrown, will retry. At most n retries
+  are done. If still some exception is thrown it is bubbled upwards in
+  the call chain."
+  [n thunk]
+  (loop [n n]
+    (if-let [result (try
+                      [(thunk)]
+                      (catch Exception e
+                        (when (zero? n)
+                          (throw e))))]
+      (result 0)
+      (recur (dec n)))))
+
+(defmacro try-times
+  "Executes body. If an exception is thrown, will retry. At most n retries
+  are done. If still some exception is thrown it is bubbled upwards in
+  the call chain."
+  [n & body]
+  `(try-times* ~n (fn [] ~@body)))
+
+(comment
+  ;; Leave inactive guilds, from Discord bot
+  (def inactive-guild-ids
+    (-> "/app/data/inactive-guilds.txt"
+        slurp
+        str/split-lines))
+  (def whitelist-guilds
+    #{"408795211901173762"
+      "110373943822540800"
+      "273518732733710337"
+      "264445053596991498"
+      "446425626988249089"})
+  (println "Starting to leave inactive guilds")
+  (try-times 3 (leave-guilds inactive-guild-ids whitelist-guilds))
+  (+ 1 1)
+  ,)
+
+(comment
+  ;; Start making SQL queries with connection
+  (let [statement (.createStatement @conn)
+        id        408795211901173762
+        sql       "select name, last_active_on from guilds where id = '408795211901173762'"
+        query     "update guilds set last_active_on=? where id=?"
+        psmt      (.prepareStatement @conn query)
+        _         (do
+                    (.setDate psmt 1 (Date. (.getTime (java.util.Date.))))
+                    (.setInt psmt 2 id)
+                    (.execute psmt))
+        rs        (.executeQuery statement sql)]
+    (.next rs)
+    (println  (.getString rs 1))
+    (println  (.getString rs 2))
+    (.close statement)
+    (.close psmt))
+
+  ;; Date Format
+  ;; 2023-12-03 11:40:10.783308-08
+
+  )
