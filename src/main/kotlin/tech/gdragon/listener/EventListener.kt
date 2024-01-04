@@ -39,16 +39,21 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
     if (event.name == "recover" && event.focusedOption.name == "session-id") {
       val partialSessionId = event.focusedOption.value
       val choices = transaction {
+        val limit = 25
         if (trigoman == event.user.idLong) {
-          Recording.findIdLike("$partialSessionId%", null, 10)
+          Recording.findIdLike("$partialSessionId%", null, limit)
         } else {
-          Recording.findIdLike("$partialSessionId%", event.guild!!.idLong, 10)
+          Recording.findIdLike("$partialSessionId%", event.guild!!.idLong, limit)
         }.map { r -> r.id.value }
       }
 
       event
         .replyChoiceStrings(choices)
-        .queue()
+        .queue(null) {
+           logger.warn {
+             "Replying to `/recover` autocomplete request took longer than expected."
+           }
+        }
     }
   }
 
