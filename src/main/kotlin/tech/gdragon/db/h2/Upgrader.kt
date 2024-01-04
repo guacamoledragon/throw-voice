@@ -21,7 +21,13 @@ class Upgrader(private val dbFilename: String, h2Version: String = "2.1.214") {
   private var _dbUrl: String
 
   init {
-    val driverUrl = Path("./drivers/h2-${h2Version}.jar").toUri().toURL()
+    val driverPath = Path("./drivers/h2-${h2Version}.jar")
+
+    require(driverPath.exists()) {
+      "H2 Drivers are missing on path: $driverPath"
+    }
+
+    val driverUrl = driverPath.toUri().toURL()
     _classLoader = IsolatedClassLoader(arrayOf(driverUrl))
     _dbUrl = "jdbc:h2:file:${dbFilename}"
   }
