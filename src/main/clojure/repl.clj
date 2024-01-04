@@ -178,7 +178,7 @@
 (comment
   ;; Leave inactive guilds, from Discord bot
   (def inactive-guild-ids
-    (-> "/app/data/inactive-guilds.txt"
+    (-> "/app/data/inactive-guilds-dec.txt"
         slurp
         str/split-lines))
   (def whitelist-guilds
@@ -193,22 +193,20 @@
   ,)
 
 (comment
+  (def active-inactive-guild-ids
+    (-> "/app/data/active-inactive-guilds-dec.txt"
+        slurp
+        str/split-lines))
   ;; Start making SQL queries with connection
-  (let [statement (.createStatement @conn)
-        id        408795211901173762
-        sql       "select name, last_active_on from guilds where id = '408795211901173762'"
-        query     "update guilds set last_active_on=? where id=?"
-        psmt      (.prepareStatement @conn query)
-        _         (do
-                    (.setDate psmt 1 (Date. (.getTime (java.util.Date.))))
-                    (.setInt psmt 2 id)
-                    (.execute psmt))
-        rs        (.executeQuery statement sql)]
-    (.next rs)
-    (println  (.getString rs 1))
-    (println  (.getString rs 2))
-    (.close statement)
-    (.close psmt))
+  (doseq [id   (rest active-inactive-guild-ids),
+          :let [query "update guilds set active=false, last_active_on=? where id=?"
+                psmt  (.prepareStatement @conn query)
+                now   (Date. (.getTime (java.util.Date.)))]]
+    (.setDate psmt 1 now)
+    (.setLong psmt 2 (Long/parseLong id))
+    (println (.execute psmt))
+    (.close psmt)
+    (Thread/sleep 500))
 
   ;; Date Format
   ;; 2023-12-03 11:40:10.783308-08
