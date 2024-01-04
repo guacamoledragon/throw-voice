@@ -2,6 +2,7 @@ package tech.gdragon
 
 import com.github.benmanes.caffeine.cache.Caffeine
 import dev.minn.jda.ktx.messages.MessageCreate
+import io.azam.ulidj.ULID
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.oshai.kotlinlogging.withLoggingContext
 import io.opentelemetry.instrumentation.annotations.WithSpan
@@ -164,6 +165,17 @@ object BotUtils {
     return guild
       .textChannels
       .find(TextChannel::canTalk)
+  }
+
+  /**
+   * Given a string, determines if there's any SessionIDs in it and returns the list.
+   */
+  fun findSessionID(input: String): List<String> {
+    val ulidRegex = "[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}".toRegex()
+    return ulidRegex.findAll(input)
+      .map { it.value }
+      .filter { ULID.isValid(it) }
+      .toList()
   }
 
   @WithSpan("Get Guild Prefix")
