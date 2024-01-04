@@ -7,7 +7,7 @@ import aws.sdk.kotlin.services.s3.model.CreateBucketRequest
 import aws.sdk.kotlin.services.s3.putObject
 import aws.smithy.kotlin.runtime.content.ByteStream
 import aws.smithy.kotlin.runtime.content.fromFile
-import aws.smithy.kotlin.runtime.net.Url
+import aws.smithy.kotlin.runtime.net.url.Url
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.runBlocking
 import net.jodah.failsafe.Failsafe

@@ -127,7 +127,7 @@ fun pawaTests(db: Database, ds: Datastore, isStandalone: Boolean) = funSpec {
 class PawaTest : FunSpec({
   val embeddedDatabase: EmbeddedDatabase by lazy {
     val botDataDir = tempdir()
-    val url = "jdbc:h2:file:${botDataDir.path}/settings.db"
+    val url = "${botDataDir.path}/settings.db"
     EmbeddedDatabase(url)
   }
 
