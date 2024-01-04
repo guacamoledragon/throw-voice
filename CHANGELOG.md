@@ -13,28 +13,46 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 - `/record` displays an embed, this will replace the original message eventually
 - `/recover` run by normal user will send the SessionID and Discord username, the response will also include a server invite.
 - Update the following dependencies:
+  - Bump aws.sdk.kotlin:s3-jvm from 0.27.0-beta to 1.0.26
   - Bump caffeine from 3.1.1 to 3.1.6
-  - Bump exposed.version from 0.39.2 to 0.41.1
+  - Bump com.fasterxml.jackson.core:jackson-databind from 2.15.1 to 2.16.0
+  - Bump com.github.ben-manes.caffeine:caffeine from 3.1.6 to 3.1.8
+  - Bump com.h2database:h2 from 2.1.214 to 2.2.224
+  - Bump commons-io:commons-io from 2.11.0 to 2.15.1
+  - Bump exposed.version from 0.39.2 to 0.45.0
   - Bump flyway-core from 9.14.1 to 9.16.3
-  - Bump honeycomb-opentelemetry-sdk from 1.3.0 to 1.4.2
-  - Bump jackson-databind from 2.13.4 to 2.15.0-rc3
-  - Bump jda.version 5.0.0-beta.5 to 5.0.0-beta.8
+  - Bump honeycomb-opentelemetry-sdk from 1.3.0 to 1.5.0
+  - Bump io.honeycomb:honeycomb-opentelemetry-sdk from 1.5.0 to 1.5.2
+  - Bump io.insert-koin:koin-core from 3.4.0 to 3.5.0
+  - Bump io.insert-koin:koin-core-jvm from 3.4.0 to 3.5.0
+  - Bump jackson-databind from 2.13.4 to 2.15.1
+  - Bump jda.version 5.0.0-beta.10 to 5.0.0-beta.19
   - Bump koin-core from 3.2.0 to 3.4.0
   - Bump koin-core-jvm from 3.2.0 to 3.4.0
-  - Bump kotest.version from 5.5.4 to 5.6.1
+  - Bump kotest.version 5.6.2 to 5.7.2
+  - Bump kotest.version from 5.5.4 to 5.8.0
   - Bump kotlin-logging-jvm from 2.1.23 to 3.0.5
-  - Bump kotlin.version from 1.8.10 to 1.8.20
+  - Bump kotlin.version from 1.8.10 to 1.9.21
   - Bump libhoney-java from 1.5.2 to 1.5.4
   - Bump log4j-core from 2.18.0 to 2.20.0
   - Bump log4j-layout-template-json from 2.18.0 to 2.20.0
-  - Bump maven-assembly-plugin from 3.4.2 to 3.5.0
+  - Bump log4j.version from 2.20.0 to 2.22.0
+  - Bump maven-assembly-plugin from 3.4.2 to 3.6.0
   - Bump maven-compiler-plugin from 3.10.1 to 3.11.0
   - Bump maven-resources-plugin from 3.3.0 to 3.3.1
-  - Bump maven-shade-plugin from 3.3.0 to 3.4.1 
-  - Bump maven-surefire-plugin from 3.0.0-M8 to 3.0.0
-  - Bump testcontainers/postgresql from 1.17.6 to 1.18.0
-  - Bump postgresql from 42.5.0 to 42.6.0
-  - Bump testcontainers from 1.17.6 to 1.18.0
+  - Bump maven-shade-plugin from 3.3.0 to 3.4.1
+  - Bump maven-surefire-plugin from 3.0.0 to 3.1.0
+  - Bump microutils:kotlin-logging-jvm from 3.0.5 to 5.1.0
+  - Bump nrepl:nrepl from 1.0.0 to 1.1.0
+  - Bump org.apache.maven.plugins:maven-shade-plugin from 3.4.1 to 3.5.1
+  - Bump org.apache.maven.plugins:maven-surefire-plugin from 3.1.0 to 3.2.2
+  - Bump org.flywaydb:flyway-core from 9.16.3 to 9.22.1
+  - Bump org.postgresql:postgresql from 42.6.0 to 42.7.0
+  - Bump org.testcontainers:postgresql from 1.18.0 to 1.19.3
+  - Bump org.testcontainers:testcontainers from 1.18.3 to 1.19.3
+  - Bump postgresql from 1.17.6 to 42.6.0
+  - Bump slf4j-api from 2.0.0-alpha2 to 2.0.9
+  - Bump testcontainers from 1.17.6 to 1.18.3
   - Bump ulidj from 1.0.1 to 1.0.4
 
 
