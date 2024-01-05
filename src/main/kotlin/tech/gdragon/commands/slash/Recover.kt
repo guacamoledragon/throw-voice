@@ -51,7 +51,7 @@ object Recover {
     } else {
       val errorEmbed = ErrorEmbed(
         "You cannot use /recover command in this server.",
-        "Join support server and post your SessionID:\n ```\n$sessionId```"
+        "Join the support server and post your SessionID:\n ```\n$sessionId```"
       )
       event.reply(errorEmbed.message).queue()
     }

@@ -1,6 +1,7 @@
 package tech.gdragon.discord
 
 import dev.minn.jda.ktx.events.onCommand
+import dev.minn.jda.ktx.interactions.commands.message
 import dev.minn.jda.ktx.interactions.commands.updateCommands
 import dev.minn.jda.ktx.jdabuilder.injectKTX
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -242,6 +243,7 @@ class Bot(private val token: String, database: Database) {
           Save.command,
           Volume.command
         )
+        message("Recover Recording")
       }.queue { commands ->
         logger.info {
           commands.joinToString(prefix = "Adding: ") { command -> command.name }.ifEmpty { "No commands!" }

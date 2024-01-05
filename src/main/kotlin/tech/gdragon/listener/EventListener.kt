@@ -1,19 +1,23 @@
 package tech.gdragon.listener
 
+import dev.minn.jda.ktx.messages.send
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.oshai.kotlinlogging.withLoggingContext
 import io.opentelemetry.api.trace.StatusCode
 import io.opentelemetry.api.trace.Tracer
 import net.dv8tion.jda.api.entities.channel.ChannelType
+import net.dv8tion.jda.api.entities.emoji.Emoji
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent
 import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateNicknameEvent
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent
+import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
+import net.dv8tion.jda.api.requests.RestAction
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.component.KoinComponent
 import tech.gdragon.BotUtils
@@ -21,11 +25,15 @@ import tech.gdragon.BotUtils.trigoman
 import tech.gdragon.api.pawa.Pawa
 import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.commands.handleCommand
+import tech.gdragon.data.Datastore
 import tech.gdragon.db.asyncTransaction
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.dao.Recording
 import tech.gdragon.db.now
+import tech.gdragon.discord.message.ErrorEmbed
+import tech.gdragon.discord.message.RecordingReply
 import tech.gdragon.discord.message.RequestAccessReply
+import tech.gdragon.koin.getStringProperty
 import tech.gdragon.metrics.EventTracer
 
 class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
@@ -39,15 +47,90 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
     if (event.name == "recover" && event.focusedOption.name == "session-id") {
       val partialSessionId = event.focusedOption.value
       val choices = transaction {
+        val limit = 25
         if (trigoman == event.user.idLong) {
-          Recording.findIdLike("$partialSessionId%", null, 10)
+          Recording.findIdLike("$partialSessionId%", null, limit)
         } else {
-          Recording.findIdLike("$partialSessionId%", event.guild!!.idLong, 10)
+          Recording.findIdLike("$partialSessionId%", event.guild!!.idLong, limit)
         }.map { r -> r.id.value }
       }
 
       event
         .replyChoiceStrings(choices)
+        .queue(null) {
+           logger.warn {
+             "Replying to `/recover` autocomplete request took longer than expected."
+           }
+        }
+    }
+  }
+
+  override fun onMessageContextInteraction(event: MessageContextInteractionEvent) {
+    if ((pawa.isStandalone || event.user.idLong == trigoman) && event.name == "Recover Recording") {
+      event.target.run {
+        val sessionIds = BotUtils.findSessionID(contentRaw)
+        val dataDirectory = getKoin().getStringProperty("BOT_DATA_DIR")
+        val datastore = getKoin().get<Datastore>()
+        val appUrl = getKoin().getStringProperty("APP_URL")
+
+        val failedSessionIds = mutableSetOf<String>()
+        author
+          .openPrivateChannel()
+          .flatMap { channel ->
+            event.deferReply().queue()
+
+            val actions = sessionIds
+              .toSet()
+              .mapNotNull {
+                val recording = pawa.recoverRecording(dataDirectory, datastore, it)
+
+                // Side-effect for later
+                if (recording == null) {
+                  failedSessionIds.add(it)
+                }
+
+                recording
+              }
+              .map { RecordingReply(it, appUrl).message }
+              .map(channel::sendMessage)
+
+            RestAction.allOf(actions + addReaction(Emoji.fromUnicode("👀")))
+          }
+          .queue({
+            val recovered = (sessionIds - failedSessionIds).joinToString("\n") { s -> ":white_check_mark: `$s`" }
+            val unrecovered = failedSessionIds.joinToString("\n") { s -> ":x: `$s`" }
+            val message = if (it.isEmpty()) {
+              addReaction(Emoji.fromUnicode("❌")).queue()
+              "No recordings found."
+            } else {
+              """
+                ${author.asMention} Please check your DMs :bow:
+                $recovered
+                $unrecovered
+              """.trimIndent()
+            }
+
+            event
+              .hook
+              .send(message)
+              .queue()
+            addReaction(Emoji.fromUnicode("✅")).queue()
+          },
+          {
+            event
+              .hook
+              .send("Failed to DM ${author.asMention} about recovered recordings.")
+              .queue()
+          })
+      }
+    } else {
+      val errorEmbed = ErrorEmbed(
+        "You cannot use \"Recover Recording\" command.",
+        "Join the support server and post your SessionID."
+      )
+      event
+        .reply(errorEmbed.message)
+        .setEphemeral(true)
         .queue()
     }
   }
