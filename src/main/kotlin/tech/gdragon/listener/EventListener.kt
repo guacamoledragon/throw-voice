@@ -6,6 +6,7 @@ import io.github.oshai.kotlinlogging.withLoggingContext
 import io.opentelemetry.api.trace.StatusCode
 import io.opentelemetry.api.trace.Tracer
 import net.dv8tion.jda.api.entities.channel.ChannelType
+import net.dv8tion.jda.api.entities.emoji.Emoji
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent
 import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateNicknameEvent
@@ -72,29 +73,65 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
         val datastore = getKoin().get<Datastore>()
         val appUrl = getKoin().getStringProperty("APP_URL")
 
+        val failedSessionIds = mutableSetOf<String>()
         author
           .openPrivateChannel()
-          .queue { channel ->
+          .flatMap { channel ->
             event.deferReply().queue()
+
             val actions = sessionIds
               .toSet()
-              .mapNotNull { pawa.recoverRecording(dataDirectory, datastore, it) }
+              .mapNotNull {
+                val recording = pawa.recoverRecording(dataDirectory, datastore, it)
+
+                // Side-effect for later
+                if (recording == null) {
+                  failedSessionIds.add(it)
+                }
+
+                recording
+              }
               .map { RecordingReply(it, appUrl).message }
               .map(channel::sendMessage)
 
-            RestAction
-              .allOf(actions)
-              .queue {
-                event.hook.send("Recovered: ${sessionIds.joinToString { s -> "`$s`" }}").queue()
-              }
+            RestAction.allOf(actions + addReaction(Emoji.fromUnicode("👀")))
           }
+          .queue({
+            val recovered = (sessionIds - failedSessionIds).joinToString("\n") { s -> ":white_check_mark: `$s`" }
+            val unrecovered = failedSessionIds.joinToString("\n") { s -> ":x: `$s`" }
+            val message = if (it.isEmpty()) {
+              addReaction(Emoji.fromUnicode("❌")).queue()
+              "No recordings found."
+            } else {
+              """
+                ${author.asMention} Please check your DMs :bow:
+                $recovered
+                $unrecovered
+              """.trimIndent()
+            }
+
+            event
+              .hook
+              .send(message)
+              .queue()
+            addReaction(Emoji.fromUnicode("✅")).queue()
+          },
+          {
+            event
+              .hook
+              .send("Failed to DM ${author.asMention} about recovered recordings.")
+              .queue()
+          })
       }
     } else {
       val errorEmbed = ErrorEmbed(
         "You cannot use \"Recover Recording\" command.",
         "Join the support server and post your SessionID."
       )
-      event.reply(errorEmbed.message).queue()
+      event
+        .reply(errorEmbed.message)
+        .setEphemeral(true)
+        .queue()
     }
   }
 
