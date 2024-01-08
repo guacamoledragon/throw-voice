@@ -7,6 +7,7 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 ## [Unreleased]
 
 ### Added
+- `Recover Recording` message context menu to recover recording from a SessionID in a message
 
 
 ### Changed
@@ -21,8 +22,6 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
   - Bump commons-io:commons-io from 2.11.0 to 2.15.1
   - Bump exposed.version from 0.39.2 to 0.45.0
   - Bump flyway-core from 9.14.1 to 9.16.3
-  - Bump honeycomb-opentelemetry-sdk from 1.3.0 to 1.5.0
-  - Bump io.honeycomb:honeycomb-opentelemetry-sdk from 1.5.0 to 1.5.2
   - Bump io.insert-koin:koin-core from 3.4.0 to 3.5.0
   - Bump io.insert-koin:koin-core-jvm from 3.4.0 to 3.5.0
   - Bump jackson-databind from 2.13.4 to 2.15.1
@@ -63,6 +62,7 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 - `RemoteDatastore` class in exchange for a generic S3 API compatible `S3Datastore`
 - `minio` pom dependency
 - `minio` from docker-compose.yml
+- Honeycomb metrics and the `Honey` tracing class
 
 
 ### Fixed
