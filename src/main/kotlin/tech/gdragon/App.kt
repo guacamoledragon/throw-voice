@@ -23,8 +23,7 @@ import tech.gdragon.koin.getBooleanProperty
 import tech.gdragon.koin.getStringProperty
 import tech.gdragon.koin.overrideFileProperties
 import tech.gdragon.metrics.EventTracer
-import tech.gdragon.metrics.Honey
-import tech.gdragon.metrics.NoHoney
+import tech.gdragon.metrics.NoOpTracer
 import tech.gdragon.repl.REPL
 import java.io.IOException
 import java.nio.file.Files
@@ -95,10 +94,7 @@ object App {
           REPL()
         }
         single<EventTracer>(createdAtStart = true) {
-          if (isStandalone)
-            NoHoney()
-          else
-            Honey(getProperty("TRACING_API_KEY"))
+            NoOpTracer()
         }
         single<Tracer>(createdAtStart = true) {
           val scopeName = "tech.gdragon.pawa"
