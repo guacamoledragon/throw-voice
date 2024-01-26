@@ -14,7 +14,7 @@
     <exposed.version>0.45.0</exposed.version>
     <jda.version>5.0.0-beta.20</jda.version>
     <jda-ktx.version>0.10.0-beta.1</jda-ktx.version>
-    <koin.version>3.5.0</koin.version>
+    <koin.version>3.5.3</koin.version>
     <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
     <kotlin.compiler.jvmTarget>17</kotlin.compiler.jvmTarget>
     <kotlin.version>1.9.22</kotlin.version>
