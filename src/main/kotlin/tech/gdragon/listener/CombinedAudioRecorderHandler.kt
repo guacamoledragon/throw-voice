@@ -25,6 +25,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import tech.gdragon.BotUtils
+import tech.gdragon.api.pawa.Pawa
 import tech.gdragon.data.Datastore
 import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
@@ -90,6 +91,7 @@ class CombinedAudioRecorderHandler(
 
   private val logger = KotlinLogging.logger { }
   private val datastore: Datastore by inject()
+  private val pawa: Pawa by inject()
   private val appUrl: String? = getKoin().getProperty("APP_URL")
   private val dataDirectory: String = getKoin().getProperty("BOT_DATA_DIR", "./")
   private val fileFormat: String = getKoin().getProperty("BOT_FILE_FORMAT", "mp3").lowercase()
@@ -151,7 +153,7 @@ class CombinedAudioRecorderHandler(
           ":sleeping: _No audio detected in the last **$AFK_MINUTES** minutes, leaving **<#${voiceChannel.id}>**._"
         )
         thread {
-          val save = BotUtils.autoSave(voiceChannel.guild)
+          val save = pawa.autoSave(voiceChannel.guild.idLong)
           BotUtils.leaveVoiceChannel(voiceChannel, defaultChannel, save)
         }
       }
