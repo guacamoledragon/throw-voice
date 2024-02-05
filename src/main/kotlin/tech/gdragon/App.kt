@@ -66,6 +66,8 @@ object App {
 
       val isStandalone = koin.getBooleanProperty("BOT_STANDALONE")
 
+      val databaseModule = Database.module()
+
       val datastoreModule = module {
         single<Datastore>(createdAtStart = true) {
           val bucketName = getProperty<String>("DS_BUCKET")
@@ -114,7 +116,7 @@ object App {
       }
 
       val modules = listOf(
-        Database.module(isEmbedded = isStandalone),
+        databaseModule,
         discordModule,
         datastoreModule,
         pawaModule,

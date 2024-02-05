@@ -10,12 +10,14 @@ import tech.gdragon.db.h2.Upgrader
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 import org.jetbrains.exposed.sql.Database as ExposedDatabase
+import tech.gdragon.koin.getBooleanProperty
 
 interface Database {
   companion object {
-    fun module(isEmbedded: Boolean) = module(createdAtStart = true) {
+    fun module() = module(createdAtStart = true) {
       single<Database> {
-        if (isEmbedded) {
+        val isStandalone = getBooleanProperty("BOT_STANDALONE")
+        if (isStandalone) {
           logger.info("Creating Embedded Database Module")
           val dataDirectory: String = getProperty("BOT_DATA_DIR")
           val dbPath = "$dataDirectory/embedded-database"
