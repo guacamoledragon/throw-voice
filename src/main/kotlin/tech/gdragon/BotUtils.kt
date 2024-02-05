@@ -114,16 +114,13 @@ object BotUtils {
       val channelMemberCount = voiceChannelSize(channel)
       logger.debug { "${guild.name}#${channel.name} - Channel member count: $channelMemberCount" }
 
-      transaction { Channel.findById(channel.idLong)?.autoStop }
-        ?.let {
-          val autoStop = it
-          logger.debug { "${guild.name}#${channel.name} - autostop value: $autoStop" }
+      val autoStop = transaction { Channel.findById(channel.idLong)?.autoStop } ?: 1
+      logger.debug { "${guild.name}#${channel.name} - autostop value: $autoStop" }
 
-          if (channelMemberCount <= autoStop) {
-            val defaultChannel = defaultTextChannel(guild) ?: findPublicChannel(guild)
-            leaveVoiceChannel(channel, defaultChannel, save)
-          }
-        }
+      if (channelMemberCount <= autoStop) {
+        val defaultChannel = defaultTextChannel(guild) ?: findPublicChannel(guild)
+        leaveVoiceChannel(channel, defaultChannel, save)
+      }
     } else {
       logger.debug {
         "Not connected to $channel, can't leave it ;)"
