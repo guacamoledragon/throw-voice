@@ -254,8 +254,7 @@ class CombinedAudioRecorderHandler(
 
   fun saveRecording(
     voiceChannel: AudioChannel?,
-    textChannel: TextChannel,
-    resumeRecording: Boolean = true
+    textChannel: TextChannel
   ): Pair<Recording?, Semaphore> {
     canReceive = false
     val recordingLock = Semaphore(1, true)
@@ -332,13 +331,6 @@ class CombinedAudioRecorderHandler(
     recordingLock.acquire() // what could go wrong?
 
     val recording = recordingRecord
-
-    // Resume recording
-    if (resumeRecording) {
-      compositeDisposable.reset()
-      createRecording()
-      logger.info { "Cannot wait! Creating a new recording: $recordingId" }
-    }
 
     return Pair(recording, recordingLock)
   }

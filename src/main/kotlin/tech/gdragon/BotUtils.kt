@@ -231,7 +231,7 @@ object BotUtils {
       val (recording, recordingLock) =
         if (save && textChannel != null) {
           sendMessage(textChannel, ":floppy_disk: **Saving <#${voiceChannel.id}>'s recording...**")
-          recorder.saveRecording(voiceChannel, textChannel, false)
+          recorder.saveRecording(voiceChannel, textChannel)
         } else Pair(null, null)
 
       recorder.disconnect(!save, recording, recordingLock)
