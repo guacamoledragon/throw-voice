@@ -35,7 +35,11 @@ fun pawaTests(db: Database, ds: Datastore, isStandalone: Boolean) = funSpec {
       Guild.findOrCreate(guildId, "Test Guild")
     }
 
-    Pawa(db, isStandalone)
+    val config = PawaConfig {
+      this.isStandalone = isStandalone
+    }
+
+    Pawa(db, config)
   }
 
   context("when alias") {

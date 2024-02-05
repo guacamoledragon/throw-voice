@@ -15,17 +15,20 @@ import java.math.BigDecimal
 import org.koin.dsl.module
 import tech.gdragon.koin.getBooleanProperty
 
-class Pawa(val db: Database, val isStandalone: Boolean, config: PawaConfig? = null) {
+class Pawa(val db: Database, _config: PawaConfig? = null) {
   companion object {
-    fun module(config: PawaConfig? = null) = module(createdAtStart = true) {
+    fun module() = module(createdAtStart = true) {
       single<Pawa> {
-        val isStandalone = getBooleanProperty("BOT_STANDALONE")
-        Pawa(get(), isStandalone, config)
+        val config = PawaConfig {
+          isStandalone = getBooleanProperty("BOT_STANDALONE")
+        }
+        Pawa(get(), config)
       }
     }
   }
 
-  val config = config ?: PawaConfig.invoke()
+  val config = _config ?: PawaConfig.invoke()
+  val isStandalone = config.isStandalone
   val logger = KotlinLogging.logger { }
 
   private var _ignoredUsers: MutableMap<String, List<Long>> = mutableMapOf()
