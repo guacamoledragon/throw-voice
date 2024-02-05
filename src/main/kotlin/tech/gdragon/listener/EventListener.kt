@@ -40,7 +40,6 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
 
   private val logger = KotlinLogging.logger {}
   private val website: String = getKoin().getProperty("BOT_WEBSITE", "http://localhost:8080/")
-  private val standalone = getKoin().getProperty<String>("BOT_STANDALONE").toBoolean()
   private val tracer: EventTracer = getKoin().get()
 
   override fun onCommandAutoCompleteInteraction(event: CommandAutoCompleteInteractionEvent) {
@@ -180,7 +179,7 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
         // Update activity
         BotUtils.updateActivity(event.guild)
 
-        if (standalone) {
+        if (pawa.isStandalone) {
           BotUtils.autoRecord(pawa, event.guild, voiceChannel)
         }
       }
@@ -216,7 +215,7 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
         if (BotUtils.isSelfBot(user).not()) {
           val save = pawa.autoSave(event.guild.idLong)
           BotUtils.autoStop(event.guild, voiceChannelLeft, save)
-          if (standalone) {
+          if (pawa.isStandalone) {
             BotUtils.autoRecord(pawa, event.guild, voiceChannelJoined)
           }
         }
