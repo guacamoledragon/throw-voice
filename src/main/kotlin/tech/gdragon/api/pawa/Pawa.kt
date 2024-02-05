@@ -67,8 +67,13 @@ class Pawa(val db: Database, _config: PawaConfig? = null) {
     }
   }
 
+  /**
+   * Returns whether automatic saving is enabled for the given [guildId].
+   *
+   * If the bot is running in standalone mode, this will always return `true`.
+   */
   fun autoSave(guildId: Long): Boolean {
-    return transaction(db.database) {
+    return isStandalone || transaction(db.database) {
       Settings
         .find { Tables.Settings.guild eq guildId }
         .firstOrNull()?.autoSave
