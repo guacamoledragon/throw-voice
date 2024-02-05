@@ -109,32 +109,18 @@ object BotUtils {
       }
   }
 
-  @WithSpan("Auto Save")
-  fun autoSave(discordGuild: DiscordGuild): Boolean {
-    return transaction {
-      Guild
-        .findById(discordGuild.idLong)
-        ?.settings
-        ?.autoSave
-    } ?: false
-  }
-
-  fun autoStop(guild: DiscordGuild, channel: AudioChannelUnion) {
+  fun autoStop(guild: DiscordGuild, channel: AudioChannelUnion, save: Boolean) {
     if (guild.audioManager.connectedChannel == channel) {
       val channelMemberCount = voiceChannelSize(channel)
       logger.debug { "${guild.name}#${channel.name} - Channel member count: $channelMemberCount" }
 
-      transaction { Channel.findById(channel.idLong)?.autoStop }
-        ?.let {
-          val autoStop = it
-          logger.debug { "${guild.name}#${channel.name} - autostop value: $autoStop" }
+      val autoStop = transaction { Channel.findById(channel.idLong)?.autoStop } ?: 1
+      logger.debug { "${guild.name}#${channel.name} - autostop value: $autoStop" }
 
-          if (channelMemberCount <= autoStop) {
-            val defaultChannel = defaultTextChannel(guild) ?: findPublicChannel(guild)
-            val save = autoSave(guild)
-            leaveVoiceChannel(channel, defaultChannel, save)
-          }
-        }
+      if (channelMemberCount <= autoStop) {
+        val defaultChannel = defaultTextChannel(guild) ?: findPublicChannel(guild)
+        leaveVoiceChannel(channel, defaultChannel, save)
+      }
     } else {
       logger.debug {
         "Not connected to $channel, can't leave it ;)"
@@ -232,7 +218,7 @@ object BotUtils {
       val (recording, recordingLock) =
         if (save && textChannel != null) {
           sendMessage(textChannel, ":floppy_disk: **Saving <#${voiceChannel.id}>'s recording...**")
-          recorder.saveRecording(voiceChannel, textChannel, false)
+          recorder.saveRecording(voiceChannel, textChannel)
         } else Pair(null, null)
 
       recorder.disconnect(!save, recording, recordingLock)
