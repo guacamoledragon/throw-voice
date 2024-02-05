@@ -194,7 +194,8 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
           "${event.guild.name}#${voiceChannel.name} - ${event.member.effectiveName} left voice channel"
         }
         if (BotUtils.isSelfBot(event.member.user).not()) {
-          BotUtils.autoStop(event.guild, voiceChannel)
+          val save = pawa.autoSave(event.guild.idLong)
+          BotUtils.autoStop(event.guild, voiceChannel, save)
         }
       }
     }
@@ -213,7 +214,8 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
         BotUtils.updateActivity(event.guild)
 
         if (BotUtils.isSelfBot(user).not()) {
-          BotUtils.autoStop(event.guild, voiceChannelLeft)
+          val save = pawa.autoSave(event.guild.idLong)
+          BotUtils.autoStop(event.guild, voiceChannelLeft, save)
           if (standalone) {
             BotUtils.autoRecord(pawa, event.guild, voiceChannelJoined)
           }

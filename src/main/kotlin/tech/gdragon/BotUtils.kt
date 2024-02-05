@@ -119,7 +119,7 @@ object BotUtils {
     } ?: false
   }
 
-  fun autoStop(guild: DiscordGuild, channel: AudioChannelUnion) {
+  fun autoStop(guild: DiscordGuild, channel: AudioChannelUnion, save: Boolean) {
     if (guild.audioManager.connectedChannel == channel) {
       val channelMemberCount = voiceChannelSize(channel)
       logger.debug { "${guild.name}#${channel.name} - Channel member count: $channelMemberCount" }
@@ -131,7 +131,6 @@ object BotUtils {
 
           if (channelMemberCount <= autoStop) {
             val defaultChannel = defaultTextChannel(guild) ?: findPublicChannel(guild)
-            val save = autoSave(guild)
             leaveVoiceChannel(channel, defaultChannel, save)
           }
         }
