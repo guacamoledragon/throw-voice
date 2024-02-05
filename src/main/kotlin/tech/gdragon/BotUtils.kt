@@ -109,16 +109,6 @@ object BotUtils {
       }
   }
 
-  @WithSpan("Auto Save")
-  fun autoSave(discordGuild: DiscordGuild): Boolean {
-    return transaction {
-      Guild
-        .findById(discordGuild.idLong)
-        ?.settings
-        ?.autoSave
-    } ?: false
-  }
-
   fun autoStop(guild: DiscordGuild, channel: AudioChannelUnion, save: Boolean) {
     if (guild.audioManager.connectedChannel == channel) {
       val channelMemberCount = voiceChannelSize(channel)
