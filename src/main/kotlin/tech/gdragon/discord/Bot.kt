@@ -102,7 +102,7 @@ class Bot(private val token: String, database: Database) {
 
       // Initialize Pawa object
       val standalone = getKoin().getProperty<String>("BOT_STANDALONE").toBoolean()
-      pawa = Pawa(api().selfUser.applicationIdLong, database, standalone)
+      pawa = Pawa(database, standalone)
 
       // Register Listeners
       shardManager.addEventListener(EventListener(pawa), SystemEventListener())

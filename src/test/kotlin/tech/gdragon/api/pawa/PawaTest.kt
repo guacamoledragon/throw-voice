@@ -35,7 +35,7 @@ fun pawaTests(db: Database, ds: Datastore, isStandalone: Boolean) = funSpec {
       Guild.findOrCreate(guildId, "Test Guild")
     }
 
-    Pawa(guildId, db, isStandalone)
+    Pawa(db, isStandalone)
   }
 
   context("when alias") {

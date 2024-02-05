@@ -13,7 +13,7 @@ import tech.gdragon.i18n.Lang
 import java.io.File
 import java.math.BigDecimal
 
-class Pawa(val id: Long, val db: Database, val isStandalone: Boolean, config: PawaConfig? = null) {
+class Pawa(val db: Database, val isStandalone: Boolean, config: PawaConfig? = null) {
   val config = config ?: PawaConfig.invoke()
   val logger = KotlinLogging.logger { }
 
