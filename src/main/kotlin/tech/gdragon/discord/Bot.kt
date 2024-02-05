@@ -27,7 +27,6 @@ import tech.gdragon.commands.settings.*
 import tech.gdragon.commands.slash.Info
 import tech.gdragon.commands.slash.Recover
 import tech.gdragon.commands.slash.Slash
-import tech.gdragon.db.Database
 import tech.gdragon.db.dao.Application
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.listener.EventListener
@@ -39,7 +38,7 @@ import kotlin.time.toJavaDuration
 import tech.gdragon.i18n.Alias as AliasTranslator
 import tech.gdragon.i18n.AutoStop as AutoStopTranslator
 
-class Bot(private val token: String, database: Database) {
+class Bot(private val token: String, private val pawa: Pawa) {
   private val logger = KotlinLogging.logger {}
   private val tracer: EventTracer = getKoin().get()
 
@@ -56,7 +55,6 @@ class Bot(private val token: String, database: Database) {
     )
   }
 
-  private lateinit var pawa: Pawa
   lateinit var shardManager: ShardManager
 
   fun api(): JDA {
@@ -99,10 +97,6 @@ class Bot(private val token: String, database: Database) {
       setActivity()
       addMissingGuilds()
       addMissingApp()
-
-      // Initialize Pawa object
-      val standalone = getKoin().getProperty<String>("BOT_STANDALONE").toBoolean()
-      pawa = Pawa(database, standalone)
 
       // Register Listeners
       shardManager.addEventListener(EventListener(pawa), SystemEventListener())

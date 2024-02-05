@@ -14,6 +14,7 @@ import org.koin.dsl.module
 import org.koin.environmentProperties
 import org.koin.fileProperties
 import org.koin.logger.SLF4JLogger
+import tech.gdragon.api.pawa.Pawa
 import tech.gdragon.data.Datastore
 import tech.gdragon.data.LocalDatastore
 import tech.gdragon.data.S3Datastore
@@ -88,13 +89,19 @@ object App {
         }
       }
 
+      val pawaModule = Pawa.module()
+
+      val discordModule = module {
+        single { Bot(getProperty("BOT_TOKEN"), get()) }
+      }
+
       val optionalModules = module {
         val createdAtStart = !isStandalone
         single(createdAtStart = createdAtStart) {
           REPL()
         }
         single<EventTracer>(createdAtStart = true) {
-            NoOpTracer()
+          NoOpTracer()
         }
         single<Tracer>(createdAtStart = true) {
           val scopeName = "tech.gdragon.pawa"
@@ -105,12 +112,12 @@ object App {
           }
         }
       }
+
       val modules = listOf(
         Database.module(isEmbedded = isStandalone),
-        module {
-          single { Bot(getProperty("BOT_TOKEN"), get()) }
-        },
+        discordModule,
         datastoreModule,
+        pawaModule,
         optionalModules
       )
       koin.loadModules(modules)
