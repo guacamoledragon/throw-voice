@@ -6,9 +6,9 @@ import dev.minn.jda.ktx.interactions.commands.option
 import io.github.oshai.kotlinlogging.withLoggingContext
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.channel.ChannelType
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import tech.gdragon.BotUtils
@@ -35,20 +35,13 @@ class Record : CommandHandler() {
           selectedChannel
         } else null ?: event.member?.voiceState?.channel
 
-        val textChannel = try {
-          event.jda.getTextChannelById(event.messageChannel.idLong)
-        } catch (_: Exception) {
-          // This will happen if the event is triggered from a Voice Channel chat
-          // Source: https://support.discord.com/hc/en-us/articles/4412085582359-Text-Channels-Text-Chat-In-Voice-Channels#h_01FMJT3SP072ZFJCZWR0EW6CJ1
-          BotUtils.defaultTextChannel(it) ?: BotUtils.findPublicChannel(it)
-        }
-
+        val textChannel = event.messageChannel
         val message = handler(pawa, it, voiceChannel, textChannel)
         event.reply(message).queue()
       }
     }
 
-    fun handler(pawa: Pawa, guild: DiscordGuild, voiceChannel: AudioChannel?, textChannel: TextChannel?): String {
+    fun handler(pawa: Pawa, guild: DiscordGuild, voiceChannel: AudioChannel?, messageChannel: MessageChannel): String {
       val translator: RecordTranslator = pawa.translator(guild.idLong)
       return when {
         voiceChannel == null -> ":no_entry_sign: _${translator.joinChannel}_"
@@ -61,10 +54,10 @@ class Record : CommandHandler() {
           withLoggingContext(
             "guild" to guild.name,
             "voice-channel" to voiceChannel.name,
-            "text-channel" to textChannel?.name
+            "text-channel" to messageChannel.name
           ) {
             try {
-              val recorder = BotUtils.recordVoiceChannel(voiceChannel, textChannel)
+              val recorder = BotUtils.recordVoiceChannel(voiceChannel, messageChannel)
               pawa.startRecording(recorder.session, guild.idLong)
               translator.recording(voiceChannel.id, recorder.session)
             } catch (e: IllegalArgumentException) {
@@ -76,7 +69,7 @@ class Record : CommandHandler() {
                   ":no_entry_sign: _${translator.cannotRecord(voiceChannel.id, Permission.VOICE_CONNECT.name)}_"
 
                 "no-attach-files-permission" ->
-                  translator.cannotUpload(textChannel!!.id, Permission.MESSAGE_ATTACH_FILES.name)
+                  translator.cannotUpload(messageChannel.id, Permission.MESSAGE_ATTACH_FILES.name)
 
                 "afk-channel" ->
                   ":no_entry_sign: _${translator.afkChannel(voiceChannel.id)}_"
@@ -106,7 +99,7 @@ class Record : CommandHandler() {
           .firstOrNull()
     } else null ?: event.member?.voiceState?.channel
 
-    val message = handler(pawa, event.guild, voiceChannel, event.channel.asTextChannel())
+    val message = handler(pawa, event.guild, voiceChannel, event.channel)
     BotUtils.sendMessage(event.channel, message)
   }
 
