@@ -227,10 +227,10 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
     when {
       // Joining a channel without bot being connected
       event.channelLeft == null -> onGuildVoiceJoin(event)
-      // Leaving a channel that we were previously connected to
-      event.channelLeft != null && event.guild.audioManager.connectedChannel == event.channelLeft && event.channelJoined == null -> onGuildVoiceLeave(event)
-      // Leaving a channel that we were previously connected to another channel
-      event.channelLeft != null && event.guild.audioManager.connectedChannel == event.channelLeft && event.channelJoined != null -> onGuildVoiceMove(event)
+      // Leaving a channel and connecting to no channel == leave
+      event.channelLeft != null && event.voiceState.channel == null -> onGuildVoiceLeave(event)
+      // Leaving a channel and connecting to another == move
+      event.channelLeft != null && event.voiceState.channel != null -> onGuildVoiceMove(event)
       else -> super.onGuildVoiceUpdate(event)
     }
   }
@@ -276,7 +276,7 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
             defaultChannel,
             ":poop: _Currently running an update...\n\nIf you have any questions please visit the support server: ${website}_"
           )
-          logger.warn("Trying to use while running an update")
+          logger.warn { "Trying to use while running an update" }
         } else if (hasPrefix) {
           try {
             handleCommand(span, event, pawa, prefix, rawContent)
