@@ -19,7 +19,7 @@ class Alias : CommandHandler() {
       Command("alias", "Creates an alias, or alternate name, to a command for customization.") {
         option<String>("command", "The built-in command you want to alias.", true) {
           Command
-            .values()
+            .entries
             .map{ it.name.lowercase() }
             .filterNot { it == "alias" }
             .forEach {
@@ -41,7 +41,7 @@ class Alias : CommandHandler() {
     val translator: AliasTranslator = pawa.translator(event.guild.idLong)
 
     // Checks that command to alias exists
-    if (Command.ALIAS.name == command || Command.values().none { it.name == command }) {
+    if (Command.ALIAS.name == command || Command.entries.toTypedArray().none { it.name == command }) {
       BotUtils.sendMessage(defaultChannel, ":no_entry_sign: _${translator.invalid(command.lowercase())}_")
     } else {
       val alias = args[1]

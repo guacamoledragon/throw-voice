@@ -43,7 +43,7 @@ class Pawa(val db: Database, _config: PawaConfig? = null) {
     // Command cannot be ALIAS and the alias cannot be the name of an existing command
     val isValidAlias = (Command.ALIAS != command) &&
       Command
-        .values()
+        .entries
         .map { it.name.lowercase() }
         .none { it == alias.lowercase() }
 
