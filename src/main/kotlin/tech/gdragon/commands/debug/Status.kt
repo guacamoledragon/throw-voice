@@ -23,7 +23,7 @@ class Status : CommandHandler() {
       throw InvalidCommand(::usage, "Incorrect number of arguments: ${args.size}")
     }
 
-    require(standalone || BotUtils.TRIGOMAN == event.author.idLong) {
+    require(pawa.isStandalone || BotUtils.TRIGOMAN == event.author.idLong) {
       throw InvalidCommand({ "Command can only be used by server admins." }, "Unauthorized use.")
     }
 
