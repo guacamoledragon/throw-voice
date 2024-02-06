@@ -1,10 +1,8 @@
 package tech.gdragon.data
 
 import org.koin.core.context.startKoin
-import tech.gdragon.koin.overrideFileProperties
 import org.koin.dsl.module
-import tech.gdragon.data.Datastore
-import tech.gdragon.data.S3Datastore
+import tech.gdragon.koin.overrideFileProperties
 
 fun main() {
   val app = startKoin {
