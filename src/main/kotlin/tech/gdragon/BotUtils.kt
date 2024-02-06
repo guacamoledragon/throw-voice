@@ -1,5 +1,6 @@
 package tech.gdragon
 
+import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import dev.minn.jda.ktx.messages.MessageCreate
 import io.azam.ulidj.ULID
@@ -52,8 +53,7 @@ object BotUtils {
     .softValues()
     .build<Long, Instant>()
 
-  val guildCache = Caffeine.newBuilder()
-    .build<Long, String>()
+  private val guildCache: Cache<Long, String> = Caffeine.newBuilder().build()
 
   /**
    * AutoRecord voice channel if it meets the auto record criterion
@@ -405,7 +405,7 @@ object BotUtils {
     /**
      * Using an LRU cache, update activity if not in cache, this is not thread safe but also non-critical so wutevs
      */
-  fun updateActivity(guild: DiscordGuild): Unit {
+  fun updateActivity(guild: DiscordGuild) {
     if (guildActivityCache.getIfPresent(guild.idLong) == null) {
       // Update Guild name if necessary
       updateGuildName(guild)

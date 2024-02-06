@@ -6,7 +6,7 @@ interface EventTracer {
   fun shutdown()
 }
 
-class NoOpTracer() : EventTracer {
+class NoOpTracer : EventTracer {
   override fun sendEvent(fields: Map<String, Any>) {
     // No Op
   }

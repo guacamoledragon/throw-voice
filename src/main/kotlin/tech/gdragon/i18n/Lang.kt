@@ -146,9 +146,9 @@ class Alias(lang: Lang) {
 class AutoSave(lang: Lang) {
   private val resource = Babel.resource(lang)
 
-  val noop = resource.getString("autosave.noop")
-  val off = resource.getString("autosave.off")
-  val on = resource.getString("autosave.on")
+  val noop: String = resource.getString("autosave.noop")
+  val off: String = resource.getString("autosave.off")
+  val on: String = resource.getString("autosave.on")
   val usage: (String) -> String = { prefix -> resource.getString("autosave.usage").format(prefix) }
 }
 
@@ -186,9 +186,9 @@ class Help(lang: Lang) {
 class Ignore(lang: Lang) {
   private val resource = Babel.resource(lang)
 
-  val beta = resource.getString("ignore.beta")
+  val beta: String = resource.getString("ignore.beta")
   val ignore: (String) -> String = { users -> resource.getString("ignore.ignore").format(users) }
-  val notRecording = resource.getString("ignore.not_recording")
+  val notRecording: String = resource.getString("ignore.not_recording")
   val usage: (String) -> String = { prefix -> resource.getString("ignore.usage").format(prefix) }
 }
 
@@ -280,7 +280,7 @@ class SaveLocation(lang: Lang) {
 class Slash(lang: Lang) {
   private val resource = Babel.resource(lang)
 
-  val inGuild = resource.getString("slash.in_guild")
+  val inGuild: String = resource.getString("slash.in_guild")
 }
 
 class Stop(lang: Lang) {
@@ -288,7 +288,7 @@ class Stop(lang: Lang) {
 
   val leaveChannel: (String) -> String =
     { channelId -> resource.getString("stop.leave_channel").format("**<#$channelId>**") }
-  val noChannel = resource.getString("stop.no_channel")
+  val noChannel: String = resource.getString("stop.no_channel")
   val usage: (String) -> String = { prefix -> resource.getString("stop.usage").format(prefix) }
 }
 
