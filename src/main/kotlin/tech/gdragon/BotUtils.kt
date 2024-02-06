@@ -145,15 +145,6 @@ object BotUtils {
   }
 
   /**
-   * Finds an open channel where messages can be sent.
-   */
-  fun findPublicChannel(guild: DiscordGuild): TextChannel? {
-    return guild
-      .textChannels
-      .find(TextChannel::canTalk)
-  }
-
-  /**
    * Given a string, determines if there's any SessionIDs in it and returns the list.
    */
   fun findSessionID(input: String): List<String> {
