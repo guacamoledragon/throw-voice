@@ -21,7 +21,7 @@ import net.dv8tion.jda.api.requests.RestAction
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.component.KoinComponent
 import tech.gdragon.BotUtils
-import tech.gdragon.BotUtils.trigoman
+import tech.gdragon.BotUtils.TRIGOMAN
 import tech.gdragon.api.pawa.Pawa
 import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.commands.handleCommand
@@ -47,7 +47,7 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
       val partialSessionId = event.focusedOption.value
       val choices = transaction {
         val limit = 25
-        if (trigoman == event.user.idLong) {
+        if (TRIGOMAN == event.user.idLong) {
           Recording.findIdLike("$partialSessionId%", null, limit)
         } else {
           Recording.findIdLike("$partialSessionId%", event.guild!!.idLong, limit)
@@ -65,7 +65,7 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
   }
 
   override fun onMessageContextInteraction(event: MessageContextInteractionEvent) {
-    if ((pawa.isStandalone || event.user.idLong == trigoman) && event.name == "Recover Recording") {
+    if ((pawa.isStandalone || event.user.idLong == TRIGOMAN) && event.name == "Recover Recording") {
       event.target.run {
         val sessionIds = BotUtils.findSessionID(contentRaw)
         val dataDirectory = getKoin().getStringProperty("BOT_DATA_DIR")
@@ -299,7 +299,7 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
       val sessionId = event.getValue("session-id")?.asString.orEmpty()
 
       event.jda
-        .openPrivateChannelById(trigoman)
+        .openPrivateChannelById(TRIGOMAN)
         .flatMap { channel ->
           val requestReply = RequestAccessReply(event.user, request, sessionId)
           channel.sendMessageEmbeds(requestReply.embed)

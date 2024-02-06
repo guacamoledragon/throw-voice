@@ -45,7 +45,7 @@ import tech.gdragon.i18n.Record as RecordTranslator
 object BotUtils {
   private val logger = KotlinLogging.logger {}
 
-  const val trigoman = 96802905322962944L
+  const val TRIGOMAN = 96802905322962944L
 
   private val guildActivityCache = Caffeine.newBuilder()
     .expireAfterWrite(1L, TimeUnit.HOURS)
