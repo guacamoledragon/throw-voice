@@ -14,7 +14,7 @@ import tech.gdragon.i18n.Lang
 
 class Slash : CommandHandler() {
   override fun action(args: Array<String>, event: MessageReceivedEvent, pawa: Pawa) {
-    require(standalone || BotUtils.trigoman == event.author.idLong) {
+    require(pawa.isStandalone || BotUtils.TRIGOMAN == event.author.idLong) {
       throw InvalidCommand({ "Command can only be used by server admins." }, "Unauthorized use.")
     }
 

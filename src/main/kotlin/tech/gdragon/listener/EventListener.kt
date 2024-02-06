@@ -21,7 +21,7 @@ import net.dv8tion.jda.api.requests.RestAction
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.component.KoinComponent
 import tech.gdragon.BotUtils
-import tech.gdragon.BotUtils.trigoman
+import tech.gdragon.BotUtils.TRIGOMAN
 import tech.gdragon.api.pawa.Pawa
 import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.commands.handleCommand
@@ -47,7 +47,7 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
       val partialSessionId = event.focusedOption.value
       val choices = transaction {
         val limit = 25
-        if (trigoman == event.user.idLong) {
+        if (TRIGOMAN == event.user.idLong) {
           Recording.findIdLike("$partialSessionId%", null, limit)
         } else {
           Recording.findIdLike("$partialSessionId%", event.guild!!.idLong, limit)
@@ -65,7 +65,7 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
   }
 
   override fun onMessageContextInteraction(event: MessageContextInteractionEvent) {
-    if ((pawa.isStandalone || event.user.idLong == trigoman) && event.name == "Recover Recording") {
+    if ((pawa.isStandalone || event.user.idLong == TRIGOMAN) && event.name == "Recover Recording") {
       event.target.run {
         val sessionIds = BotUtils.findSessionID(contentRaw)
         val dataDirectory = getKoin().getStringProperty("BOT_DATA_DIR")
@@ -227,10 +227,10 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
     when {
       // Joining a channel without bot being connected
       event.channelLeft == null -> onGuildVoiceJoin(event)
-      // Leaving a channel that we were previously connected to
-      event.channelLeft != null && event.guild.audioManager.connectedChannel == event.channelLeft && event.channelJoined == null -> onGuildVoiceLeave(event)
-      // Leaving a channel that we were previously connected to another channel
-      event.channelLeft != null && event.guild.audioManager.connectedChannel == event.channelLeft && event.channelJoined != null -> onGuildVoiceMove(event)
+      // Leaving a channel and connecting to no channel == leave
+      event.channelLeft != null && event.voiceState.channel == null -> onGuildVoiceLeave(event)
+      // Leaving a channel and connecting to another == move
+      event.channelLeft != null && event.voiceState.channel != null -> onGuildVoiceMove(event)
       else -> super.onGuildVoiceUpdate(event)
     }
   }
@@ -276,7 +276,7 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
             defaultChannel,
             ":poop: _Currently running an update...\n\nIf you have any questions please visit the support server: ${website}_"
           )
-          logger.warn("Trying to use while running an update")
+          logger.warn { "Trying to use while running an update" }
         } else if (hasPrefix) {
           try {
             handleCommand(span, event, pawa, prefix, rawContent)
@@ -299,7 +299,7 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
       val sessionId = event.getValue("session-id")?.asString.orEmpty()
 
       event.jda
-        .openPrivateChannelById(trigoman)
+        .openPrivateChannelById(TRIGOMAN)
         .flatMap { channel ->
           val requestReply = RequestAccessReply(event.user, request, sessionId)
           channel.sendMessageEmbeds(requestReply.embed)

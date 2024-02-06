@@ -7,7 +7,7 @@ import dev.minn.jda.ktx.interactions.commands.restrict
 import dev.minn.jda.ktx.interactions.components.getOption
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent
 import org.koin.core.context.GlobalContext
-import tech.gdragon.BotUtils.trigoman
+import tech.gdragon.BotUtils.TRIGOMAN
 import tech.gdragon.api.pawa.Pawa
 import tech.gdragon.data.Datastore
 import tech.gdragon.discord.message.ErrorEmbed
@@ -23,7 +23,7 @@ object Recover {
   fun slashHandler(pawa: Pawa): suspend CoroutineEventListener.(GenericCommandInteractionEvent) -> Unit = { event ->
     val sessionId = event.getOption<String>("session-id")!!
 
-    if (trigoman == event.user.idLong || pawa.isStandalone) {
+    if (TRIGOMAN == event.user.idLong || pawa.isStandalone) {
       val koin = GlobalContext.get()
       val datastore = koin.get<Datastore>()
       val dataDirectory = koin.getStringProperty("BOT_DATA_DIR")

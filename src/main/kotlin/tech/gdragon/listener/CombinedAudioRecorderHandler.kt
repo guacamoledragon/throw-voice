@@ -18,8 +18,8 @@ import net.dv8tion.jda.api.audio.AudioReceiveHandler
 import net.dv8tion.jda.api.audio.CombinedAudio
 import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.User
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel
 import org.apache.commons.io.FileUtils
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.component.KoinComponent
@@ -74,7 +74,7 @@ data class RecordingQueue(val fileBuffer: File) : QueueFile(fileBuffer)
 class CombinedAudioRecorderHandler(
   var volume: Double,
   val voiceChannel: AudioChannel,
-  val defaultChannel: TextChannel
+  val messageChannel: MessageChannel
 ) : AudioReceiveHandler, KoinComponent {
   companion object {
     private const val AFK_MINUTES = 2
@@ -149,12 +149,12 @@ class CombinedAudioRecorderHandler(
         }
 
         BotUtils.sendMessage(
-          defaultChannel,
+          messageChannel,
           ":sleeping: _No audio detected in the last **$AFK_MINUTES** minutes, leaving **<#${voiceChannel.id}>**._"
         )
         thread {
           val save = pawa.autoSave(voiceChannel.guild.idLong)
-          BotUtils.leaveVoiceChannel(voiceChannel, defaultChannel, save)
+          BotUtils.leaveVoiceChannel(voiceChannel, messageChannel, save)
         }
       }
 
@@ -167,7 +167,7 @@ class CombinedAudioRecorderHandler(
     recordingRecord = transaction {
       Guild.findById(voiceChannel.guild.idLong)?.let {
         Recording.new(ulid) {
-          channel = Channel.findOrCreate(voiceChannel.idLong, voiceChannel.name, it)
+          channel = Channel.findOrCreate(voiceChannel.idLong, voiceChannel.name, voiceChannel.guild.idLong)
           guild = it
         }
       }
@@ -216,7 +216,7 @@ class CombinedAudioRecorderHandler(
         val percentage = recordingSize * 100 / MAX_RECORDING_SIZE
         if (!standalone && (percentage >= 90 && !limitWarning)) {
           BotUtils.sendMessage(
-            defaultChannel,
+            messageChannel,
             ":warning:_You've reached $percentage% of your recording limit, please save to start a new session._"
           )
           limitWarning = true
@@ -253,8 +253,8 @@ class CombinedAudioRecorderHandler(
   }
 
   fun saveRecording(
-    voiceChannel: AudioChannel?,
-    textChannel: TextChannel
+    voiceChannel: AudioChannel,
+    messageChannel: MessageChannel
   ): Pair<Recording?, Semaphore> {
     canReceive = false
     val recordingLock = Semaphore(1, true)
@@ -264,9 +264,9 @@ class CombinedAudioRecorderHandler(
     recordingLock.acquire()
     val disposable = single?.subscribe { queueFile, e ->
       withLoggingContext(
-        "guild" to textChannel.guild.name,
-        "guild.id" to textChannel.guild.id,
-        "text-channel" to textChannel.name,
+        "guild" to voiceChannel.guild.name,
+        "guild.id" to voiceChannel.guild.id,
+        "text-channel" to voiceChannel.name,
         "session-id" to session,
         "recording.size-mb" to (recordingSize * 1024 * 1024).toString()
       ) {
@@ -295,7 +295,7 @@ class CombinedAudioRecorderHandler(
                 "Recording size in bytes: $recordingSize"
               }
 
-              uploadRecording(recordingFile, voiceChannel, textChannel)
+              uploadRecording(recordingFile, voiceChannel, messageChannel)
             } catch (e: IOException) {
               logger.warn(e) {
                 "Could not generate MP3 file from Queue: ${recordingFile.absolutePath}: ${queueFile.fileBuffer.canonicalPath}"
@@ -306,7 +306,7 @@ class CombinedAudioRecorderHandler(
                    |_Session ID: `$session`_
                    |""".trimMargin()
 
-              BotUtils.sendMessage(textChannel, errorMessage)
+              BotUtils.sendMessage(messageChannel, errorMessage)
             } finally {
               close()
 
@@ -335,7 +335,7 @@ class CombinedAudioRecorderHandler(
     return Pair(recording, recordingLock)
   }
 
-  private fun uploadRecording(recording: File, voiceChannel: AudioChannel?, channel: TextChannel) {
+  private fun uploadRecording(recording: File, voiceChannel: AudioChannel, channel: MessageChannel) {
     if (recording.length() <= 0) {
       val message = ":no_entry_sign: _Recording is empty, not uploading._"
       BotUtils.sendMessage(channel, message)
@@ -344,7 +344,7 @@ class CombinedAudioRecorderHandler(
         recordingRecord?.delete()
       }
     } else {
-      val filename = if (standalone) "${voiceChannel?.name}-${dtf.print(nowUTC())}.$fileFormat" else recording.name
+      val filename = if (standalone) "${voiceChannel.name}-${dtf.print(nowUTC())}.$fileFormat" else recording.name
       // Upload to Discord
       val attachment =
         if (recording.length() < DISCORD_MAX_RECORDING_SIZE) {
@@ -356,9 +356,9 @@ class CombinedAudioRecorderHandler(
       // Upload to Minio
       if (recording.length() in MIN_RECORDING_SIZE until MAX_RECORDING_SIZE || standalone) {
         val recordingKey = if (standalone) {
-          "${channel.guild.id}/$filename"
+          "${voiceChannel.guild.id}/$filename"
         } else {
-          "${channel.guild.id}/${recording.name}"
+          "${voiceChannel.guild.id}/${recording.name}"
         }
         try {
           val result = datastore.upload(recordingKey, recording)
@@ -375,10 +375,10 @@ class CombinedAudioRecorderHandler(
           val recordingUrl = if (standalone) {
             "`${result.url}`"
           } else if (appUrl != null) {
-            "$appUrl/v1/recordings?guild=${voiceChannel?.guild?.idLong}&session-id=$session"
+            "$appUrl/v1/recordings?guild=${voiceChannel.guild.idLong}&session-id=$session"
           } else result.url
 
-          val message = """|:microphone2: **Recording for <#${voiceChannel?.id}> has been uploaded!**
+          val message = """|:microphone2: **Recording for <#${voiceChannel.id}> has been uploaded!**
                            |$recordingUrl
                            |${if (!standalone) "\n\n_Recording will only be available for 24hrs_" else ""}
                            |""".trimMargin()
@@ -407,8 +407,8 @@ class CombinedAudioRecorderHandler(
           }
         }
 
-        val recordingUrl = "$appUrl/v1/recordings?guild=${voiceChannel?.guild?.idLong}&session-id=$session"
-        val message = """|:microphone2: **Recording for <#${voiceChannel?.id}> has been uploaded!**
+        val recordingUrl = "$appUrl/v1/recordings?guild=${voiceChannel.guild.idLong}&session-id=$session"
+        val message = """|:microphone2: **Recording for <#${voiceChannel.id}> has been uploaded!**
                          |$recordingUrl
                          |""".trimMargin()
 
@@ -434,7 +434,7 @@ class CombinedAudioRecorderHandler(
         }
       }
       ?.subscribe { queueFile, _ ->
-        withLoggingContext("guild" to voiceChannel.guild.name, "text-channel" to defaultChannel.name) {
+        withLoggingContext("guild" to voiceChannel.guild.name, "text-channel" to messageChannel.name) {
           queueFile?.let {
             recordingLock?.let { lock ->
               lock.acquire(1)

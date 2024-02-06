@@ -2,7 +2,7 @@ package tech.gdragon.commands.audio
 
 import dev.minn.jda.ktx.events.CoroutineEventListener
 import dev.minn.jda.ktx.interactions.commands.Command
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import tech.gdragon.BotUtils
@@ -18,12 +18,12 @@ class Stop : CommandHandler() {
   companion object {
     val command = Command("stop", "Stop recording voice channel.")
 
-    fun handler(pawa: Pawa, guild: DiscordGuild, textChannel: TextChannel?): String {
+    fun handler(pawa: Pawa, guild: DiscordGuild, messageChannel: MessageChannel): String {
       val translator: StopTranslator = pawa.translator(guild.idLong)
       return if (guild.audioManager.isConnected) {
         val voiceChannel = guild.audioManager.connectedChannel!!
         val save = pawa.autoSave(guild.idLong)
-        val recorder = BotUtils.leaveVoiceChannel(voiceChannel, textChannel, save)
+        val recorder = BotUtils.leaveVoiceChannel(voiceChannel, messageChannel, save)
         pawa.stopRecording(recorder.session)
         ":wave: _${translator.leaveChannel(voiceChannel.id)}_"
       } else {
@@ -33,15 +33,8 @@ class Stop : CommandHandler() {
 
     fun slashHandler(pawa: Pawa): suspend CoroutineEventListener.(GenericCommandInteractionEvent) -> Unit = { event ->
       event.guild?.let {
-        val textChannel = try {
-          event.guild?.getTextChannelById(event.messageChannel.idLong)
-        } catch (_: Exception) {
-          // This will happen if the event is triggered from a Voice Channel chat
-          // Source: https://support.discord.com/hc/en-us/articles/4412085582359-Text-Channels-Text-Chat-In-Voice-Channels#h_01FMJT3SP072ZFJCZWR0EW6CJ1
-          BotUtils.defaultTextChannel(it) ?: BotUtils.findPublicChannel(it)
-        }
-
-        val message = handler(pawa, it, textChannel)
+        val messageChannel = event.messageChannel
+        val message = handler(pawa, it, messageChannel)
         event.reply(message).queue()
       }
     }
@@ -52,7 +45,7 @@ class Stop : CommandHandler() {
       throw InvalidCommand(::usage, "Incorrect number of arguments: ${args.size}")
     }
 
-    val message = handler(pawa, event.guild, event.channel.asTextChannel())
+    val message = handler(pawa, event.guild, event.channel)
     BotUtils.sendMessage(event.channel, message)
   }
 

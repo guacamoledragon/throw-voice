@@ -1,5 +1,6 @@
 package tech.gdragon
 
+import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import dev.minn.jda.ktx.messages.MessageCreate
 import io.azam.ulidj.ULID
@@ -45,15 +46,14 @@ import tech.gdragon.i18n.Record as RecordTranslator
 object BotUtils {
   private val logger = KotlinLogging.logger {}
 
-  const val trigoman = 96802905322962944L
+  const val TRIGOMAN = 96802905322962944L
 
   private val guildActivityCache = Caffeine.newBuilder()
     .expireAfterWrite(1L, TimeUnit.HOURS)
     .softValues()
     .build<Long, Instant>()
 
-  val guildCache = Caffeine.newBuilder()
-    .build<Long, String>()
+  private val guildCache: Cache<Long, String> = Caffeine.newBuilder().build()
 
   /**
    * AutoRecord voice channel if it meets the auto record criterion
@@ -68,20 +68,20 @@ object BotUtils {
         logger.debug { "AutoRecord value: $autoRecord" }
 
         if (channelMemberCount >= autoRecord) {
-          val defaultChannel = defaultTextChannel(guild) ?: findPublicChannel(guild)
+          val messageChannel = defaultTextChannel(guild) ?: channel.asGuildMessageChannel()
 
           withLoggingContext("guild" to guild.name, "voice-channel" to channel.name) {
             val audioManager = guild.audioManager
             val translator: RecordTranslator = pawa.translator(guild.idLong)
             if (audioManager.isConnected) {
               sendMessage(
-                defaultChannel,
+                messageChannel,
                 ":no_entry_sign: _${translator.alreadyInChannel(audioManager.connectedChannel!!.id)}_"
               )
             } else {
               val message =
                 try {
-                  val recorder = recordVoiceChannel(channel)
+                  val recorder = recordVoiceChannel(channel, messageChannel)
                   pawa.startRecording(recorder.session, guild.idLong)
                   translator.recording(channel.id, recorder.session)
                 } catch (e: IllegalArgumentException) {
@@ -93,7 +93,7 @@ object BotUtils {
                       ":no_entry_sign: _${translator.cannotRecord(channel.id, Permission.VOICE_CONNECT.name)}_"
 
                     "no-attach-files-permission" ->
-                      translator.cannotUpload(defaultChannel!!.id, Permission.MESSAGE_ATTACH_FILES.name)
+                      translator.cannotUpload(messageChannel.id, Permission.MESSAGE_ATTACH_FILES.name)
 
                     "afk-channel" ->
                       ":no_entry_sign: _${translator.afkChannel(channel.id)}_"
@@ -102,7 +102,7 @@ object BotUtils {
                       ":no_entry_sign: _Unknown bad argument: ${e.message}_"
                   }
                 }
-              sendMessage(defaultChannel, message)
+              sendMessage(messageChannel, message)
             }
           }
         }
@@ -118,8 +118,8 @@ object BotUtils {
       logger.debug { "${guild.name}#${channel.name} - autostop value: $autoStop" }
 
       if (channelMemberCount <= autoStop) {
-        val defaultChannel = defaultTextChannel(guild) ?: findPublicChannel(guild)
-        leaveVoiceChannel(channel, defaultChannel, save)
+        val messageChannel = defaultTextChannel(guild) ?: channel.asGuildMessageChannel()
+        leaveVoiceChannel(channel, messageChannel, save)
       }
     } else {
       logger.debug {
@@ -134,7 +134,7 @@ object BotUtils {
    * - Retrieve the first channel that the bot can talk to
    */
   @WithSpan("Guild Default Channel")
-  fun defaultTextChannel(guild: DiscordGuild): TextChannel? {
+  fun defaultTextChannel(guild: DiscordGuild): MessageChannel? {
     return transaction {
       Guild
         .findById(guild.idLong)
@@ -197,7 +197,7 @@ object BotUtils {
   @JvmStatic
   fun leaveVoiceChannel(
     voiceChannel: AudioChannel,
-    textChannel: TextChannel?,
+    messageChannel: MessageChannel,
     save: Boolean
   ): CombinedAudioRecorderHandler {
     // TODO: This method should be broken up into two, one that stops and saves and another one that leaves voice channel
@@ -205,7 +205,7 @@ object BotUtils {
     val audioManager = guild.audioManager as AudioManagerImpl
     val recorder = audioManager.receivingHandler as CombinedAudioRecorderHandler
 
-    withLoggingContext("guild" to voiceChannel.guild.name, "text-channel" to textChannel?.name.orEmpty()) {
+    withLoggingContext("guild" to voiceChannel.guild.name, "text-channel" to messageChannel.name) {
       logger.debug { "Leaving voice channel" }
       audioManager.apply {
         audioConnection.close(ConnectionStatus.NOT_CONNECTED)
@@ -216,9 +216,9 @@ object BotUtils {
       recordingStatus(voiceChannel.guild.selfMember, false)
 
       val (recording, recordingLock) =
-        if (save && textChannel != null) {
-          sendMessage(textChannel, ":floppy_disk: **Saving <#${voiceChannel.id}>'s recording...**")
-          recorder.saveRecording(voiceChannel, textChannel)
+        if (save) {
+          sendMessage(messageChannel, ":floppy_disk: **Saving <#${voiceChannel.id}>'s recording...**")
+          recorder.saveRecording(voiceChannel, messageChannel)
         } else Pair(null, null)
 
       recorder.disconnect(!save, recording, recordingLock)
@@ -319,16 +319,16 @@ object BotUtils {
   }
 
   /**
-   * Starts recording on [channel] and sends any communication to [defaultChannel]
+   * Starts recording on [channel] and sends any communication to [messageChannel]
    *
-   * @throws IllegalStateException when bot cannot write in provided [defaultChannel]
+   * @throws IllegalStateException when bot cannot write in provided [messageChannel]
    */
   @WithSpan("Record Voice Channel")
   fun recordVoiceChannel(
     channel: AudioChannel,
-    defaultChannel: TextChannel? = defaultTextChannel(channel.guild) ?: findPublicChannel(channel.guild)
+    messageChannel: MessageChannel
   ): CombinedAudioRecorderHandler {
-    require(defaultChannel != null && defaultChannel.canTalk()) {
+    require(messageChannel.canTalk()) {
       updateNickname(channel.guild.selfMember, "CANNOT WRITE")
       "no-write-permission"
     }
@@ -340,9 +340,11 @@ object BotUtils {
       "no-speak-permission"
     }
 
-    require(defaultChannel.guild.selfMember.hasPermission(defaultChannel, Permission.MESSAGE_ATTACH_FILES)) {
+    val guildChannel =  messageChannel.jda.getGuildChannelById(messageChannel.idLong)
+
+    require(guildChannel?.guild?.selfMember?.hasPermission(guildChannel, Permission.MESSAGE_ATTACH_FILES) ?: false) {
       logger.info {
-        "User ${defaultChannel.guild.selfMember.effectiveName} does not have permission to attach files to ${defaultChannel.name}"
+        "User ${channel.guild.selfMember.effectiveName} does not have permission to attach files to ${messageChannel.name}"
       }
       "no-attach-files-permission"
     }
@@ -362,7 +364,7 @@ object BotUtils {
         ?.toDouble()
     } ?: 1.0
 
-    val recorder = CombinedAudioRecorderHandler(volume, channel, defaultChannel)
+    val recorder = CombinedAudioRecorderHandler(volume, channel, messageChannel)
     audioManager.receivingHandler = recorder
     recordingStatus(channel.guild.selfMember, true)
 
@@ -405,7 +407,7 @@ object BotUtils {
     /**
      * Using an LRU cache, update activity if not in cache, this is not thread safe but also non-critical so wutevs
      */
-  fun updateActivity(guild: DiscordGuild): Unit {
+  fun updateActivity(guild: DiscordGuild) {
     if (guildActivityCache.getIfPresent(guild.idLong) == null) {
       // Update Guild name if necessary
       updateGuildName(guild)
@@ -420,18 +422,18 @@ object BotUtils {
     }
   }
 
-  fun uploadFile(textChannel: TextChannel, file: File, filename: String): Message? {
+  fun uploadFile(messageChannel: MessageChannel, file: File, filename: String): Message? {
     val fileUpload = FileUpload.fromStreamSupplier(filename) {
       FileInputStream(file)
     }
 
-    return textChannel
+    return messageChannel
       .sendFiles(fileUpload)
       .complete()
   }
 
   /**
-   * Update Guild name if different than what's on the database
+   * Update Guild name if different from what's on the database
    */
   private fun updateGuildName(guild: DiscordGuild) {
     val newName = guild.name

@@ -76,7 +76,7 @@ fun removeUnusedGuilds() {
   transaction {
     Guilds.deleteWhere {
       val now = DateTime.now()
-      not(Guilds.lastActiveOn.between(now.minusDays(30), now))
+      not(lastActiveOn.between(now.minusDays(30), now))
     }
   }
 }

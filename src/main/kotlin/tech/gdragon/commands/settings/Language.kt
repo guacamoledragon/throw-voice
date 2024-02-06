@@ -18,7 +18,7 @@ class Language : CommandHandler() {
     val command = Command("lang", "Choose the language of the messages given.") {
       option<String>("language", "Choose your language", true) {
         Lang
-          .values()
+          .entries
           .map { Pair(it.locale.displayName, it.name) }
           .forEach { choice(it.first, it.second) }
       }
@@ -41,7 +41,7 @@ class Language : CommandHandler() {
     val lang = args.firstOrNull()?.uppercase() ?: ""
 
     require(args.isNotEmpty() && Babel.valid(lang)) {
-      throw InvalidCommand(::usage, "Expected one of: ${Lang.values().joinToString { it.name }}, but got $lang")
+      throw InvalidCommand(::usage, "Expected one of: ${Lang.entries.joinToString { it.name }}, but got $lang")
     }
 
     val message = handler(pawa, event.guild.idLong, lang)

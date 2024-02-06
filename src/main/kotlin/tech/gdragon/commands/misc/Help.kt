@@ -55,7 +55,7 @@ class Help : CommandHandler() {
     }
 
     val defaultChannel = BotUtils.defaultTextChannel(event.guild) ?: event.channel
-    val commands = Command.values()
+    val commands = Command.entries.toTypedArray()
     commands
       .sorted()
       .forEach { command ->

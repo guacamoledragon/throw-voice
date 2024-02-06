@@ -5,6 +5,7 @@ import dev.minn.jda.ktx.interactions.commands.Command
 import dev.minn.jda.ktx.interactions.commands.option
 import net.dv8tion.jda.api.entities.channel.ChannelType
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import tech.gdragon.BotUtils
@@ -26,31 +27,26 @@ class Save : CommandHandler() {
       }
     }
 
-    fun handler(pawa: Pawa, guild: DiscordGuild, textChannel: TextChannel): String? {
+    fun handler(pawa: Pawa, guild: DiscordGuild, messageChannel: MessageChannel): String? {
       val translator: SaveTranslator = pawa.translator(guild.idLong)
       return if (!guild.audioManager.isConnected)
         ":no_entry_sign: _${translator.notRecording}_"
       else {
         val voiceChannel = guild.audioManager.connectedChannel!!
-        BotUtils.leaveVoiceChannel(voiceChannel, textChannel, save = true)
+        BotUtils.leaveVoiceChannel(voiceChannel, messageChannel, save = true)
         null
       }
     }
 
     fun slashHandler(pawa: Pawa): suspend CoroutineEventListener.(GenericCommandInteractionEvent) -> Unit = { event ->
       event.guild?.let {
-        val channel = try {
-          val guildChannel = event.getOption("channel")?.asChannel?.asGuildMessageChannel() ?: event.messageChannel
-          require(guildChannel.canTalk())
-          event.jda.getTextChannelById(guildChannel.idLong)
-        } catch (_: Exception) {
-          // This will happen if the event is triggered from a Voice Channel chat
-          // Source: https://support.discord.com/hc/en-us/articles/4412085582359-Text-Channels-Text-Chat-In-Voice-Channels#h_01FMJT3SP072ZFJCZWR0EW6CJ1
-          BotUtils.defaultTextChannel(it) ?: BotUtils.findPublicChannel(it)
-        }
+        val guildChannel: MessageChannel =
+          event.getOption("channel")?.asChannel?.asGuildMessageChannel() ?: event.messageChannel
+
+        require(guildChannel.canTalk())
 
         event.deferReply().queue()
-        val message = handler(pawa, it, channel!!)
+        val message = handler(pawa, it, guildChannel)
         if (message != null) {
           event.hook.sendMessage(message).queue()
         } else {
@@ -70,7 +66,7 @@ class Save : CommandHandler() {
 
     val translator: SaveTranslator = pawa.translator(event.guild.idLong)
     val message = if (args.isEmpty()) {
-      handler(pawa, event.guild, event.channel.asTextChannel())
+      handler(pawa, event.guild, event.channel)
     } else {
       val channelName = if (args.first().startsWith("#")) args.first().substring(1) else args.first()
       val channels = event.guild.getTextChannelsByName(channelName, true)
