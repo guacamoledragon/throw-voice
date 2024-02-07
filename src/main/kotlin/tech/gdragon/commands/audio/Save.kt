@@ -33,20 +33,26 @@ class Save : CommandHandler() {
         ":no_entry_sign: _${translator.notRecording}_"
       else {
         val voiceChannel = guild.audioManager.connectedChannel!!
-        BotUtils.leaveVoiceChannel(voiceChannel, messageChannel, save = true)
+
+        val guildChannel = if(messageChannel.canTalk()) {
+          messageChannel
+        } else {
+          voiceChannel.asGuildMessageChannel()
+        }
+
+        BotUtils.leaveVoiceChannel(voiceChannel, guildChannel, save = true)
         null
       }
     }
 
     fun slashHandler(pawa: Pawa): suspend CoroutineEventListener.(GenericCommandInteractionEvent) -> Unit = { event ->
       event.guild?.let {
-        val guildChannel: MessageChannel =
+        val messageChannel: MessageChannel =
           event.getOption("channel")?.asChannel?.asGuildMessageChannel() ?: event.messageChannel
 
-        require(guildChannel.canTalk())
-
         event.deferReply().queue()
-        val message = handler(pawa, it, guildChannel)
+
+        val message = handler(pawa, it, messageChannel)
         if (message != null) {
           event.hook.sendMessage(message).queue()
         } else {

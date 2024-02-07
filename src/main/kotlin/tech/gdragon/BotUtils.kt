@@ -14,7 +14,6 @@ import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.entities.User
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel
 import net.dv8tion.jda.api.entities.channel.unions.AudioChannelUnion
@@ -315,6 +314,7 @@ object BotUtils {
    * @throws IllegalStateException when bot cannot write in provided [messageChannel]
    */
   @WithSpan("Record Voice Channel")
+  @Throws(IllegalArgumentException::class)
   fun recordVoiceChannel(
     channel: AudioChannel,
     messageChannel: MessageChannel

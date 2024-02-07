@@ -2,6 +2,7 @@ package tech.gdragon.commands.audio
 
 import dev.minn.jda.ktx.events.CoroutineEventListener
 import dev.minn.jda.ktx.interactions.commands.Command
+import dev.minn.jda.ktx.messages.send
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
@@ -21,11 +22,19 @@ class Stop : CommandHandler() {
     fun handler(pawa: Pawa, guild: DiscordGuild, messageChannel: MessageChannel): String {
       val translator: StopTranslator = pawa.translator(guild.idLong)
       return if (guild.audioManager.isConnected) {
-        val voiceChannel = guild.audioManager.connectedChannel!!
+        val audioChannel = guild.audioManager.connectedChannel!!
         val save = pawa.autoSave(guild.idLong)
-        val recorder = BotUtils.leaveVoiceChannel(voiceChannel, messageChannel, save)
+
+        val guildChannel = if (messageChannel.canTalk()) {
+          messageChannel
+        } else {
+          audioChannel.asGuildMessageChannel()
+        }
+
+        val recorder = BotUtils.leaveVoiceChannel(audioChannel, guildChannel, save)
+
         pawa.stopRecording(recorder.session)
-        ":wave: _${translator.leaveChannel(voiceChannel.id)}_"
+        ":wave: _${translator.leaveChannel(audioChannel.id)}._"
       } else {
         ":no_entry_sign: _${translator.noChannel}_"
       }
@@ -33,9 +42,9 @@ class Stop : CommandHandler() {
 
     fun slashHandler(pawa: Pawa): suspend CoroutineEventListener.(GenericCommandInteractionEvent) -> Unit = { event ->
       event.guild?.let {
-        val messageChannel = event.messageChannel
-        val message = handler(pawa, it, messageChannel)
-        event.reply(message).queue()
+        event.deferReply().queue()
+        val message = handler(pawa, it, event.messageChannel)
+        event.hook.send(message).queue()
       }
     }
   }

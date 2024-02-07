@@ -3,6 +3,7 @@ package tech.gdragon.commands.audio
 import dev.minn.jda.ktx.events.CoroutineEventListener
 import dev.minn.jda.ktx.interactions.commands.Command
 import dev.minn.jda.ktx.interactions.commands.option
+import dev.minn.jda.ktx.messages.send
 import io.github.oshai.kotlinlogging.withLoggingContext
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.channel.ChannelType
@@ -35,9 +36,12 @@ class Record : CommandHandler() {
           selectedChannel
         } else null ?: event.member?.voiceState?.channel
 
+        event.deferReply().queue()
+
         val textChannel = event.messageChannel
         val message = handler(pawa, it, voiceChannel, textChannel)
-        event.reply(message).queue()
+
+        event.hook.send(message).queue()
       }
     }
 
@@ -63,7 +67,7 @@ class Record : CommandHandler() {
             } catch (e: IllegalArgumentException) {
               when (e.message) {
                 "no-write-permission" ->
-                  "Attempted to record, but bot cannot write to any channel."
+                  ":no_entry_sign: _Must be able to write in ${messageChannel.asMention}_"
 
                 "no-speak-permission" ->
                   ":no_entry_sign: _${translator.cannotRecord(voiceChannel.id, Permission.VOICE_CONNECT.name)}_"
