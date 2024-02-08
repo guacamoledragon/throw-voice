@@ -1,6 +1,7 @@
 package tech.gdragon.commands
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.github.oshai.kotlinlogging.withLoggingContext
 import io.opentelemetry.api.trace.Span
 import io.opentelemetry.api.trace.Tracer
 import io.opentelemetry.context.Context
@@ -34,6 +35,8 @@ abstract class CommandHandler {
 }
 
 data class InvalidCommand(val usage: (String) -> String, val reason: String) : Throwable()
+
+val logger = KotlinLogging.logger {}
 
 @Throws(InvalidCommand::class)
 fun handleCommand(parentSpan: Span, event: MessageReceivedEvent, pawa: Pawa, prefix: String, rawInput: String) {
@@ -71,7 +74,12 @@ fun handleCommand(parentSpan: Span, event: MessageReceivedEvent, pawa: Pawa, pre
       .setParent(Context.current().with(parentSpan))
       .startSpan()
     span.makeCurrent().use { _ ->
-      it.action(args, event, pawa)
+      withLoggingContext("command" to command.name) {
+        logger.info {
+          "Executing command: ${command.name}"
+        }
+        it.action(args, event, pawa)
+      }
     }
     span.end()
   }

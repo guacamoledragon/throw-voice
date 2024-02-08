@@ -350,8 +350,14 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
   }
 
   override fun onSlashCommandInteraction(event: SlashCommandInteractionEvent) {
-    tracer.sendEvent(mapOf("command" to event.interaction.name))
+    val commandName = event.interaction.name
+    tracer.sendEvent(mapOf("command" to commandName))
     event.guild?.let(BotUtils::updateActivity)
-    super.onSlashCommandInteraction(event)
+    withLoggingContext("command" to commandName) {
+      tech.gdragon.commands.logger.info {
+        "Executing command: $commandName"
+      }
+      super.onSlashCommandInteraction(event)
+    }
   }
 }
