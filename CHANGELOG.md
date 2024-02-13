@@ -4,50 +4,50 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [2.12.0] - 2024-02-13
 
 ### Added
 - `Recover Recording` message context menu to recover recording from a SessionID in a message
+- [Pawa Lite]: `/autorecord` slash command added
 
 
 ### Changed
 - `/record` displays an embed, this will replace the original message eventually
 - `/recover` run by normal user will send the SessionID and Discord username, the response will also include a server invite.
+- [Pawa Lite]: `/recover` command enabled
+- [Pawa Lite]: `/autosave` on by default
+- Increase recording limit from 110MB -> 256MB
+- pawa will respond in Voice Channel chat if it cannot detect an origin text channel
 - Update the following dependencies:
-  - Bump aws.sdk.kotlin:s3-jvm from 0.27.0-beta to 1.0.26
+  - Bump aws.sdk.kotlin:s3-jvm from 0.27.0-beta to 1.0.48
   - Bump caffeine from 3.1.1 to 3.1.6
   - Bump com.fasterxml.jackson.core:jackson-databind from 2.15.1 to 2.16.0
   - Bump com.github.ben-manes.caffeine:caffeine from 3.1.6 to 3.1.8
-  - Bump com.h2database:h2 from 2.1.214 to 2.2.224
+  - Bump com.github.minndevelopment:jda-ktx from 0.10.0-beta.1 to 0.11.0-beta.19
   - Bump commons-io:commons-io from 2.11.0 to 2.15.1
   - Bump exposed.version from 0.39.2 to 0.45.0
   - Bump flyway-core from 9.14.1 to 9.16.3
   - Bump io.insert-koin:koin-core from 3.4.0 to 3.5.0
-  - Bump io.insert-koin:koin-core-jvm from 3.4.0 to 3.5.0
-  - Bump jackson-databind from 2.13.4 to 2.15.1
-  - Bump jda.version 5.0.0-beta.10 to 5.0.0-beta.19
+  - Bump jackson-databind from 2.14.2 to 2.15.1
+  - Bump jda.version 5.0.0-beta.9 to 5.0.0-beta.20
   - Bump koin-core from 3.2.0 to 3.4.0
   - Bump koin-core-jvm from 3.2.0 to 3.4.0
-  - Bump kotest.version 5.6.2 to 5.7.2
-  - Bump kotest.version from 5.5.4 to 5.8.0
-  - Bump kotlin-logging-jvm from 2.1.23 to 3.0.5
-  - Bump kotlin.version from 1.8.10 to 1.9.21
-  - Bump libhoney-java from 1.5.2 to 1.5.4
+  - Bump koin.version from 3.5.0 to 3.5.3
+  - Bump kotlin.version from 1.8.10 to 5.8.0
   - Bump log4j-core from 2.18.0 to 2.20.0
   - Bump log4j-layout-template-json from 2.18.0 to 2.20.0
-  - Bump log4j.version from 2.20.0 to 2.22.0
-  - Bump maven-assembly-plugin from 3.4.2 to 3.6.0
-  - Bump maven-compiler-plugin from 3.10.1 to 3.11.0
+  - Bump log4j.version from 2.20.0 to 2.22.1
+  - Bump maven-assembly-plugin from 3.4.2 to 3.11.0
   - Bump maven-resources-plugin from 3.3.0 to 3.3.1
-  - Bump maven-shade-plugin from 3.3.0 to 3.4.1
   - Bump maven-surefire-plugin from 3.0.0 to 3.1.0
   - Bump microutils:kotlin-logging-jvm from 3.0.5 to 5.1.0
   - Bump nrepl:nrepl from 1.0.0 to 1.1.0
+  - Bump org.apache.maven.plugins:maven-compiler-plugin
   - Bump org.apache.maven.plugins:maven-shade-plugin from 3.4.1 to 3.5.1
-  - Bump org.apache.maven.plugins:maven-surefire-plugin from 3.1.0 to 3.2.2
+  - Bump org.apache.maven.plugins:maven-surefire-plugin from 3.1.0 to 3.2.5
   - Bump org.flywaydb:flyway-core from 9.16.3 to 9.22.1
-  - Bump org.postgresql:postgresql from 42.6.0 to 42.7.0
-  - Bump org.testcontainers:postgresql from 1.18.0 to 1.19.3
+  - Bump org.postgresql:postgresql from 42.6.0 to 42.7.1
+  - Bump org.testcontainers:postgresql from 1.18.0 to 1.19.4
   - Bump org.testcontainers:testcontainers from 1.18.3 to 1.19.3
   - Bump postgresql from 1.17.6 to 42.6.0
   - Bump slf4j-api from 2.0.0-alpha2 to 2.0.9
@@ -56,19 +56,23 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 
 
 ### Deprecated
-
+- `RemoteDatastore` class in exchange for a generic S3 API compatible `S3Datastore`
 
 ### Removed
-- `RemoteDatastore` class in exchange for a generic S3 API compatible `S3Datastore`
 - `minio` pom dependency
 - `minio` from docker-compose.yml
 - Honeycomb metrics and the `Honey` tracing class
+  - Remove `honeycomb-opentelemetry-sdk`
 
 
 ### Fixed
+- Errors when sending slash commands from the Voice Channel chat
+- `/autorecord` correctly follows member when switching between Voice Channels
 
 
 ### Security
+- Bump com.h2database:h2 from 2.1.214 to 2.2.224
+  - Added `Upgrader.kt` to automatically upgrade H2 DB for PawaLite users
 
 ## [2.11.1] - 2023-03-01
 
