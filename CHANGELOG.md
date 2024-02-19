@@ -4,6 +4,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Added
+
+
+### Changed
+- Update the following dependencies:
+  - Bump exposed.version from 0.45.0 to 0.47.0
+  - Bump org.testcontainers:postgresql from 1.19.4 to 1.19.5
+  - Bump com.fasterxml.jackson.core:jackson-databind from 2.16.0 to 2.16.1
+  - Bump aws.sdk.kotlin:s3-jvm from 1.0.48 to 1.0.58
+  - Bump io.opentelemetry:opentelemetry-bom from 1.34.0 to 1.35.0
+
+
+### Deprecated
+
+
+### Removed
+
+
+### Fixed
+
+
+### Security
+
+
 ## [2.12.0] - 2024-02-13
 
 ### Added
@@ -312,7 +338,8 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 ### Fixed
 - Remove recording limits and warnings
 
-[Unreleased]: https://gitlab.com/pawabot/pawa/-/compare/v2.11.1...master
+[Unreleased]: https://gitlab.com/pawabot/pawa/-/compare/v2.12.0...master
+[2.12.0]: https://gitlab.com/pawabot/pawa/-/compare/v2.11.1...v2.12.0
 [2.11.1]: https://gitlab.com/pawabot/pawa/-/compare/v2.11.0...v2.11.1
 [2.11.0]: https://gitlab.com/pawabot/pawa/-/compare/v2.11.0...v2.10.0
 [2.10.0]: https://gitlab.com/pawabot/pawa/-/compare/v2.9.8...v2.10.0
