@@ -31,7 +31,7 @@ ARG VCS_REF
 ARG VERSION
 LABEL org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.name="pawa" \
-      org.label-schema.description="Simple audio recording for Discord." \
+      org.label-schema.description="Audio recording for Discord." \
       org.label-schema.url="https://pawa.im" \
       org.label-schema.vcs-ref=$VCS_REF \
       org.label-schema.vcs-url="https://gitlab.com/pawabot/pawa" \
