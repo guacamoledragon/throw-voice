@@ -3,6 +3,7 @@ package tech.gdragon.db
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.flywaydb.core.Flyway
 import org.flywaydb.core.api.output.MigrateResult
+import org.jetbrains.exposed.sql.DatabaseConfig
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.joda.time.DateTimeZone
 import org.koin.dsl.module
@@ -67,6 +68,7 @@ interface Database {
  * @param type The type of database to create, e.g. "file" or "mem"
  * @param options The database options, e.g. "DB_CLOSE_DELAY=-1"
  */
+@OptIn(org.jetbrains.exposed.sql.ExperimentalKeywordApi::class)
 class EmbeddedDatabase(private val dbFilename: String, type: String = "file", options: String = "") : Database {
   private val logger = KotlinLogging.logger { }
   private var _database: ExposedDatabase? = null
@@ -79,7 +81,15 @@ class EmbeddedDatabase(private val dbFilename: String, type: String = "file", op
       return
     }
 
-    _database = ExposedDatabase.connect(url, "org.h2.Driver")
+    val databaseConfig = DatabaseConfig {
+      /**
+       * This is necessary because the case is being change due to NAME being a reserved keyword in H2.
+       * See: https://github.com/JetBrains/Exposed/pull/1841
+       * This is only a temporary fix, will need to address in the future.
+       */
+      preserveKeywordCasing = false
+    }
+    _database = ExposedDatabase.connect(url, "org.h2.Driver", databaseConfig = databaseConfig)
   }
 
   override fun migrate(): MigrateResult {
