@@ -21,9 +21,9 @@ FROM curlimages/curl:latest as deps
 
 WORKDIR /home/curl_user
 
-ENV SDK_VERSION 1.3.0
+ENV SDK_VERSION 2.2.0
 
-RUN curl -Lo agent.jar https://github.com/honeycombio/honeycomb-opentelemetry-java/releases/download/v${SDK_VERSION}/honeycomb-opentelemetry-javaagent-${SDK_VERSION}.jar
+RUN curl -Lo agent.jar https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v${SDK_VERSION}/opentelemetry-javaagent.jar
 
 FROM maven:3.9.1-eclipse-temurin-17-alpine as builder
 
