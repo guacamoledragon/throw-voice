@@ -12,7 +12,7 @@
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 # pawa
-> Simple voice recording for Discord
+> Audio recording for Discord
 
 <div align="center">
   <a href="https://discordbots.org/bot/338897906524225538">

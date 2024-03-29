@@ -1,5 +1,5 @@
 # pawa
-> Simple voice recording for Discord
+> Audio recording for Discord
 
 <div align="center">
   <a href="https://discordbots.org/bot/338897906524225538">
