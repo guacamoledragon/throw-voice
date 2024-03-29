@@ -47,7 +47,6 @@ services:
                           -XX:MaxRAMPercentage=${JVM_MAX_RAM_PERCENTAGE}
       - SERVICE_NAME=${SERVICE_NAME}
       - SAMPLE_RATE=${SAMPLE_RATE}
-      - OTEL_JAVAAGENT_ENABLED=false
     ports:
       - "127.0.0.1:7888:7888"
     restart: on-failure:100
