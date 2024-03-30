@@ -7,21 +7,31 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 ## Unreleased
 
 ### Added
+- Add OTEL instrumentation
+  - Trying out SigNoz Cloud, currently sending app and db metrics as well as logs
 
 
 ### Changed
 - Update the following dependencies:
-  - Bump exposed.version from 0.45.0 to 0.47.0
-  - Bump org.testcontainers:postgresql from 1.19.4 to 1.19.5
+  - Bump aws.sdk.kotlin:s3-jvm from 1.0.48 to 1.0.73
   - Bump com.fasterxml.jackson.core:jackson-databind from 2.16.0 to 2.16.1
-  - Bump aws.sdk.kotlin:s3-jvm from 1.0.48 to 1.0.58
+  - Bump exposed.version from 0.45.0 to 0.47.0
+  - Bump io.github.oshai:kotlin-logging-jvm from 5.1.0 to 6.0.3
+  - Bump io.opentelemetry.instrumentation:opentelemetry-instrumentation-annotations
   - Bump io.opentelemetry:opentelemetry-bom from 1.34.0 to 1.35.0
+  - Bump jda.version 5.0.0-beta.20 to 5.0.0-beta.21
+  - Bump kotest.version from 5.8.0 to 5.8.1
+  - Bump org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm
+  - Bump org.postgresql:postgresql from 42.7.1 to 42.7.2
+  - Bump org.testcontainers:postgresql from 1.19.4 to 1.19.7
+  - Bump org.testcontainers:testcontainers from 1.19.3 to 1.19.7
 
 
 ### Deprecated
 
 
 ### Removed
+- Remove EventTracer, was remnant from removing Honeycomb
 
 
 ### Fixed
