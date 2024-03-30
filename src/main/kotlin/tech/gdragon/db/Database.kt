@@ -1,12 +1,15 @@
 package tech.gdragon.db
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.opentelemetry.api.GlobalOpenTelemetry
+import io.opentelemetry.instrumentation.jdbc.datasource.JdbcTelemetry
 import org.flywaydb.core.Flyway
 import org.flywaydb.core.api.output.MigrateResult
 import org.jetbrains.exposed.sql.DatabaseConfig
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.joda.time.DateTimeZone
 import org.koin.dsl.module
+import org.postgresql.ds.PGSimpleDataSource
 import tech.gdragon.db.h2.Upgrader
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
@@ -64,7 +67,7 @@ interface Database {
 /**
  * Creates a container for an embedded H2 database.
  *
- * @param dbFilename The file path of the database. e.g. "./settings.db"
+ * @param dbFilename The file path of the database, e.g. "./settings.db"
  * @param type The type of database to create, e.g. "file" or "mem"
  * @param options The database options, e.g. "DB_CLOSE_DELAY=-1"
  */
@@ -150,8 +153,6 @@ class RemoteDatabase(val url: String, private val username: String, private val 
   private var _database: ExposedDatabase? = null
   override val database = _database
 
-//  private val url = "jdbc:postgresql://$hostname/$url"
-
   override fun connect() {
     if (_database != null) {
       return
@@ -159,8 +160,20 @@ class RemoteDatabase(val url: String, private val username: String, private val 
 
     // Ensure that Joda Time deals with time as UTC
     DateTimeZone.setDefault(DateTimeZone.UTC)
+
+    // Creating DataSource to be wrapped with OTEL
+    val dataSource = PGSimpleDataSource().apply {
+      setUrl(url)
+      user = username
+      password = password
+    }
+
+    // TODO: This should be set in App.kt
+    val opentelemetry = GlobalOpenTelemetry.get()
+    val otelDataSource = JdbcTelemetry.create(opentelemetry).wrap(dataSource)
+
     _database =
-      ExposedDatabase.connect(url, "org.postgresql.Driver", username, password)
+      ExposedDatabase.connect(otelDataSource)
   }
 
   override fun migrate(): MigrateResult {
