@@ -23,8 +23,6 @@ import tech.gdragon.discord.Bot
 import tech.gdragon.koin.getBooleanProperty
 import tech.gdragon.koin.getStringProperty
 import tech.gdragon.koin.overrideFileProperties
-import tech.gdragon.metrics.EventTracer
-import tech.gdragon.metrics.NoOpTracer
 import tech.gdragon.repl.REPL
 import java.io.IOException
 import java.nio.file.Files
@@ -102,9 +100,6 @@ object App {
         single(createdAtStart = createdAtStart) {
           REPL()
         }
-        single<EventTracer>(createdAtStart = true) {
-          NoOpTracer()
-        }
         single<Tracer>(createdAtStart = true) {
           val scopeName = "tech.gdragon.pawa"
           if (isStandalone)
@@ -147,7 +142,9 @@ object App {
 
               val inactiveGuilds = BotUtils.leaveInactiveGuilds(jda, afterDays, whitelist)
 
-              app.koin.get<EventTracer>().sendEvent(mapOf("inactive-guilds" to inactiveGuilds))
+              logger.info {
+                "Left $inactiveGuilds guilds to leave after $afterDays days."
+              }
             }
           }
         logger.info {
@@ -162,7 +159,6 @@ object App {
   fun stop(app: KoinApplication) {
     app.koin.run {
       getOrNull<Database>()?.shutdown()
-      getOrNull<EventTracer>()?.shutdown()
       getOrNull<Bot>()?.shutdown()
 
       if (getProperty<String>("BOT_STANDALONE").toBoolean().not()) {

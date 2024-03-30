@@ -31,7 +31,6 @@ import tech.gdragon.db.dao.Application
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.listener.EventListener
 import tech.gdragon.listener.SystemEventListener
-import tech.gdragon.metrics.EventTracer
 import javax.security.auth.login.LoginException
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
@@ -40,7 +39,6 @@ import tech.gdragon.i18n.AutoStop as AutoStopTranslator
 
 class Bot(private val token: String, private val pawa: Pawa) {
   private val logger = KotlinLogging.logger {}
-  private val tracer: EventTracer = getKoin().get()
 
   companion object {
     val PERMISSIONS = listOf(
