@@ -34,13 +34,11 @@ import tech.gdragon.discord.message.ErrorEmbed
 import tech.gdragon.discord.message.RecordingReply
 import tech.gdragon.discord.message.RequestAccessReply
 import tech.gdragon.koin.getStringProperty
-import tech.gdragon.metrics.EventTracer
 
 class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
 
   private val logger = KotlinLogging.logger {}
   private val website: String = getKoin().getProperty("BOT_WEBSITE", "http://localhost:8080/")
-  private val tracer: EventTracer = getKoin().get()
 
   override fun onCommandAutoCompleteInteraction(event: CommandAutoCompleteInteractionEvent) {
     if (event.name == "recover" && event.focusedOption.name == "session-id") {
@@ -351,7 +349,6 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
 
   override fun onSlashCommandInteraction(event: SlashCommandInteractionEvent) {
     val commandName = event.interaction.name
-    tracer.sendEvent(mapOf("command" to commandName))
     event.guild?.let(BotUtils::updateActivity)
     withLoggingContext("command" to commandName) {
       tech.gdragon.commands.logger.info {

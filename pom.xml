@@ -23,6 +23,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <slf4j.version>2.0.9</slf4j.version>
     <log4j.version>2.22.1</log4j.version>
+    <otel.version>2.2.0</otel.version>
   </properties>
 
   <dependencyManagement>
@@ -136,7 +137,12 @@
     <dependency>
       <groupId>io.opentelemetry.instrumentation</groupId>
       <artifactId>opentelemetry-instrumentation-annotations</artifactId>
-      <version>2.1.0</version>
+      <version>${otel.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.opentelemetry.instrumentation</groupId>
+      <artifactId>opentelemetry-jdbc</artifactId>
+      <version>${otel.version}-alpha</version>
     </dependency>
     <dependency>
       <groupId>io.reactivex.rxjava2</groupId>
