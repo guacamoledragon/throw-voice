@@ -162,10 +162,10 @@ class RemoteDatabase(val url: String, private val username: String, private val 
     DateTimeZone.setDefault(DateTimeZone.UTC)
 
     // Creating DataSource to be wrapped with OTEL
-    val dataSource = PGSimpleDataSource().apply {
-      setUrl(url)
-      user = username
-      password = password
+    val dataSource = PGSimpleDataSource().also {
+      it.setUrl(url)
+      it.user = username
+      it.password = password
     }
 
     // TODO: This should be set in App.kt
