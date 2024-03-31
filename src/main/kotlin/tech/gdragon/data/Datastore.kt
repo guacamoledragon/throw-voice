@@ -18,6 +18,7 @@ import java.io.FileInputStream
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.nio.file.StandardCopyOption
 import java.nio.file.attribute.BasicFileAttributes
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -39,7 +40,7 @@ class LocalDatastore(private val localBucket: String) : Datastore {
     FileInputStream(file).use {
       val newFile = Paths.get(localBucket, key)
       Files.createDirectories(newFile.parent)
-      Files.copy(it, newFile)
+      Files.copy(it, newFile, StandardCopyOption.REPLACE_EXISTING)
       return UploadResult.from(newFile)
     }
   }
