@@ -23,11 +23,7 @@ class RecordingReply(recording: Recording, appBaseUrl: String) {
   private val duration = recording.pseudoDuration().toMinutes().toInt()
   private val size = FileUtils.byteCountToDisplaySize(recording.size)
   private val appRecordingUrl = "$appBaseUrl/v1/recordings?guild=$guildId&session-id=$sessionId"
-  private val recordingUrl = recording.url?.let { url ->
-    if (EmbedBuilder.URL_PATTERN.matcher(url).matches())
-      recording.url
-    else
-      null
+  private val recordingUrl = recording.url.orEmpty()
 
   private fun formatInstant(instant: Instant): String {
     val localDateTime = LocalDateTime.ofInstant(instant, ZoneOffset.UTC)
@@ -42,7 +38,6 @@ class RecordingReply(recording: Recording, appBaseUrl: String) {
     title = sessionId
     description = "Here's your recording, enjoy!"
     color = Color.decode("#596800").rgb
-    url = recordingUrl
     field {
       name = "Created On"
       value = createdOn
@@ -56,6 +51,14 @@ class RecordingReply(recording: Recording, appBaseUrl: String) {
     field {
       name = "Size"
       value = size
+    }
+    // Only show if not blank and is a local link
+    if (recordingUrl.isNotBlank() && recordingUrl.startsWith("file://")) {
+      field {
+        name = "Recording Location"
+        value = recordingUrl
+        inline = false
+      }
     }
   }
 
