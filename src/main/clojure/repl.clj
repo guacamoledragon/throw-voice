@@ -117,16 +117,26 @@
         audio-manager (.getAudioManager guild)]
     (.. audio-manager getConnectedChannel getName)))
 
+(defn which-shard
+  "Find the shard ID for a given guild ID"
+  [shard-manager guild-id]
+  (let [shards (.getShards shard-manager)]
+    (->> shards
+         (filter #(.getGuildById % ^String guild-id))
+         first)))
+
 (comment
   (import '(net.dv8tion.jda.api.sharding DefaultShardManager))
 
-  (defn which-shard
-    "Find the shard ID for a given guild ID"
-    [jda]
-    (let [shard-manager (.getShardManager jda)]))
-
   (comment
-    (print-shard-status shard-manager)
+    ;; Get a shard from Guild ID
+    (def shard (which-shard @shard-manager "408795211901173762"))
+
+    ;; Restart Guild's Shard
+    (.restart @shard-manager
+              (.. shard getShardInfo getShardId))
+
+    (print-shard-status @shard-manager)
 
     (do (.start shard-manager 8)
         (.start shard-manager 7))

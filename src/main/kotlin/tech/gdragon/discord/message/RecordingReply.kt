@@ -4,34 +4,39 @@ import dev.minn.jda.ktx.interactions.components.link
 import dev.minn.jda.ktx.interactions.components.row
 import dev.minn.jda.ktx.messages.Embed
 import dev.minn.jda.ktx.messages.MessageCreate
-import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.emoji.Emoji
 import org.apache.commons.io.FileUtils
 import tech.gdragon.db.dao.Recording
 import tech.gdragon.db.table.Tables
 import java.awt.Color
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 
 class RecordingReply(recording: Recording, appBaseUrl: String) {
   private val guildId = recording.readValues[Tables.Recordings.guild].value
   private val sessionId = recording.id.value
-  private val createdOn = recording.createdOn.toString()
-  private val duration = "${recording.pseudoDuration().toMinutes()} minutes"
+  private val createdOn = formatInstant(recording.createdOn)
+  private val duration = recording.pseudoDuration().toMinutes().toInt()
   private val size = FileUtils.byteCountToDisplaySize(recording.size)
   private val appRecordingUrl = "$appBaseUrl/v1/recordings?guild=$guildId&session-id=$sessionId"
-  private val recordingUrl = recording.url?.let { url ->
-    if (EmbedBuilder.URL_PATTERN.matcher(url).matches())
-      recording.url
-    else
-      null
+  private val recordingUrl = recording.url.orEmpty()
+
+  private fun formatInstant(instant: Instant): String {
+    val localDateTime = LocalDateTime.ofInstant(instant, ZoneOffset.UTC)
+    val formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
+
+    return "${localDateTime.format(formatter)} UTC"
   }
 
   private val voteUrl = "https://top.gg/bot/pawa/vote"
 
   val embed = Embed {
-    title = sessionId
+    title = "Session ID: `$sessionId`"
     description = "Here's your recording, enjoy!"
     color = Color.decode("#596800").rgb
-    url = recordingUrl
     field {
       name = "Created On"
       value = createdOn
@@ -39,19 +44,27 @@ class RecordingReply(recording: Recording, appBaseUrl: String) {
     }
     field {
       name = "Duration"
-      value = duration
+      value = "${if (duration == 0) "???" else duration.toString()} minutes"
       inline = true
     }
     field {
       name = "Size"
       value = size
     }
+    // Only show if not blank and is a local link
+    if (recordingUrl.isNotBlank() && recordingUrl.startsWith("file://")) {
+      field {
+        name = "Recording Location"
+        value = recordingUrl
+        inline = false
+      }
+    }
   }
 
   val message = MessageCreate {
     embeds += embed
     components += row(
-      link(appRecordingUrl, label = "View Recording"),
+      link(appRecordingUrl, label = "View Recording", disabled = appBaseUrl.startsWith("discord://")),
       link(voteUrl, label = "Vote", emoji = Emoji.fromUnicode("❤"))
     )
   }

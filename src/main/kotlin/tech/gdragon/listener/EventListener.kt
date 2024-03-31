@@ -68,7 +68,6 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
         val sessionIds = BotUtils.findSessionID(contentRaw)
         val dataDirectory = getKoin().getStringProperty("BOT_DATA_DIR")
         val datastore = getKoin().get<Datastore>()
-        val appUrl = getKoin().getStringProperty("APP_URL")
 
         val failedSessionIds = mutableSetOf<String>()
         author
@@ -88,7 +87,7 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
 
                 recording
               }
-              .map { RecordingReply(it, appUrl).message }
+              .map { RecordingReply(it, pawa.config.appUrl).message }
               .map(channel::sendMessage)
 
             RestAction.allOf(actions + addReaction(Emoji.fromUnicode("👀")))
