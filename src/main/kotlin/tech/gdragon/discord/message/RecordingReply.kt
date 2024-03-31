@@ -4,7 +4,6 @@ import dev.minn.jda.ktx.interactions.components.link
 import dev.minn.jda.ktx.interactions.components.row
 import dev.minn.jda.ktx.messages.Embed
 import dev.minn.jda.ktx.messages.MessageCreate
-import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.emoji.Emoji
 import org.apache.commons.io.FileUtils
 import tech.gdragon.db.dao.Recording
@@ -35,7 +34,7 @@ class RecordingReply(recording: Recording, appBaseUrl: String) {
   private val voteUrl = "https://top.gg/bot/pawa/vote"
 
   val embed = Embed {
-    title = sessionId
+    title = "Session ID: `$sessionId`"
     description = "Here's your recording, enjoy!"
     color = Color.decode("#596800").rgb
     field {
