@@ -21,7 +21,7 @@ class PawaConfig private constructor(
     operator fun invoke(body: Builder.() -> Unit = {}): PawaConfig {
       val builder = Builder().apply(body)
       return PawaConfig(
-        appUrl = builder.appUrl ?: "https://app.pawa.im",
+        appUrl = builder.appUrl ?: "discord://",
         isStandalone = builder.isStandalone?: false,
       )
     }
