@@ -10,6 +10,11 @@ import org.apache.commons.io.FileUtils
 import tech.gdragon.db.dao.Recording
 import tech.gdragon.db.table.Tables
 import java.awt.Color
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 
 class RecordingReply(recording: Recording, appBaseUrl: String) {
   private val guildId = recording.readValues[Tables.Recordings.guild].value
@@ -23,6 +28,12 @@ class RecordingReply(recording: Recording, appBaseUrl: String) {
       recording.url
     else
       null
+
+  private fun formatInstant(instant: Instant): String {
+    val localDateTime = LocalDateTime.ofInstant(instant, ZoneOffset.UTC)
+    val formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
+
+    return "${localDateTime.format(formatter)} UTC"
   }
 
   private val voteUrl = "https://top.gg/bot/pawa/vote"
