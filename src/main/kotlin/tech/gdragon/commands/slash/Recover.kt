@@ -29,12 +29,12 @@ object Recover {
       val dataDirectory = koin.getStringProperty("BOT_DATA_DIR")
 
       // Reply to the user, the upcoming request requires database interaction
-      event.deferReply().queue()
+      event.deferReply(true).queue()
       val recording = pawa.recoverRecording(dataDirectory, datastore, sessionId)
 
       val interaction =
         if (recording == null) {
-          val errorEmbed = ErrorEmbed("Recording Not Found", "Couldn't find recording with Session ID: $sessionId")
+          val errorEmbed = ErrorEmbed("Recording Not Found", "Couldn't find recording with Session ID:\n ```\n$sessionId```")
           event
             .hook
             .sendMessage(errorEmbed.message)
@@ -52,7 +52,10 @@ object Recover {
         "You cannot use /recover command in this server.",
         "Join the support server and post your SessionID:\n ```\n$sessionId```"
       )
-      event.reply(errorEmbed.message).queue()
+      event
+        .reply(errorEmbed.message)
+        .setEphemeral(true)
+        .queue()
     }
   }
 }
