@@ -14,8 +14,8 @@ import java.awt.Color
 class RecordingReply(recording: Recording, appBaseUrl: String) {
   private val guildId = recording.readValues[Tables.Recordings.guild].value
   private val sessionId = recording.id.value
-  private val createdOn = recording.createdOn.toString()
-  private val duration = "${recording.pseudoDuration().toMinutes()} minutes"
+  private val createdOn = formatInstant(recording.createdOn)
+  private val duration = recording.pseudoDuration().toMinutes().toInt()
   private val size = FileUtils.byteCountToDisplaySize(recording.size)
   private val appRecordingUrl = "$appBaseUrl/v1/recordings?guild=$guildId&session-id=$sessionId"
   private val recordingUrl = recording.url?.let { url ->
@@ -39,7 +39,7 @@ class RecordingReply(recording: Recording, appBaseUrl: String) {
     }
     field {
       name = "Duration"
-      value = duration
+      value = "${if (duration == 0) "???" else duration.toString()} minutes"
       inline = true
     }
     field {
