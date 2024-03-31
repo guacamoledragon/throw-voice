@@ -2,6 +2,7 @@ package tech.gdragon.api.pawa
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.koin.dsl.module
 import tech.gdragon.api.tape.queueFileIntoMp3
 import tech.gdragon.data.Datastore
 import tech.gdragon.db.Database
@@ -10,10 +11,9 @@ import tech.gdragon.db.table.Tables
 import tech.gdragon.discord.Command
 import tech.gdragon.i18n.Babel
 import tech.gdragon.i18n.Lang
+import tech.gdragon.koin.getBooleanProperty
 import java.io.File
 import java.math.BigDecimal
-import org.koin.dsl.module
-import tech.gdragon.koin.getBooleanProperty
 
 class Pawa(val db: Database, _config: PawaConfig? = null) {
   companion object {
@@ -160,31 +160,35 @@ class Pawa(val db: Database, _config: PawaConfig? = null) {
     }
 
     recording?.let {
-      if (it.url == null) {
-        val mp3File = File("$dataDirectory/recordings", "$sessionId.mp3")
-        val queueFile = File("$dataDirectory/recordings", "$sessionId.queue")
+      if (!it.url.isNullOrBlank()) {
+        logger.info {
+          "Recovering recording with URL: ${it.url}"
+        }
+      }
 
-        when {
-          queueFile.exists() && mp3File.exists().not() -> {
-            logger.info { "Restoring $sessionId mp3 from queue file." }
-            queueFileIntoMp3(queueFile, mp3File)
-          }
+      val mp3File = File("$dataDirectory/recordings", "$sessionId.mp3")
+      val queueFile = File("$dataDirectory/recordings", "$sessionId.queue")
 
-          queueFile.exists().not() && mp3File.exists().not() -> {
-            logger.warn {
-              "Recording $sessionId was not found."
-            }
-            return null
-          }
+      when {
+        queueFile.exists() && mp3File.exists().not() -> {
+          logger.info { "Restoring $sessionId mp3 from queue file." }
+          queueFileIntoMp3(queueFile, mp3File)
         }
 
-        transaction {
-          val result = datastore.upload("${it.guild.id.value}/${mp3File.name}", mp3File)
-          it.apply {
-            size = result.size
-            modifiedOn = this.modifiedOn ?: result.timestamp
-            url = result.url
+        queueFile.exists().not() && mp3File.exists().not() -> {
+          logger.warn {
+            "Recording $sessionId was not found."
           }
+          return null
+        }
+      }
+
+      transaction {
+        val result = datastore.upload("${it.guild.id.value}/${mp3File.name}", mp3File)
+        it.apply {
+          size = result.size
+          modifiedOn = this.modifiedOn ?: result.timestamp
+          url = result.url
         }
       }
     } ?: logger.warn {
