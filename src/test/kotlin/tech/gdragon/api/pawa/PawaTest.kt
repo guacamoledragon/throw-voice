@@ -1,5 +1,6 @@
 package tech.gdragon.api.pawa
 
+import com.squareup.tape.QueueFile
 import io.azam.ulidj.ULID
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.spec.style.funSpec
@@ -21,6 +22,9 @@ import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.dao.Recording
 import tech.gdragon.db.now
 import tech.gdragon.discord.Command
+import java.io.File
+import java.io.FileOutputStream
+import java.nio.file.Files
 
 fun pawaTests(db: Database, ds: Datastore, isStandalone: Boolean) = funSpec {
   val guildId = 1L
@@ -89,12 +93,18 @@ fun pawaTests(db: Database, ds: Datastore, isStandalone: Boolean) = funSpec {
       recording.shouldBeNull()
     }
 
-    test("it should return Recording when record with URL exists") {
+    test("it should return existing Recording if MP3 exists") {
+      val dataDirectory = tempdir()
       val record = transaction(db.database) {
         val guild = Guild.findOrCreate(guildId, "Test Guild")
         val channel = Channel.findOrCreate(1L, "fake-voice-channel", guildId)
+        val id = ULID.random()
 
-        Recording.new(ULID.random()) {
+        // Create mp3 file
+        Files.createDirectories(File(dataDirectory, "recordings").toPath())
+        FileOutputStream(File(dataDirectory, "recordings/$id.mp3")).close()
+
+        Recording.new(id) {
           this.channel = channel
           this.guild = guild
           size = 1024
@@ -102,24 +112,30 @@ fun pawaTests(db: Database, ds: Datastore, isStandalone: Boolean) = funSpec {
           url = "https://fake-link.com"
         }
       }
-      val recording = pawa.recoverRecording("./", ds, record.id.value)
+      val recording = pawa.recoverRecording(dataDirectory.path, ds, record.id.value)
 
       recording.shouldNotBeNull()
       recording.id.shouldBe(record.id)
-      recording.url.shouldBe(record.url)
+      recording.url.shouldNotBe(record.url)
     }
 
-    xtest("it should return recovered Recording when URL does not exist") {
+    test("it should return recovered Recording when URL does not exist") {
+      val dataDirectory = tempdir()
       val record = transaction(db.database) {
         val guild = Guild.findOrCreate(guildId, "Test Guild")
         val channel = Channel.findOrCreate(1L, "fake-voice-channel", guildId)
+        val id = ULID.random()
 
-        Recording.new(ULID.random()) {
+        // Create queue file
+        Files.createDirectories(File(dataDirectory, "recordings").toPath())
+        QueueFile(File(dataDirectory, "recordings/$id.queue"))
+
+        Recording.new(id) {
           this.channel = channel
           this.guild = guild
         }
       }
-      val recording = pawa.recoverRecording("./", ds, record.id.value)
+      val recording = pawa.recoverRecording(dataDirectory.path, ds, record.id.value)
 
       recording.shouldNotBeNull()
       recording.id.shouldBe(record.id)

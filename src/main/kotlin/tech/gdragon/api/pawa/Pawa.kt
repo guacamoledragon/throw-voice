@@ -170,7 +170,11 @@ class Pawa(val db: Database, _config: PawaConfig? = null) {
       val queueFile = File("$dataDirectory/recordings", "$sessionId.queue")
 
       when {
-        queueFile.exists() && mp3File.exists().not() -> {
+        mp3File.exists() -> {
+          logger.info { "Re-uploading $sessionId from existing mp3 file." }
+        }
+
+        queueFile.exists() -> {
           logger.info { "Restoring $sessionId mp3 from queue file." }
           queueFileIntoMp3(queueFile, mp3File)
         }
