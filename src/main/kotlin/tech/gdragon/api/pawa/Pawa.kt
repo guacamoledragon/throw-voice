@@ -20,6 +20,7 @@ class Pawa(val db: Database, _config: PawaConfig? = null) {
     fun module() = module(createdAtStart = true) {
       single<Pawa> {
         val config = PawaConfig {
+          appUrl = getProperty("APP_URL")
           isStandalone = getBooleanProperty("BOT_STANDALONE")
         }
         Pawa(get(), config)
