@@ -27,7 +27,6 @@ object Recover {
       val koin = GlobalContext.get()
       val datastore = koin.get<Datastore>()
       val dataDirectory = koin.getStringProperty("BOT_DATA_DIR")
-      val appUrl = koin.getStringProperty("APP_URL")
 
       // Reply to the user, the upcoming request requires database interaction
       event.deferReply().queue()
@@ -40,7 +39,7 @@ object Recover {
             .hook
             .sendMessage(errorEmbed.message)
         } else {
-          val embed = RecordingReply(recording, appUrl)
+          val embed = RecordingReply(recording, pawa.config.appUrl)
 
           event
             .hook
