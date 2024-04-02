@@ -15,12 +15,12 @@ import tech.gdragon.koin.getBooleanProperty
 import java.io.File
 import java.math.BigDecimal
 
-class Pawa(val db: Database, _config: PawaConfig? = null) {
+class Pawa(val db: Database, val config: PawaConfig = PawaConfig.invoke()) {
   companion object {
     fun module() = module(createdAtStart = true) {
       single<Pawa> {
         val config = PawaConfig {
-          appUrl = getProperty("APP_URL")
+          appUrl = getProperty("APP_URL", "")
           isStandalone = getBooleanProperty("BOT_STANDALONE")
         }
         Pawa(get(), config)
@@ -28,7 +28,6 @@ class Pawa(val db: Database, _config: PawaConfig? = null) {
     }
   }
 
-  val config = _config ?: PawaConfig.invoke()
   val isStandalone = config.isStandalone
   val logger = KotlinLogging.logger { }
 

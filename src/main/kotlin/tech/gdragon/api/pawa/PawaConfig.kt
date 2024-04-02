@@ -9,7 +9,7 @@ class PawaConfig private constructor(
     /**
      * The URL of the pawa recordings app. Defaults to [https://app.pawa.im](https://app.pawa.im)
      */
-    var appUrl: String? = null,
+    var appUrl: String = "",
 
     /**
      * Flag that determines if this instance is standalone. Defaults to `false`.
@@ -21,8 +21,8 @@ class PawaConfig private constructor(
     operator fun invoke(body: Builder.() -> Unit = {}): PawaConfig {
       val builder = Builder().apply(body)
       return PawaConfig(
-        appUrl = builder.appUrl ?: "discord://",
-        isStandalone = builder.isStandalone?: false,
+        appUrl = builder.appUrl.ifBlank { "discord://" },
+        isStandalone = builder.isStandalone ?: false,
       )
     }
   }
