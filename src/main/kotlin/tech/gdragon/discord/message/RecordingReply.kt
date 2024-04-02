@@ -19,7 +19,16 @@ class RecordingReply(recording: Recording, appBaseUrl: String) {
   private val guildId = recording.readValues[Tables.Recordings.guild].value
   private val sessionId = recording.id.value
   private val createdOn = formatInstant(recording.createdOn)
-  private val duration = recording.pseudoDuration().toMinutes().toInt()
+  private val duration = recording.duration.let {
+    if (it.isZero) {
+      "???"
+    } else {
+      val hours: Long = it.toHours()
+      val minutes: Int = it.toMinutesPart()
+      val seconds: Int = it.toSecondsPart()
+      String.format("%02d:%02d:%02d", hours, minutes, seconds)
+    }
+  }
   private val size = FileUtils.byteCountToDisplaySize(recording.size)
   private val appRecordingUrl = "$appBaseUrl/v1/recordings?guild=$guildId&session-id=$sessionId"
   private val recordingUrl = recording.url.orEmpty()
@@ -44,7 +53,7 @@ class RecordingReply(recording: Recording, appBaseUrl: String) {
     }
     field {
       name = "Duration"
-      value = "${if (duration == 0) "???" else duration.toString()} minutes"
+      value = duration
       inline = true
     }
     field {

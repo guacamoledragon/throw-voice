@@ -111,6 +111,7 @@ class Recording(id: EntityID<String>) : Entity<String>(id) {
   var channel by Channel referencedOn Recordings.channel
   var size by Recordings.size
   var modifiedOn by Recordings.modifiedOn
+  var duration: Duration = Duration.ZERO
   var url by Recordings.url
   var guild by Guild referencedOn Recordings.guild
 

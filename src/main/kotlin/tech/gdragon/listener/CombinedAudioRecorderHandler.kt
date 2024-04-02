@@ -39,6 +39,7 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Paths
+import java.time.Duration
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
@@ -110,6 +111,7 @@ class CombinedAudioRecorderHandler(
 
   private var canReceive = true
   private var afkCounter = 0
+  private var durationCounter = 0L
 
   private var filename: String? = null
 
@@ -125,6 +127,12 @@ class CombinedAudioRecorderHandler(
 
   val recording: Recording?
     get() = recordingRecord
+
+  /**
+   * Recording duration, counter of 20ms increments.
+   */
+  val duration: Duration
+    get() = Duration.ofMillis(durationCounter * 20L)
 
   init {
     scope = span.makeCurrent()
@@ -368,6 +376,7 @@ class CombinedAudioRecorderHandler(
               size = result.size
               modifiedOn = result.timestamp
               url = result.url
+              duration = this@CombinedAudioRecorderHandler.duration
             }
           }
 
@@ -404,6 +413,7 @@ class CombinedAudioRecorderHandler(
             size = recording.length()
             modifiedOn = now()
             url = attachment?.proxyUrl ?: "Discord Only"
+            duration = this@CombinedAudioRecorderHandler.duration
           }
         }
 
@@ -498,6 +508,7 @@ class CombinedAudioRecorderHandler(
   override fun canReceiveCombined(): Boolean = canReceive
 
   override fun handleCombinedAudio(combinedAudio: CombinedAudio) {
+    durationCounter += 1
     subject?.onNext(combinedAudio)
   }
 
