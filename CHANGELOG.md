@@ -12,6 +12,7 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 
 
 ### Changed
+- `recover` responds with ephemeral replies only visible to caller
 - Update the following dependencies:
   - Bump aws.sdk.kotlin:s3-jvm from 1.0.48 to 1.0.73
   - Bump com.fasterxml.jackson.core:jackson-databind from 2.16.0 to 2.16.1
@@ -21,6 +22,7 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
   - Bump io.opentelemetry:opentelemetry-bom from 1.34.0 to 1.35.0
   - Bump jda.version 5.0.0-beta.20 to 5.0.0-beta.21
   - Bump kotest.version from 5.8.0 to 5.8.1
+  - Bump opentelemetry-instrumentation-annotations from 2.1.0 -> 2.2.0
   - Bump org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm
   - Bump org.postgresql:postgresql from 42.7.1 to 42.7.2
   - Bump org.testcontainers:postgresql from 1.19.4 to 1.19.7
@@ -35,6 +37,7 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 
 
 ### Fixed
+- [PawaLite]: `/recover` now correctly recovers a recording from a queue file
 
 
 ### Security
@@ -44,14 +47,14 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 
 ### Added
 - `Recover Recording` message context menu to recover recording from a SessionID in a message
-- [Pawa Lite]: `/autorecord` slash command added
+- [PawaLite]: `/autorecord` slash command added
 
 
 ### Changed
 - `/record` displays an embed, this will replace the original message eventually
 - `/recover` run by normal user will send the SessionID and Discord username, the response will also include a server invite.
-- [Pawa Lite]: `/recover` command enabled
-- [Pawa Lite]: `/autosave` on by default
+- [PawaLite]: `/recover` command enabled
+- [PawaLite]: `/autosave` on by default
 - Increase recording limit from 110MB -> 256MB
 - pawa will respond in Voice Channel chat if it cannot detect an origin text channel
 - Update the following dependencies:
@@ -121,7 +124,7 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 
 ### Changed
 - Update JDA 4 -> [JDA 5 Beta 5](https://github.com/DV8FromTheWorld/JDA/releases/tag/v5.0.0-beta.5)
-  - This was massive change, and will be testing it before updating [Pawa Lite]
+  - This was massive change, and will be testing it before updating [PawaLite]
 - Update [jda-ktx](https://github.com/MinnDevelopment/jda-ktx/releases/tag/0.10.0-beta.1)
 - Update the following dependencies:
   - Bump flyway-core 9.3.0 -> 9.14.1
@@ -160,7 +163,7 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 - `kotest` testing library
 
 ### Changed
-- [Pawa Lite] slash commands are now automatically registered upon start
+- [PawaLite] slash commands are now automatically registered upon start
 - Slash commands don't seem to respect permissions, this may be an issue in the current version of
   JDA, will be updating to the latest version in the coming weeks
 - `autostop` can now accept 0 as the threshold which is equivalent to `off`
@@ -173,7 +176,7 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 ## [2.10.0] - 2022-07-08
 
 ### Added
-- `!slash` command to manage Slash commands, this is only available to use by me and [Pawa Lite] users
+- `!slash` command to manage Slash commands, this is only available to use by me and [PawaLite] users
   - Provides an invitation URL for ease of access
   - Removes, Adds, and Lists all Slash commands, currently only `/info` added in [2.9.7]
 - Translations for Filipino 🇵🇭
@@ -182,7 +185,7 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 
 ### Changed
 - Update Java 11 LTS to 17 LTS
-- [Pawa Lite] now supports `!status` command.
+- [PawaLite] now supports `!status` command.
 - Update the following dependencies:
   - Bump flyway-core from 8.3.0 to 8.5.13
   - Bump h2 from 1.4.200 to 2.1.214
@@ -202,7 +205,7 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
   - Bump postgresql from 42.3.1 to 42.4.0
 
 ### Deprecated
-- [Pawa Lite] cannot upgrade in place for versions after 2.9.8, see User Guide
+- [PawaLite] cannot upgrade in place for versions after 2.9.8, see User Guide
 
 ### Fixed
 - If there's an issue creating an MP3 file from a queue file, the queue file would get deleted making it impossible to
@@ -251,7 +254,7 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 
 ### Changed
 - REPL class implementation, matlux/jvm-breakglass -> nrepl/nrepl
-- [Pawa Lite]: Omit 24 hour warning
+- [PawaLite]: Omit 24 hour warning
 - Update the following dependencies:
   - JDA from 4.3.0_324 to 4.3.0_346
   - exposed from 0.17.13 to 0.17.14
@@ -281,7 +284,7 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 - Change activity from "Playing" to "Listening"
 
 ### Fixed
-- [Pawa Lite]: Some commands had issues with the H2 embedded database transactions, so had to adjust code to cache the
+- [PawaLite]: Some commands had issues with the H2 embedded database transactions, so had to adjust code to cache the
   objects and prevent re-query'ing for them after the database connection had closed.
 
 ## [2.9.5] - 2021-06-11
@@ -289,34 +292,34 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 ### Added
 - Add new command `!lang`, provides a way to change the bot's language
   - Create a system for adding new languages in the future
-- [Pawa Lite]: Apply database migrations on startup
+- [PawaLite]: Apply database migrations on startup
 
 ### Changed
 - Switch from using UUIDs to ULIDs
 
 ### Fixed
-- [Pawa Lite]: Include binaries necessary for decoding OPUS
+- [PawaLite]: Include binaries necessary for decoding OPUS
 - Adding an alias twice in a row would result in an error and would break the alias
 
 ## [2.9.4] - 2021-04-19
 
 ### Changed
-- [Pawa Lite]: Will not leave voice channel when there's no voice activity.
+- [PawaLite]: Will not leave voice channel when there's no voice activity.
 
 ## [2.9.3] - 2021-03-28
 
 ### Added
-- [Pawa Lite]: `autorecord` command now works!
+- [PawaLite]: `autorecord` command now works!
 - `status` command
   Mainly for debugging purposes and only accessible to me, this shows the status of the shards
 - `ignore` command
   Removes other bots from recording session
 - Add LibHoney dependency to track events, doesn't contain any user or guild data
-  No tracking for [Pawa Lite]
+  No tracking for [PawaLite]
 
 ### Changed
 - Show warning when attempting to use `autorecord`
-- [Pawa Lite]: `record` command now also takes an argument that allows caller to record a voice
+- [PawaLite]: `record` command now also takes an argument that allows caller to record a voice
   channel without being in it
 
 ### Fixed
@@ -329,21 +332,21 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 - Add Caching library to cache database requests for Guild prefix
 
 ### Changed
-- [Pawa Lite]: Recordings are uploaded using the following format
+- [PawaLite]: Recordings are uploaded using the following format
   `<voice-channel>-yyyyMMdd'T'HHmmss.SSSZ` e.g. `bot-testing-20210302T182001.176-0800`
 
 ## [2.9.1] - 2021-01-29
 ### Changed
-- [Pawa Lite]: Replace Embedded Postgres with H2
+- [PawaLite]: Replace Embedded Postgres with H2
 - This drastically reduces the package size (about 20MB)
-- [Pawa Lite]: Keep `queue` files, might create congestion, but will make it easier to recover if needed
+- [PawaLite]: Keep `queue` files, might create congestion, but will make it easier to recover if needed
 
 ### Fixed
-- [Pawa Lite]: No longer needed to exit with Ctrl-C
+- [PawaLite]: No longer needed to exit with Ctrl-C
 
 ## [2.9.0] - 2021-01-18
 ### Added
-- Pawa Lite configuration
+- PawaLite configuration
 
 ### Fixed
 - Remove recording limits and warnings
@@ -362,4 +365,4 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 [2.9.2]: https://gitlab.com/pawabot/pawa/-/compare/v2.9.1...v2.9.2
 [2.9.1]: https://gitlab.com/pawabot/pawa/-/compare/98653c...v2.9.1
 [2.9.0]: https://gitlab.com/pawabot/pawa/-/compare/5c097e...98653c
-[Pawa Lite]: https://lite.pawa.im
+[PawaLite]: https://lite.pawa.im
