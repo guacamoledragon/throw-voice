@@ -57,18 +57,19 @@ class Help : CommandHandler() {
     val defaultChannel = BotUtils.defaultTextChannel(event.guild) ?: event.channel
     val commands = Command.entries.toTypedArray()
     commands
+      .filterNot { it in arrayOf(Command.TEST, Command.STATUS) }
       .sorted()
       .forEach { command ->
         val commandHandler = command.handler
 
         val aliasDescription =
-          aliases
+          "https://pawa.im/#/commands/prefix/${command.name.lowercase()}\n" + (aliases
             ?.filter { alias -> alias.name == command.name }
             ?.let {
               if (it.isNotEmpty()) {
                 "\nAliases: " + it.joinToString(",") { alias -> "`${alias.alias}`" }
               } else ""
-            } ?: ""
+            } ?: "")
 
         embed.addField(commandHandler.usage(prefix, language), aliasDescription, false)
       }

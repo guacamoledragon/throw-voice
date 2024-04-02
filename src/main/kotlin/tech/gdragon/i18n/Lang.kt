@@ -60,7 +60,7 @@ enum class Lang {
 }
 
 object Babel {
-  val languages = Lang.entries.joinToString("|") { it.name.lowercase() }
+  val languages = Lang.entries.joinToString(" | ") { it.name.lowercase() }
 
   fun resource(lang: Lang): ResourceBundle = ResourceBundle.getBundle("translations", lang.locale)
 
