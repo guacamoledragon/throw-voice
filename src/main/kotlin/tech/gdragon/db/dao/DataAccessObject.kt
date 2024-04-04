@@ -114,17 +114,6 @@ class Recording(id: EntityID<String>) : Entity<String>(id) {
   var duration: Duration = Duration.ZERO
   var url by Recordings.url
   var guild by Guild referencedOn Recordings.guild
-
-  /**
-   * Since we don't keep track of the actual duration of a recording, this is as
-   * approximate duration based on when we first create the Recording row and when
-   * we last update it.
-   *
-   * This works in a typical workflow, but not when attempting to recover.
-   */
-  fun pseudoDuration(): Duration {
-    return Duration.between(createdOn, modifiedOn)
-  }
 }
 
 class Settings(id: EntityID<Long>) : LongEntity(id) {
