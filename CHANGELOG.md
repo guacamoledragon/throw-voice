@@ -7,6 +7,7 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 ## Unreleased
 
 ### Added
+- Show accurate duration of Recording
 - Add OTEL instrumentation
   - Trying out SigNoz Cloud, currently sending app and db metrics as well as logs
 
@@ -14,19 +15,25 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 ### Changed
 - `recover` responds with ephemeral replies only visible to caller
 - Update the following dependencies:
-  - Bump aws.sdk.kotlin:s3-jvm from 1.0.48 to 1.0.73
-  - Bump com.fasterxml.jackson.core:jackson-databind from 2.16.0 to 2.16.1
+  - Bump aws.sdk.kotlin:s3-jvm from 1.0.48 to 1.1.13
+  - Bump com.fasterxml.jackson.core:jackson-databind from 2.16.0 to 2.17.0
+  - Bump commons-io:commons-io from 2.15.1 to 2.16.0
   - Bump exposed.version from 0.45.0 to 0.47.0
-  - Bump io.github.oshai:kotlin-logging-jvm from 5.1.0 to 6.0.3
+  - Bump io.github.oshai:kotlin-logging-jvm from 5.1.0 to 6.0.4
   - Bump io.opentelemetry.instrumentation:opentelemetry-instrumentation-annotations
   - Bump io.opentelemetry:opentelemetry-bom from 1.34.0 to 1.35.0
-  - Bump jda.version 5.0.0-beta.20 to 5.0.0-beta.21
+  - Bump jda.version 5.0.0-beta.20 to 5.0.0-beta.22
   - Bump kotest.version from 5.8.0 to 5.8.1
+  - Bump kotlin.version from 1.9.22 to 1.9.23
+  - Bump nrepl:nrepl from 1.1.0 to 1.1.1
   - Bump opentelemetry-instrumentation-annotations from 2.1.0 -> 2.2.0
+  - Bump org.clojure:clojure from 1.11.1 to 1.12.0-alpha9
+  - Bump org.flywaydb:flyway-core from 9.22.1 to 10.11.0
   - Bump org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm
   - Bump org.postgresql:postgresql from 42.7.1 to 42.7.2
   - Bump org.testcontainers:postgresql from 1.19.4 to 1.19.7
   - Bump org.testcontainers:testcontainers from 1.19.3 to 1.19.7
+
 
 
 ### Deprecated
