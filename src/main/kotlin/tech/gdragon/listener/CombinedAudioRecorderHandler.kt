@@ -26,6 +26,7 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import tech.gdragon.BotUtils
 import tech.gdragon.api.pawa.Pawa
+import tech.gdragon.api.tape.queueFileIntoMp3
 import tech.gdragon.data.Datastore
 import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
@@ -35,7 +36,6 @@ import tech.gdragon.db.now
 import tech.gdragon.db.nowUTC
 import java.io.ByteArrayOutputStream
 import java.io.File
-import java.io.FileOutputStream
 import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -87,7 +87,6 @@ class CombinedAudioRecorderHandler(
     private const val BUFFER_TIMEOUT = 200L                                           // 200 milliseconds
     private const val BUFFER_MAX_COUNT = 8
     private const val BITRATE = 128                                                   // 128 kbps
-    private const val BYTES_PER_SECOND = 16_000L                            // 128 kbps == 16000 bytes per second
   }
 
   private val logger = KotlinLogging.logger { }
@@ -103,9 +102,9 @@ class CombinedAudioRecorderHandler(
     .startSpan()
 
   // State-licious
-  private var subject: PublishSubject<CombinedAudio>? = null
-  private var single: Single<RecordingQueue?>? = null
+  private val subject: PublishSubject<CombinedAudio> = PublishSubject.create()
   private val compositeDisposable = RecordingDisposable()
+  private val single: Single<RecordingQueue> = createRecording()
   private var ulid: String? = null
   private var recordingRecord: Recording? = null
 
@@ -120,7 +119,7 @@ class CombinedAudioRecorderHandler(
 
   private var silencedUsers: MutableSet<Long> = mutableSetOf()
 
-  private var scope: Scope? = null
+  private var scope: Scope = span.makeCurrent()
 
   val session: String
     get() = ulid ?: ""
@@ -134,14 +133,9 @@ class CombinedAudioRecorderHandler(
   val duration: Duration
     get() = Duration.ofMillis(durationCounter * 20L)
 
-  init {
-    scope = span.makeCurrent()
-    single = createRecording()
-  }
-
   /**
    * Checks if everyone in voice chat is afk. Super malformed function as it has
-   * side effects and triggers messages outside of the scope
+   * side effects and triggers messages outside the scope
    */
   private fun isAfk(userCount: Int): Boolean {
     if (standalone) {
@@ -170,7 +164,7 @@ class CombinedAudioRecorderHandler(
     }
   }
 
-  private fun createRecording(): Single<RecordingQueue?>? {
+  private fun createRecording(): Single<RecordingQueue> {
     ulid = ULID.random()
     recordingRecord = transaction {
       Guild.findById(voiceChannel.guild.idLong)?.let {
@@ -181,7 +175,6 @@ class CombinedAudioRecorderHandler(
       }
     }
 
-    subject = PublishSubject.create()
     filename = "$dataDirectory/recordings/$ulid.$fileFormat"
     val queueFilename = "$dataDirectory/recordings/$ulid.queue"
     val queueFile = RecordingQueue(File(queueFilename))
@@ -201,11 +194,11 @@ class CombinedAudioRecorderHandler(
 
     logger.info { "Creating recording session - $queueFilename" }
 
-    val singleObservable = subject
-      ?.doOnNext { isAfk(it.users.size) }
-      ?.map { it.getAudioData(volume) }
-      ?.buffer(BUFFER_TIMEOUT, TimeUnit.MILLISECONDS, BUFFER_MAX_COUNT)
-      ?.flatMap { byteArrays ->
+    val singleObservable: Single<RecordingQueue> = subject
+      .doOnNext { isAfk(it.users.size) }
+      .map { it.getAudioData(volume) }
+      .buffer(BUFFER_TIMEOUT, TimeUnit.MILLISECONDS, BUFFER_MAX_COUNT)
+      .flatMap { byteArrays ->
         val baos = ByteArrayOutputStream()
 
         byteArrays.forEach {
@@ -220,7 +213,7 @@ class CombinedAudioRecorderHandler(
 
         Observable.fromArray(baos.toByteArray())
       }
-      ?.doOnNext {
+      .doOnNext {
         val percentage = recordingSize * 100 / MAX_RECORDING_SIZE
         if (!standalone && (percentage >= 90 && !limitWarning)) {
           BotUtils.sendMessage(
@@ -230,8 +223,8 @@ class CombinedAudioRecorderHandler(
           limitWarning = true
         }
       }
-      ?.observeOn(Schedulers.io())
-      ?.collectInto(queueFile) { queue, bytes ->
+      .observeOn(Schedulers.io())
+      .collectInto(queueFile) { queue, bytes ->
 
         while (!standalone && recordingSize + bytes.size > MAX_RECORDING_SIZE) {
           recordingSize -= queue?.peek()?.size ?: 0
@@ -243,19 +236,23 @@ class CombinedAudioRecorderHandler(
           recordingSize += bytes.size
         } catch (e: IOException) {
           logger.warn {
-            "${e.message} - Queue file has been closed: $ulid"
+            "${e.message} - Queue file has been closed: $session"
           }
         }
       }
 
-    val disposable = singleObservable?.subscribe { _, e ->
+    // TODO: Consider converting Single into a Future and using value in sync with .get()
+    // singleObservable.toFuture()
+    // singleObservable.blockingGet()
+
+    val disposable = singleObservable.subscribe { _, e ->
       e?.let { ex ->
-        logger.error(ex) { "Error on subscription on createRecording: $ulid" }
+        logger.error(ex) { "Error in recording queue observable: $session" }
       }
     }
 
 
-    disposable?.let(compositeDisposable::add)
+    compositeDisposable.add(disposable)
 
     return singleObservable
   }
@@ -266,78 +263,64 @@ class CombinedAudioRecorderHandler(
   ): Pair<Recording?, Semaphore> {
     canReceive = false
     val recordingLock = Semaphore(1, true)
-    val recordingId = ulid
-
-    logger.debug { "Creating subscription for recording: $recordingId" }
     recordingLock.acquire()
-    val disposable = single?.subscribe { queueFile, e ->
+    logger.warn { "${recordingLock.queueLength} Acquired recording initial lock for: $session" }
+
+    logger.debug { "Creating subscription for recording: $session" }
+    val disposable = single.subscribe { queueFile, _ ->
       withLoggingContext(
         "guild" to voiceChannel.guild.name,
         "guild.id" to voiceChannel.guild.id,
         "text-channel" to voiceChannel.name,
-        "session-id" to session,
+        "session-id" to this.session,
         "recording.size-mb" to (recordingSize * 1024 * 1024).toString()
       ) {
-        e?.let { ex ->
-          logger.error(ex) { "Error on subscription on saveRecording: $recordingId" }
-        }
-
-        val recordingFile = queueFile?.let {
-          logger.info { "Completed recording: $recordingId, queue file size: ${it.size()}" }
+        val recordingFile = queueFile.let {
+          logger.info { "Completed recording: $session, queue file size: ${it.size()}" }
           File(it.fileBuffer.canonicalPath.replace("queue", "mp3"))
         }
 
-        FileOutputStream(recordingFile!!).use {
+        try {
+          queueFileIntoMp3(queueFile, recordingFile)
 
-          queueFile.apply {
-            try {
-              forEach { stream, _ ->
-                stream.transferTo(it)
-              }
-
-              logger.info {
-                "Saving audio file ${recordingFile.name} - ${FileUtils.byteCountToDisplaySize(recordingFile.length())}."
-              }
-
-              logger.debug {
-                "Recording size in bytes: $recordingSize"
-              }
-
-              uploadRecording(recordingFile, voiceChannel, messageChannel)
-            } catch (e: IOException) {
-              logger.warn(e) {
-                "Could not generate MP3 file from Queue: ${recordingFile.absolutePath}: ${queueFile.fileBuffer.canonicalPath}"
-              }
-
-              val errorMessage =
-                """|:no_entry_sign: _Error creating recording, please visit support server and provide Session ID._
-                   |_Session ID: `$session`_
-                   |""".trimMargin()
-
-              BotUtils.sendMessage(messageChannel, errorMessage)
-            } finally {
-              close()
-
-              logger.debug {
-                "Releasing lock in saveRecording subscription on id: $recordingId"
-              }
-              recordingLock.release(1)
-            }
+          logger.info {
+            "Saving audio file ${recordingFile.name} - ${FileUtils.byteCountToDisplaySize(recordingFile.length())}."
           }
+
+          logger.debug {
+            "Recording size in bytes: $recordingSize"
+          }
+
+          uploadRecording(recordingFile, voiceChannel, messageChannel)
+        } catch (e: IOException) {
+          logger.error(e) {
+            "Could not generate MP3 file from Queue: ${recordingFile.absolutePath}: ${queueFile.fileBuffer.canonicalPath}"
+          }
+
+          val errorMessage =
+            """|:no_entry_sign: _Error creating recording, please visit support server and provide Session ID._
+               |_Session ID: `${this.session}`_
+               |""".trimMargin()
+
+          BotUtils.sendMessage(messageChannel, errorMessage)
+        } finally {
+          queueFile.close()
+
+          logger.warn { "${recordingLock.queueLength} Releasing recording lock for: $session" }
+          recordingLock.release(1)
         }
       }
     }
 
     // Add subscriber to composite disposable
-    disposable?.let(compositeDisposable::add)
+    compositeDisposable.add(disposable)
 
-    logger.debug {
-      "Acquiring lock in saveRecording on recording: $recordingId"
-    }
-    logger.debug { "Marking observable as completed for recording: $recordingId" }
-    subject?.onComplete()
+    logger.debug { "Marking observable as completed for recording: $session" }
+    subject.onComplete()
+    logger.warn { "${recordingLock.queueLength} Acquiring recording lock, should lock until `subject` completes: $session" }
     recordingLock.acquire() // what could go wrong?
 
+    // TODO: Does this do copy by value or reference?
     val recording = recordingRecord
 
     return Pair(recording, recordingLock)
@@ -432,41 +415,39 @@ class CombinedAudioRecorderHandler(
     // Stop accepting audio from Discord
     canReceive = false
 
+    // TODO: Skipping this may be leaving Disposables in a bad state
     if (dispose) {
       compositeDisposable.dispose()
     }
 
-    // Clean up queue file
+    // TODO: This cleanup step should be done in [[CombinedAudioRecorderHandler#cleanup]]
     single
-      ?.doOnError { error ->
+      .doOnError { error ->
         logger.warn(error) {
-          "Couldn't clean up properly due to Exception."
+          "Couldn't clean up properly due to Exception: $session"
         }
       }
-      ?.subscribe { queueFile, _ ->
+      .subscribe { queueFile, _ ->
         withLoggingContext("guild" to voiceChannel.guild.name, "text-channel" to messageChannel.name) {
           queueFile?.let {
-            recordingLock?.let { lock ->
-              lock.acquire(1)
-              logger.warn {
-                "Acquiring lock in disconnect subscription: ${it.fileBuffer.canonicalPath}"
-              }
-            }
             try {
               it.close()
               val mp3File = File(it.fileBuffer.canonicalPath.replace("queue", "mp3"))
-              if (!standalone && (mp3File.exists() && 0 < mp3File.length())) {
+
+              // Skip deleting queue file if standalone OR mp3 file is empty
+              if(standalone || (mp3File.exists() && mp3File.length() <= 0)) {
+                logger.warn {
+                  "Skip deleting queue file: ${it.fileBuffer.name}, mp3 file size: ${mp3File.length()}"
+                }
+              } else {
                 logger.info {
                   "Delete queue file: ${it.fileBuffer.name}"
                 }
                 Files.deleteIfExists(Paths.get(it.fileBuffer.toURI()))
-              } else {
-                logger.info {
-                  "Skip deleting queue file: ${it.fileBuffer.name}, mp3 file size: ${mp3File.length()}"
-                }
               }
+
             } catch (e: FileSystemException) {
-              logger.warn(e) {
+              logger.error(e) {
                 "Couldn't delete ${it.fileBuffer.canonicalPath}"
               }
             }
@@ -478,17 +459,25 @@ class CombinedAudioRecorderHandler(
                   delete()
               }
             }
-            recordingLock?.release(1)
+
+            recordingLock?.let { lock ->
+              logger.warn { "${recordingLock.queueLength} Releasing recording lock in disconnect subscription for: $session" }
+              lock.release(1)
+            }
           }
         }
       }
 
     // Shut off the Observable
-    subject?.onComplete()
+    subject.onComplete()
+    recordingLock?.let { lock ->
+      logger.warn { "${lock.queueLength} Acquiring recording lock in disconnect subscription for: $session" }
+      lock.acquire(1)
+    }
 
     // Close Spans
     span.end()
-    scope?.close()
+    scope.close()
   }
 
   private fun cleanup(recording: File) {
@@ -509,7 +498,7 @@ class CombinedAudioRecorderHandler(
 
   override fun handleCombinedAudio(combinedAudio: CombinedAudio) {
     durationCounter += 1
-    subject?.onNext(combinedAudio)
+    subject.onNext(combinedAudio)
   }
 
   override fun includeUserInCombinedAudio(user: User): Boolean {
