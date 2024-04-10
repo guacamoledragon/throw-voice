@@ -198,8 +198,7 @@ object BotUtils {
     withLoggingContext("guild" to voiceChannel.guild.name, "text-channel" to messageChannel.name) {
       logger.debug { "Leaving voice channel" }
       audioManager.apply {
-        audioConnection.close(ConnectionStatus.NOT_CONNECTED)
-        closeAudioConnection()
+        closeAudioConnection(ConnectionStatus.NOT_CONNECTED)
         logger.debug { "Destroyed audio handlers" }
       }
 
