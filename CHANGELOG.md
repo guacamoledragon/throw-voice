@@ -8,8 +8,10 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 
 ### Added
 - Show accurate duration of Recording
+  - Only storing this in the memory data model, will need to create migration to store in Database
 - Add OTEL instrumentation
   - Trying out SigNoz Cloud, currently sending app and db metrics as well as logs
+- `<prefix>test` command to simulate `@pawa` performing certain actions like joining a VC then saving.
 
 
 ### Changed
@@ -26,10 +28,11 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
   - Bump kotest.version from 5.8.0 to 5.8.1
   - Bump kotlin.version from 1.9.22 to 1.9.23
   - Bump nrepl:nrepl from 1.1.0 to 1.1.1
-  - Bump opentelemetry-instrumentation-annotations from 2.1.0 -> 2.2.0
+  - Bump opentelemetry-instrumentation-annotations from 2.1.0 to 2.2.0
   - Bump org.clojure:clojure from 1.11.1 to 1.12.0-alpha9
   - Bump org.flywaydb:flyway-core from 9.22.1 to 10.11.0
-  - Bump org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm
+    - Required adding org.flywaydb:flyway-database-postgesql runtime dependency
+  - Bump org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm 1.7.3 to 1.8.0
   - Bump org.postgresql:postgresql from 42.7.1 to 42.7.2
   - Bump org.testcontainers:postgresql from 1.19.4 to 1.19.7
   - Bump org.testcontainers:testcontainers from 1.19.3 to 1.19.7
