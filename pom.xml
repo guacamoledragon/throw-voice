@@ -24,7 +24,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <slf4j.version>2.0.9</slf4j.version>
     <log4j.version>2.22.1</log4j.version>
-    <otel.version>2.2.0</otel.version>
+    <otel.version>2.3.0</otel.version>
   </properties>
 
   <dependencyManagement>

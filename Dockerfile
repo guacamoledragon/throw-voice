@@ -3,7 +3,7 @@ FROM curlimages/curl:latest as deps
 
 WORKDIR /home/curl_user
 
-ENV SDK_VERSION 2.2.0
+ENV SDK_VERSION 2.3.0
 
 RUN curl -Lo agent.jar https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v${SDK_VERSION}/opentelemetry-javaagent.jar
 
