@@ -2,8 +2,8 @@
 <launch4jConfig>
   <dontWrapJar>false</dontWrapJar>
   <headerType>console</headerType>
-  <jar>D:\workspace\pawabot\pawa\target\pawa-2.12.0.jar</jar>
-  <outfile>D:\workspace\pawabot\pawa-lite\pawa-lite-2.12.0.exe</outfile>
+  <jar>D:\workspace\pawabot\pawa\target\pawa-2.13.0.jar</jar>
+  <outfile>D:\workspace\pawabot\pawa-lite\pawa-lite-2.13.0.exe</outfile>
   <errTitle></errTitle>
   <cmdLine></cmdLine>
   <chdir>.</chdir>
@@ -26,12 +26,10 @@
   </classPath>
   <jre>
     <path>jre</path>
-    <bundledJre64Bit>true</bundledJre64Bit>
-    <bundledJreAsFallback>false</bundledJreAsFallback>
+    <requiresJdk>false</requiresJdk>
+    <requires64Bit>false</requires64Bit>
     <minVersion>17</minVersion>
     <maxVersion></maxVersion>
-    <jdkPreference>jdkOnly</jdkPreference>
-    <runtimeBits>64</runtimeBits>
     <opt>-Dlog4j.configurationFile=log4j2-lite.xml</opt>
   </jre>
 </launch4jConfig>

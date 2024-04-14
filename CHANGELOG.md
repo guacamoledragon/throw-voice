@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## [2.13.0] - 2024-04-14
 
 ### Added
 - Show accurate duration of Recording
@@ -12,7 +12,6 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 - Add OTEL instrumentation
   - Trying out SigNoz Cloud, currently sending app and db metrics as well as logs
 - `<prefix>test` command to simulate `@pawa` performing certain actions like joining a VC then saving.
-
 
 ### Changed
 - `recover` responds with ephemeral replies only visible to caller
@@ -36,21 +35,11 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
   - Bump org.testcontainers:testcontainers from 1.19.3 to 1.19.7
   - Bump otel.version 2.2.0 to 2.3.0
 
-
-
-### Deprecated
-
-
 ### Removed
 - Remove EventTracer, was remnant from removing Honeycomb
 
-
 ### Fixed
 - [PawaLite]: `/recover` now correctly recovers a recording from a queue file
-
-
-### Security
-
 
 ## [2.12.0] - 2024-02-13
 
@@ -360,7 +349,7 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 ### Fixed
 - Remove recording limits and warnings
 
-[Unreleased]: https://gitlab.com/pawabot/pawa/-/compare/v2.12.0...master
+[2.13.0]: https://gitlab.com/pawabot/pawa/-/compare/v2.12.0...v2.13.0
 [2.12.0]: https://gitlab.com/pawabot/pawa/-/compare/v2.11.1...v2.12.0
 [2.11.1]: https://gitlab.com/pawabot/pawa/-/compare/v2.11.0...v2.11.1
 [2.11.0]: https://gitlab.com/pawabot/pawa/-/compare/v2.11.0...v2.10.0
