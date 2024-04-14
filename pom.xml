@@ -23,7 +23,7 @@
     <main.class>tech.gdragon.App</main.class>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <slf4j.version>2.0.9</slf4j.version>
-    <log4j.version>2.22.1</log4j.version>
+    <log4j.version>2.23.1</log4j.version>
     <otel.version>2.3.0</otel.version>
   </properties>
 
