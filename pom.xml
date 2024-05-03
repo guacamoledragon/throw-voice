@@ -43,7 +43,7 @@
     <dependency>
       <groupId>aws.sdk.kotlin</groupId>
       <artifactId>s3-jvm</artifactId>
-      <version>1.1.18</version>
+      <version>1.2.4</version>
       <exclusions>
         <exclusion>
           <artifactId>slf4j-api</artifactId>
