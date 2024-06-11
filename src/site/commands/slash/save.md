@@ -1,5 +1,5 @@
 # save
-> Saves the current recording and uploads it to current, `saveLocation`, or specified text channel. _(Max recording is 110MB)_
+> Saves the current recording and uploads it to current, `saveLocation`, or specified text channel. _(Max recording is 256MB)_
 
 ```
 /save [text-channel]

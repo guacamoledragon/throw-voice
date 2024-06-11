@@ -4,12 +4,14 @@ import dev.minn.jda.ktx.interactions.commands.Command
 import dev.minn.jda.ktx.messages.Embed
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
-import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.api.pawa.Pawa
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.db.dao.Guild
-import tech.gdragon.db.table.Tables.Recordings
+import tech.gdragon.db.dao.Settings
+import tech.gdragon.db.table.Tables
+import tech.gdragon.discord.message.formatInstant
 import tech.gdragon.i18n.Lang
 import java.awt.Color
 import net.dv8tion.jda.api.entities.Guild as DiscordGuild
@@ -20,9 +22,16 @@ class Info : CommandHandler() {
 
     fun retrieveInfo(guild: DiscordGuild): MessageEmbed {
       return transaction {
-        val prefix = Guild[guild.idLong].settings.prefix
+        val settings = Tables.Settings
+          .selectAll()
+          .where { Tables.Settings.guild eq guild.idLong }
+          .firstOrNull()
+          ?.let(Settings::wrapRow)
         val dateJoined = Guild[guild.idLong].joinedOn
-        val recordingCount = Recordings.select { Recordings.guild eq guild.idLong }.count().toString()
+        val recordingCount = Tables.Recordings
+          .selectAll()
+          .where { Tables.Recordings.guild eq guild.idLong }
+          .count()
 
         Embed {
           title = "Info"
@@ -30,17 +39,21 @@ class Info : CommandHandler() {
           description = "${guild.name} server information"
           field {
             name = ":hatching_chick: Joined"
-            value = dateJoined.toString()
+            value = formatInstant(dateJoined)
             inline = false
           }
           field {
             name = ":twisted_rightwards_arrows: Prefix"
-            value = "`$prefix`"
-            inline = false
+            value = "`${settings?.prefix}`"
+          }
+
+          field {
+            name = ":floppy_disk: Autosave"
+            value = "`${settings?.autoSave}`"
           }
           field {
             name = ":headphones: Number of Recordings"
-            value = recordingCount
+            value = "$recordingCount"
             inline = false
           }
           footer {
