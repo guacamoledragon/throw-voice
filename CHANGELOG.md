@@ -7,6 +7,7 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 ## [Unreleased]
 
 ### Added
+- `aws.smithy.kotlin:http-client-engine-crt-jvm` dependency
 
 
 ### Changed
