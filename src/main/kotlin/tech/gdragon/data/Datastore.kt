@@ -7,6 +7,7 @@ import aws.sdk.kotlin.services.s3.model.CreateBucketRequest
 import aws.sdk.kotlin.services.s3.putObject
 import aws.smithy.kotlin.runtime.content.ByteStream
 import aws.smithy.kotlin.runtime.content.fromFile
+import aws.smithy.kotlin.runtime.http.engine.crt.CrtHttpEngine
 import aws.smithy.kotlin.runtime.net.url.Url
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.runBlocking
@@ -60,6 +61,7 @@ class S3Datastore(
 
   val client = S3Client {
     endpointUrl = Url.parse(endpoint)
+    httpClient = CrtHttpEngine()
     this.region = region
     credentialsProvider = StaticCredentialsProvider {
       accessKeyId = accessKey
