@@ -42,10 +42,12 @@ class RecordingReply(recording: Recording, appBaseUrl: String) {
       value = createdOn
       inline = true
     }
-    field {
-      name = "Expires On"
-      value = expiresOn
-      inline = true
+    if (!recordingUrl.startsWith("file://")) {
+      field {
+        name = "Expires On"
+        value = expiresOn
+        inline = true
+      }
     }
     field {
       name = "Speakers"
