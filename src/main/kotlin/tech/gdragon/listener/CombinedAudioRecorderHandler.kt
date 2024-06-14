@@ -498,6 +498,9 @@ class CombinedAudioRecorderHandler(
 
   override fun handleCombinedAudio(combinedAudio: CombinedAudio) {
     durationCounter += 1
+    recording?.let {
+      it.speakers += combinedAudio.users
+    }
     subject.onNext(combinedAudio)
   }
 

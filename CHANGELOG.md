@@ -31,7 +31,7 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 
 ### Added
 - Show accurate duration of Recording
-  - Only storing this in the memory data model, will need to create migration to store in Database
+  - Only storing this in the memory data model will need to create migration to store in Database
 - Add OTEL instrumentation
   - Trying out SigNoz Cloud, currently sending app and db metrics as well as logs
 - `<prefix>test` command to simulate `@pawa` performing certain actions like joining a VC then saving.

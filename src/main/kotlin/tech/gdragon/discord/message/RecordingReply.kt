@@ -14,6 +14,7 @@ class RecordingReply(recording: Recording, appBaseUrl: String) {
   private val guildId = recording.readValues[Tables.Recordings.guild].value
   private val sessionId = recording.id.value
   private val createdOn = formatInstant(recording.createdOn)
+  private val speakers = recording.speakers.joinToString { it.asMention }
   private val duration = recording.duration.let {
     if (it.isZero) {
       "???"
@@ -37,6 +38,10 @@ class RecordingReply(recording: Recording, appBaseUrl: String) {
     field {
       name = "Created On"
       value = createdOn
+    }
+    field {
+      name = "Speakers"
+      value = speakers
       inline = false
     }
     field {
