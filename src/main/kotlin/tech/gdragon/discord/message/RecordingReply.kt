@@ -9,11 +9,14 @@ import org.apache.commons.io.FileUtils
 import tech.gdragon.db.dao.Recording
 import tech.gdragon.db.table.Tables
 import java.awt.Color
+import java.time.Duration
 
 class RecordingReply(recording: Recording, appBaseUrl: String) {
   private val guildId = recording.readValues[Tables.Recordings.guild].value
   private val sessionId = recording.id.value
   private val createdOn = formatInstant(recording.createdOn)
+  private val expiresOn = formatInstant(recording.createdOn.plus(Duration.ofDays(1L)))
+  private val speakers = recording.speakers.joinToString { it.asMention }
   private val duration = recording.duration.let {
     if (it.isZero) {
       "???"
@@ -37,6 +40,18 @@ class RecordingReply(recording: Recording, appBaseUrl: String) {
     field {
       name = "Created On"
       value = createdOn
+      inline = true
+    }
+    if (!recordingUrl.startsWith("file://")) {
+      field {
+        name = "Expires On"
+        value = expiresOn
+        inline = true
+      }
+    }
+    field {
+      name = "Speakers"
+      value = speakers
       inline = false
     }
     field {
@@ -47,6 +62,7 @@ class RecordingReply(recording: Recording, appBaseUrl: String) {
     field {
       name = "Size"
       value = size
+      inline = true
     }
     // Only show if not blank and is a local link
     if (recordingUrl.isNotBlank() && recordingUrl.startsWith("file://")) {
