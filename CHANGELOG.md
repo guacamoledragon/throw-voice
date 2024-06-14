@@ -7,6 +7,8 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 ## [Unreleased]
 
 ### Added
+- Show recording expiration date on the Recording reply
+- Show a list of speakers in the Recording reply
 - `aws.smithy.kotlin:http-client-engine-crt-jvm` dependency
 
 
