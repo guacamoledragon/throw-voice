@@ -26,6 +26,7 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import tech.gdragon.BotUtils
 import tech.gdragon.api.pawa.Pawa
+import tech.gdragon.api.tape.addCommentToMp3
 import tech.gdragon.api.tape.queueFileIntoMp3
 import tech.gdragon.data.Datastore
 import tech.gdragon.db.dao.Channel
@@ -282,6 +283,7 @@ class CombinedAudioRecorderHandler(
 
         try {
           queueFileIntoMp3(queueFile, recordingFile)
+          addCommentToMp3(recordingFile, recording?.speakers?.joinToString(prefix = "Speakers: ") { it.name })
 
           logger.info {
             "Saving audio file ${recordingFile.name} - ${FileUtils.byteCountToDisplaySize(recordingFile.length())}."
