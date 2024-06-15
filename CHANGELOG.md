@@ -10,6 +10,8 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 - Show recording expiration date on the Recording reply
 - Show a list of speakers in the Recording reply
 - `aws.smithy.kotlin:http-client-engine-crt-jvm` dependency
+- `net.jthink:jaudiotagger` dependency
+- Add ID3 tag to MP3 with the speakers in the comment section
 
 
 ### Changed
