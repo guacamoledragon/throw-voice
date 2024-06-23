@@ -42,15 +42,20 @@ class Info : CommandHandler() {
             value = formatInstant(dateJoined)
             inline = false
           }
+
           field {
             name = ":twisted_rightwards_arrows: Prefix"
             value = "`${settings?.prefix}`"
           }
-
           field {
             name = ":floppy_disk: Autosave"
             value = "`${settings?.autoSave}`"
           }
+          field {
+            name = ":speaking_head: Locale"
+            value = "`${settings?.language}`"
+          }
+
           field {
             name = ":headphones: Number of Recordings"
             value = "$recordingCount"

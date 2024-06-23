@@ -28,7 +28,7 @@ object Tables {
     val defaultTextChannel = long("defaulttextchannel").nullable()
     val volume = decimal("volume", 3, 2).default(BigDecimal.valueOf(0.8))
     val guild = reference("guild", Guilds, ReferenceOption.CASCADE).uniqueIndex()
-    val language = registerColumn<Lang>("language", LanguageColumnType()).default(Lang.EN)
+    val language = registerColumn("language", LanguageColumnType()).default(Lang.EN)
   }
 
   object Aliases : IntIdTable() {
