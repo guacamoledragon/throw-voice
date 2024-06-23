@@ -1,5 +1,5 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>tech.gdragon.pawabot</groupId>
   <artifactId>pawa</artifactId>
@@ -17,7 +17,7 @@
     <jda-ktx.version>0.11.0-beta.19</jda-ktx.version>
     <koin.version>3.5.6</koin.version>
     <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
-    <kotlin.compiler.jvmTarget>17</kotlin.compiler.jvmTarget>
+    <kotlin.compiler.jvmTarget>21</kotlin.compiler.jvmTarget>
     <kotlin.version>2.0.0</kotlin.version>
     <kotest.version>5.9.1</kotest.version>
     <main.class>tech.gdragon.App</main.class>
@@ -562,7 +562,7 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.13.0</version>
         <configuration>
-          <release>17</release>
+          <release>21</release>
         </configuration>
       </plugin>
     </plugins>
