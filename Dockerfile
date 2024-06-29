@@ -7,7 +7,7 @@ ENV SDK_VERSION 2.3.0
 
 RUN curl -Lo agent.jar https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v${SDK_VERSION}/opentelemetry-javaagent.jar
 
-FROM maven:3.9.1-eclipse-temurin-17-alpine as builder
+FROM maven:3.9.7-eclipse-temurin-21-alpine as builder
 
 WORKDIR /app
 
@@ -22,8 +22,7 @@ ARG VCS_REF
 ARG VERSION
 RUN mvn -B -Dversion="${VERSION:-dev}" -Dtimestamp="${BUILD_DATE}" -Drevision="${VCS_REF}" package -DskipTests
 
-# https://console.cloud.google.com/gcr/images/distroless/global/java17-debian11@sha256:92f34f18951118ac1c8261c128cdf2001b4e74340050f557dcd1ac4ddd6a07ad/details?tab=vulnz
-FROM gcr.io/distroless/java17-debian11@sha256:92f34f18951118ac1c8261c128cdf2001b4e74340050f557dcd1ac4ddd6a07ad
+FROM gcr.io/distroless/java21:nonroot
 LABEL maintainer="Jose V. Trigueros <jose@gdragon.tech>"
 
 ARG BUILD_DATE
@@ -40,8 +39,6 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.schema-version="1.0"
 
 ENTRYPOINT []
-
-EXPOSE 8080
 
 ENV APP_DIR /app
 ENV VERSION ${VERSION:-dev}

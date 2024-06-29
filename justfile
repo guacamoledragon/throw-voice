@@ -1,11 +1,28 @@
 set shell := ["nu.exe", "-c"]
 set dotenv-load := false
 
+docker-build:
+  docker build \
+    --cache-from registry.gitlab.com/pawabot/pawa:2.13.0 \
+    -t pawa:dev \
+    --build-arg BUILD_DATE=(date now | format date "%FT%TZ") \
+    --build-arg VCS_REF=(git rev-parse --short @) \
+    --build-arg VERSION=dev \
+    .
+
+docker-run:
+  docker run --rm -it \
+    --env BOT_STANDALONE=false --env OVERRIDE_FILE=settings.properties --env OTEL_JAVAAGENT_ENABLED=false --env TZ="America/Los_Angeles" \
+    -v ($env.PWD + "/dev.docker.properties:/app/settings.properties") \
+    -v ($env.PWD + "/data:/app/data") \
+    -p 7888:7888 \
+    pawa:dev
+
 # Start local Minio instance for development
 minio-start:
   docker run --rm -it --name minio -p 9090:9000 -p 9091:9091 \
   -e MINIO_ROOT_USER=minio -e MINIO_ROOT_PASSWORD=password -e MINIO_CONSOLE_ADDRESS=:9091 \
-  minio/minio:RELEASE.2023-09-16T01-01-47Z \
+  minio/minio:RELEASE.2024-06-22T05-26-45Z \
   server /opt/data
 
 package-pawa-lite:
