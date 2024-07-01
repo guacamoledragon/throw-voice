@@ -4,6 +4,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+
+### Changed
+
+
+### Deprecated
+
+
+### Removed
+
+
+### Fixed
+
+
+### Security
+
+
 ## [2.14.0] - 2024-07-01
 
 ### Added
@@ -381,6 +401,7 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 ### Fixed
 - Remove recording limits and warnings
 
+[Unreleased]: https://gitlab.com/pawabot/pawa/-/compare/v2.14.0...master
 [2.14.0]: https://gitlab.com/pawabot/pawa/-/compare/v2.13.0...v2.14.0
 [2.13.0]: https://gitlab.com/pawabot/pawa/-/compare/v2.12.0...v2.13.0
 [2.12.0]: https://gitlab.com/pawabot/pawa/-/compare/v2.11.1...v2.12.0
