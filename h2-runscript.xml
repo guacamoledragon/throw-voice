@@ -3,7 +3,7 @@
   <dontWrapJar>false</dontWrapJar>
   <headerType>console</headerType>
   <jar>D:\workspace\pawabot\pawa\target\h2-runscript.jar</jar>
-  <outfile>D:\workspace\pawabot\pawa-lite\db-restore.exe</outfile>
+  <outfile>D:\workspace\pawabot\pawalite\db-restore.exe</outfile>
   <errTitle></errTitle>
   <cmdLine></cmdLine>
   <chdir>.</chdir>

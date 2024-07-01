@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [2.14.0] - 2024-07-01
 
 ### Added
 - Show recording expiration date on the Recording reply
@@ -13,23 +13,28 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 - `net.jthink:jaudiotagger` dependency
 - Add ID3 tag to MP3 with the speakers in the comment section
 
-
 ### Changed
 - Show `autosave` status on `/info`
-
+- Upgrade build, Dockerfile, and CI to Java 21 LTS
+- Update the following dependencies:
+  - Bump aws.sdk.kotlin:s3-jvm from 1.1.18 to 1.2.38
+  - Bump aws.smithy.kotlin:http-client-engine-crt-jvm from 1.2.6 to 1.2.9
+  - Bump com.fasterxml.jackson.core:jackson-databind from 2.17.0 to 2.17.1
+  - Bump exposed.version from 0.49.0 to 0.52.0
+  - Bump io.opentelemetry:opentelemetry-bom from 1.37.0 to 1.39.0
+  - Bump kotest.version from 5.8.1 to 5.9.1
+  - Bump kotlin.version from 1.9.23 to 2.0.0
+  - Bump nrepl:nrepl from 1.1.1 to 1.2.0
+  - Bump org.apache.maven.plugins:maven-compiler-plugin from 3.12.1 to 3.13.0
+  - Bump org.apache.maven.plugins:maven-shade-plugin from 3.5.2 to 3.6.0
+  - Bump org.testcontainers:postgresql from 1.19.7 to 1.19.8
+  - Bump org.testcontainers:testcontainers from 1.19.7 to 1.19.8
+  - Bump otel.version from 2.3.0 to 2.5.0
+- Minor internal change rename `pawa-lite` to `pawalite`
 
 ### Deprecated
-
-
-### Removed
-
-
-### Fixed
-
-
-### Security
-
-
+- Disable OTEL instrumentation and integration with SigNoz
+  - Might add this back in the future but in a more lightweight way
 
 ## [2.13.0] - 2024-04-14
 
@@ -376,7 +381,7 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 ### Fixed
 - Remove recording limits and warnings
 
-[Unreleased]: https://gitlab.com/pawabot/pawa/-/compare/v2.13.0...master
+[2.14.0]: https://gitlab.com/pawabot/pawa/-/compare/v2.13.0...v2.14.0
 [2.13.0]: https://gitlab.com/pawabot/pawa/-/compare/v2.12.0...v2.13.0
 [2.12.0]: https://gitlab.com/pawabot/pawa/-/compare/v2.11.1...v2.12.0
 [2.11.1]: https://gitlab.com/pawabot/pawa/-/compare/v2.11.0...v2.11.1

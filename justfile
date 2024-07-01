@@ -3,7 +3,7 @@ set dotenv-load := false
 
 docker-build:
   docker build \
-    --cache-from registry.gitlab.com/pawabot/pawa:2.13.0 \
+    --cache-from registry.gitlab.com/pawabot/pawa:2.14.0 \
     -t pawa:dev \
     --build-arg BUILD_DATE=(date now | format date "%FT%TZ") \
     --build-arg VCS_REF=(git rev-parse --short @) \
@@ -25,7 +25,7 @@ minio-start:
   minio/minio:RELEASE.2024-06-22T05-26-45Z \
   server /opt/data
 
-package-pawa-lite:
+package-pawalite:
   mvn -Plite clean package
 
 # Generate a backup of the Settings table on an instance of PostgresQL
@@ -66,7 +66,7 @@ recover-mp3 id:
 
 recover-queue id:
   scp pawa.im:/opt/pawa/data/recordings/{{ id }}.queue .
-  java -jar ($env.PWD + "/../pawa-lite/pawa-recovery-tool.jar") {{ id }}.queue
+  java -jar ($env.PWD + "/../pawalite/pawa-recovery-tool.jar") {{ id }}.queue
 
 # Expose Clojure REPL
 repl-port-forward:

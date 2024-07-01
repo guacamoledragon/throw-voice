@@ -3,7 +3,7 @@
   <dontWrapJar>false</dontWrapJar>
   <headerType>console</headerType>
   <jar>D:\workspace\pawabot\pawa\target\h2-script.jar</jar>
-  <outfile>D:\workspace\pawabot\pawa-lite\db-backup.exe</outfile>
+  <outfile>D:\workspace\pawabot\pawa-ite\db-backup.exe</outfile>
   <errTitle></errTitle>
   <cmdLine></cmdLine>
   <chdir>.</chdir>
