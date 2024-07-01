@@ -22,7 +22,7 @@ ARG VCS_REF
 ARG VERSION
 RUN mvn -B -Dversion="${VERSION:-dev}" -Dtimestamp="${BUILD_DATE}" -Drevision="${VCS_REF}" package -DskipTests
 
-FROM gcr.io/distroless/java21:nonroot
+FROM gcr.io/distroless/java21
 LABEL maintainer="Jose V. Trigueros <jose@gdragon.tech>"
 
 ARG BUILD_DATE
