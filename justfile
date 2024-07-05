@@ -26,6 +26,7 @@ minio-start:
   server /opt/data
 
 package-pawalite:
+  mvn --version
   mvn -Plite clean package
 
 # Generate a backup of the Settings table on an instance of PostgresQL
