@@ -621,6 +621,7 @@
                     <excludes>
                       <exclude>aws.sdk.kotlin:*</exclude>
                       <exclude>aws.smithy.kotlin:*</exclude>
+                      <exclude>software.amazon.awssdk.crt:*</exclude>
                       <exclude>com.squareup.okhttp3:okhttp-jvm</exclude>
                       <exclude>com.squareup.okhttp3:okhttp-coroutines-jvm</exclude>
                       <exclude>org.postgresql:*</exclude>
