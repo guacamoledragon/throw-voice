@@ -43,7 +43,7 @@
     <dependency>
       <groupId>aws.smithy.kotlin</groupId>
       <artifactId>http-client-engine-crt-jvm</artifactId>
-      <version>1.2.9</version>
+      <version>1.2.11</version>
     </dependency>
     <dependency>
       <groupId>aws.sdk.kotlin</groupId>
