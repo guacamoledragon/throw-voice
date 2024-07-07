@@ -14,6 +14,7 @@ import net.dv8tion.jda.api.sharding.ShardManager
 import net.dv8tion.jda.api.utils.ChunkingFilter
 import net.dv8tion.jda.api.utils.MemberCachePolicy
 import net.dv8tion.jda.api.utils.cache.CacheFlag
+import org.jetbrains.exposed.sql.batchInsert
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.java.KoinJavaComponent.getKoin
 import tech.gdragon.api.pawa.Pawa
@@ -29,7 +30,7 @@ import tech.gdragon.commands.slash.Info
 import tech.gdragon.commands.slash.Recover
 import tech.gdragon.commands.slash.Slash
 import tech.gdragon.db.dao.Application
-import tech.gdragon.db.dao.Guild
+import tech.gdragon.db.table.Tables.Guilds
 import tech.gdragon.listener.EventListener
 import tech.gdragon.listener.SystemEventListener
 import javax.security.auth.login.LoginException
@@ -135,12 +136,32 @@ class Bot(private val token: String, private val pawa: Pawa) {
     }
   }
 
+  /**
+   * Add Guilds connected to the bot, but not in the database.
+   */
   private fun addMissingGuilds() {
-    // Add guild if not present
     logger.info { "Add any missing Guilds to the Database..." }
-    shardManager.guilds.forEach {
-      transaction {
-        Guild.findOrCreate(it.idLong, it.name)
+
+    val allGuilds = shardManager.guilds.map {
+      object {
+        val id = it.idLong
+        val name = it.name
+      }
+    }
+
+    val existingGuilds = transaction {
+      Guilds
+        .select(Guilds.id)
+        .where { Guilds.id inList allGuilds.map { it.id } }
+        .map { it[Guilds.id].value }
+    }
+
+    val missingGuilds = allGuilds.filter { it.id !in existingGuilds }
+
+    transaction {
+      Guilds.batchInsert(missingGuilds) { guild ->
+        this[Guilds.id] = guild.id
+        this[Guilds.name] = guild.name
       }
     }
 
