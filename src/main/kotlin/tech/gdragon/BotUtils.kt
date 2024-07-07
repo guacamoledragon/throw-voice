@@ -7,6 +7,10 @@ import io.azam.ulidj.ULID
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.oshai.kotlinlogging.withLoggingContext
 import io.opentelemetry.instrumentation.annotations.WithSpan
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.runBlocking
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.audio.hooks.ConnectionStatus
@@ -25,6 +29,7 @@ import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.SqlExpressionBuilder
 import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.api.pawa.Pawa
 import tech.gdragon.db.asyncTransaction
@@ -219,8 +224,8 @@ object BotUtils {
   /**
    * Leaves any Guild that hasn't been active in the past `afterDays` days.
    *
-   * In the past, I've been deleting the Guild from the database, but that makes things annoying when you rejoin.
-   * For now, we'll just be leaving a Guild, but keeping the settings.
+   * This is a soft leave, we only disconnect from Discord leaving the database record marked as inactive.
+   * We do it this way to preserve the settings.
    */
   fun leaveInactiveGuilds(jda: JDA, afterDays: Long, whitelist: List<Long>): Int {
     logger.info { "Leaving all Guilds that haven't been active in the past $afterDays days." }
@@ -250,28 +255,26 @@ object BotUtils {
       }
     }
 
-    guilds
-      .forEach {
-        val guild = jda.shardManager?.getGuildById(it.id)
-        guild
-          ?.leave()
-          ?.queue({
-            logger.info { "Left server '$guild', reached inactivity period." }
-          }, { e ->
-            logger.error(e) { "Could not leave server '$guild'!" }
-          })
-          ?: logger.warn {
-            asyncTransaction {
-              Guild[it.id].active = false
+    runBlocking {
+      guilds.map {
+        async(Dispatchers.IO) {
+          val guild = jda.shardManager?.getGuildById(it.id)
+          guild
+            ?.leave()
+            ?.queue({
+              logger.info { "Left server '$guild', reached inactivity period." }
+            }, { e ->
+              logger.error(e) { "Could not leave server '$guild'!" }
+            })
+            ?: run {
+              newSuspendedTransaction {
+                Guild[it.id].active = false
+              }
+              logger.warn { "No longer in this guild ${it.name}, but marking as inactive" }
             }
-            "No longer in this guild ${it.name}, but marking as inactive"
-          }
-      }
-
-    // Delete all ancient guilds using the same query as above
-    /*transaction {
-      Guilds.deleteWhere(op = op)
-    }*/
+        }
+      }.awaitAll()
+    }
 
     return guilds.size
   }
@@ -330,7 +333,7 @@ object BotUtils {
       "no-speak-permission"
     }
 
-    val guildChannel =  messageChannel.jda.getGuildChannelById(messageChannel.idLong)
+    val guildChannel = messageChannel.jda.getGuildChannelById(messageChannel.idLong)
 
     require(guildChannel?.guild?.selfMember?.hasPermission(guildChannel, Permission.MESSAGE_ATTACH_FILES) ?: false) {
       logger.info {
