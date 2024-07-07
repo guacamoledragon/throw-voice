@@ -8,7 +8,6 @@ import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.exposedLogger
-import org.jetbrains.exposed.sql.transactions.TransactionManager
 import tech.gdragon.db.table.Tables.Aliases
 import tech.gdragon.db.table.Tables.Applications
 import tech.gdragon.db.table.Tables.Channels
@@ -75,17 +74,24 @@ class Channel(id: EntityID<Long>) : LongEntity(id) {
 class Guild(id: EntityID<Long>) : LongEntity(id) {
   companion object : LongEntityClass<Guild>(Guilds) {
 
+    /**
+     * Creates a Guild if not present and returns it.
+     *
+     * A Guild depends on a Settings record, so that's also checked. We must have one associated with the Guild.
+     */
     @JvmStatic
     fun findOrCreate(id: Long, name: String): Guild {
-      return Guild.findById(id) ?: Guild.new(id) {
+      val guild = Guild.findById(id) ?: Guild.new(id) {
+        exposedLogger.info("Creating Guild database entry for: $name")
         this.name = name
-      }.also { guild ->
-        // Please ensure Guild is created before proceeding
-        exposedLogger.info("Creating Guild database entry for: ${guild.name}")
-        TransactionManager.current().commit()
-
-        Settings.new { this.guild = guild }
       }
+
+      Settings.find { SettingsTable.guild eq guild.id }.firstOrNull() ?: Settings.new {
+        exposedLogger.info("Creating Settings database entry for guild: ${guild.name}")
+        this.guild = guild
+      }
+
+      return guild
     }
   }
 

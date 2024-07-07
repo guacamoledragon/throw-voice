@@ -31,6 +31,7 @@ import tech.gdragon.commands.slash.Recover
 import tech.gdragon.commands.slash.Slash
 import tech.gdragon.db.dao.Application
 import tech.gdragon.db.table.Tables.Guilds
+import tech.gdragon.db.table.Tables.Settings
 import tech.gdragon.listener.EventListener
 import tech.gdragon.listener.SystemEventListener
 import javax.security.auth.login.LoginException
@@ -159,9 +160,13 @@ class Bot(private val token: String, private val pawa: Pawa) {
     val missingGuilds = allGuilds.filter { it.id !in existingGuilds }
 
     transaction {
-      Guilds.batchInsert(missingGuilds) { guild ->
+      val insertedGuilds = Guilds.batchInsert(missingGuilds) { guild ->
         this[Guilds.id] = guild.id
         this[Guilds.name] = guild.name
+      }
+
+      Settings.batchInsert(insertedGuilds) { guild ->
+        this[Settings.guild] = guild[Guilds.id]
       }
     }
 
