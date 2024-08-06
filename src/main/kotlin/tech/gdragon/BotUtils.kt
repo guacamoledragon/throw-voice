@@ -153,12 +153,12 @@ object BotUtils {
   /**
    * Given a string, determines if there's any SessionIDs in it and returns the list.
    */
-  fun findSessionID(input: String): List<String> {
+  fun findSessionID(input: String): Set<String> {
     val ulidRegex = "[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}".toRegex()
     return ulidRegex.findAll(input)
       .map { it.value }
       .filter { ULID.isValid(it) }
-      .toList()
+      .toSet()
   }
 
   @WithSpan("Get Guild Prefix")
