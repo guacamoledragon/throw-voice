@@ -36,6 +36,13 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
+      <dependency>
+        <groupId>io.insert-koin</groupId>
+        <artifactId>koin-bom</artifactId>
+        <version>${koin.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -351,7 +358,6 @@
     <dependency>
       <groupId>io.insert-koin</groupId>
       <artifactId>koin-core</artifactId>
-      <version>${koin.version}</version>
       <exclusions>
         <exclusion>
           <groupId>org.jetbrains.kotlin</groupId>
@@ -381,7 +387,6 @@
     <dependency>
       <groupId>io.insert-koin</groupId>
       <artifactId>koin-logger-slf4j</artifactId>
-      <version>${koin.version}</version>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
