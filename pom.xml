@@ -24,7 +24,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <slf4j.version>2.0.9</slf4j.version>
     <log4j.version>2.24.0</log4j.version>
-    <otel.version>2.8.0-alpha</otel.version>
+    <otel.version>2.6.0</otel.version>
   </properties>
 
   <dependencyManagement>
@@ -148,7 +148,7 @@
     <dependency>
       <groupId>io.opentelemetry.instrumentation</groupId>
       <artifactId>opentelemetry-jdbc</artifactId>
-      <version>${otel.version}</version>
+      <version>${otel.version}-alpha</version>
     </dependency>
     <dependency>
       <groupId>io.reactivex.rxjava2</groupId>
@@ -321,7 +321,7 @@
     <dependency>
       <groupId>org.jetbrains.kotlinx</groupId>
       <artifactId>kotlinx-coroutines-core-jvm</artifactId>
-      <version>1.9.0</version>
+      <version>1.8.1</version>
       <exclusions>
         <exclusion>
           <groupId>org.jetbrains.kotlin</groupId>
