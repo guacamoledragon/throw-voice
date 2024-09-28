@@ -260,6 +260,7 @@ class Bot(private val token: String, private val pawa: Pawa) {
           Recover.command,
           Stop.command,
           Save.command,
+          SaveDestination.command,
           Volume.command
         )
         message("Recover Recording")
