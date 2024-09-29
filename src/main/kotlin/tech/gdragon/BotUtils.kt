@@ -215,12 +215,7 @@ object BotUtils {
         if (save) {
 
           // Upload recording to the default specified channel
-          val destinationChannel = transaction {
-            val guildRecord = Guild[guild.idLong]
-            val channelId = guildRecord.settings.defaultTextChannel ?: messageChannel.idLong
-            guild.getTextChannelById(channelId)!!
-          }
-
+          val destinationChannel = defaultTextChannel(guild) ?: messageChannel
           sendMessage(destinationChannel, ":floppy_disk: **Saving <#${voiceChannel.id}>'s recording...**")
           recorder.saveRecording(voiceChannel, destinationChannel)
         } else Pair(null, null)
