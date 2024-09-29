@@ -3,6 +3,7 @@ package tech.gdragon.commands.audio
 import dev.minn.jda.ktx.events.CoroutineEventListener
 import dev.minn.jda.ktx.interactions.commands.Command
 import dev.minn.jda.ktx.interactions.commands.option
+import dev.minn.jda.ktx.messages.MessageCreate
 import net.dv8tion.jda.api.entities.channel.ChannelType
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel
@@ -54,12 +55,12 @@ class Save : CommandHandler() {
 
         val message = handler(pawa, it, messageChannel)
         if (message != null) {
-          event.hook.sendMessage(message).queue()
+          BotUtils.reply(event, MessageCreate(message))
         } else {
           val recorder = event.guild?.audioManager?.receivingHandler as? CombinedAudioRecorderHandler
           val recording = recorder?.recording!!
           val recordingEmbed = RecordingReply(recording, pawa.config.appUrl)
-          event.hook.sendMessage(recordingEmbed.message).queue()
+          BotUtils.reply(event, recordingEmbed.message)
         }
       }
     }

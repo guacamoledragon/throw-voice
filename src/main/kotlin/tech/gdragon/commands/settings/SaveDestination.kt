@@ -5,10 +5,11 @@ import dev.minn.jda.ktx.interactions.commands.Command
 import dev.minn.jda.ktx.interactions.commands.option
 import dev.minn.jda.ktx.interactions.commands.restrict
 import dev.minn.jda.ktx.interactions.components.getOption
-import dev.minn.jda.ktx.messages.reply_
+import dev.minn.jda.ktx.messages.MessageCreate
 import net.dv8tion.jda.api.entities.channel.ChannelType
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent
+import tech.gdragon.BotUtils
 import tech.gdragon.api.pawa.Pawa
 import tech.gdragon.i18n.SaveLocation
 
@@ -25,6 +26,8 @@ object SaveDestination {
   }
 
   fun slashHandler(pawa: Pawa): suspend CoroutineEventListener.(GenericCommandInteractionEvent) -> Unit = { event ->
+    event.deferReply().queue()
+
     val destinationChannel = event.getOption<TextChannel>("destination")!!
     val disable = event.getOption<Boolean>("disable") ?: false
 
@@ -47,8 +50,8 @@ object SaveDestination {
             ":no_entry_sign: _${translator.permissions(destinationChannel.asMention)}_"
           }
         }
-      }
+      } ?: ""
 
-    event.reply_("$message").queue()
+    BotUtils.reply(event, MessageCreate(message))
   }
 }
