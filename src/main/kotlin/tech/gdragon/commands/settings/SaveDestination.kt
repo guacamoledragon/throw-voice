@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent
 import tech.gdragon.api.pawa.Pawa
+import tech.gdragon.i18n.SaveLocation
 
 object SaveDestination {
   val command = Command(
@@ -32,10 +33,23 @@ object SaveDestination {
     val voiceChannel = event.getOption<VoiceChannel>("channel")
     val disable = event.getOption<Boolean>("disable") ?: false
 
+    val message =
+      event.guild?.let { guild ->
+        val translator: SaveLocation = pawa.translator(guild.idLong)
+
+        if (disable) {
+          pawa.saveDestination(guild.idLong, null)
+          ":file_folder: _${translator.current}_"
+        } else {
+          pawa.saveDestination(guild.idLong, destinationChannel.idLong)
+          ":file_folder: _${translator.channel(destinationChannel.asMention)}_"
+        }
+      }
+
     println("destinationChannel = ${destinationChannel}")
     println("voiceChannel = ${voiceChannel}")
     println("disable = ${disable}")
 
-    event.reply_("$destinationChannel, $voiceChannel, $disable").queue()
+    event.reply_("$message").queue()
   }
 }
