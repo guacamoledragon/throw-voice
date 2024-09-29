@@ -2,7 +2,7 @@ package tech.gdragon.commands.audio
 
 import dev.minn.jda.ktx.events.CoroutineEventListener
 import dev.minn.jda.ktx.interactions.commands.Command
-import dev.minn.jda.ktx.messages.send
+import dev.minn.jda.ktx.messages.MessageCreate
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
@@ -44,7 +44,7 @@ class Stop : CommandHandler() {
       event.guild?.let {
         event.deferReply().queue()
         val message = handler(pawa, it, event.messageChannel)
-        event.hook.send(message).queue()
+        BotUtils.reply(event, MessageCreate(message))
       }
     }
   }
