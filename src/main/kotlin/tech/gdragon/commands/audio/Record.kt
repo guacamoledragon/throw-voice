@@ -3,6 +3,7 @@ package tech.gdragon.commands.audio
 import dev.minn.jda.ktx.events.CoroutineEventListener
 import dev.minn.jda.ktx.interactions.commands.Command
 import dev.minn.jda.ktx.interactions.commands.option
+import dev.minn.jda.ktx.messages.MessageCreate
 import dev.minn.jda.ktx.messages.send
 import io.github.oshai.kotlinlogging.withLoggingContext
 import net.dv8tion.jda.api.Permission
@@ -41,7 +42,7 @@ class Record : CommandHandler() {
         val textChannel = event.messageChannel
         val message = handler(pawa, it, voiceChannel, textChannel)
 
-        event.hook.send(message).queue()
+        BotUtils.reply(event, MessageCreate(message))
       }
     }
 
