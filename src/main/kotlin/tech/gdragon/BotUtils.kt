@@ -21,8 +21,10 @@ import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel
 import net.dv8tion.jda.api.entities.channel.unions.AudioChannelUnion
+import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException
 import net.dv8tion.jda.api.utils.FileUpload
+import net.dv8tion.jda.api.utils.messages.MessageCreateData
 import net.dv8tion.jda.internal.managers.AudioManagerImpl
 import org.jetbrains.exposed.dao.exceptions.EntityNotFoundException
 import org.jetbrains.exposed.dao.id.EntityID
@@ -362,6 +364,38 @@ object BotUtils {
     recordingStatus(channel.guild.selfMember, true)
 
     return recorder
+  }
+
+  /**
+   * Replies to a slash command respecting the settings default channel.
+   * `event` MUST be deferred
+   */
+  fun reply(event: GenericCommandInteractionEvent, message: MessageCreateData) {
+    event.guild?.let { discordGuild ->
+      val channelId = transaction {
+        val guild = Guild[discordGuild.idLong]
+        guild.settings.defaultTextChannel
+      }
+
+      // TODO: This is crazy code
+      if (channelId == null) {
+        event.hook.sendMessage(message).queue()
+      } else {
+        val channel = discordGuild.getTextChannelById(channelId)
+        if (channel == null || channel == event.channel) {
+          event.hook.sendMessage(message).queue()
+        } else {
+          event.hook
+            .setEphemeral(true)
+            .sendMessage("_Reply sent to ${channel.asMention}_")
+            .queue({ _ ->
+              event.hook.deleteOriginal().queueAfter(5L, TimeUnit.SECONDS)
+            })
+
+          channel.sendMessage(message).queue()
+        }
+      }
+    }
   }
 
   /**
