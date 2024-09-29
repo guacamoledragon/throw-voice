@@ -3,6 +3,7 @@ package tech.gdragon.api.tape
 import com.squareup.tape.QueueFile
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jaudiotagger.audio.AudioFileIO
+import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException
 import org.jaudiotagger.audio.mp3.MP3File
 import org.jaudiotagger.tag.FieldKey
 import java.io.File
@@ -30,9 +31,15 @@ fun addCommentToMp3(mp3: File, comment: String?) {
   if (comment.isNullOrBlank()) logger.info {
     "Skip tagging mp3, comment is empty."
   } else {
-    val audioFile = AudioFileIO.read(mp3) as MP3File
-    val tag = audioFile.tagAndConvertOrCreateAndSetDefault
-    tag.setField(FieldKey.COMMENT, comment)
-    audioFile.commit()
+    try {
+      val audioFile = AudioFileIO.read(mp3) as MP3File
+      val tag = audioFile.tagAndConvertOrCreateAndSetDefault
+      tag.setField(FieldKey.COMMENT, comment)
+      audioFile.commit()
+    } catch (e: InvalidAudioFrameException) {
+      logger.error(e) {
+        "Error tagging $mp3: ${e.message}"
+      }
+    }
   }
 }
