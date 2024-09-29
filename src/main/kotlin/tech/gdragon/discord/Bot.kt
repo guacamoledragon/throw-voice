@@ -241,6 +241,7 @@ class Bot(private val token: String, private val pawa: Pawa) {
       onCommand(Recover.command.name, consumer = Recover.slashHandler(pawa))
       onCommand(Stop.command.name, consumer = Stop.slashHandler(pawa))
       onCommand(Save.command.name, consumer = Save.slashHandler(pawa))
+      onCommand(SaveDestination.command.name, consumer = SaveDestination.slashHandler(pawa))
       onCommand(Volume.command.name, consumer = Volume.slashHandler(pawa))
     }
   }
