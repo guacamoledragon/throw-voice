@@ -121,6 +121,13 @@ class Pawa(val db: Database, val config: PawaConfig = PawaConfig.invoke()) {
     }
   }
 
+  fun saveDestination(guildId: Long, channelId: Long?) {
+    transaction {
+      val guild = Guild[guildId]
+      guild.settings.defaultTextChannel = channelId
+    }
+  }
+
   fun ignoreUsers(session: String, ignoredUserIds: List<Long>) {
     _ignoredUsers[session] = ignoredUserIds
   }

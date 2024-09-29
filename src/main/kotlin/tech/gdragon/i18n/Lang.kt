@@ -126,6 +126,7 @@ object Babel {
       Record::class -> record(lang) as T
       Stop::class -> stop(lang) as T
       Save::class -> save(lang) as T
+      SaveLocation::class -> savelocation(lang) as T
       Volume::class -> volume(lang) as T
       else -> throw IllegalArgumentException("Language: $lang was not found!")
     }
