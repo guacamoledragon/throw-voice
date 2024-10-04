@@ -24,7 +24,7 @@
     <mockk.version>1.13.13</mockk.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <slf4j.version>2.0.9</slf4j.version>
-    <log4j.version>2.24.0</log4j.version>
+    <log4j.version>2.24.1</log4j.version>
     <otel.version>2.6.0</otel.version>
   </properties>
 
