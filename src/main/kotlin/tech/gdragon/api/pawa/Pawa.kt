@@ -128,6 +128,14 @@ class Pawa(val db: Database, val config: PawaConfig = PawaConfig.invoke()) {
     }
   }
 
+  fun linkDestination(channelId: Long, voiceChannelId: Long?) {
+    transaction {
+      Channel.findById(channelId)?.let {
+        it.voiceChannel = voiceChannelId
+      }
+    }
+  }
+
   fun ignoreUsers(session: String, ignoredUserIds: List<Long>) {
     _ignoredUsers[session] = ignoredUserIds
   }

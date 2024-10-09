@@ -36,9 +36,23 @@ object SaveDestination {
         val translator: SaveLocation = pawa.translator(guild.idLong)
 
         when {
+          disable && voiceChannel != null -> {
+            pawa.linkDestination(destinationChannel.idLong, null)
+            ":file_folder: _Unlinking ${voiceChannel.asMention} from ${destinationChannel.asMention}_"
+          }
+
           disable -> {
             pawa.saveDestination(guild.idLong, null)
             ":file_folder: _${translator.current}_"
+          }
+
+          destinationChannel.canTalk() && voiceChannel != null -> {
+            // Ensure channel exists
+            transaction {
+              Channel.findOrCreate(destinationChannel.idLong, destinationChannel.name, guild.idLong)
+            }
+            pawa.linkDestination(destinationChannel.idLong, voiceChannel.idLong)
+            ":file_folder: _Linking ${voiceChannel.asMention} to ${destinationChannel.asMention}_"
           }
 
           destinationChannel.canTalk() -> {
