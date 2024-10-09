@@ -121,7 +121,7 @@ class Pawa(val db: Database, val config: PawaConfig = PawaConfig.invoke()) {
     }
   }
 
-  fun saveDestination(guildId: Long, channelId: Long?) {
+  fun saveDestination(guildId: Long, channelId: Long?, voiceChannelId: Long?) {
     transaction {
       val guild = Guild[guildId]
       guild.settings.defaultTextChannel = channelId

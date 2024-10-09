@@ -4,7 +4,6 @@ import dev.minn.jda.ktx.events.CoroutineEventListener
 import dev.minn.jda.ktx.interactions.commands.Command
 import dev.minn.jda.ktx.interactions.commands.option
 import dev.minn.jda.ktx.messages.MessageCreate
-import dev.minn.jda.ktx.messages.send
 import io.github.oshai.kotlinlogging.withLoggingContext
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.channel.ChannelType
