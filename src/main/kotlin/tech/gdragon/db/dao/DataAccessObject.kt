@@ -69,6 +69,7 @@ class Channel(id: EntityID<Long>) : LongEntity(id) {
   var autoRecord by Channels.autoRecord
   var autoStop by Channels.autoStop
   var settings by Settings referencedOn Channels.settings
+  var voiceChannel by Channels.voiceChannel
 }
 
 class Guild(id: EntityID<Long>) : LongEntity(id) {

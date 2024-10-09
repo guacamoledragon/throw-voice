@@ -8,9 +8,12 @@ import dev.minn.jda.ktx.interactions.components.getOption
 import dev.minn.jda.ktx.messages.MessageCreate
 import net.dv8tion.jda.api.entities.channel.ChannelType
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
+import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent
+import org.jetbrains.exposed.sql.transactions.transaction
 import tech.gdragon.BotUtils
 import tech.gdragon.api.pawa.Pawa
+import tech.gdragon.db.dao.Channel
 import tech.gdragon.i18n.SaveLocation
 
 object SaveDestination {
@@ -22,6 +25,9 @@ object SaveDestination {
     option<TextChannel>("destination", "Recordings will be sent to this channel.", required = true) {
       setChannelTypes(ChannelType.TEXT)
     }
+    option<AudioChannel>("channel", "Recordings started from this voice channel.") {
+      setChannelTypes(ChannelType.VOICE, ChannelType.STAGE)
+    }
     option<Boolean>("disable", "Revert to default behaviour for all if no `channel` specified.")
   }
 
@@ -29,6 +35,7 @@ object SaveDestination {
     event.deferReply().queue()
 
     val destinationChannel = event.getOption<TextChannel>("destination")!!
+    val voiceChannel = event.getOption<AudioChannel>("channel")
     val disable = event.getOption<Boolean>("disable") ?: false
 
     val message =
@@ -36,13 +43,27 @@ object SaveDestination {
         val translator: SaveLocation = pawa.translator(guild.idLong)
 
         when {
+          disable && voiceChannel != null -> {
+            pawa.linkDestination(destinationChannel.idLong, null)
+            ":file_folder: _Unlinking ${voiceChannel.asMention} from ${destinationChannel.asMention}_"
+          }
+
           disable -> {
-            pawa.saveDestination(guild.idLong, null)
+            pawa.saveDestination(guild.idLong, null, null)
             ":file_folder: _${translator.current}_"
           }
 
+          destinationChannel.canTalk() && voiceChannel != null -> {
+            // Ensure channel exists
+            transaction {
+              Channel.findOrCreate(destinationChannel.idLong, destinationChannel.name, guild.idLong)
+            }
+            pawa.linkDestination(destinationChannel.idLong, voiceChannel.idLong)
+            ":file_folder: _Linking ${voiceChannel.asMention} to ${destinationChannel.asMention}_"
+          }
+
           destinationChannel.canTalk() -> {
-            pawa.saveDestination(guild.idLong, destinationChannel.idLong)
+            pawa.saveDestination(guild.idLong, destinationChannel.idLong, voiceChannel?.idLong)
             ":file_folder: _${translator.channel(destinationChannel.asMention)}_"
           }
 

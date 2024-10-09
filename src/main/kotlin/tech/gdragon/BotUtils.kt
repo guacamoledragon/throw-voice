@@ -38,6 +38,7 @@ import tech.gdragon.db.asyncTransaction
 import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.now
+import tech.gdragon.db.table.Tables.Channels
 import tech.gdragon.db.table.Tables.Guilds
 import tech.gdragon.listener.CombinedAudioRecorderHandler
 import java.io.File
@@ -215,7 +216,12 @@ object BotUtils {
         if (save) {
 
           // Upload recording to the default specified channel
-          val destinationChannel = defaultTextChannel(guild) ?: messageChannel
+          val destinationChannel = transaction {
+            Channel.find {
+              Channels.voiceChannel eq voiceChannel.idLong
+            }.firstOrNull()?.id?.value?.let(guild::getTextChannelById)
+          } ?: defaultTextChannel(guild) ?: messageChannel
+
           sendMessage(destinationChannel, ":floppy_disk: **Saving <#${voiceChannel.id}>'s recording...**")
           recorder.saveRecording(voiceChannel, destinationChannel)
         } else Pair(null, null)
