@@ -12,7 +12,13 @@ fun sanitizeFilename(input: String): String {
   return filename.replace(Regex("[^a-zA-Z0-9_.-]"), "")
 }
 
-fun createSafeFile(baseDir: String, filename: String): File {
+/**
+ * Returns a [File] reference that exists within [baseDir].
+ * If the resolved path is not within [baseDir], return a non-existant file.
+ *
+ * @param filename The filename to search for, will be sanitized to ensure that it's not trying to access other directories.
+ */
+fun safeFile(baseDir: String, filename: String): File {
   val sanitizedFilename = sanitizeFilename(filename)
   val basePath = Paths.get(baseDir).normalize()
   val safePath = basePath.resolve(sanitizedFilename)

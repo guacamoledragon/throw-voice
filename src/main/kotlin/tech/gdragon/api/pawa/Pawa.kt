@@ -3,7 +3,7 @@ package tech.gdragon.api.pawa
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.dsl.module
-import tech.gdragon.api.commands.createSafeFile
+import tech.gdragon.api.commands.safeFile
 import tech.gdragon.api.tape.queueFileIntoMp3
 import tech.gdragon.data.Datastore
 import tech.gdragon.db.Database
@@ -164,16 +164,16 @@ class Pawa(val db: Database, val config: PawaConfig = PawaConfig.invoke()) {
   fun recoverRecording(dataDirectory: String, datastore: Datastore, sessionId: String): Recording? {
 
     // Attempt to recover regardless of whether there's a database recording
-    val mp3File = createSafeFile("$dataDirectory/recordings", "$sessionId.mp3")
-    val queueFile = createSafeFile("$dataDirectory/recordings", "$sessionId.queue")
+    val mp3File = safeFile("$dataDirectory/recordings", "$sessionId.mp3")
+    val queueFile = safeFile("$dataDirectory/recordings", "$sessionId.queue")
 
-    // This is a side effect
     val recoverMp3: Boolean = when {
       mp3File.exists() -> {
         logger.info { "Recovering $sessionId from mp3 file." }
         true
       }
 
+      // This is a side effect
       queueFile.exists() -> {
         logger.info { "Recovering $sessionId from queue file." }
         queueFileIntoMp3(queueFile, mp3File).exists()
@@ -194,7 +194,7 @@ class Pawa(val db: Database, val config: PawaConfig = PawaConfig.invoke()) {
     }
 
     if (!recoverMp3) {
-      // Could find mp3 or queue file
+      // Could not find mp3 or queue file
       // In this case, we return a message and whatever we got from the recording
       return null
     } else {
