@@ -45,7 +45,6 @@ object Tables {
     val name = text("name")
     val autoRecord = integer("autorecord").nullable()
     val autoStop = integer("autostop").nullable()
-    val voiceChannel = long("voicechannel").nullable()
     val settings = reference("settings", Settings, ReferenceOption.CASCADE)
   }
 

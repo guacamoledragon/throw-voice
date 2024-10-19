@@ -121,18 +121,10 @@ class Pawa(val db: Database, val config: PawaConfig = PawaConfig.invoke()) {
     }
   }
 
-  fun saveDestination(guildId: Long, channelId: Long?, voiceChannelId: Long?) {
+  fun saveDestination(guildId: Long, channelId: Long?) {
     transaction {
       val guild = Guild[guildId]
       guild.settings.defaultTextChannel = channelId
-    }
-  }
-
-  fun linkDestination(channelId: Long, voiceChannelId: Long?) {
-    transaction {
-      Channel.findById(channelId)?.let {
-        it.voiceChannel = voiceChannelId
-      }
     }
   }
 
