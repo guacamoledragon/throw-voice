@@ -34,6 +34,9 @@ class Pawa(val db: Database, val config: PawaConfig = PawaConfig.invoke()) {
   private var _ignoredUsers: MutableMap<String, List<Long>> = mutableMapOf()
   private var _recordings: MutableMap<String, Long> = mutableMapOf()
 
+  val recordings: Map<String, Long>
+    get() = Collections.unmodifiableMap(_recordings)
+
   inline fun <reified T> translator(guildId: Long): T {
     val lang = transaction { Guild[guildId].settings.language }
     return Babel.commandTranslator(lang)

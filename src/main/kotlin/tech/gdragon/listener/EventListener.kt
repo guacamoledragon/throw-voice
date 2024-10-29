@@ -1,5 +1,6 @@
 package tech.gdragon.listener
 
+import dev.minn.jda.ktx.interactions.components.getOption
 import dev.minn.jda.ktx.messages.send
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.oshai.kotlinlogging.withLoggingContext
@@ -339,8 +340,10 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
 
   override fun onSlashCommandInteraction(event: SlashCommandInteractionEvent) {
     val commandName = event.interaction.name
+    val sessionId = event.interaction.getOption<String>("session-id") ?:
+      pawa.recordings.filterValues { it == event.guild?.idLong }.keys.firstOrNull()
     event.guild?.let(BotUtils::updateActivity)
-    withLoggingContext("command" to commandName) {
+    withLoggingContext("command" to commandName, "session-id" to sessionId) {
       tech.gdragon.commands.logger.info {
         "Executing command: $commandName"
       }
