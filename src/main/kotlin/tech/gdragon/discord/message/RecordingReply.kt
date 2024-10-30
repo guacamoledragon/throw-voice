@@ -64,8 +64,8 @@ class RecordingReply(recording: Recording, appBaseUrl: String) {
       value = size
       inline = true
     }
-    // Only show if not blank and is a local link
-    if (recordingUrl.isNotBlank() && recordingUrl.startsWith("file://")) {
+    // Only is a local link or Discord upload
+    if (recordingUrl.startsWith("https://media.discordapp.net") || recordingUrl.startsWith("file://")) {
       field {
         name = "Recording Location"
         value = recordingUrl
