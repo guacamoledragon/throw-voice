@@ -60,3 +60,5 @@ prod.properties
 
 .cpcache
 pawalite-data/
+desktop.ini
+drivers/
