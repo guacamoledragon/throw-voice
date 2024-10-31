@@ -14,9 +14,9 @@ import java.time.Duration
 class RecordingReply(recording: Recording, appBaseUrl: String) {
   private val guildId = recording.readValues[Tables.Recordings.guild].value
   private val sessionId = recording.id.value
-  private val createdOn = formatInstant(recording.createdOn)
-  private val expiresOn = formatInstant(recording.createdOn.plus(Duration.ofDays(1L)))
-  private val speakers = recording.speakers.joinToString { it.asMention }
+  private val createdOn = formatShortDateTime(recording.createdOn)
+  private val expiresOn = formatRelativeTime(recording.createdOn.plus(Duration.ofDays(1L)))
+  private val speakers = recording.speakers.joinToString { it.asMention }.ifBlank { "N/A" }
   private val duration = recording.duration.let {
     if (it.isZero) {
       "???"

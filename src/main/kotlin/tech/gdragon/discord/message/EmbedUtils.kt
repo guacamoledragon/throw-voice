@@ -1,14 +1,17 @@
 package tech.gdragon.discord.message
 
 import java.time.Instant
-import java.time.LocalDateTime
-import java.time.ZoneOffset
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 
-fun formatInstant(instant: Instant): String {
-  val localDateTime = LocalDateTime.ofInstant(instant, ZoneOffset.UTC)
-  val formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
+/**
+ * Convert [Instant] to formatted date time e.g. April 20, 2021 2:20 PM
+ *
+ * See: https://discord.com/developers/docs/reference#message-formatting-timestamp-styles
+ */
+fun formatShortDateTime(instant: Instant): String = "<t:${instant.epochSecond}:f>"
 
-  return "${localDateTime.format(formatter)} UTC"
-}
+/**
+ * Convert [Instant] to relative time e.g. 2 months ago
+ *
+ * See: https://discord.com/developers/docs/reference#message-formatting-timestamp-styles
+ */
+fun formatRelativeTime(instant: Instant): String = "<t:${instant.epochSecond}:R>"
