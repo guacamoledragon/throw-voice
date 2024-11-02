@@ -34,7 +34,6 @@ import tech.gdragon.db.now
 import tech.gdragon.discord.message.ErrorEmbed
 import tech.gdragon.discord.message.RecordingReply
 import tech.gdragon.discord.message.RequestAccessReply
-import tech.gdragon.koin.getStringProperty
 import tech.gdragon.message.commands.RecoverRecordingCommand
 
 class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
@@ -70,9 +69,8 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
         RecoverRecordingCommand.EVENT_NAME == event.name -> {
           event.deferReply().queue()
 
-          val dataDirectory = getKoin().getStringProperty("BOT_DATA_DIR")
           val datastore = getKoin().get<Datastore>()
-          val recoverRecordingCommand = RecoverRecordingCommand(pawa, dataDirectory, datastore, event.target.contentRaw)
+          val recoverRecordingCommand = RecoverRecordingCommand(pawa, datastore, event.target.contentRaw)
 
           event.target.addReaction(Emoji.fromUnicode("👀")).queue()
           if (recoverRecordingCommand.results.isEmpty()) {
