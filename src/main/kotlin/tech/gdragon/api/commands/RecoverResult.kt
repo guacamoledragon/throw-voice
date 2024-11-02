@@ -31,4 +31,4 @@ fun safeFile(baseDir: String, filename: String): File {
   }
 }
 
-data class RecoverResult(val id: String, val recording: Recording?, val error: String? = null)
+data class RecoverResult(val id: String, val recording: Recording?, val error: String? = "")
