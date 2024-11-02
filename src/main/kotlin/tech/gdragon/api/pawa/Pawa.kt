@@ -3,7 +3,9 @@ package tech.gdragon.api.pawa
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.dsl.module
+import tech.gdragon.api.commands.RecoverResult
 import tech.gdragon.api.commands.safeFile
+import tech.gdragon.api.tape.extractDuration
 import tech.gdragon.api.tape.queueFileIntoMp3
 import tech.gdragon.data.Datastore
 import tech.gdragon.db.Database
@@ -13,7 +15,9 @@ import tech.gdragon.discord.Command
 import tech.gdragon.i18n.Babel
 import tech.gdragon.i18n.Lang
 import tech.gdragon.koin.getBooleanProperty
+import java.io.File
 import java.math.BigDecimal
+import java.util.*
 
 class Pawa(val db: Database, val config: PawaConfig = PawaConfig.invoke()) {
   companion object {
@@ -21,6 +25,7 @@ class Pawa(val db: Database, val config: PawaConfig = PawaConfig.invoke()) {
       single<Pawa> {
         val config = PawaConfig {
           appUrl = getProperty("APP_URL", "")
+          dataDirectory = getProperty("BOT_DATA_DIR", "")
           isStandalone = getBooleanProperty("BOT_STANDALONE")
         }
         Pawa(get(), config)
