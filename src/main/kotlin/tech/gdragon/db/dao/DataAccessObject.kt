@@ -113,6 +113,11 @@ class Recording(id: EntityID<String>) : Entity<String>(id) {
     }
   }
 
+  fun expired(): Boolean {
+    // TODO: Implement
+    return false
+  }
+
   val createdOn by Recordings.createdOn
 
   var channel by Channel referencedOn Recordings.channel
