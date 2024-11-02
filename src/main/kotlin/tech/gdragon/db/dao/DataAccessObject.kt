@@ -14,6 +14,8 @@ import tech.gdragon.db.table.Tables.Channels
 import tech.gdragon.db.table.Tables.Guilds
 import tech.gdragon.db.table.Tables.Recordings
 import java.time.Duration
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 import tech.gdragon.db.table.Tables.Settings as SettingsTable
 
 class Alias(id: EntityID<Int>) : IntEntity(id) {
@@ -114,8 +116,7 @@ class Recording(id: EntityID<String>) : Entity<String>(id) {
   }
 
   fun expired(): Boolean {
-    // TODO: Implement
-    return false
+    return modifiedOn?.plus(24, ChronoUnit.HOURS)?.isBefore(Instant.now()) ?: false
   }
 
   val createdOn by Recordings.createdOn
