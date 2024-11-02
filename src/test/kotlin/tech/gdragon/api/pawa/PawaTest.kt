@@ -122,17 +122,18 @@ fun pawaTests(db: Database, ds: Datastore, isStandalone: Boolean) = funSpec {
     }
 
     test("it should return recovered Recording when URL does not exist") {
-      val dataDirectory = tempdir()
+      val dataDirectory = pawa.config.dataDirectory
+      val sessionId = ULID.random()
+
+      // Create queue file
+      Files.createDirectories(File(dataDirectory, "recordings").toPath())
+      QueueFile(File(dataDirectory, "recordings/$sessionId.queue"))
+
       val record = transaction(db.database) {
         val guild = Guild.findOrCreate(guildId, "Test Guild")
         val channel = Channel.findOrCreate(1L, "fake-voice-channel", guildId)
-        val id = ULID.random()
 
-        // Create queue file
-        Files.createDirectories(File(dataDirectory, "recordings").toPath())
-        QueueFile(File(dataDirectory, "recordings/$id.queue"))
-
-        Recording.new(id) {
+        Recording.new(sessionId) {
           this.channel = channel
           this.guild = guild
         }
