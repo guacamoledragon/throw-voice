@@ -5,6 +5,7 @@ import dev.minn.jda.ktx.interactions.commands.Command
 import dev.minn.jda.ktx.interactions.commands.option
 import dev.minn.jda.ktx.interactions.commands.restrict
 import dev.minn.jda.ktx.interactions.components.getOption
+import io.github.oshai.kotlinlogging.withLoggingContext
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent
 import org.koin.core.context.GlobalContext
 import tech.gdragon.BotUtils.TRIGOMAN
@@ -12,7 +13,6 @@ import tech.gdragon.api.pawa.Pawa
 import tech.gdragon.data.Datastore
 import tech.gdragon.discord.message.ErrorEmbed
 import tech.gdragon.discord.message.RecordingReply
-import tech.gdragon.koin.getStringProperty
 
 object Recover {
   val command = Command("recover", "Recover a recording that failed to upload.") {
@@ -26,20 +26,22 @@ object Recover {
     if (TRIGOMAN == event.user.idLong || pawa.isStandalone) {
       val koin = GlobalContext.get()
       val datastore = koin.get<Datastore>()
-      val dataDirectory = koin.getStringProperty("BOT_DATA_DIR")
 
       // Reply to the user, the upcoming request requires database interaction
       event.deferReply(true).queue()
-      val recording = pawa.recoverRecording(dataDirectory, datastore, sessionId)
+      val result = withLoggingContext("session-id" to sessionId) {
+        pawa.recoverRecording(datastore, sessionId)
+      }
 
       val interaction =
-        if (recording == null) {
-          val errorEmbed = ErrorEmbed("Recording Not Found", "Couldn't find recording with Session ID:\n ```\n$sessionId```")
+        if (result.recording == null) {
+          result.error
+          val errorEmbed = ErrorEmbed("Failed to Recover: $sessionId", "```\n${result.error}```")
           event
             .hook
             .sendMessage(errorEmbed.message)
         } else {
-          val embed = RecordingReply(recording, pawa.config.appUrl)
+          val embed = RecordingReply(result.recording, pawa.config.appUrl, result.error)
 
           event
             .hook

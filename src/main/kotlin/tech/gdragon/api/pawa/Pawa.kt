@@ -166,18 +166,21 @@ class Pawa(val db: Database, val config: PawaConfig = PawaConfig.invoke()) {
   }
 
   /**
-   * Given the Session ID, return the database record, or re-upload recording if it exists.
+   * Attempt recovery of a SessionID by:
+   *   * Re-uploading MP3
+   *   * Converting Queue file to MP3 _then_ uploading
+   *   * If file was not found, re-send the URL (could be a Discord upload)
    * If recording cannot be recovered, return null.
    */
-  fun recoverRecording(dataDirectory: String, datastore: Datastore, sessionId: String): Recording? {
+  fun recoverRecording(datastore: Datastore, sessionId: String): RecoverResult {
 
     // Attempt to recover regardless of whether there's a database recording
-    val mp3File = safeFile("$dataDirectory/recordings", "$sessionId.mp3")
-    val queueFile = safeFile("$dataDirectory/recordings", "$sessionId.queue")
+    val mp3File = safeFile("${config.dataDirectory}/recordings", "$sessionId.mp3")
+    val queueFile = safeFile("${config.dataDirectory}/recordings", "$sessionId.queue")
 
-    val recoverMp3: Boolean = when {
+    val mp3Exists: Boolean = when {
       mp3File.exists() -> {
-        logger.info { "Recovering $sessionId from mp3 file." }
+        logger.info { "Recovering from mp3 file." }
         true
       }
 
@@ -189,7 +192,7 @@ class Pawa(val db: Database, val config: PawaConfig = PawaConfig.invoke()) {
 
       queueFile.exists().not() && mp3File.exists().not() -> {
         logger.warn {
-          "Recovering $sessionId failed, could not find mp3 or queue file."
+          "Recovering failed, could not find mp3 or queue file."
         }
         false
       }
@@ -197,35 +200,57 @@ class Pawa(val db: Database, val config: PawaConfig = PawaConfig.invoke()) {
       else -> false
     }
 
+    val result =
+      if (mp3Exists) {
+        val recording = uploadRecording(sessionId, mp3File, datastore)
+        RecoverResult(sessionId, recording)
+      } else {
+
+        val recording = transaction {
+          Recording.findById(sessionId)
+        }
+
+        when {
+          true == recording?.url?.contains("discord://") -> RecoverResult(sessionId, recording)
+          true == recording?.expired() -> RecoverResult(sessionId, recording, ":warning: Recording expired.")
+          else -> RecoverResult(sessionId, recording, "No recording with that Session ID")
+        }
+      }
+
+    return result
+  }
+
+  fun uploadRecording(sessionId: String, mp3File: File, datastore: Datastore): Recording? {
     val recording = transaction {
       Recording.findById(sessionId)
     }
 
-    if (!recoverMp3) {
-      // Could not find mp3 or queue file
-      // In this case, we return a message and whatever we got from the recording
-      return null
-    } else {
-      recording?.let {
-        if (!it.url.isNullOrBlank()) {
-          logger.info {
-            "Recovering recording with URL: ${it.url}"
-          }
-        }
+    return recording?.let {
+      transaction {
+        logger.info { "Re-uploading recording" }
+        val result = datastore.upload("${it.guild.id.value}/${mp3File.name}", mp3File)
 
-        transaction {
-          val result = datastore.upload("${it.guild.id.value}/${mp3File.name}", mp3File)
-          it.apply {
-            size = result.size
-            modifiedOn = this.modifiedOn ?: result.timestamp
-            url = result.url
-          }
+        it.apply {
+          size = result.size
+          modifiedOn = this.modifiedOn ?: result.timestamp
+          url = result.url
+          duration = extractDuration(mp3File)
         }
-      } ?: logger.warn {
-        "Recording $sessionId was not found."
+      }
+    } ?: transaction {
+      Guild.findById(408795211901173762L)?.let {
+        logger.info { "Uploading recording and creating dummy Recording record." }
+        val result = datastore.upload("${it.id.value}/${mp3File.name}", mp3File)
+
+        Recording.new(sessionId) {
+          channel = Channel.findOrCreate(776694242840019016L, "prolonged-testing", 408795211901173762L)
+          guild = it
+          size = result.size
+          modifiedOn = result.timestamp
+          url = result.url
+          duration = extractDuration(mp3File)
+        }
       }
     }
-
-    return recording
   }
 }

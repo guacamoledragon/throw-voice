@@ -72,12 +72,12 @@ fun pawaTests(db: Database, ds: Datastore, isStandalone: Boolean) = funSpec {
 
   context("when recover") {
     test("it should return null when Session ID doesn't exist") {
-      val recording = pawa.recoverRecording("./", ds, "fake-session-id")
+      val result = pawa.recoverRecording(ds, "fake-session-id")
 
-      recording.shouldBeNull()
+      result.recording.shouldBeNull()
     }
 
-    test("it should return null when queue and mp3 files are missing") {
+    test("it should return record when it exists even when queue and mp3 files are missing") {
       val record = transaction(db.database) {
         val guild = Guild.findOrCreate(guildId, "Test Guild")
         val channel = Channel.findOrCreate(1L, "fake-voice-channel", guildId)
@@ -87,10 +87,10 @@ fun pawaTests(db: Database, ds: Datastore, isStandalone: Boolean) = funSpec {
           this.guild = guild
         }
       }
-      val recording = pawa.recoverRecording("./", ds, record.id.value)
+      val result = pawa.recoverRecording(ds, record.id.value)
 
       record.shouldNotBeNull()
-      recording.shouldBeNull()
+      result.recording.shouldNotBeNull()
     }
 
     test("it should return existing Recording if MP3 exists") {
@@ -112,11 +112,11 @@ fun pawaTests(db: Database, ds: Datastore, isStandalone: Boolean) = funSpec {
           url = "https://fake-link.com"
         }
       }
-      val recording = pawa.recoverRecording(dataDirectory.path, ds, record.id.value)
+      val result = pawa.recoverRecording(ds, record.id.value)
 
-      recording.shouldNotBeNull()
-      recording.id.shouldBe(record.id)
-      recording.url.shouldNotBe(record.url)
+      result.recording.shouldNotBeNull()
+      result.recording.id.shouldBe(record.id)
+      result.recording.url.shouldNotBe(record.url)
     }
 
     test("it should return recovered Recording when URL does not exist") {
@@ -135,11 +135,11 @@ fun pawaTests(db: Database, ds: Datastore, isStandalone: Boolean) = funSpec {
           this.guild = guild
         }
       }
-      val recording = pawa.recoverRecording(dataDirectory.path, ds, record.id.value)
+      val result = pawa.recoverRecording(ds, record.id.value)
 
-      recording.shouldNotBeNull()
-      recording.id.shouldBe(record.id)
-      recording.url.shouldNotBe(record.url)
+      result.recording.shouldNotBeNull()
+      result.recording.id.shouldBe(record.id)
+      result.recording.url.shouldNotBe(record.url)
     }
   }
 }
