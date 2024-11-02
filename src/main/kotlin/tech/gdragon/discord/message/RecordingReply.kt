@@ -11,7 +11,7 @@ import tech.gdragon.db.table.Tables
 import java.awt.Color
 import java.time.Duration
 
-class RecordingReply(recording: Recording, appBaseUrl: String) {
+class RecordingReply(recording: Recording, appBaseUrl: String, description: String? = "Here's your recording, enjoy!") {
   private val guildId = recording.readValues[Tables.Recordings.guild].value
   private val sessionId = recording.id.value
   private val createdOn = formatShortDateTime(recording.createdOn)
@@ -35,7 +35,7 @@ class RecordingReply(recording: Recording, appBaseUrl: String) {
 
   val embed = Embed {
     title = "Session ID: `$sessionId`"
-    description = "Here's your recording, enjoy!"
+    this.description = description
     color = Color.decode("#596800").rgb
     field {
       name = "Created On"
