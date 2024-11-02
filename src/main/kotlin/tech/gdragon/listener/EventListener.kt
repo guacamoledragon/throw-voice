@@ -1,5 +1,6 @@
 package tech.gdragon.listener
 
+import dev.minn.jda.ktx.interactions.components.getOption
 import dev.minn.jda.ktx.messages.send
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.oshai.kotlinlogging.withLoggingContext
@@ -33,7 +34,7 @@ import tech.gdragon.db.now
 import tech.gdragon.discord.message.ErrorEmbed
 import tech.gdragon.discord.message.RecordingReply
 import tech.gdragon.discord.message.RequestAccessReply
-import tech.gdragon.koin.getStringProperty
+import tech.gdragon.message.commands.RecoverRecordingCommand
 
 class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
 
@@ -63,66 +64,55 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
   }
 
   override fun onMessageContextInteraction(event: MessageContextInteractionEvent) {
-    if ((pawa.isStandalone || event.user.idLong == TRIGOMAN) && event.name == "Recover Recording") {
-      event.target.run {
-        val sessionIds = BotUtils.findSessionID(contentRaw)
-        val dataDirectory = getKoin().getStringProperty("BOT_DATA_DIR")
-        val datastore = getKoin().get<Datastore>()
+    if (pawa.isStandalone || event.user.idLong == TRIGOMAN) {
+      when {
+        RecoverRecordingCommand.EVENT_NAME == event.name -> {
+          event.deferReply().queue()
 
-        val failedSessionIds = mutableSetOf<String>()
-        author
-          .openPrivateChannel()
-          .flatMap { channel ->
-            event.deferReply().queue()
+          val datastore = getKoin().get<Datastore>()
+          val recoverRecordingCommand = RecoverRecordingCommand(pawa, datastore, event.target.contentRaw)
 
-            val actions = sessionIds
-              .toSet()
-              .mapNotNull {
-                val recording = pawa.recoverRecording(dataDirectory, datastore, it)
+          event.target.addReaction(Emoji.fromUnicode("👀")).queue()
+          if (recoverRecordingCommand.results.isEmpty()) {
+            event.hook.send("No Session IDs in message found.").queue()
+            event.target.addReaction(Emoji.fromUnicode("❌")).queue()
+          } else {
+            val privateMessageAction = event.target.author
+              .openPrivateChannel()
+              .flatMap { privateChannel ->
+                val successfulReplies = recoverRecordingCommand
+                  .successfulRecordings()
+                  .map { RecordingReply(it.recording!!, pawa.config.appUrl).message }
+                  .map(privateChannel::sendMessage)
+                val failedReply = privateChannel
+                  .sendMessage(ErrorEmbed(
+                    "Recording Not Found",
+                    "Could not find these Session ID:\n ```${
+                      recoverRecordingCommand.failedRecordings().joinToString("\n") { it.id }
+                    }```\n If this is a mistake, contact support server."
+                  ).message)
 
-                // Side-effect for later
-                if (recording == null) {
-                  failedSessionIds.add(it)
-                }
-
-                recording
+                RestAction.allOf(successfulReplies + failedReply)
               }
-              .map { RecordingReply(it, pawa.config.appUrl).message }
-              .map(channel::sendMessage)
 
-            RestAction.allOf(actions + addReaction(Emoji.fromUnicode("👀")))
+            privateMessageAction.queue({
+              val message = """
+                |${event.target.author.asMention} Please check your DMs :bow:
+                |$recoverRecordingCommand
+              """.trimMargin()
+
+              event.hook.send(message).queue()
+              event.target.addReaction(Emoji.fromUnicode("✅")).queue()
+            }, {
+              event.hook.send("Failed to DM ${event.target.author.asMention} about recovered recordings.").queue()
+            })
           }
-          .queue({
-            val recovered = (sessionIds - failedSessionIds).joinToString("\n") { s -> ":white_check_mark: `$s`" }
-            val unrecovered = failedSessionIds.joinToString("\n") { s -> ":x: `$s`" }
-            val message = if (it.isEmpty()) {
-              addReaction(Emoji.fromUnicode("❌")).queue()
-              "No recordings found."
-            } else {
-              """
-                ${author.asMention} Please check your DMs :bow:
-                $recovered
-                $unrecovered
-              """.trimIndent()
-            }
-
-            event
-              .hook
-              .send(message)
-              .queue()
-            addReaction(Emoji.fromUnicode("✅")).queue()
-          },
-          {
-            event
-              .hook
-              .send("Failed to DM ${author.asMention} about recovered recordings.")
-              .queue()
-          })
+        }
       }
     } else {
       val errorEmbed = ErrorEmbed(
-        "You cannot use \"Recover Recording\" command.",
-        "Join the support server and post your SessionID."
+        "You cannot use \"${event.name}\" command.",
+        "Join the support server and post your Session ID."
       )
       event
         .reply(errorEmbed.message)
@@ -348,8 +338,10 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
 
   override fun onSlashCommandInteraction(event: SlashCommandInteractionEvent) {
     val commandName = event.interaction.name
+    val sessionId = event.interaction.getOption<String>("session-id") ?:
+      pawa.recordings.filterValues { it == event.guild?.idLong }.keys.firstOrNull()
     event.guild?.let(BotUtils::updateActivity)
-    withLoggingContext("command" to commandName) {
+    withLoggingContext("command" to commandName, "session-id" to sessionId) {
       tech.gdragon.commands.logger.info {
         "Executing command: $commandName"
       }

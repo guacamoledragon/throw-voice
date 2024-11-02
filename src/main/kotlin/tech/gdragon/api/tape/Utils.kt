@@ -8,6 +8,7 @@ import org.jaudiotagger.audio.mp3.MP3File
 import org.jaudiotagger.tag.FieldKey
 import java.io.File
 import java.io.FileOutputStream
+import java.time.Duration
 
 val logger = KotlinLogging.logger { }
 
@@ -43,3 +44,14 @@ fun addCommentToMp3(mp3: File, comment: String?) {
     }
   }
 }
+
+fun extractDuration(mp3: File): Duration =
+  try {
+    val audioFile = AudioFileIO.read(mp3) as MP3File
+    Duration.ofSeconds(audioFile.mP3AudioHeader.trackLength.toLong())
+  } catch (e: InvalidAudioFrameException) {
+    logger.warn(e) {
+      "Could not extract duration from audio header."
+    }
+    Duration.ofSeconds(0L)
+  }

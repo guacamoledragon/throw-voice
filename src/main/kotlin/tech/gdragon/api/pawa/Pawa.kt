@@ -3,6 +3,9 @@ package tech.gdragon.api.pawa
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.dsl.module
+import tech.gdragon.api.commands.RecoverResult
+import tech.gdragon.api.commands.safeFile
+import tech.gdragon.api.tape.extractDuration
 import tech.gdragon.api.tape.queueFileIntoMp3
 import tech.gdragon.data.Datastore
 import tech.gdragon.db.Database
@@ -14,6 +17,7 @@ import tech.gdragon.i18n.Lang
 import tech.gdragon.koin.getBooleanProperty
 import java.io.File
 import java.math.BigDecimal
+import java.util.*
 
 class Pawa(val db: Database, val config: PawaConfig = PawaConfig.invoke()) {
   companion object {
@@ -21,6 +25,7 @@ class Pawa(val db: Database, val config: PawaConfig = PawaConfig.invoke()) {
       single<Pawa> {
         val config = PawaConfig {
           appUrl = getProperty("APP_URL", "")
+          dataDirectory = getProperty("BOT_DATA_DIR", "")
           isStandalone = getBooleanProperty("BOT_STANDALONE")
         }
         Pawa(get(), config)
@@ -33,6 +38,9 @@ class Pawa(val db: Database, val config: PawaConfig = PawaConfig.invoke()) {
 
   private var _ignoredUsers: MutableMap<String, List<Long>> = mutableMapOf()
   private var _recordings: MutableMap<String, Long> = mutableMapOf()
+
+  val recordings: Map<String, Long>
+    get() = Collections.unmodifiableMap(_recordings)
 
   inline fun <reified T> translator(guildId: Long): T {
     val lang = transaction { Guild[guildId].settings.language }
@@ -158,54 +166,91 @@ class Pawa(val db: Database, val config: PawaConfig = PawaConfig.invoke()) {
   }
 
   /**
-   * Given the Session ID, return the database record, or re-upload recording if it exists.
+   * Attempt recovery of a SessionID by:
+   *   * Re-uploading MP3
+   *   * Converting Queue file to MP3 _then_ uploading
+   *   * If file was not found, re-send the URL (could be a Discord upload)
    * If recording cannot be recovered, return null.
    */
-  fun recoverRecording(dataDirectory: String, datastore: Datastore, sessionId: String): Recording? {
+  fun recoverRecording(datastore: Datastore, sessionId: String): RecoverResult {
+
+    // Attempt to recover regardless of whether there's a database recording
+    val mp3File = safeFile("${config.dataDirectory}/recordings", "$sessionId.mp3")
+    val queueFile = safeFile("${config.dataDirectory}/recordings", "$sessionId.queue")
+
+    val mp3Exists: Boolean = when {
+      mp3File.exists() -> {
+        logger.info { "Recovering from mp3 file." }
+        true
+      }
+
+      // This is a side effect
+      queueFile.exists() -> {
+        logger.info { "Recovering $sessionId from queue file." }
+        queueFileIntoMp3(queueFile, mp3File).exists()
+      }
+
+      queueFile.exists().not() && mp3File.exists().not() -> {
+        logger.warn {
+          "Recovering failed, could not find mp3 or queue file."
+        }
+        false
+      }
+
+      else -> false
+    }
+
+    val result =
+      if (mp3Exists) {
+        val recording = uploadRecording(sessionId, mp3File, datastore)
+        RecoverResult(sessionId, recording)
+      } else {
+
+        val recording = transaction {
+          Recording.findById(sessionId)
+        }
+
+        when {
+          true == recording?.url?.contains("discord://") -> RecoverResult(sessionId, recording)
+          true == recording?.expired() -> RecoverResult(sessionId, recording, ":warning: Recording expired.")
+          else -> RecoverResult(sessionId, recording, "No recording with that Session ID")
+        }
+      }
+
+    return result
+  }
+
+  fun uploadRecording(sessionId: String, mp3File: File, datastore: Datastore): Recording? {
     val recording = transaction {
       Recording.findById(sessionId)
     }
 
-    recording?.let {
-      if (!it.url.isNullOrBlank()) {
-        logger.info {
-          "Recovering recording with URL: ${it.url}"
-        }
-      }
-
-      val mp3File = File("$dataDirectory/recordings", "$sessionId.mp3")
-      val queueFile = File("$dataDirectory/recordings", "$sessionId.queue")
-
-      when {
-        mp3File.exists() -> {
-          logger.info { "Re-uploading $sessionId from existing mp3 file." }
-        }
-
-        queueFile.exists() -> {
-          logger.info { "Restoring $sessionId mp3 from queue file." }
-          queueFileIntoMp3(queueFile, mp3File)
-        }
-
-        queueFile.exists().not() && mp3File.exists().not() -> {
-          logger.warn {
-            "Recording $sessionId was not found."
-          }
-          return null
-        }
-      }
-
+    return recording?.let {
       transaction {
+        logger.info { "Re-uploading recording" }
         val result = datastore.upload("${it.guild.id.value}/${mp3File.name}", mp3File)
+
         it.apply {
           size = result.size
           modifiedOn = this.modifiedOn ?: result.timestamp
           url = result.url
+          duration = extractDuration(mp3File)
         }
       }
-    } ?: logger.warn {
-      "Recording $sessionId was not found."
-    }
+    } ?: transaction {
+      Guild.findById(408795211901173762L)?.let {
+        logger.info { "Uploading recording and creating dummy Recording record." }
+        val result = datastore.upload("${it.id.value}/${mp3File.name}", mp3File)
 
-    return recording
+        Recording.new(sessionId) {
+          channel = Channel.findOrCreate(776694242840019016L, "prolonged-testing", 408795211901173762L)
+          guild = it
+          size = result.size
+          modifiedOn = result.timestamp
+          url = result.url
+          duration = extractDuration(mp3File)
+        }
+      }
+    }
   }
 }

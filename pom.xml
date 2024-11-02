@@ -21,6 +21,7 @@
     <kotlin.version>2.0.20</kotlin.version>
     <kotest.version>5.9.1</kotest.version>
     <main.class>tech.gdragon.App</main.class>
+    <mockk.version>1.13.13</mockk.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <slf4j.version>2.0.9</slf4j.version>
     <log4j.version>2.24.0</log4j.version>
@@ -487,6 +488,12 @@
           <artifactId>kotlinx-coroutines-core-jvm</artifactId>
         </exclusion>
       </exclusions>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.mockk</groupId>
+      <artifactId>mockk-jvm</artifactId>
+      <version>${mockk.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

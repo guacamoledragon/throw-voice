@@ -11,7 +11,7 @@ import tech.gdragon.commands.CommandHandler
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.dao.Settings
 import tech.gdragon.db.table.Tables
-import tech.gdragon.discord.message.formatInstant
+import tech.gdragon.discord.message.formatShortDateTime
 import tech.gdragon.i18n.Lang
 import java.awt.Color
 import net.dv8tion.jda.api.entities.Guild as DiscordGuild
@@ -39,7 +39,7 @@ class Info : CommandHandler() {
           description = "${guild.name} server information"
           field {
             name = ":hatching_chick: Joined"
-            value = formatInstant(dateJoined)
+            value = formatShortDateTime(dateJoined)
             inline = false
           }
 

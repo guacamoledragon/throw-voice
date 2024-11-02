@@ -21,7 +21,7 @@ services:
     volumes:
       - ${BOT_DATA_DIR}:/app/data
     ports:
-      - 3000:3000
+      - "3000:3000"
     logging:
       <<: *logging
   datastore:
@@ -33,6 +33,6 @@ services:
     volumes:
       - ${BOT_DATA_DIR}:/data
     ports:
-      - 9000:9000
+      - "9000:9000"
     logging:
       <<: *logging

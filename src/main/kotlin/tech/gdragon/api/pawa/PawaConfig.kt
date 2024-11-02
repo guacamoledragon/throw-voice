@@ -2,6 +2,7 @@ package tech.gdragon.api.pawa
 
 class PawaConfig private constructor(
   val appUrl: String,
+  val dataDirectory: String,
   val isStandalone: Boolean
 ) {
 
@@ -10,6 +11,11 @@ class PawaConfig private constructor(
      * The URL of the pawa recordings app. Defaults to [https://app.pawa.im](https://app.pawa.im)
      */
     var appUrl: String = "",
+
+    /**
+     * The directory where Pawa will store all of its data, used for recordings and temporary files.
+     */
+    var dataDirectory: String = "",
 
     /**
      * Flag that determines if this instance is standalone. Defaults to `false`.
@@ -22,7 +28,8 @@ class PawaConfig private constructor(
       val builder = Builder().apply(body)
       return PawaConfig(
         appUrl = builder.appUrl.ifBlank { "discord://" },
-        isStandalone = builder.isStandalone ?: false,
+        dataDirectory = builder.dataDirectory.ifBlank { "./" },
+        isStandalone = builder.isStandalone ?: false
       )
     }
   }

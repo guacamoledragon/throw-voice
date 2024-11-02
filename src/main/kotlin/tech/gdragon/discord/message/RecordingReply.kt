@@ -11,12 +11,12 @@ import tech.gdragon.db.table.Tables
 import java.awt.Color
 import java.time.Duration
 
-class RecordingReply(recording: Recording, appBaseUrl: String) {
+class RecordingReply(recording: Recording, appBaseUrl: String, description: String? = "Here's your recording, enjoy!") {
   private val guildId = recording.readValues[Tables.Recordings.guild].value
   private val sessionId = recording.id.value
-  private val createdOn = formatInstant(recording.createdOn)
-  private val expiresOn = formatInstant(recording.createdOn.plus(Duration.ofDays(1L)))
-  private val speakers = recording.speakers.joinToString { it.asMention }
+  private val createdOn = formatShortDateTime(recording.createdOn)
+  private val expiresOn = formatRelativeTime(recording.createdOn.plus(Duration.ofDays(1L)))
+  private val speakers = recording.speakers.joinToString { it.asMention }.ifBlank { "N/A" }
   private val duration = recording.duration.let {
     if (it.isZero) {
       "???"
@@ -35,7 +35,7 @@ class RecordingReply(recording: Recording, appBaseUrl: String) {
 
   val embed = Embed {
     title = "Session ID: `$sessionId`"
-    description = "Here's your recording, enjoy!"
+    this.description = description
     color = Color.decode("#596800").rgb
     field {
       name = "Created On"
@@ -64,8 +64,8 @@ class RecordingReply(recording: Recording, appBaseUrl: String) {
       value = size
       inline = true
     }
-    // Only show if not blank and is a local link
-    if (recordingUrl.isNotBlank() && recordingUrl.startsWith("file://")) {
+    // Only is a local link or Discord upload
+    if (recordingUrl.startsWith("https://media.discordapp.net") || recordingUrl.startsWith("file://")) {
       field {
         name = "Recording Location"
         value = recordingUrl
