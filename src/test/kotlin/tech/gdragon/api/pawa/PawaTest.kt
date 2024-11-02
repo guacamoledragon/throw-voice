@@ -41,6 +41,7 @@ fun pawaTests(db: Database, ds: Datastore, isStandalone: Boolean) = funSpec {
 
     val config = PawaConfig {
       this.isStandalone = isStandalone
+      this.dataDirectory = tempdir().path
     }
 
     Pawa(db, config)
@@ -94,17 +95,18 @@ fun pawaTests(db: Database, ds: Datastore, isStandalone: Boolean) = funSpec {
     }
 
     test("it should return existing Recording if MP3 exists") {
-      val dataDirectory = tempdir()
+      val dataDirectory = pawa.config.dataDirectory
+      val sessionId = ULID.random()
+
+      // Create mp3 file
+      Files.createDirectories(File(dataDirectory, "recordings").toPath())
+      FileOutputStream(File(dataDirectory, "recordings/$sessionId.mp3")).close()
+
       val record = transaction(db.database) {
         val guild = Guild.findOrCreate(guildId, "Test Guild")
         val channel = Channel.findOrCreate(1L, "fake-voice-channel", guildId)
-        val id = ULID.random()
 
-        // Create mp3 file
-        Files.createDirectories(File(dataDirectory, "recordings").toPath())
-        FileOutputStream(File(dataDirectory, "recordings/$id.mp3")).close()
-
-        Recording.new(id) {
+        Recording.new(sessionId) {
           this.channel = channel
           this.guild = guild
           size = 1024
