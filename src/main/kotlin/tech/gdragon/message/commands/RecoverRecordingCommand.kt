@@ -1,11 +1,12 @@
 package tech.gdragon.message.commands
 
+import io.github.oshai.kotlinlogging.withLoggingContext
 import tech.gdragon.BotUtils
 import tech.gdragon.api.commands.RecoverResult
 import tech.gdragon.api.pawa.Pawa
 import tech.gdragon.data.Datastore
 
-class RecoverRecordingCommand(val pawa: Pawa, val dataDirectory: String, val datastore: Datastore, message: String) {
+class RecoverRecordingCommand(val pawa: Pawa, val datastore: Datastore, message: String) {
   companion object {
     const val EVENT_NAME = "Recover Recording"
   }
@@ -18,8 +19,9 @@ class RecoverRecordingCommand(val pawa: Pawa, val dataDirectory: String, val dat
     get() {
       if (_results.isEmpty()) {
         _results = sessionIds.map { id ->
-          val recording = pawa.recoverRecording(dataDirectory, datastore, id)
-          RecoverResult(id, recording)
+          withLoggingContext("session-id" to id) {
+            pawa.recoverRecording(datastore, id)
+          }
         }
       }
       return _results
@@ -32,7 +34,7 @@ class RecoverRecordingCommand(val pawa: Pawa, val dataDirectory: String, val dat
   override fun toString(): String {
     val listStatus = results.joinToString("\n") { result ->
       if(result.recording == null) {
-        ":x: `${result.id}`"
+        ":x: `${result.id}` _${result.error}_"
       } else {
         ":white_check_mark: `${result.id}`"
       }
