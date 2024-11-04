@@ -11,7 +11,7 @@
   </scm>
 
   <properties>
-    <exposed.version>0.55.0</exposed.version>
+    <exposed.version>0.56.0</exposed.version>
     <flyway.version>10.11.0</flyway.version>
     <jda.version>5.2.0</jda.version>
     <jda-ktx.version>0.11.0-beta.19</jda-ktx.version>
