@@ -26,6 +26,7 @@
     <slf4j.version>2.0.9</slf4j.version>
     <log4j.version>2.24.1</log4j.version>
     <otel.version>2.6.0</otel.version>
+    <surefire.version>3.3.1</surefire.version>
   </properties>
 
   <dependencyManagement>
@@ -567,7 +568,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>3.3.1</version>
+        <version>${surefire.version}</version>
         <configuration>
           <argLine>-XX:+EnableDynamicAgentLoading</argLine>
         </configuration>
@@ -600,6 +601,33 @@
   </repositories>
 
   <profiles>
+    <profile>
+      <id>coverage</id>
+      <reporting>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>${surefire.version}</version>
+            <configuration>
+              <argLine>@{argLine} -XX:+EnableDynamicAgentLoading</argLine>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+            <version>0.8.12</version>
+            <reportSets>
+              <reportSet>
+                <reports>
+                  <report>report</report>
+                </reports>
+              </reportSet>
+            </reportSets>
+          </plugin>
+        </plugins>
+      </reporting>
+    </profile>
     <profile>
       <id>lite</id>
       <build>

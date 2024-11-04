@@ -23,7 +23,7 @@ test:
     - name: docker:20.10.17-dind
       command: [ "--tls=false" ]
   script:
-    - mvn --batch-mode org.jacoco:jacoco-maven-plugin:prepare-agent test org.jacoco:jacoco-maven-plugin:report
+    - mvn -Pcoverage --batch-mode org.jacoco:jacoco-maven-plugin:prepare-agent test org.jacoco:jacoco-maven-plugin:report
     - awk -F"," '{ instructions += $4 + $5; covered += $5 } END { print "Total", 100*covered/instructions, "%" }' target/site/jacoco/jacoco.csv
   coverage: '/Total (\d+.\d+) %/'
   variables:
