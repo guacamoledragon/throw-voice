@@ -11,6 +11,7 @@
   </scm>
 
   <properties>
+    <argLine>-XX:+EnableDynamicAgentLoading</argLine>
     <exposed.version>0.56.0</exposed.version>
     <flyway.version>10.11.0</flyway.version>
     <jda.version>5.2.0</jda.version>
@@ -569,9 +570,6 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>${surefire.version}</version>
-        <configuration>
-          <argLine>-XX:+EnableDynamicAgentLoading</argLine>
-        </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -605,14 +603,6 @@
       <id>coverage</id>
       <reporting>
         <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <version>${surefire.version}</version>
-            <configuration>
-              <argLine>@{argLine} -XX:+EnableDynamicAgentLoading</argLine>
-            </configuration>
-          </plugin>
           <plugin>
             <groupId>org.jacoco</groupId>
             <artifactId>jacoco-maven-plugin</artifactId>
