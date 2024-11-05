@@ -4,25 +4,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [2.15.0] - 2024-11-04
 
 ### Added
-
+- Database index for Recordings table that includes both ID and Guild ID
+- Recording duration is also detected using JAudioTagger by reading the header
+- `PawaConfig` now includes `dataDirectory`
+- `/save-destination` slash command
+  - Will remove this in favour of a general `/config <subcommand>` style of slash commands
 
 ### Changed
-
-
-### Deprecated
-
+- Recording Reply embed contains times in Guild's locale so that people can see it in their local time
+- `/recover` command gives reason for recovery failure
+- Update the following dependencies:
+  - Bump aws.sdk.kotlin:s3-jvm from 1.2.38 to 1.3.66
+  - Bump aws.smithy.kotlin:http-client-engine-crt-jvm from 1.2.11 to 1.3.12
+  - Bump com.fasterxml.jackson.core:jackson-databind from 2.17.1 to 2.18.0
+  - Bump exposed.version from 0.52.0 to 0.56.0
+  - Bump io.github.oshai:kotlin-logging-jvm from 6.0.9 to 7.0.0
+  - Bump io.opentelemetry:opentelemetry-bom from 1.39.0 to 1.40.0
+  - Bump jda.version from 5.0.0-beta.22 to 5.2.0
+  - Bump koin.version from 3.5.6 to 4.0.0
+  - Bump kotlin.version from 2.0.0 to 2.0.20
+  - Bump log4j.version from 2.23.1 to 2.24.1
+  - Bump org.apache.maven.plugins:maven-surefire-plugin from 3.2.5 to 3.3.1
+  - Bump org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm from 1.8.1 to 1.9.0
+  - Bump org.testcontainers:postgresql from 1.19.8 to 1.20.1
+  - Bump org.testcontainers:testcontainers from 1.19.8 to 1.20.3
+  - Bump otel.version from 2.5.0 to 2.8.0
 
 ### Removed
-
+- `Aliases.kt` dead code.
 
 ### Fixed
-
-
-### Security
-
+- Code that uses `JAudioTagger` is wrapped with exception handling
 
 ## [2.14.0] - 2024-07-01
 
@@ -401,7 +416,8 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 ### Fixed
 - Remove recording limits and warnings
 
-[Unreleased]: https://gitlab.com/pawabot/pawa/-/compare/v2.14.0...master
+[Unreleased]: https://gitlab.com/pawabot/pawa/-/compare/v2.15.0...master
+[2.15.0]: https://gitlab.com/pawabot/pawa/-/compare/v2.14.0...v2.15.0
 [2.14.0]: https://gitlab.com/pawabot/pawa/-/compare/v2.13.0...v2.14.0
 [2.13.0]: https://gitlab.com/pawabot/pawa/-/compare/v2.12.0...v2.13.0
 [2.12.0]: https://gitlab.com/pawabot/pawa/-/compare/v2.11.1...v2.12.0

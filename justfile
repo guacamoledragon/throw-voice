@@ -3,7 +3,7 @@ set dotenv-load := false
 
 docker-build:
   docker build \
-    --cache-from registry.gitlab.com/pawabot/pawa:2.14.0 \
+    --cache-from registry.gitlab.com/pawabot/pawa:2.15.0 \
     -t pawa:dev \
     --build-arg BUILD_DATE=(date now | format date "%FT%TZ") \
     --build-arg VCS_REF=(git rev-parse --short @) \

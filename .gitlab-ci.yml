@@ -1,5 +1,5 @@
 variables:
-  BOT_VERSION: 2.14.0
+  BOT_VERSION: 2.15.0
   MAVEN_OPTS: -Dmaven.repo.local=.m2/repository
 
 dependencies:
