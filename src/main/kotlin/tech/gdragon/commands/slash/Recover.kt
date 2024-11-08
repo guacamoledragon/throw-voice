@@ -1,5 +1,6 @@
 package tech.gdragon.commands.slash
 
+import dev.minn.jda.ktx.coroutines.await
 import dev.minn.jda.ktx.events.CoroutineEventListener
 import dev.minn.jda.ktx.interactions.commands.Command
 import dev.minn.jda.ktx.interactions.commands.option
@@ -28,7 +29,7 @@ object Recover {
       val datastore = koin.get<Datastore>()
 
       // Reply to the user, the upcoming request requires database interaction
-      event.deferReply(true).queue()
+      event.deferReply(true).await()
       val result = withLoggingContext("session-id" to sessionId) {
         pawa.recoverRecording(datastore, sessionId)
       }
@@ -48,7 +49,7 @@ object Recover {
             .sendMessage(embed.message)
         }
 
-      interaction.queue()
+      interaction.await()
     } else {
       val errorEmbed = ErrorEmbed(
         "You cannot use /recover command in this server.",
@@ -57,7 +58,7 @@ object Recover {
       event
         .reply(errorEmbed.message)
         .setEphemeral(true)
-        .queue()
+        .await()
     }
   }
 }
