@@ -1,5 +1,6 @@
 package tech.gdragon.commands.settings
 
+import dev.minn.jda.ktx.coroutines.await
 import dev.minn.jda.ktx.events.CoroutineEventListener
 import dev.minn.jda.ktx.interactions.commands.Command
 import dev.minn.jda.ktx.interactions.commands.option
@@ -26,8 +27,8 @@ class Ignore : CommandHandler() {
       event.guild?.let {
         val ignoredUserId = event.getOption("user")?.asUser?.idLong
         val message = handler(pawa, it, event.user.idLong, listOfNotNull(ignoredUserId))
-        event.reply(message).queue()
-      } ?: event.reply(":no_entry: _${Babel.slash(Lang.EN).inGuild}").queue()
+        event.reply(message).await()
+      } ?: event.reply(":no_entry: _${Babel.slash(Lang.EN).inGuild}").await()
     }
 
     private fun handler(pawa: Pawa, guild: DiscordGuild, authorId: Long, ignoredUserIds: List<Long>): String {
