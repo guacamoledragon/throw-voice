@@ -1,5 +1,6 @@
 package tech.gdragon.commands.audio
 
+import dev.minn.jda.ktx.coroutines.await
 import dev.minn.jda.ktx.events.CoroutineEventListener
 import dev.minn.jda.ktx.interactions.commands.Command
 import dev.minn.jda.ktx.messages.MessageCreate
@@ -42,7 +43,7 @@ class Stop : CommandHandler() {
 
     fun slashHandler(pawa: Pawa): suspend CoroutineEventListener.(GenericCommandInteractionEvent) -> Unit = { event ->
       event.guild?.let {
-        event.deferReply().queue()
+        event.deferReply().await()
         val message = handler(pawa, it, event.messageChannel)
         BotUtils.reply(event, MessageCreate(message))
       }
