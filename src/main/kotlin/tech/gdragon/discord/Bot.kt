@@ -216,8 +216,8 @@ class Bot(private val token: String, private val pawa: Pawa) {
                   ":mobile_phone_off::wave: _${translator.some(it.id)}_"
                 }
 
-              event.reply(replyMessage).queue()
-            } ?: event.reply("Error").queue()
+              event.reply(replyMessage).await()
+            } ?: event.reply("Error").await()
           }
         }
       }
