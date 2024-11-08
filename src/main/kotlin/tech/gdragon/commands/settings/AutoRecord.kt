@@ -1,5 +1,6 @@
 package tech.gdragon.commands.settings
 
+import dev.minn.jda.ktx.coroutines.await
 import dev.minn.jda.ktx.events.CoroutineEventListener
 import dev.minn.jda.ktx.interactions.commands.Command
 import dev.minn.jda.ktx.interactions.commands.option
@@ -33,13 +34,13 @@ class AutoRecord : CommandHandler() {
 
       event.guild?.let {
         if (pawa.isStandalone) {
-          event.reply(handler(pawa, it.idLong, listOf(audioChannel), threshold)).queue()
+          event.reply(handler(pawa, it.idLong, listOf(audioChannel), threshold)).await()
         } else {
           val errorEmbed = ErrorEmbed(
             "You cannot use /autorecord command in this server.",
             "This command is only available for PawaLite, visit support server for more information."
           )
-          event.reply(errorEmbed.message).queue()
+          event.reply(errorEmbed.message).await()
         }
       }
     }
