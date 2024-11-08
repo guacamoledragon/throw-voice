@@ -229,12 +229,12 @@ class Bot(private val token: String, private val pawa: Pawa) {
           event.guild?.let {
             event
               .replyEmbeds(Info.retrieveInfo(it))
-              .queue()
+              .await()
           }
         } else {
           event
             .reply(":no_entry: _Must be in a server to run this command!_")
-            .queue()
+            .await()
         }
       }
       onCommand(Language.command.name, consumer = Language.slashHandler(pawa))
