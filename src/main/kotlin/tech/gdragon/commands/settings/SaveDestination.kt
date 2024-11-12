@@ -1,5 +1,6 @@
 package tech.gdragon.commands.settings
 
+import dev.minn.jda.ktx.coroutines.await
 import dev.minn.jda.ktx.events.CoroutineEventListener
 import dev.minn.jda.ktx.interactions.commands.Command
 import dev.minn.jda.ktx.interactions.commands.option
@@ -26,7 +27,7 @@ object SaveDestination {
   }
 
   fun slashHandler(pawa: Pawa): suspend CoroutineEventListener.(GenericCommandInteractionEvent) -> Unit = { event ->
-    event.deferReply().queue()
+    event.deferReply().await()
 
     val destinationChannel = event.getOption<TextChannel>("destination")!!
     val disable = event.getOption<Boolean>("disable") ?: false

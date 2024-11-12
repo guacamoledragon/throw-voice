@@ -1,5 +1,6 @@
 package tech.gdragon.discord
 
+import dev.minn.jda.ktx.coroutines.await
 import dev.minn.jda.ktx.events.onCommand
 import dev.minn.jda.ktx.interactions.commands.message
 import dev.minn.jda.ktx.interactions.commands.updateCommands
@@ -186,9 +187,9 @@ class Bot(private val token: String, private val pawa: Pawa) {
             pawa
               .createAlias(it.idLong, command, alias)
               ?.let {
-                event.reply(":dancers: _${translator.new(alias, commandName)}_").queue()
+                event.reply(":dancers: _${translator.new(alias, commandName)}_").await()
               }
-              ?: event.reply(":no_entry_sign: _${translator.invalid(commandName)}_").queue()
+              ?: event.reply(":no_entry_sign: _${translator.invalid(commandName)}_").await()
           } else {
             logger.error {
               "No command or alias was provided"
@@ -215,8 +216,8 @@ class Bot(private val token: String, private val pawa: Pawa) {
                   ":mobile_phone_off::wave: _${translator.some(it.id)}_"
                 }
 
-              event.reply(replyMessage).queue()
-            } ?: event.reply("Error").queue()
+              event.reply(replyMessage).await()
+            } ?: event.reply("Error").await()
           }
         }
       }
@@ -228,12 +229,12 @@ class Bot(private val token: String, private val pawa: Pawa) {
           event.guild?.let {
             event
               .replyEmbeds(Info.retrieveInfo(it))
-              .queue()
+              .await()
           }
         } else {
           event
             .reply(":no_entry: _Must be in a server to run this command!_")
-            .queue()
+            .await()
         }
       }
       onCommand(Language.command.name, consumer = Language.slashHandler(pawa))

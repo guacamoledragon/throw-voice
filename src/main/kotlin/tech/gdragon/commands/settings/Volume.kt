@@ -1,5 +1,6 @@
 package tech.gdragon.commands.settings
 
+import dev.minn.jda.ktx.coroutines.await
 import dev.minn.jda.ktx.events.CoroutineEventListener
 import dev.minn.jda.ktx.interactions.commands.Command
 import dev.minn.jda.ktx.interactions.commands.option
@@ -38,7 +39,7 @@ class Volume : CommandHandler() {
       event.guild?.let {
         val volume = event.getOption("volume")?.asLong!!
         val message = handler(pawa, it, volume)
-        event.reply(message).queue()
+        event.reply(message).await()
       }
     }
   }

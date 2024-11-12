@@ -1,5 +1,6 @@
 package tech.gdragon.commands.settings
 
+import dev.minn.jda.ktx.coroutines.await
 import dev.minn.jda.ktx.events.CoroutineEventListener
 import dev.minn.jda.ktx.interactions.commands.Command
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent
@@ -18,7 +19,7 @@ class AutoSave : CommandHandler() {
 
     fun slashHandler(pawa: Pawa): suspend CoroutineEventListener.(GenericCommandInteractionEvent) -> Unit = { event ->
       event.guild?.let { guild ->
-        event.reply(handler(pawa, guild.idLong)).queue()
+        event.reply(handler(pawa, guild.idLong)).await()
       }
     }
 
