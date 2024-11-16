@@ -26,10 +26,28 @@
         </Delete>
       </DefaultRolloverStrategy>
     </RollingRandomAccessFile>
+    <RollingRandomAccessFile
+      name="ApplicationLogs"
+      fileName="${baseDir}/app.log"
+      filePattern="${baseDir}/$${date:yyyy-MM}/app-%d{MM-dd-yyyy}-%i.log">
+      <PatternLayout pattern="${globalPattern}" charset="UTF-8"/>
+      <Policies>
+        <TimeBasedTriggeringPolicy/>
+        <SizeBasedTriggeringPolicy size="1 MB"/>
+      </Policies>
+      <DefaultRolloverStrategy max="5">
+        <Delete basePath="${baseDir}" maxDepth="2">
+          <IfFileName glob="*/app-*.log"/>
+          <IfLastModified age="30d"/>
+          <IfAccumulatedFileSize exceeds="64 MB"/>
+        </Delete>
+      </DefaultRolloverStrategy>
+    </RollingRandomAccessFile>
   </Appenders>
   <Loggers>
     <Root level="${log.level}">
-      <AppenderRef ref="Console" />
+      <AppenderRef ref="Console"/>
+      <AppenderRef ref="ApplicationLogs"/>
     </Root>
     <Logger name="Exposed" level="${log.level}" additivity="false">
       <AppenderRef ref="DatabaseLogs"/>
