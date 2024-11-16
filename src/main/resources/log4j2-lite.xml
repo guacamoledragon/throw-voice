@@ -45,9 +45,13 @@
     </RollingRandomAccessFile>
   </Appenders>
   <Loggers>
-    <Root level="${log.level}">
-      <AppenderRef ref="Console"/>
-      <AppenderRef ref="ApplicationLogs"/>
+    <Root level="trace">
+      <AppenderRef ref="Console">
+        <ThresholdFilter level="info"/>
+      </AppenderRef>
+      <AppenderRef ref="ApplicationLogs">
+        <ThresholdFilter level="${log.level}"/>
+      </AppenderRef>
     </Root>
     <Logger name="Exposed" level="${log.level}" additivity="false">
       <AppenderRef ref="DatabaseLogs"/>
