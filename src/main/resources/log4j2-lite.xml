@@ -5,6 +5,7 @@
       %d{YYYY-MM-dd'T'HH:mm:ssZ} [%level] %logger{1.} - %X{jda.shard} %mdc{session-id} %mdc{guild}#%mdc{text-channel}: %msg%n
     </Property>
     <Property name="baseDir">logs</Property>
+    <Property name="log.level">${env:LOG_LEVEL:-info}</Property>
   </Properties>
   <Appenders>
     <Console name="Console">
@@ -27,10 +28,10 @@
     </RollingRandomAccessFile>
   </Appenders>
   <Loggers>
-    <Root level="info">
+    <Root level="${log.level}">
       <AppenderRef ref="Console" />
     </Root>
-    <Logger name="Exposed" level="info" additivity="false">
+    <Logger name="Exposed" level="${log.level}" additivity="false">
       <AppenderRef ref="DatabaseLogs"/>
     </Logger>
     <Logger name="org.flywaydb.core.internal" level="info" additivity="false">
