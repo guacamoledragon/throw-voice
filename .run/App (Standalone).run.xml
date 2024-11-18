@@ -3,6 +3,7 @@
     <envs>
       <env name="BOT_STANDALONE" value="true" />
       <env name="OVERRIDE_FILE" value="dev-standalone.properties" />
+      <env name="LOG_LEVEL" value="debug" />
     </envs>
     <option name="MAIN_CLASS_NAME" value="tech.gdragon.App" />
     <module name="pawa" />

@@ -226,18 +226,28 @@ class CombinedAudioRecorderHandler(
       }
       .observeOn(Schedulers.io())
       .collectInto(queueFile) { queue, bytes ->
-
         while (!standalone && recordingSize + bytes.size > MAX_RECORDING_SIZE) {
           recordingSize -= queue?.peek()?.size ?: 0
           queue?.remove()
         }
 
-        try {
-          queue?.add(bytes)
-          recordingSize += bytes.size
-        } catch (e: IOException) {
-          logger.warn {
-            "${e.message} - Queue file has been closed: $session"
+        withLoggingContext("session-id" to session) {
+          try {
+            queue?.add(bytes)
+            recordingSize += bytes.size
+            logger.debug {
+              "Recording size: ${recordingSize / 1024 / 1024} MB"
+            }
+            logger.debug {
+              "Queue file size: ${(queue.fileBuffer.length()) / 1024 / 1024} MB"
+            }
+          } catch (e: IOException) {
+            logger.warn {
+              "${e.message} - Queue file has been closed: $session"
+            }
+            logger.debug(e) {
+              "${e.message} - Queue file has been closed: $session"
+            }
           }
         }
       }
@@ -274,7 +284,7 @@ class CombinedAudioRecorderHandler(
         "guild.id" to voiceChannel.guild.id,
         "text-channel" to voiceChannel.name,
         "session-id" to this.session,
-        "recording.size-mb" to (recordingSize * 1024 * 1024).toString()
+        "recording.size-mb" to (recordingSize / 1024 / 1024).toString()
       ) {
         val recordingFile = queueFile.let {
           logger.info { "Completed recording: $session, queue file size: ${it.size()}" }
