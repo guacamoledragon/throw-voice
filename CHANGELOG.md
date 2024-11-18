@@ -4,25 +4,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [2.15.1] - 2024-11-18
 
 ### Added
-
+- Use the `LOG_LEVEL` environment variable to set the logging level.
 
 ### Changed
-
-
-### Deprecated
-
-
-### Removed
-
-
-### Fixed
-
-
-### Security
-
+- Update the following dependencies:
+  - Bump aws.smithy.kotlin:http-client-engine-crt-jvm from 1.3.12 to 1.3.23
+  - Bump io.opentelemetry:opentelemetry-bom from 1.40.0 to 1.44.1
+  - Bump jda-ktx from 0.11.0-beta.19 to 0.12.0
+  - Bump jda.version from 5.2.0 to 5.2.1
+  - Bump kotlin.version from 2.0.20 to 2.0.21
+  - Bump nrepl:nrepl from 1.2.0 to 1.3.0
+  - Bump org.postgresql:postgresql from 42.7.3 to 42.7.4
 
 ## [2.15.0] - 2024-11-04
 
@@ -436,7 +431,7 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 ### Fixed
 - Remove recording limits and warnings
 
-[Unreleased]: https://gitlab.com/pawabot/pawa/-/compare/v2.15.0...master
+[2.15.1]: https://gitlab.com/pawabot/pawa/-/compare/v2.15.0...v2.15.1
 [2.15.0]: https://gitlab.com/pawabot/pawa/-/compare/v2.14.0...v2.15.0
 [2.14.0]: https://gitlab.com/pawabot/pawa/-/compare/v2.13.0...v2.14.0
 [2.13.0]: https://gitlab.com/pawabot/pawa/-/compare/v2.12.0...v2.13.0
