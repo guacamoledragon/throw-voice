@@ -14,7 +14,7 @@
     <argLine>-XX:+EnableDynamicAgentLoading</argLine>
     <exposed.version>0.56.0</exposed.version>
     <flyway.version>10.11.0</flyway.version>
-    <jda.version>5.2.3</jda.version>
+    <jda.version>5.3.0</jda.version>
     <jda-ktx.version>0.12.0</jda-ktx.version>
     <koin.version>4.0.0</koin.version>
     <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
