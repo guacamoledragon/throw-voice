@@ -14,7 +14,7 @@
     <argLine>-XX:+EnableDynamicAgentLoading</argLine>
     <exposed.version>0.56.0</exposed.version>
     <flyway.version>10.11.0</flyway.version>
-    <jda.version>5.2.1</jda.version>
+    <jda.version>5.3.0</jda.version>
     <jda-ktx.version>0.12.0</jda-ktx.version>
     <koin.version>4.0.0</koin.version>
     <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
@@ -22,12 +22,12 @@
     <kotlin.version>2.0.21</kotlin.version>
     <kotest.version>5.9.1</kotest.version>
     <main.class>tech.gdragon.App</main.class>
-    <mockk.version>1.13.13</mockk.version>
+    <mockk.version>1.14.2</mockk.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <slf4j.version>2.0.9</slf4j.version>
     <log4j.version>2.24.1</log4j.version>
     <otel.version>2.6.0</otel.version>
-    <surefire.version>3.3.1</surefire.version>
+    <surefire.version>3.5.2</surefire.version>
   </properties>
 
   <dependencyManagement>
@@ -53,12 +53,12 @@
     <dependency>
       <groupId>aws.smithy.kotlin</groupId>
       <artifactId>http-client-engine-crt-jvm</artifactId>
-      <version>1.4.3</version>
+      <version>1.3.23</version>
     </dependency>
     <dependency>
       <groupId>aws.sdk.kotlin</groupId>
       <artifactId>s3-jvm</artifactId>
-      <version>1.4.20</version>
+      <version>1.3.66</version>
       <exclusions>
         <exclusion>
           <artifactId>slf4j-api</artifactId>
@@ -405,7 +405,7 @@
     <dependency>
       <groupId>com.github.ben-manes.caffeine</groupId>
       <artifactId>caffeine</artifactId>
-      <version>3.1.8</version>
+      <version>3.2.0</version>
       <exclusions>
         <exclusion>
           <groupId>org.checkerframework</groupId>
