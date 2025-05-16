@@ -16,7 +16,7 @@
     <flyway.version>10.11.0</flyway.version>
     <jda.version>5.5.1</jda.version>
     <jda-ktx.version>0.12.0</jda-ktx.version>
-    <koin.version>4.0.0</koin.version>
+    <koin.version>4.0.4</koin.version>
     <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
     <kotlin.compiler.jvmTarget>21</kotlin.compiler.jvmTarget>
     <kotlin.version>2.0.21</kotlin.version>
