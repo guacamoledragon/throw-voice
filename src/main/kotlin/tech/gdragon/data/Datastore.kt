@@ -67,6 +67,7 @@ class S3Datastore(
       accessKeyId = accessKey
       secretAccessKey = secretKey
     }
+    forcePathStyle = true
   }
 
   private val retryPolicy: RetryPolicy<Unit> = RetryPolicy<Unit>()
