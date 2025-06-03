@@ -1,20 +1,19 @@
 package tech.gdragon.data
 
+import aws.sdk.kotlin.services.s3.model.GetObjectRequest
+import aws.smithy.kotlin.runtime.content.decodeToString
 import io.kotest.core.annotation.EnabledCondition
 import io.kotest.core.annotation.EnabledIf
 import io.kotest.core.annotation.Tags
 import io.kotest.core.spec.Spec
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import kotlinx.coroutines.runBlocking
 import java.io.File
 import kotlin.reflect.KClass
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
-import aws.sdk.kotlin.services.s3.headObject
-import aws.sdk.kotlin.services.s3.model.GetObjectRequest
-import aws.smithy.kotlin.runtime.content.decodeToString
-import io.kotest.matchers.shouldNotBe
 
 @OptIn(ExperimentalUuidApi::class)
 @Tags("integration")

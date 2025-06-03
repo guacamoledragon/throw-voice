@@ -22,7 +22,7 @@ docker-run:
 minio-start:
   docker run --rm -it --name minio -p 9090:9000 -p 9091:9091 \
   -e MINIO_ROOT_USER=minio -e MINIO_ROOT_PASSWORD=password -e MINIO_CONSOLE_ADDRESS=:9091 \
-  minio/minio:RELEASE.2024-06-22T05-26-45Z \
+  minio/minio:RELEASE.2025-05-24T17-08-30Z \
   server /opt/data
 
 package-pawalite:
