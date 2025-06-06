@@ -19,7 +19,7 @@
     <koin.version>4.0.4</koin.version>
     <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
     <kotlin.compiler.jvmTarget>21</kotlin.compiler.jvmTarget>
-    <kotlin.version>2.0.21</kotlin.version>
+    <kotlin.version>2.1.21</kotlin.version>
     <kotest.version>5.9.1</kotest.version>
     <main.class>tech.gdragon.App</main.class>
     <mockk.version>1.14.2</mockk.version>
