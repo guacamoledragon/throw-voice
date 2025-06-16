@@ -35,7 +35,7 @@ pg-backup password='password' port='5432':
   -e PGPASSWORD={{ password }} \
   postgres:17.2-alpine /bin/sh -c \
   'pg_dump -h host.docker.internal -p {{ port }} -U postgres settings' \
-  | save --raw $"(date now | date format "%Y-%m-%d")-settings.db"
+  | save --raw $"(date now | format date "%Y-%m-%d")-settings.db"
 
 # Apply Postgres DB migrations, expects password and optional port
 pg-migrate password='password' port='5432':
