@@ -73,7 +73,7 @@ object BotUtils {
         val autoRecord = it
         logger.debug { "AutoRecord value: $autoRecord" }
 
-        if (channelMemberCount >= autoRecord) {
+        if (autoRecord in 1..channelMemberCount) {
           val messageChannel = defaultTextChannel(guild) ?: channel.asGuildMessageChannel()
 
           withLoggingContext("guild" to guild.name, "voice-channel" to channel.name) {
