@@ -31,7 +31,9 @@ package-pawalite:
 
 # Generate a backup of the Settings table on an instance of PostgresQL
 pg-backup password='password' port='5432':
-  docker run --rm -it --entrypoint= -e PGPASSWORD={{ password }} postgres@sha256:b6a3459825427f08ab886545c64d4e5754aa425c5eea678d5359f06a9bf7faab /bin/sh -c \
+  docker run --rm -it --entrypoint= \
+  -e PGPASSWORD={{ password }} \
+  postgres:17.2-alpine /bin/sh -c \
   'pg_dump -h host.docker.internal -p {{ port }} -U postgres settings' \
   | save --raw $"(date now | date format "%Y-%m-%d")-settings.db"
 
@@ -52,7 +54,10 @@ pg-port-forward:
 
 # Restores a backup of the Settings table on an instance of PostgresQL
 pg-restore backup password='password' port='5432':
-  docker run --rm -it --entrypoint= -e PGPASSWORD={{ password }} -v {{ backup }}:/tmp/backup.db postgres@sha256:b6a3459825427f08ab886545c64d4e5754aa425c5eea678d5359f06a9bf7faab bash -c \
+  docker run --rm -it --entrypoint= \
+  -e PGPASSWORD={{ password }} \
+  -v {{ backup }}:/tmp/backup.db \ # Not working because of the path
+  postgres:17.2-alpine bash -c \
   'psql -h host.docker.internal -p {{ port }} -U postgres settings < /tmp/backup.db'
 
 # Start local PostgresQL instance for development
@@ -60,7 +65,7 @@ pg-start:
   docker run -it --rm --cpus 1.0 --name postgres -p 5432:5432 \
   -e POSTGRES_PASSWORD=password -e POSTGRES_DB=settings \
   -v pgdata:/var/lib/postgresql/data -v ($env.PWD + "/data/db-logs:/logs") \
-  postgres:13
+  postgres:17.2-alpine
 
 recover-mp3 id:
   scp pawa.im:/opt/pawa/data/recordings/{{ id }}.mp3 .
