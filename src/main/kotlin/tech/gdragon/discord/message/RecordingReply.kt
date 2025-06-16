@@ -74,11 +74,13 @@ class RecordingReply(recording: Recording, appBaseUrl: String, description: Stri
     }
   }
 
+  val component = row(
+    link(appRecordingUrl, label = "View Recording", disabled = appBaseUrl.startsWith("discord://")),
+    link(voteUrl, label = "Vote", emoji = Emoji.fromUnicode("❤"))
+  )
+
   val message = MessageCreate {
     embeds += embed
-    components += row(
-      link(appRecordingUrl, label = "View Recording", disabled = appBaseUrl.startsWith("discord://")),
-      link(voteUrl, label = "Vote", emoji = Emoji.fromUnicode("❤"))
-    )
+    components += component
   }
 }
