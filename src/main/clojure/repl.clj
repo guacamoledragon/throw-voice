@@ -188,7 +188,7 @@
 (comment
   ;; Leave inactive guilds, from Discord bot
   (def inactive-guild-ids
-    (-> "/app/data/inactive-guilds-dec.txt"
+    (-> "/app/data/inactive-guilds.txt"
         slurp
         str/split-lines))
   (def whitelist-guilds
