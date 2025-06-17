@@ -7,6 +7,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.oshai.kotlinlogging.withLoggingContext
 import net.dv8tion.jda.api.audio.AudioReceiveHandler
 import net.dv8tion.jda.api.audio.CombinedAudio
+import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel
@@ -14,6 +15,7 @@ import org.apache.commons.io.FileUtils
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import tech.gdragon.BotUtils
 import tech.gdragon.api.pawa.Pawa
 import tech.gdragon.api.tape.addCommentToMp3
 import tech.gdragon.api.tape.queueFileIntoMp3
@@ -278,6 +280,12 @@ abstract class BaseAudioRecorder(
   }
 
   fun silenceUser(userId: Long) = silencedUsers.add(userId)
+
+  fun uploadAttachment(messageChannel: MessageChannel, recordingFile: File, filename: String): Message? {
+    return if (recordingFile.length() < Message.MAX_FILE_SIZE)
+      BotUtils.uploadFile(messageChannel, recordingFile, filename)
+    else null
+  }
 
   // AudioReceiveHandler implementation
   override fun canReceiveUser(): Boolean = false

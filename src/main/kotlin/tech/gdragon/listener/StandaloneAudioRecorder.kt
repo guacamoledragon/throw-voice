@@ -11,23 +11,25 @@ import java.io.File
 /**
  * Standalone audio recorder with no size limits, AFK detection, or shared server features.
  */
-class StandaloneAudioRecorder(volume: Double, voiceChannel: AudioChannel, messageChannel: MessageChannel) : BaseAudioRecorder(volume, voiceChannel, messageChannel) {
+class StandaloneAudioRecorder(volume: Double, voiceChannel: AudioChannel, messageChannel: MessageChannel) :
+  BaseAudioRecorder(volume, voiceChannel, messageChannel) {
 
-  override fun shouldProcessAudio(audioData: AudioData): Boolean {
-    // No AFK detection in standalone mode
-    return true
-  }
+  /**
+   * Always true, skip AFK detection
+   */
+  override fun shouldProcessAudio(audioData: AudioData): Boolean = true
 
-  override fun handleSizeLimit(queue: QueueFile, dataToWrite: ByteArray) {
-    // No size limits in standalone mode
-  }
+  /**
+   * No-op, no size limits in standalone mode
+   */
+  override fun handleSizeLimit(queue: QueueFile, dataToWrite: ByteArray) {}
 
-  override fun onAudioDataWritten(bytesWritten: Int) {
-    // No size tracking needed in standalone mode
-  }
+  /**
+   * No-op, no size tracking needed in standalone mode
+   */
+  override fun onAudioDataWritten(bytesWritten: Int) {}
 
   override fun uploadRecording(recordingFile: File, voiceChannel: AudioChannel, messageChannel: MessageChannel) {
-    // Always upload to datastore in standalone mode
     try {
       val filename = "${voiceChannel.name}-${dtf.print(nowUTC())}.$fileFormat"
       val recordingKey = "${voiceChannel.guild.id}/$filename"
@@ -43,9 +45,12 @@ class StandaloneAudioRecorder(volume: Double, voiceChannel: AudioChannel, messag
         }
       }
 
+      uploadAttachment(messageChannel, recordingFile, filename)
+
       // Send simple message with direct file URL
       val message = """|:microphone2: **Recording for <#${voiceChannel.id}> has been uploaded!**
-                            |`${result.url}`""".trimMargin()
+                       |`${result.url}`
+                       |""".trimMargin()
 
       tech.gdragon.BotUtils.sendMessage(messageChannel, message)
 
@@ -58,9 +63,9 @@ class StandaloneAudioRecorder(volume: Double, voiceChannel: AudioChannel, messag
 
     } catch (e: Exception) {
       logger.error(e) { "Error uploading recording: $session" }
-      val errorMessage =
-        """|:no_entry_sign: _Error uploading recording, please visit support server and provide Session ID._
-                                 |_Session ID: `$session`_""".trimMargin()
+      val errorMessage = """|:no_entry_sign: _Error uploading recording, please visit support server and provide Session ID._
+                            |_Session ID: `$session`_
+                            |""".trimMargin()
       tech.gdragon.BotUtils.sendMessage(messageChannel, errorMessage)
     }
   }

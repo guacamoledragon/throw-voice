@@ -2,6 +2,7 @@ package tech.gdragon.listener
 
 import com.squareup.tape.QueueFile
 import io.github.oshai.kotlinlogging.withLoggingContext
+import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -16,10 +17,10 @@ class SharedAudioRecorder(volume: Double, voiceChannel: AudioChannel, messageCha
 
   companion object {
     private const val AFK_MINUTES = 2
-    private const val AFK_LIMIT = (AFK_MINUTES * 60 * 1000) / 20  // 2 minutes in 20ms increments
+    private const val AFK_LIMIT = (AFK_MINUTES * 60 * 1000) / 20          // 2 minutes in 20ms increments
     private const val MAX_RECORDING_MB = 256L
-    private const val MAX_RECORDING_SIZE = MAX_RECORDING_MB * 1024 * 1024  // 256MB
-    private const val DISCORD_MAX_RECORDING_SIZE = 25 * 1024 * 1024L  // 25MB
+    private const val MAX_RECORDING_SIZE = MAX_RECORDING_MB * 1024 * 1024 // 256MB
+    private const val DISCORD_MAX_RECORDING_SIZE = Message.MAX_FILE_SIZE
   }
 
   private val afkCounter = java.util.concurrent.atomic.AtomicInteger(0)
@@ -87,10 +88,7 @@ class SharedAudioRecorder(volume: Double, voiceChannel: AudioChannel, messageCha
     try {
       val filename = recordingFile.name
 
-      // Try Discord upload first if file is small enough
-      val attachment = if (recordingFile.length() < DISCORD_MAX_RECORDING_SIZE) {
-        tech.gdragon.BotUtils.uploadFile(messageChannel, recordingFile, filename)?.attachments?.first()
-      } else null
+      val attachment = uploadAttachment(messageChannel, recordingFile, filename)?.attachments?.first()
 
       if (recordingFile.length() >= DISCORD_MAX_RECORDING_SIZE) {
         // Upload to datastore for large files
