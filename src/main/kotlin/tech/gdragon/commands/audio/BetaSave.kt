@@ -15,7 +15,7 @@ import tech.gdragon.listener.StandaloneAudioRecorder
 
 object BetaSave {
   val logger = KotlinLogging.logger { }
-  val command = Command("beta-save", "save")
+  val command = Command("save", "Stop and save current recording.")
 
   fun handler(pawa: Pawa): suspend CoroutineEventListener.(GenericCommandInteractionEvent) -> Unit = { event ->
     val audioManager: AudioManager = event.guild!!.audioManager

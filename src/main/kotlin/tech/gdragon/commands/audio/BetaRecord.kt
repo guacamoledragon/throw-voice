@@ -12,7 +12,7 @@ import tech.gdragon.listener.SharedAudioRecorder
 import tech.gdragon.listener.StandaloneAudioRecorder
 
 object BetaRecord {
-  val command = Command("beta-record", "test")
+  val command = Command("record", "Start recording voice channel.")
 
   fun handler(pawa: Pawa): suspend CoroutineEventListener.(GenericCommandInteractionEvent) -> Unit = { event ->
     val textChannel = event.messageChannel
