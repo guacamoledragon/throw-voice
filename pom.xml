@@ -60,7 +60,7 @@
     <dependency>
       <groupId>aws.smithy.kotlin</groupId>
       <artifactId>http-client-engine-crt-jvm</artifactId>
-      <version>1.3.34</version>
+      <version>1.5.12</version>
     </dependency>
     <dependency>
       <groupId>aws.sdk.kotlin</groupId>
