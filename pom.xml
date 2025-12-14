@@ -65,7 +65,7 @@
     <dependency>
       <groupId>aws.sdk.kotlin</groupId>
       <artifactId>s3-jvm</artifactId>
-      <version>1.5.87</version>
+      <version>1.5.88</version>
       <exclusions>
         <exclusion>
           <artifactId>slf4j-api</artifactId>
