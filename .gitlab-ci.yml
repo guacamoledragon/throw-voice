@@ -3,7 +3,7 @@ variables:
   MAVEN_OPTS: -Dmaven.repo.local=.m2/repository
 
 dependencies:
-  image: maven:3.8.6-eclipse-temurin-17-alpine
+  image: maven:3.9.9-eclipse-temurin-25-alpine
   only:
     changes: &code-changes
       - Dockerfile
@@ -16,7 +16,7 @@ dependencies:
   stage: .pre
 
 test:
-  image: maven:3.9.7-eclipse-temurin-21-alpine
+  image: maven:3.9.9-eclipse-temurin-25-alpine
   only:
     changes: *code-changes
   script:
