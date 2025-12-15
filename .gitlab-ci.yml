@@ -22,7 +22,7 @@ test:
   script:
     - mvn -Pcoverage --batch-mode org.jacoco:jacoco-maven-plugin:prepare-agent test org.jacoco:jacoco-maven-plugin:report
     - awk -F"," '{ instructions += $4 + $5; covered += $5 } END { print "Total", 100*covered/instructions, "%" }' target/site/jacoco/jacoco.csv
-  coverage: "/Total (\d+.\d+) %/"
+  coverage: '/Total (\d+.\d+) %/'
   variables:
     DOCKER_DRIVER: overlay2
     DS_BASEURL: "https://download.pawa.im/dev"
