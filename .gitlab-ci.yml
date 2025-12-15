@@ -17,14 +17,17 @@ dependencies:
 
 test:
   image: maven:3.9.7-eclipse-temurin-21-alpine
-  only:
-    changes: *code-changes
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "web"
+    - if: $CI_PIPELINE_SOURCE == "push"
+      changes: *code-changes
   script:
     - mvn -Pcoverage --batch-mode org.jacoco:jacoco-maven-plugin:prepare-agent test org.jacoco:jacoco-maven-plugin:report
     - awk -F"," '{ instructions += $4 + $5; covered += $5 } END { print "Total", 100*covered/instructions, "%" }' target/site/jacoco/jacoco.csv
   coverage: '/Total (\d+.\d+) %/'
   variables:
-    DOCKER_DRIVER: overlay2
+    # Testcontainers: access containers via host network
+    TESTCONTAINERS_HOST_OVERRIDE: "host.docker.internal"
     DS_BASEURL: "https://download.pawa.im/dev"
     DS_BUCKET: "dev-recordings"
     DS_HOST: "https://s3.us-west-001.backblazeb2.com"
