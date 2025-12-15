@@ -8,7 +8,7 @@ cache: &maven-cache
     - .m2/repository/
 
 dependencies:
-  image: maven:3.9.9-eclipse-temurin-25-alpine
+  image: maven:3.9-eclipse-temurin-25-alpine
   only:
     changes: &code-changes
       - Dockerfile
@@ -24,7 +24,7 @@ dependencies:
     policy: push
 
 test:
-  image: maven:3.9.9-eclipse-temurin-25-alpine
+  image: maven:3.9-eclipse-temurin-25-alpine
   only:
     changes: *code-changes
   cache:

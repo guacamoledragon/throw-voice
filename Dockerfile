@@ -7,7 +7,7 @@ ENV SDK_VERSION 2.3.0
 
 RUN curl -Lo agent.jar https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v${SDK_VERSION}/opentelemetry-javaagent.jar
 
-FROM maven:3.9.9-eclipse-temurin-25-alpine as builder
+FROM maven:3.9-eclipse-temurin-25-alpine as builder
 
 WORKDIR /app
 
