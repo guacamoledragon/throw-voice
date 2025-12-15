@@ -20,7 +20,7 @@ test:
   only:
     changes: *code-changes
   services:
-    - name: docker:20.10.17-dind
+    - name: docker:27-dind
       command: [ "--tls=false" ]
   script:
     - mvn -Pcoverage --batch-mode org.jacoco:jacoco-maven-plugin:prepare-agent test org.jacoco:jacoco-maven-plugin:report
@@ -44,7 +44,7 @@ test:
   stage: test
 
 container:
-  image: docker:20.10.17
+  image: docker:27
   cache: {}
   rules:
     - if: $CI_COMMIT_REF_NAME == 'master'
@@ -52,7 +52,7 @@ container:
     - if: $CI_COMMIT_TAG
       changes: *code-changes
   services:
-    - docker:20.10.17-dind
+    - docker:27-dind
   script:
     - '[ -n "$CI_COMMIT_TAG" ] && VERSION=${CI_COMMIT_TAG#"v"} || VERSION=${BOT_VERSION}-${CI_COMMIT_SHORT_SHA}'
     - BUILD_DATE=$(date -u +%FT%TZ)
