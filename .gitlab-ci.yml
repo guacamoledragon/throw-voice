@@ -18,24 +18,12 @@ dependencies:
 test:
   image: maven:3.9.7-eclipse-temurin-21-alpine
   rules:
-    - if: $CI_PIPELINE_SOURCE == "web"
-    - if: $CI_PIPELINE_SOURCE == "push"
       changes: *code-changes
-  services:
-    - name: docker:27-dind
-      command: [ "--tls=false" ]
   script:
     - mvn -Pcoverage --batch-mode org.jacoco:jacoco-maven-plugin:prepare-agent test org.jacoco:jacoco-maven-plugin:report
     - awk -F"," '{ instructions += $4 + $5; covered += $5 } END { print "Total", 100*covered/instructions, "%" }' target/site/jacoco/jacoco.csv
-  coverage: '/Total (\d+.\d+) %/'
+  coverage: "/Total (\d+.\d+) %/"
   variables:
-    # Instruct Testcontainers to use the daemon of DinD
-    DOCKER_HOST: "tcp://docker:2375"
-    # Tell Testcontainers that the Docker host is the 'docker' service
-    TESTCONTAINERS_HOST_OVERRIDE: "docker"
-    # Instruct Docker not to start over TLS
-    DOCKER_TLS_CERTDIR: ""
-    # Improve performance with overlayfs
     DOCKER_DRIVER: overlay2
     DS_BASEURL: "https://download.pawa.im/dev"
     DS_BUCKET: "dev-recordings"
