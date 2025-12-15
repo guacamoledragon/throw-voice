@@ -69,7 +69,7 @@ container:
     DOCKER_TLS_CERTDIR: /certs
 
 coverage:
-  image: registry.gitlab.com/haynes/jacoco2cobertura:1.0.9
+  image: haynes/jacoco2cobertura:1.0.11
   cache: {}
   only:
     changes: *code-changes
