@@ -17,8 +17,10 @@ dependencies:
 
 test:
   image: maven:3.9.7-eclipse-temurin-21-alpine
-  only:
-    changes: *code-changes
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "web"
+    - if: $CI_PIPELINE_SOURCE == "push"
+      changes: *code-changes
   services:
     - name: docker:27-dind
       command: [ "--tls=false" ]
