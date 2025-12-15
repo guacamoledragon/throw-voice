@@ -17,8 +17,8 @@ dependencies:
 
 test:
   image: maven:3.9.7-eclipse-temurin-21-alpine
-  rules:
-      changes: *code-changes
+  only:
+    changes: *code-changes
   script:
     - mvn -Pcoverage --batch-mode org.jacoco:jacoco-maven-plugin:prepare-agent test org.jacoco:jacoco-maven-plugin:report
     - awk -F"," '{ instructions += $4 + $5; covered += $5 } END { print "Total", 100*covered/instructions, "%" }' target/site/jacoco/jacoco.csv
