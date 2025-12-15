@@ -2,6 +2,11 @@ variables:
   BOT_VERSION: 2.15.1
   MAVEN_OPTS: -Dmaven.repo.local=.m2/repository
 
+cache: &maven-cache
+  key: maven-$CI_COMMIT_REF_SLUG
+  paths:
+    - .m2/repository/
+
 dependencies:
   image: maven:3.9.9-eclipse-temurin-25-alpine
   only:
@@ -14,11 +19,17 @@ dependencies:
   script:
     - mvn --batch-mode de.qaware.maven:go-offline-maven-plugin:resolve-dependencies
   stage: .pre
+  cache:
+    <<: *maven-cache
+    policy: push
 
 test:
   image: maven:3.9.9-eclipse-temurin-25-alpine
   only:
     changes: *code-changes
+  cache:
+    <<: *maven-cache
+    policy: pull
   script:
     - mvn -Pcoverage --batch-mode org.jacoco:jacoco-maven-plugin:prepare-agent test org.jacoco:jacoco-maven-plugin:report
     - awk -F"," '{ instructions += $4 + $5; covered += $5 } END { print "Total", 100*covered/instructions, "%" }' target/site/jacoco/jacoco.csv
