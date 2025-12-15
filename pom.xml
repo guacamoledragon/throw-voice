@@ -19,7 +19,7 @@
     <koin.version>4.0.4</koin.version>
     <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
     <kotlin.compiler.jvmTarget>21</kotlin.compiler.jvmTarget>
-    <kotlin.version>2.1.21</kotlin.version>
+    <kotlin.version>2.2.21</kotlin.version>
     <kotest.version>5.9.1</kotest.version>
     <main.class>tech.gdragon.App</main.class>
     <mockk.version>1.14.2</mockk.version>
@@ -35,7 +35,7 @@
       <dependency>
         <groupId>io.opentelemetry</groupId>
         <artifactId>opentelemetry-bom</artifactId>
-        <version>1.50.0</version>
+        <version>1.56.0</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -49,7 +49,7 @@
       <dependency>
         <groupId>org.testcontainers</groupId>
         <artifactId>testcontainers-bom</artifactId>
-        <version>1.21.0</version>
+        <version>2.0.2</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -65,7 +65,7 @@
     <dependency>
       <groupId>aws.sdk.kotlin</groupId>
       <artifactId>s3-jvm</artifactId>
-      <version>1.5.87</version>
+      <version>1.5.88</version>
       <exclusions>
         <exclusion>
           <artifactId>slf4j-api</artifactId>
@@ -137,7 +137,7 @@
     <dependency>
       <groupId>io.github.oshai</groupId>
       <artifactId>kotlin-logging-jvm</artifactId>
-      <version>7.0.0</version>
+      <version>7.0.13</version>
       <exclusions>
         <exclusion>
           <groupId>org.jetbrains.kotlin</groupId>
@@ -412,7 +412,7 @@
     <dependency>
       <groupId>com.github.ben-manes.caffeine</groupId>
       <artifactId>caffeine</artifactId>
-      <version>3.2.0</version>
+      <version>3.2.3</version>
       <exclusions>
         <exclusion>
           <groupId>org.checkerframework</groupId>
@@ -422,13 +422,25 @@
     </dependency>
 
     <dependency>
-      <groupId>org.testcontainers</groupId>
-      <artifactId>postgresql</artifactId>
+      <groupId>com.github.docker-java</groupId>
+      <artifactId>docker-java-api</artifactId>
+      <version>3.7.0</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.github.docker-java</groupId>
+      <artifactId>docker-java-transport-zerodep</artifactId>
+      <version>3.7.0</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.testcontainers</groupId>
-      <artifactId>minio</artifactId>
+      <artifactId>testcontainers-postgresql</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>testcontainers-minio</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
