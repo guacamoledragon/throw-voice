@@ -61,13 +61,35 @@ Uses `Lang` enum and `Babel` to get translated strings.
 
 ## Progress Tracker
 
-- [ ] Step 1: Create `RecordingStartedMessage` class
-- [ ] Step 2: Add button interaction handler to `EventListener.kt`
-- [ ] Step 3: Update `Record.kt` to use new message class
-- [ ] Step 4: Update `BotUtils.kt` autoRecord and sendMessage
+- [x] Step 1: Create `RecordingStartedMessage` class
+- [x] Step 2: Add button interaction handler to `EventListener.kt`
+- [x] Step 3: Update `Record.kt` to use new message class
+- [x] Step 4: Update `BotUtils.kt` autoRecord and sendMessage
 
 ---
 
-## Notes
+## Implementation Notes
 
-(Append implementation notes here as we go)
+### Commits Made
+
+1. `d49b162` - Add implementation plan for recover action button
+2. `a50ff54` - Add RecordingStartedMessage class with recover button
+3. `58d7b77` - Add button interaction handler for recover action
+4. `05ebc4a` - Update Record.kt to return MessageCreateData with RecordingStartedMessage
+5. `0bcb0d0` - Update BotUtils.kt with sendMessage overload and RecordingStartedMessage in autoRecord
+
+### Additional Changes
+
+- Added `language(guildId: Long): Lang` function to `Pawa.kt` to expose the language enum for use in `RecordingStartedMessage`
+- Changed `Record.handler()` return type from `String` to `MessageCreateData`
+- Updated `BotUtils.reply()` call in `Record.slashHandler()` to pass `MessageCreateData` directly (no longer wrapping with `MessageCreate()`)
+
+### Button ID Format
+
+The button uses `customId = "recover:$sessionId"` format, where:
+- `recover` is the prefix (stored in `RecordingStartedMessage.BUTTON_ID_PREFIX`)
+- `sessionId` is the ULID of the recording session
+
+### Security Note
+
+The button interaction handler checks if the bot is currently in a voice call before allowing recovery. If the bot is still connected (recording in progress), it replies with a warning message instead of attempting recovery.
