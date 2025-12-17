@@ -33,7 +33,7 @@ open class Pawa(val db: Database, val config: PawaConfig = PawaConfig.invoke()) 
     }
   }
 
-  val isStandalone by lazy { config.isStandalone }
+  val isStandalone = config.isStandalone
   val logger = KotlinLogging.logger { }
 
   private var _ignoredUsers: MutableMap<String, List<Long>> = mutableMapOf()

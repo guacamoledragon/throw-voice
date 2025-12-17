@@ -18,7 +18,6 @@ import tech.gdragon.db.dao.Recording
 
 class RecoverRecordingCommandTest : FunSpec({
 
-  // Create real instances to avoid MockK issues with class mocking on Java 25
   val db: Database = mockk(relaxed = true)
   val config = PawaConfig { dataDirectory = "/tmp" }
   val datastore: Datastore = mockk<LocalDatastore>(relaxed = true)
@@ -26,7 +25,6 @@ class RecoverRecordingCommandTest : FunSpec({
 
   test("returns valid recovered results when message has a valid Session ID") {
     val sessionId = ULID.random()
-    // Create a test-specific subclass that overrides the method
     val pawa = object : Pawa(db, config) {
       override fun recoverRecording(datastore: Datastore, sessionId: String) =
         RecoverResult(sessionId, recording, null)
