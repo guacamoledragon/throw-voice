@@ -4,6 +4,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.15.1] - 2025-12-17
+
+### Added
+- Java 25
+
+### Changed
+- Update the following dependencies:
+  - Bump aws.sdk.kotlin:s3-jvm from 1.3.66 to 1.5.88
+  - Bump aws.smithy.kotlin:http-client-engine-crt-jvm from 1.3.23 to 1.5.16
+  - Bump com.fasterxml.jackson.core:jackson-databind from 2.18.0 to 2.19.0
+  - Bump com.github.ben-manes.caffeine:caffeine from 3.1.8 to 3.2.3
+  - Bump commons-io:commons-io from 2.16.1 to 2.19.0
+  - Bump exposed.version from 0.56.0 to 0.61.0
+  - Bump io.github.oshai:kotlin-logging-jvm from 7.0.0 to 7.0.13
+  - Bump io.mockk:mockk-jvm from 1.13.13 to 1.14.2
+  - Bump io.opentelemetry:opentelemetry-bom from 1.44.1 to 1.56.0
+  - Bump jda.version from 5.2.1 to 5.5.1
+  - Bump koin.version from 4.0.0 to 4.0.4
+  - Bump kotlin.version from 2.0.21 to 2.3.0
+  - Bump log4j.version from 2.24.1 to 2.24.3
+  - Bump org.apache.maven.plugins:maven-surefire-plugin from 3.3.1 to 3.5.2
+  - Bump org.clojure:clojure from 1.12.0-alpha9 to 1.12.3
+  - Bump org.postgresql:postgresql from 42.7.4 to 42.7.8
+  - Bump org.testcontainers:testcontainers-bom from 1.21.0 to 2.0.2
+  - Bump otel.version from 2.6.0 to 2.16.0
+  - Bump s3-jvm from 1.3.112 to 1.5.87
+
 ## [2.15.1] - 2024-11-18
 
 ### Added
@@ -431,6 +458,7 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 ### Fixed
 - Remove recording limits and warnings
 
+[2.16.0]: https://gitlab.com/pawabot/pawa/-/compare/v2.15.1...v2.16.0
 [2.15.1]: https://gitlab.com/pawabot/pawa/-/compare/v2.15.0...v2.15.1
 [2.15.0]: https://gitlab.com/pawabot/pawa/-/compare/v2.14.0...v2.15.0
 [2.14.0]: https://gitlab.com/pawabot/pawa/-/compare/v2.13.0...v2.14.0
