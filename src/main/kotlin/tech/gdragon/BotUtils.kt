@@ -39,6 +39,7 @@ import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.now
 import tech.gdragon.db.table.Tables.Guilds
+import tech.gdragon.discord.message.RecordingStartedMessage
 import tech.gdragon.listener.CombinedAudioRecorderHandler
 import java.io.File
 import java.io.FileInputStream
@@ -85,30 +86,31 @@ object BotUtils {
                 ":no_entry_sign: _${translator.alreadyInChannel(audioManager.connectedChannel!!.id)}_"
               )
             } else {
-              val message =
-                try {
-                  val recorder = recordVoiceChannel(channel, messageChannel)
-                  pawa.startRecording(recorder.session, guild.idLong)
-                  translator.recording(channel.id, recorder.session)
-                } catch (e: IllegalArgumentException) {
-                  when (e.message) {
-                    "no-write-permission" ->
-                      "Attempted to record, but bot cannot write to any channel."
+              try {
+                val recorder = recordVoiceChannel(channel, messageChannel)
+                pawa.startRecording(recorder.session, guild.idLong)
+                val lang = pawa.language(guild.idLong)
+                val message = RecordingStartedMessage(channel.id, recorder.session, lang).message
+                sendMessage(messageChannel, message)
+              } catch (e: IllegalArgumentException) {
+                val errorMessage = when (e.message) {
+                  "no-write-permission" ->
+                    "Attempted to record, but bot cannot write to any channel."
 
-                    "no-speak-permission" ->
-                      ":no_entry_sign: _${translator.cannotRecord(channel.id, Permission.VOICE_CONNECT.name)}_"
+                  "no-speak-permission" ->
+                    ":no_entry_sign: _${translator.cannotRecord(channel.id, Permission.VOICE_CONNECT.name)}_"
 
-                    "no-attach-files-permission" ->
-                      translator.cannotUpload(messageChannel.id, Permission.MESSAGE_ATTACH_FILES.name)
+                  "no-attach-files-permission" ->
+                    translator.cannotUpload(messageChannel.id, Permission.MESSAGE_ATTACH_FILES.name)
 
-                    "afk-channel" ->
-                      ":no_entry_sign: _${translator.afkChannel(channel.id)}_"
+                  "afk-channel" ->
+                    ":no_entry_sign: _${translator.afkChannel(channel.id)}_"
 
-                    else ->
-                      ":no_entry_sign: _Unknown bad argument: ${e.message}_"
-                  }
+                  else ->
+                    ":no_entry_sign: _Unknown bad argument: ${e.message}_"
                 }
-              sendMessage(messageChannel, message)
+                sendMessage(messageChannel, errorMessage)
+              }
             }
           }
         }
@@ -412,6 +414,25 @@ object BotUtils {
         ?.queue(
           { m -> logger.debug { "Send message - ${m.contentDisplay}" } },
           { t -> logger.error { "Error sending message - $msg: ${t.message}" } }
+        )
+    } catch (e: InsufficientPermissionException) {
+      logger.warn(e) {
+        "Missing permission ${e.permission}"
+      }
+    }
+  }
+
+  /**
+   * General message sending utility with error logging for MessageCreateData
+   */
+  @WithSpan("Send Message Data")
+  fun sendMessage(textChannel: MessageChannel?, message: MessageCreateData) {
+    try {
+      textChannel
+        ?.sendMessage(message)
+        ?.queue(
+          { m -> logger.debug { "Send message - ${m.contentDisplay}" } },
+          { t -> logger.error { "Error sending message: ${t.message}" } }
         )
     } catch (e: InsufficientPermissionException) {
       logger.warn(e) {
