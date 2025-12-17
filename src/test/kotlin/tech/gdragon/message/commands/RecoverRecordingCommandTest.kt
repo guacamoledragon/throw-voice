@@ -7,23 +7,30 @@ import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldBeEmpty
 import io.mockk.clearMocks
-import io.mockk.every
 import io.mockk.mockk
 import tech.gdragon.api.commands.RecoverResult
 import tech.gdragon.api.pawa.Pawa
+import tech.gdragon.api.pawa.PawaConfig
 import tech.gdragon.data.Datastore
 import tech.gdragon.data.LocalDatastore
+import tech.gdragon.db.Database
 import tech.gdragon.db.dao.Recording
 
 class RecoverRecordingCommandTest : FunSpec({
 
-  val pawa: Pawa = mockk<Pawa>()
-  val datastore: Datastore = mockk<LocalDatastore>()
-  val recording: Recording = mockk<Recording>()
+  // Create real instances to avoid MockK issues with class mocking on Java 25
+  val db: Database = mockk(relaxed = true)
+  val config = PawaConfig { dataDirectory = "/tmp" }
+  val datastore: Datastore = mockk<LocalDatastore>(relaxed = true)
+  val recording: Recording = mockk<Recording>(relaxed = true)
 
   test("returns valid recovered results when message has a valid Session ID") {
     val sessionId = ULID.random()
-    every { pawa.recoverRecording(datastore, sessionId) } returns RecoverResult(sessionId, recording, null)
+    // Create a test-specific subclass that overrides the method
+    val pawa = object : Pawa(db, config) {
+      override fun recoverRecording(datastore: Datastore, sessionId: String) =
+        RecoverResult(sessionId, recording, null)
+    }
 
     val message = """
         $sessionId
@@ -38,7 +45,10 @@ class RecoverRecordingCommandTest : FunSpec({
 
   test("returns valid failed results when message has unrecoverable valid Session ID") {
     val sessionId = ULID.random()
-    every { pawa.recoverRecording(datastore, sessionId) } returns RecoverResult(sessionId, null)
+    val pawa = object : Pawa(db, config) {
+      override fun recoverRecording(datastore: Datastore, sessionId: String) =
+        RecoverResult(sessionId, null)
+    }
 
     val message = """
         $sessionId
@@ -53,7 +63,10 @@ class RecoverRecordingCommandTest : FunSpec({
 
   test("returns empty when message has invalid Session ID") {
     val sessionId = "invalid-session-id"
-    every { pawa.recoverRecording(datastore, sessionId) } returns RecoverResult(sessionId, null)
+    val pawa = object : Pawa(db, config) {
+      override fun recoverRecording(datastore: Datastore, sessionId: String) =
+        RecoverResult(sessionId, null)
+    }
 
     val message = """
         $sessionId
@@ -67,6 +80,6 @@ class RecoverRecordingCommandTest : FunSpec({
   }
 
   afterTest {
-    clearMocks(pawa, datastore, recording)
+    clearMocks(datastore, recording, answers = false, recordedCalls = true, verificationMarks = true)
   }
 })

@@ -19,7 +19,7 @@ import java.io.File
 import java.math.BigDecimal
 import java.util.*
 
-class Pawa(val db: Database, val config: PawaConfig = PawaConfig.invoke()) {
+open class Pawa(val db: Database, val config: PawaConfig = PawaConfig.invoke()) {
   companion object {
     fun module() = module(createdAtStart = true) {
       single<Pawa> {
@@ -33,7 +33,7 @@ class Pawa(val db: Database, val config: PawaConfig = PawaConfig.invoke()) {
     }
   }
 
-  val isStandalone = config.isStandalone
+  val isStandalone by lazy { config.isStandalone }
   val logger = KotlinLogging.logger { }
 
   private var _ignoredUsers: MutableMap<String, List<Long>> = mutableMapOf()
@@ -172,7 +172,7 @@ class Pawa(val db: Database, val config: PawaConfig = PawaConfig.invoke()) {
    *   * If file was not found, re-send the URL (could be a Discord upload)
    * If recording cannot be recovered, return null.
    */
-  fun recoverRecording(datastore: Datastore, sessionId: String): RecoverResult {
+  open fun recoverRecording(datastore: Datastore, sessionId: String): RecoverResult {
 
     // Attempt to recover regardless of whether there's a database recording
     val mp3File = safeFile("${config.dataDirectory}/recordings", "$sessionId.mp3")
