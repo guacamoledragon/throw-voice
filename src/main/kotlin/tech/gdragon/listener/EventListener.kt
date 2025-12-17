@@ -13,6 +13,7 @@ import net.dv8tion.jda.api.events.guild.GuildLeaveEvent
 import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateNicknameEvent
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent
 import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
@@ -33,6 +34,7 @@ import tech.gdragon.db.dao.Recording
 import tech.gdragon.db.now
 import tech.gdragon.discord.message.ErrorEmbed
 import tech.gdragon.discord.message.RecordingReply
+import tech.gdragon.discord.message.RecordingStartedMessage
 import tech.gdragon.discord.message.RequestAccessReply
 import tech.gdragon.message.commands.RecoverRecordingCommand
 
@@ -297,6 +299,43 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
         .reply("Your request has been submitted!\nJoin support server https://discord.gg/gkvsNw8")
         .setEphemeral(true)
         .queue()
+    }
+  }
+
+  override fun onButtonInteraction(event: ButtonInteractionEvent) {
+    val parts = event.componentId.split(":")
+    if (parts[0] == RecordingStartedMessage.BUTTON_ID_PREFIX && parts.size == 2) {
+      val sessionId = parts[1]
+      val guild = event.guild ?: return
+
+      withLoggingContext("session-id" to sessionId, "guild" to guild.name) {
+        // Check if bot is currently in a voice call (recording still active)
+        if (guild.audioManager.isConnected) {
+          event
+            .reply(":warning: Recording is still in progress. Wait for it to finish or use `stop` first.")
+            .queue()
+          return@withLoggingContext
+        }
+
+        // Defer reply since recovery involves database/upload operations
+        event.deferReply().queue()
+
+        val datastore = getKoin().get<Datastore>()
+        val result = withLoggingContext("session-id" to sessionId) {
+          pawa.recoverRecording(datastore, sessionId)
+        }
+
+        val interaction =
+          if (result.recording == null) {
+            val errorEmbed = ErrorEmbed("Failed to Recover: $sessionId", "```\n${result.error}```")
+            event.hook.sendMessage(errorEmbed.message)
+          } else {
+            val embed = RecordingReply(result.recording, pawa.config.appUrl, result.error)
+            event.hook.sendMessage(embed.message)
+          }
+
+        interaction.queue()
+      }
     }
   }
 
