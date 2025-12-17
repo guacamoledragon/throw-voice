@@ -11,18 +11,18 @@
   </scm>
 
   <properties>
-    <argLine>-XX:+EnableDynamicAgentLoading</argLine>
+    <argLine>-XX:+EnableDynamicAgentLoading --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.lang.reflect=ALL-UNNAMED</argLine>
     <exposed.version>0.56.0</exposed.version>
     <flyway.version>10.11.0</flyway.version>
     <jda.version>5.6.1</jda.version>
     <jda-ktx.version>0.13.0</jda-ktx.version>
     <koin.version>4.0.4</koin.version>
     <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
-    <kotlin.compiler.jvmTarget>21</kotlin.compiler.jvmTarget>
-    <kotlin.version>2.2.21</kotlin.version>
+    <kotlin.compiler.jvmTarget>25</kotlin.compiler.jvmTarget>
+    <kotlin.version>2.3.0</kotlin.version>
     <kotest.version>5.9.1</kotest.version>
     <main.class>tech.gdragon.App</main.class>
-    <mockk.version>1.14.2</mockk.version>
+    <mockk.version>1.14.7</mockk.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <slf4j.version>2.0.9</slf4j.version>
     <log4j.version>2.24.3</log4j.version>
@@ -505,6 +505,18 @@
       <version>${mockk.version}</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>net.bytebuddy</groupId>
+      <artifactId>byte-buddy</artifactId>
+      <version>1.17.5</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>net.bytebuddy</groupId>
+      <artifactId>byte-buddy-agent</artifactId>
+      <version>1.17.5</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -581,9 +593,9 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.13.0</version>
+        <version>3.14.0</version>
         <configuration>
-          <release>21</release>
+          <release>25</release>
         </configuration>
       </plugin>
     </plugins>
