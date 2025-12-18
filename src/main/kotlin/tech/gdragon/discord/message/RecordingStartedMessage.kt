@@ -1,7 +1,7 @@
 package tech.gdragon.discord.message
 
-import dev.minn.jda.ktx.interactions.components.danger
 import dev.minn.jda.ktx.interactions.components.row
+import dev.minn.jda.ktx.interactions.components.secondary
 import dev.minn.jda.ktx.messages.Embed
 import dev.minn.jda.ktx.messages.MessageCreate
 import tech.gdragon.i18n.Babel
@@ -23,7 +23,7 @@ class RecordingStartedMessage(channelId: String, sessionId: String, lang: Lang) 
 
   val embed = Embed {
     title = ":red_circle: $recordingText"
-    color = Color.RED.rgb
+    color = Color.GREEN.rgb
     field {
       name = "Session ID"
       value = "`$sessionId`"
@@ -37,7 +37,7 @@ class RecordingStartedMessage(channelId: String, sessionId: String, lang: Lang) 
   }
 
   val component = row(
-    danger("$BUTTON_ID_PREFIX:$sessionId", label = "Recover Recording")
+    secondary("$BUTTON_ID_PREFIX:$sessionId", label = "Recover")
   )
 
   val message = MessageCreate {
