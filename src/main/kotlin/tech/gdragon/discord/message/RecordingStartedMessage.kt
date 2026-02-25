@@ -23,7 +23,7 @@ class RecordingStartedMessage(channelId: String, sessionId: String, lang: Lang) 
 
   val embed = Embed {
     title = ":red_circle: $recordingText"
-    color = Color.GREEN.rgb
+    color = Color.decode("#596800").rgb
     field {
       name = "Session ID"
       value = "`$sessionId`"
