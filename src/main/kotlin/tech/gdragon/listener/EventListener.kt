@@ -34,7 +34,7 @@ import tech.gdragon.db.dao.Recording
 import tech.gdragon.db.now
 import tech.gdragon.discord.message.ErrorEmbed
 import tech.gdragon.discord.message.RecordingReply
-import tech.gdragon.discord.message.RecordingStartedMessage
+import tech.gdragon.discord.message.RecordingStartedReply
 import tech.gdragon.discord.message.RequestAccessReply
 import tech.gdragon.message.commands.RecoverRecordingCommand
 
@@ -304,7 +304,7 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
 
   override fun onButtonInteraction(event: ButtonInteractionEvent) {
     val parts = event.componentId.split(":")
-    if (parts[0] == RecordingStartedMessage.BUTTON_ID_PREFIX && parts.size == 2) {
+    if (parts[0] == RecordingStartedReply.BUTTON_ID_PREFIX && parts.size == 2) {
       val sessionId = parts[1]
       val guild = event.guild ?: return
 

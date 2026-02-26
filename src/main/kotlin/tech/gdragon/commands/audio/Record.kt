@@ -18,7 +18,7 @@ import tech.gdragon.BotUtils
 import tech.gdragon.api.pawa.Pawa
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
-import tech.gdragon.discord.message.RecordingStartedMessage
+import tech.gdragon.discord.message.RecordingStartedReply
 import tech.gdragon.i18n.Babel
 import tech.gdragon.i18n.Lang
 import net.dv8tion.jda.api.entities.Guild as DiscordGuild
@@ -67,7 +67,7 @@ class Record : CommandHandler() {
               val recorder = BotUtils.recordVoiceChannel(voiceChannel, messageChannel)
               pawa.startRecording(recorder.session, guild.idLong)
               val lang = pawa.language(guild.idLong)
-              RecordingStartedMessage(voiceChannel.id, recorder.session, lang).message
+              RecordingStartedReply(voiceChannel.id, recorder.session, lang).message
             } catch (e: IllegalArgumentException) {
               val errorMessage = when (e.message) {
                 "no-write-permission" ->

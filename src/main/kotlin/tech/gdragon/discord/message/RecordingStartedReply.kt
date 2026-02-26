@@ -12,7 +12,7 @@ import java.awt.Color
  * Message sent when a recording starts, containing an embed with session info
  * and a "Recover Recording" button that users can click to trigger recovery.
  */
-class RecordingStartedMessage(channelId: String, sessionId: String, lang: Lang) {
+class RecordingStartedReply(channelId: String, sessionId: String, lang: Lang) {
   companion object {
     const val BUTTON_ID_PREFIX = "recover"
   }

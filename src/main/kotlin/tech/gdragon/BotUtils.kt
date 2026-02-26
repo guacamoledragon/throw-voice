@@ -39,7 +39,7 @@ import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.now
 import tech.gdragon.db.table.Tables.Guilds
-import tech.gdragon.discord.message.RecordingStartedMessage
+import tech.gdragon.discord.message.RecordingStartedReply
 import tech.gdragon.listener.CombinedAudioRecorderHandler
 import java.io.File
 import java.io.FileInputStream
@@ -90,7 +90,7 @@ object BotUtils {
                 val recorder = recordVoiceChannel(channel, messageChannel)
                 pawa.startRecording(recorder.session, guild.idLong)
                 val lang = pawa.language(guild.idLong)
-                val message = RecordingStartedMessage(channel.id, recorder.session, lang).message
+                val message = RecordingStartedReply(channel.id, recorder.session, lang).message
                 sendMessage(messageChannel, message)
               } catch (e: IllegalArgumentException) {
                 val errorMessage = when (e.message) {
