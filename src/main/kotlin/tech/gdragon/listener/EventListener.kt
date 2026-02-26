@@ -33,6 +33,7 @@ import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.dao.Recording
 import tech.gdragon.db.now
 import tech.gdragon.discord.message.ErrorEmbed
+import tech.gdragon.discord.message.RecoverConfirmationReply
 import tech.gdragon.discord.message.RecordingReply
 import tech.gdragon.discord.message.RecordingStartedReply
 import tech.gdragon.discord.message.RequestAccessReply
@@ -304,37 +305,72 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
 
   override fun onButtonInteraction(event: ButtonInteractionEvent) {
     val parts = event.componentId.split(":")
-    if (parts[0] == RecordingStartedReply.BUTTON_ID_PREFIX && parts.size == 2) {
-      val sessionId = parts[1]
-      val guild = event.guild ?: return
+    if (parts.size != 2) return
 
-      withLoggingContext("session-id" to sessionId, "guild" to guild.name) {
-        // Check if bot is currently in a voice call (recording still active)
-        if (guild.audioManager.isConnected) {
-          event
-            .reply(":warning: Recording is still in progress. Wait for it to finish or use `stop` first.")
-            .queue()
-          return@withLoggingContext
-        }
+    val prefix = parts[0]
+    val sessionId = parts[1]
+    val guild = event.guild ?: return
 
-        // Defer reply since recovery involves database/upload operations
-        event.deferReply().queue()
-
-        val datastore = getKoin().get<Datastore>()
-        val result = withLoggingContext("session-id" to sessionId) {
-          pawa.recoverRecording(datastore, sessionId)
-        }
-
-        val interaction =
-          if (result.recording == null) {
-            val errorEmbed = ErrorEmbed("Failed to Recover: $sessionId", "```\n${result.error}```")
-            event.hook.sendMessage(errorEmbed.message)
-          } else {
-            val embed = RecordingReply(result.recording, pawa.config.appUrl, result.error)
-            event.hook.sendMessage(embed.message)
+    when (prefix) {
+      RecordingStartedReply.BUTTON_ID_PREFIX -> {
+        withLoggingContext("session-id" to sessionId, "guild" to guild.name) {
+          // Check if bot is currently in a voice call (recording still active)
+          if (guild.audioManager.isConnected) {
+            event
+              .reply(":warning: Recording is still in progress. Wait for it to finish or use `stop` first.")
+              .setEphemeral(true)
+              .queue()
+            return@withLoggingContext
           }
 
-        interaction.queue()
+          // Show ephemeral confirmation message instead of immediately recovering
+          val lang = pawa.language(guild.idLong)
+          val confirmationReply = RecoverConfirmationReply(sessionId, lang)
+          event
+            .reply(confirmationReply.message)
+            .setEphemeral(true)
+            .queue()
+        }
+      }
+
+      RecoverConfirmationReply.CONFIRM_PREFIX -> {
+        withLoggingContext("session-id" to sessionId, "guild" to guild.name) {
+          // Check if bot is currently in a voice call (recording still active)
+          if (guild.audioManager.isConnected) {
+            event
+              .reply(":warning: Recording is still in progress. Wait for it to finish or use `stop` first.")
+              .setEphemeral(true)
+              .queue()
+            return@withLoggingContext
+          }
+
+          // Defer reply since recovery involves database/upload operations
+          event.deferReply().queue()
+
+          val datastore = getKoin().get<Datastore>()
+          val result = withLoggingContext("session-id" to sessionId) {
+            pawa.recoverRecording(datastore, sessionId)
+          }
+
+          val interaction =
+            if (result.recording == null) {
+              val errorEmbed = ErrorEmbed("Failed to Recover: $sessionId", "```\n${result.error}```")
+              event.hook.sendMessage(errorEmbed.message)
+            } else {
+              val embed = RecordingReply(result.recording, pawa.config.appUrl, result.error)
+              event.hook.sendMessage(embed.message)
+            }
+
+          interaction.queue()
+        }
+      }
+
+      RecoverConfirmationReply.CANCEL_PREFIX -> {
+        event
+          .editMessage("Recovery cancelled.")
+          .setEmbeds(emptyList())
+          .setComponents(emptyList())
+          .queue()
       }
     }
   }
