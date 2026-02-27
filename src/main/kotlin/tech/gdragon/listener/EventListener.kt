@@ -317,7 +317,7 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
           // Check if bot is currently in a voice call (recording still active)
           if (guild.audioManager.isConnected) {
             event
-              .reply(":warning: Recording is still in progress. Wait for it to finish or use `stop` first.")
+              .reply(":warning: Recording is in progress.")
               .setEphemeral(true)
               .queue()
             return@withLoggingContext
@@ -338,7 +338,7 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
           // Check if bot is currently in a voice call (recording still active)
           if (guild.audioManager.isConnected) {
             event
-              .reply(":warning: Recording is still in progress. Wait for it to finish or use `stop` first.")
+              .reply(":warning: Recording is in progress.")
               .setEphemeral(true)
               .queue()
             return@withLoggingContext
