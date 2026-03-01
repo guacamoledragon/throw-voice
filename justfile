@@ -1,5 +1,11 @@
-set shell := ["nu.exe", "-c"]
 set dotenv-load := false
+
+# Run the app locally with local S3 (Minio), equivalent to IntelliJ "App Dev (local-s3)"
+run-dev:
+  BOT_STANDALONE=false LOG_LEVEL=info OVERRIDE_FILE=dev.properties \
+  mvn clean compile exec:java \
+    -Dexec.mainClass=tech.gdragon.App \
+    -Dlog4j.configurationFile=log4j2-prod.xml
 
 docker-build:
   docker build \
@@ -64,7 +70,7 @@ pg-restore backup password='password' port='5432':
 pg-start:
   docker run -it --rm --cpus 1.0 --name postgres -p 5432:5432 \
   -e POSTGRES_PASSWORD=password -e POSTGRES_DB=settings \
-  -v pgdata:/var/lib/postgresql/data -v ($env.PWD + "/data/db-logs:/logs") \
+  -v pgdata:/var/lib/postgresql/data -v "${PWD}/data/db-logs:/logs" \
   postgres:17.2-alpine
 
 recover-mp3 id:
@@ -77,3 +83,45 @@ recover-queue id:
 # Expose Clojure REPL
 repl-port-forward:
   ssh -L 7888:localhost:7888 -N -T pawa.im
+
+# Undo the last failed/in-progress dependabot cherry-pick and mark it as skipped
+dep-skip:
+  #!/usr/bin/env bash
+  set -euo pipefail
+
+  PROGRESS_FILE=".dep-progress"
+
+  if [[ ! -f "$PROGRESS_FILE" ]]; then
+    echo "No .dep-progress file found — nothing to skip."
+    exit 1
+  fi
+
+  # Find the last in-progress or failed entry
+  pr_line=$(grep -E ':(in-progress|failed)$' "$PROGRESS_FILE" | tail -1 || true)
+
+  if [[ -z "$pr_line" ]]; then
+    echo "No in-progress or failed PR to skip."
+    exit 1
+  fi
+
+  pr_number="${pr_line%%:*}"
+
+  # Check if a cherry-pick is in progress (conflicted state)
+  if [[ -d ".git/CHERRY_PICK_HEAD" ]] || [[ -f ".git/CHERRY_PICK_HEAD" ]]; then
+    echo "Cherry-pick in progress (conflict detected), aborting..."
+    git cherry-pick --abort
+  else
+    # Verify HEAD looks like a dependabot commit
+    head_msg=$(git log -1 --format='%s')
+    if [[ ! "$head_msg" =~ ^Bump\ .+\ from\ .+\ to\ .+ ]]; then
+      echo "HEAD doesn't look like a dependabot commit, refusing to reset."
+      echo "HEAD message: $head_msg"
+      exit 1
+    fi
+    echo "Resetting HEAD (undoing cherry-pick)..."
+    git reset --hard HEAD~1
+  fi
+
+  # Update the entry in .dep-progress to skipped
+  sed -i "s/^${pr_number}:.*$/${pr_number}:skipped/" "$PROGRESS_FILE"
+  echo "Skipped PR #${pr_number}, ready for next PR."
