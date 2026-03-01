@@ -125,3 +125,66 @@ dep-skip:
   # Update the entry in .dep-progress to skipped
   sed -i "s/^${pr_number}:.*$/${pr_number}:skipped/" "$PROGRESS_FILE"
   echo "Skipped PR #${pr_number}, ready for next PR."
+
+# Process a single dependabot PR by number — cherry-pick, compile, and test
+dep-test pr_number:
+  #!/usr/bin/env bash
+  set -euo pipefail
+
+  PROGRESS_FILE=".dep-progress"
+  REPO="guacamoledragon/throw-voice"
+  PR_NUMBER="{{ pr_number }}"
+
+  # 1. Verify we're on master
+  current_branch=$(git branch --show-current)
+  if [[ "$current_branch" != "master" ]]; then
+    echo "Error: must be on master branch (currently on '$current_branch')."
+    exit 1
+  fi
+
+  # 2. Check for failed or in-progress entries
+  if [[ -f "$PROGRESS_FILE" ]]; then
+    blocked=$(grep -E ':(in-progress|failed)$' "$PROGRESS_FILE" || true)
+    if [[ -n "$blocked" ]]; then
+      echo "Error: there is a failed or in-progress PR that needs to be resolved first."
+      echo "$blocked"
+      echo "Run 'just dep-skip' to undo it before processing more PRs."
+      exit 1
+    fi
+  fi
+
+  # 3. Get branch name from PR
+  branch_name=$(gh pr view "$PR_NUMBER" --repo "$REPO" --json headRefName --jq '.headRefName')
+  pr_title=$(gh pr view "$PR_NUMBER" --repo "$REPO" --json title --jq '.title')
+  echo "Processing PR #${PR_NUMBER}: ${pr_title}"
+  echo "  Branch: ${branch_name}"
+
+  # 4. Fetch and cherry-pick
+  git fetch github "$branch_name"
+  if ! git cherry-pick FETCH_HEAD; then
+    echo ""
+    echo "Cherry-pick failed (conflict) for PR #${PR_NUMBER}."
+    echo "Options:"
+    echo "  - Resolve conflicts, then: git cherry-pick --continue"
+    echo "  - Or abort: just dep-skip"
+    echo "${PR_NUMBER}:in-progress" >> "$PROGRESS_FILE"
+    exit 1
+  fi
+
+  # 5. Record in-progress
+  echo "${PR_NUMBER}:in-progress" >> "$PROGRESS_FILE"
+
+  # 6. Run tests
+  echo "Running tests..."
+  if mvn clean test; then
+    sed -i "s/^${PR_NUMBER}:in-progress$/${PR_NUMBER}:passed/" "$PROGRESS_FILE"
+    echo ""
+    echo "PR #${PR_NUMBER} passed: ${pr_title}"
+  else
+    sed -i "s/^${PR_NUMBER}:in-progress$/${PR_NUMBER}:failed/" "$PROGRESS_FILE"
+    echo ""
+    echo "PR #${PR_NUMBER} FAILED: ${pr_title}"
+    echo "The cherry-picked commit is still on master for inspection."
+    echo "Run 'just dep-skip' to undo before continuing."
+    exit 1
+  fi
