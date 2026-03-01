@@ -162,15 +162,23 @@ dep-test pr_number:
 
   # 4. Fetch and cherry-pick
   git fetch github "$branch_name"
-  if ! git cherry-pick FETCH_HEAD; then
+  cp_output=$(git cherry-pick FETCH_HEAD 2>&1) || {
+    if echo "$cp_output" | grep -q "empty"; then
+      echo "  Cherry-pick is empty (change already applied), skipping."
+      git cherry-pick --abort 2>/dev/null || true
+      echo "${PR_NUMBER}:passed" >> "$PROGRESS_FILE"
+      echo "PR #${PR_NUMBER} passed (already applied): ${pr_title}"
+      exit 0
+    fi
     echo ""
     echo "Cherry-pick failed (conflict) for PR #${PR_NUMBER}."
+    echo "$cp_output"
     echo "Options:"
     echo "  - Resolve conflicts, then: git cherry-pick --continue"
     echo "  - Or abort: just dep-skip"
     echo "${PR_NUMBER}:in-progress" >> "$PROGRESS_FILE"
     exit 1
-  fi
+  }
 
   # 5. Record in-progress
   echo "${PR_NUMBER}:in-progress" >> "$PROGRESS_FILE"
@@ -249,15 +257,24 @@ dep-test-all:
 
     # Fetch and cherry-pick
     git fetch github "$branch_name"
-    if ! git cherry-pick FETCH_HEAD; then
+    cp_output=$(git cherry-pick FETCH_HEAD 2>&1) || {
+      if echo "$cp_output" | grep -q "empty"; then
+        echo "  Cherry-pick is empty (change already applied), skipping."
+        git cherry-pick --abort 2>/dev/null || true
+        echo "${pr_number}:passed" >> "$PROGRESS_FILE"
+        echo "PR #${pr_number} passed (already applied): ${pr_title}"
+        processed=$((processed + 1))
+        continue
+      fi
       echo ""
       echo "Cherry-pick failed (conflict) for PR #${pr_number}."
+      echo "$cp_output"
       echo "Options:"
       echo "  - Resolve conflicts, then: git cherry-pick --continue"
       echo "  - Or abort: just dep-skip"
       echo "${pr_number}:in-progress" >> "$PROGRESS_FILE"
       exit 1
-    fi
+    }
 
     # Record in-progress
     echo "${pr_number}:in-progress" >> "$PROGRESS_FILE"
