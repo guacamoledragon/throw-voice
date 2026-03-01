@@ -62,3 +62,4 @@ prod.properties
 pawalite-data/
 desktop.ini
 drivers/
+.dep-progress
