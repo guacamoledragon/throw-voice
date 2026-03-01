@@ -135,11 +135,12 @@ dep-test pr_number:
   REPO="guacamoledragon/throw-voice"
   PR_NUMBER="{{ pr_number }}"
 
-  # 1. Verify we're on master
+  # 1. Warn if not on master
   current_branch=$(git branch --show-current)
   if [[ "$current_branch" != "master" ]]; then
-    echo "Error: must be on master branch (currently on '$current_branch')."
-    exit 1
+    echo "Warning: not on master (currently on '$current_branch')."
+    echo "Cherry-picks will land on this branch instead of master."
+    echo ""
   fi
 
   # 2. Check for failed or in-progress entries
@@ -197,11 +198,12 @@ dep-test-all:
   PROGRESS_FILE=".dep-progress"
   REPO="guacamoledragon/throw-voice"
 
-  # 1. Verify we're on master
+  # 1. Warn if not on master
   current_branch=$(git branch --show-current)
   if [[ "$current_branch" != "master" ]]; then
-    echo "Error: must be on master branch (currently on '$current_branch')."
-    exit 1
+    echo "Warning: not on master (currently on '$current_branch')."
+    echo "Cherry-picks will land on this branch instead of master."
+    echo ""
   fi
 
   # 2. Check for failed or in-progress entries
