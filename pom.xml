@@ -25,7 +25,7 @@
     <mockk.version>1.14.7</mockk.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <slf4j.version>2.0.9</slf4j.version>
-    <log4j.version>2.24.3</log4j.version>
+    <log4j.version>2.25.3</log4j.version>
     <otel.version>2.16.0</otel.version>
     <surefire.version>3.5.2</surefire.version>
   </properties>
@@ -35,7 +35,7 @@
       <dependency>
         <groupId>io.opentelemetry</groupId>
         <artifactId>opentelemetry-bom</artifactId>
-        <version>1.56.0</version>
+        <version>1.57.0</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -65,7 +65,7 @@
     <dependency>
       <groupId>aws.sdk.kotlin</groupId>
       <artifactId>s3-jvm</artifactId>
-      <version>1.5.88</version>
+      <version>1.5.106</version>
       <exclusions>
         <exclusion>
           <artifactId>slf4j-api</artifactId>
@@ -625,7 +625,7 @@
           <plugin>
             <groupId>org.jacoco</groupId>
             <artifactId>jacoco-maven-plugin</artifactId>
-            <version>0.8.12</version>
+            <version>0.8.14</version>
             <reportSets>
               <reportSet>
                 <reports>
