@@ -1,29 +1,29 @@
 package tech.gdragon.discord.message
 
 import dev.minn.jda.ktx.messages.Embed
+import net.dv8tion.jda.api.components.label.Label
+import net.dv8tion.jda.api.components.textinput.TextInput
+import net.dv8tion.jda.api.components.textinput.TextInputStyle
 import net.dv8tion.jda.api.entities.User
-import net.dv8tion.jda.api.interactions.components.ActionRow
-import net.dv8tion.jda.api.interactions.components.text.TextInput
-import net.dv8tion.jda.api.interactions.components.text.TextInputStyle
-import net.dv8tion.jda.api.interactions.modals.Modal
+import net.dv8tion.jda.api.modals.Modal
 import java.awt.Color
 
 class RequestAccessModal(val title: String, val sessionId: String) {
 
-  val request = TextInput.create("request-body", "Request", TextInputStyle.PARAGRAPH)
+  val request = TextInput.create("request-body", TextInputStyle.PARAGRAPH)
     .setPlaceholder("Explain why you want access to this feature?")
     .setMaxLength(1000)
     .build()
 
-  val session = TextInput.create("session-id", "Session ID", TextInputStyle.SHORT)
+  val session = TextInput.create("session-id", TextInputStyle.SHORT)
     .setValue(sessionId)
     .build()
 
   val modal = Modal
     .create("request-access", "Request Access")
     .setTitle(title)
-    .addComponents(ActionRow.of(session))
-    .addComponents(ActionRow.of(request))
+    .addComponents(Label.of("Session ID", session))
+    .addComponents(Label.of("Request", request))
     .build()
 }
 
