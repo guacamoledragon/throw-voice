@@ -14,8 +14,8 @@
     <argLine>-XX:+EnableDynamicAgentLoading --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.lang.reflect=ALL-UNNAMED</argLine>
     <exposed.version>0.56.0</exposed.version>
     <flyway.version>10.11.0</flyway.version>
-    <jda.version>5.6.1</jda.version>
-    <jda-ktx.version>0.13.0</jda-ktx.version>
+    <jda.version>6.3.1</jda.version>
+    <jda-ktx.version>0.14.1</jda-ktx.version>
     <koin.version>4.0.4</koin.version>
     <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
     <kotlin.compiler.jvmTarget>25</kotlin.compiler.jvmTarget>
@@ -602,11 +602,6 @@
   </build>
 
   <repositories>
-    <repository>
-      <id>dv8tion</id>
-      <name>m2-dv8tion</name>
-      <url>https://m2.dv8tion.net/releases</url>
-    </repository>
     <repository>
       <id>jitpack.io</id>
       <url>https://jitpack.io</url>
