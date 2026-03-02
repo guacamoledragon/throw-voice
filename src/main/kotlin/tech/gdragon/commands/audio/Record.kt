@@ -6,6 +6,7 @@ import dev.minn.jda.ktx.interactions.commands.Command
 import dev.minn.jda.ktx.interactions.commands.option
 import dev.minn.jda.ktx.messages.MessageCreate
 import io.github.oshai.kotlinlogging.withLoggingContext
+import net.dv8tion.jda.api.utils.messages.MessageCreateData
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.channel.ChannelType
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel
@@ -17,6 +18,7 @@ import tech.gdragon.BotUtils
 import tech.gdragon.api.pawa.Pawa
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
+import tech.gdragon.discord.message.RecordingStartedReply
 import tech.gdragon.i18n.Babel
 import tech.gdragon.i18n.Lang
 import net.dv8tion.jda.api.entities.Guild as DiscordGuild
@@ -42,17 +44,17 @@ class Record : CommandHandler() {
         val textChannel = event.messageChannel
         val message = handler(pawa, it, voiceChannel, textChannel)
 
-        BotUtils.reply(event, MessageCreate(message))
+        BotUtils.reply(event, message)
       }
     }
 
-    fun handler(pawa: Pawa, guild: DiscordGuild, voiceChannel: AudioChannel?, messageChannel: MessageChannel): String {
+    fun handler(pawa: Pawa, guild: DiscordGuild, voiceChannel: AudioChannel?, messageChannel: MessageChannel): MessageCreateData {
       val translator: RecordTranslator = pawa.translator(guild.idLong)
       return when {
-        voiceChannel == null -> ":no_entry_sign: _${translator.joinChannel}_"
+        voiceChannel == null -> MessageCreate { content = ":no_entry_sign: _${translator.joinChannel}_" }
         guild.audioManager.isConnected -> {
           val connectedVoiceChannel = guild.audioManager.connectedChannel!!
-          ":no_entry_sign: _${translator.alreadyInChannel(connectedVoiceChannel.id)}_"
+          MessageCreate { content = ":no_entry_sign: _${translator.alreadyInChannel(connectedVoiceChannel.id)}_" }
         }
 
         else -> {
@@ -64,9 +66,10 @@ class Record : CommandHandler() {
             try {
               val recorder = BotUtils.recordVoiceChannel(voiceChannel, messageChannel)
               pawa.startRecording(recorder.session, guild.idLong)
-              translator.recording(voiceChannel.id, recorder.session)
+              val lang = pawa.language(guild.idLong)
+              RecordingStartedReply(voiceChannel.id, recorder.session, lang).message
             } catch (e: IllegalArgumentException) {
-              when (e.message) {
+              val errorMessage = when (e.message) {
                 "no-write-permission" ->
                   ":no_entry_sign: _Must be able to write in ${messageChannel.asMention}_"
 
@@ -82,6 +85,7 @@ class Record : CommandHandler() {
                 else ->
                   ":no_entry_sign: _Unknown bad argument: ${e.message}_"
               }
+              MessageCreate { content = errorMessage }
             }
           }
         }
