@@ -42,8 +42,12 @@ open class Pawa(val db: Database, val config: PawaConfig = PawaConfig.invoke()) 
   val recordings: Map<String, Long>
     get() = Collections.unmodifiableMap(_recordings)
 
+  fun language(guildId: Long): Lang {
+    return transaction { Guild[guildId].settings.language }
+  }
+
   inline fun <reified T> translator(guildId: Long): T {
-    val lang = transaction { Guild[guildId].settings.language }
+    val lang = language(guildId)
     return Babel.commandTranslator(lang)
   }
 
