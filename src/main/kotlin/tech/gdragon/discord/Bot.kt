@@ -1,5 +1,6 @@
 package tech.gdragon.discord
 
+import club.minnced.discord.jdave.interop.JDaveSessionFactory
 import dev.minn.jda.ktx.coroutines.await
 import dev.minn.jda.ktx.events.onCommand
 import dev.minn.jda.ktx.interactions.commands.message
@@ -8,6 +9,7 @@ import dev.minn.jda.ktx.jdabuilder.injectKTX
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.Permission
+import net.dv8tion.jda.api.audio.AudioModuleConfig
 import net.dv8tion.jda.api.entities.Activity
 import net.dv8tion.jda.api.requests.GatewayIntent
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder
@@ -91,6 +93,10 @@ class Bot(private val token: String, private val pawa: Pawa) {
         .disableCache(disabledCache)
         .setChunkingFilter(ChunkingFilter.NONE)
         .setMemberCachePolicy(MemberCachePolicy.VOICE)
+        .setAudioModuleConfig(
+          AudioModuleConfig()
+            .withDaveSessionFactory(JDaveSessionFactory())
+        )
         .injectKTX()
         .build()
 
