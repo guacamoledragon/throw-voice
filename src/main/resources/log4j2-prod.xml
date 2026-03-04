@@ -61,5 +61,6 @@
     <Logger name="net.dv8tion.jda.internal.audio.AudioConnection" level="off" />
     <Logger name="net.dv8tion.jda.internal.audio.AudioPacket" level="error"/>
     <Logger name="club.minnced.discord.jdave.DaveDecryptor" level="error"/>
+    <Logger name="club.minnced.discord.jdave.ffi.LibDave" level="error"/>
   </Loggers>
 </Configuration>
