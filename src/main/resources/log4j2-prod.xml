@@ -59,5 +59,7 @@
       <AppenderRef ref="DatabaseLogs"/>
     </Logger>
     <Logger name="net.dv8tion.jda.internal.audio.AudioConnection" level="off" />
+    <Logger name="net.dv8tion.jda.internal.audio.AudioPacket" level="error"/>
+    <Logger name="com.discord.dave.jni.DaveDecryptor" level="error"/>
   </Loggers>
 </Configuration>
