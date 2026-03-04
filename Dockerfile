@@ -48,4 +48,4 @@ COPY --from=deps /home/curl_user/agent.jar .
 COPY --from=builder /app/target/pawa-release/lib lib
 COPY --from=builder /app/target/pawa-release/*.jar .
 
-CMD ["java", "-javaagent:agent.jar", "-cp", "*:lib/*", "tech.gdragon.App"]
+CMD ["java", "--enable-native-access=ALL-UNNAMED", "-javaagent:agent.jar", "-cp", "*:lib/*", "tech.gdragon.App"]
