@@ -19,8 +19,8 @@ docker-build:
 docker-run:
   docker run --rm -it \
     --env BOT_STANDALONE=false --env OVERRIDE_FILE=settings.properties --env OTEL_JAVAAGENT_ENABLED=false --env TZ="America/Los_Angeles" \
-    -v ($env.PWD + "/dev.docker.properties:/app/settings.properties") \
-    -v ($env.PWD + "/data:/app/data") \
+    -v "${PWD}/dev.docker.properties:/app/settings.properties" \
+    -v "${PWD}/data:/app/data" \
     -p 7888:7888 \
     pawa:dev
 
@@ -38,20 +38,22 @@ package-pawalite:
 # Generate a backup of the Settings table on an instance of PostgresQL
 pg-backup password='password' port='5432':
   docker run --rm -it --entrypoint= \
+  --network host \
   -e PGPASSWORD={{ password }} \
   postgres:17.2-alpine /bin/sh -c \
-  'pg_dump -h host.docker.internal -p {{ port }} -U postgres settings' \
+  'pg_dump -h localhost -p {{ port }} -U postgres settings' \
   | save --raw $"(date now | format date "%Y-%m-%d")-settings.db"
 
 # Apply Postgres DB migrations, expects password and optional port
 pg-migrate password='password' port='5432':
   docker run --rm \
+         --network host \
          -v ($env.PWD + "/sql:/flyway/sql") \
          -v ($env.PWD + "/conf:/flyway/conf") \
          -v ($env.PWD + "/data:/flyway/data") \
          flyway/flyway:10.11-alpine \
          -user=postgres -password={{ password }} \
-         -url=jdbc:postgresql://host.docker.internal:{{ port }}/settings \
+         -url=jdbc:postgresql://localhost:{{ port }}/settings \
          migrate
 
 # Expose Remote Postgres Database
