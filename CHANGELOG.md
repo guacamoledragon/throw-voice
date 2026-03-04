@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.17.0] - 2026-03-03
+
+### Added
+- Recover action button on all active recordings
+- Ephemeral confirmation flow for the recover button interaction
+
+### Changed
+- Upgrade JDA 5.6.1 → 6.3.1 with DAVE Protocol (E2EE) support
+- Update the following dependencies:
+  - Bump aws.sdk.kotlin:s3-jvm from 1.5.88 to 1.5.106
+  - Bump io.opentelemetry:opentelemetry-bom from 1.56.0 to 1.57.0
+  - Bump log4j.version from 2.24.3 to 2.25.3
+  - Bump org.jacoco:jacoco-maven-plugin from 0.8.12 to 0.8.14
+  - Bump org.testcontainers:testcontainers-bom from 2.0.2 to 2.0.3
+
 ## [2.15.1] - 2025-12-17
 
 ### Added
@@ -458,6 +473,7 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 ### Fixed
 - Remove recording limits and warnings
 
+[2.17.0]: https://gitlab.com/pawabot/pawa/-/compare/v2.16.0...v2.17.0
 [2.16.0]: https://gitlab.com/pawabot/pawa/-/compare/v2.15.1...v2.16.0
 [2.15.1]: https://gitlab.com/pawabot/pawa/-/compare/v2.15.0...v2.15.1
 [2.15.0]: https://gitlab.com/pawabot/pawa/-/compare/v2.14.0...v2.15.0
