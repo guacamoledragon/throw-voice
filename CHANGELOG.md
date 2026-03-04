@@ -6,6 +6,16 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 
 ## [Unreleased]
 
+### Added
+
+### Changed
+
+### Deprecated
+
+### Fixed
+
+### Security
+
 ## [2.17.0] - 2026-03-03
 
 ### Added
