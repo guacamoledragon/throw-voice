@@ -12,7 +12,6 @@ import net.dv8tion.jda.api.events.guild.GuildJoinEvent
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent
 import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateNicknameEvent
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent
-import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent
 import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent
@@ -36,7 +35,6 @@ import tech.gdragon.discord.message.ErrorEmbed
 import tech.gdragon.discord.message.RecoverConfirmationReply
 import tech.gdragon.discord.message.RecordingReply
 import tech.gdragon.discord.message.RecordingStartedReply
-import tech.gdragon.discord.message.RequestAccessReply
 import tech.gdragon.message.commands.RecoverRecordingCommand
 
 class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
@@ -281,26 +279,6 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
     }
 
     span.end()
-  }
-
-  override fun onModalInteraction(event: ModalInteractionEvent) {
-    if (event.modalId == "request-access") {
-      val request = event.getValue("request-body")?.asString.orEmpty()
-      val sessionId = event.getValue("session-id")?.asString.orEmpty()
-
-      event.jda
-        .openPrivateChannelById(TRIGOMAN)
-        .flatMap { channel ->
-          val requestReply = RequestAccessReply(event.user, request, sessionId)
-          channel.sendMessageEmbeds(requestReply.embed)
-        }
-        .queue()
-
-      event
-        .reply("Your request has been submitted!\nJoin support server https://discord.gg/gkvsNw8")
-        .setEphemeral(true)
-        .queue()
-    }
   }
 
   override fun onButtonInteraction(event: ButtonInteractionEvent) {
