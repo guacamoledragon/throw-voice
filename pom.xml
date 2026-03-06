@@ -679,10 +679,13 @@
                       <exclude>aws.sdk.kotlin:*</exclude>
                       <exclude>aws.smithy.kotlin:*</exclude>
                       <exclude>software.amazon.awssdk.crt:*</exclude>
-                      <exclude>org.postgresql:*</exclude>
-                      <exclude>org.clojure:*</exclude>
-                      <exclude>nrepl:*</exclude>
                       <exclude>io.grpc:*</exclude>
+                      <exclude>nrepl:*</exclude>
+                      <exclude>org.apache.logging.log4j:log4j-layout-template-json</exclude>
+                      <exclude>org.checkerframework:checker-qual</exclude>
+                      <exclude>org.clojure:*</exclude>
+                      <exclude>org.flywaydb:flyway-database-postgresql</exclude>
+                      <exclude>org.postgresql:*</exclude>
                     </excludes>
                   </artifactSet>
                   <filters>
