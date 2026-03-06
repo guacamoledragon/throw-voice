@@ -642,8 +642,15 @@
         </plugins>
       </reporting>
     </profile>
-    <profile>
+     <profile>
       <id>lite</id>
+      <dependencies>
+        <dependency>
+          <groupId>club.minnced</groupId>
+          <artifactId>jdave-native-win-x86-64</artifactId>
+          <version>0.1.7</version>
+        </dependency>
+      </dependencies>
       <build>
         <plugins>
           <plugin>
@@ -671,6 +678,7 @@
                       <mainClass>${main.class}</mainClass>
                       <manifestEntries>
                         <Multi-Release>true</Multi-Release>
+                        <Enable-Native-Access>ALL-UNNAMED</Enable-Native-Access>
                       </manifestEntries>
                     </transformer>
                   </transformers>
