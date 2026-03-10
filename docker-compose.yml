@@ -61,8 +61,14 @@ services:
     logging:
       <<: *logging
   database:
-    command: -c logging_collector=on -c log_directory=logs -c log_min_duration_statement=0 -c log_statement=none
     image: postgres:17.2-alpine
+    command: >
+      -c logging_collector=on
+      -c log_directory=logs
+      -c log_min_duration_statement=0
+      -c log_statement=none
+      -c shared_preload_libraries=pg_stat_statements
+      -c pg_stat_statements.track=all
     deploy:
       resources:
         limits:
