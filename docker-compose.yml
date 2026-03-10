@@ -8,8 +8,6 @@ services:
   bot:
     image: registry.gitlab.com/pawabot/pawa:${VERSION}
     init: true
-    depends_on:
-      - datastore
     deploy:
       resources:
         limits:
