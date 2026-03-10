@@ -48,7 +48,7 @@ services:
       - "127.0.0.1:7888:7888"
     restart: on-failure:100
     volumes:
-      - data:${BOT_DATA_DIR}
+      - ./data:${BOT_DATA_DIR}
       - ./logs:/app/logs
     logging:
       <<: *logging
@@ -66,14 +66,4 @@ services:
     ports:
       - "127.0.0.1:5432:5432"
     volumes:
-      - db-data:/var/lib/postgresql/data
-
-volumes:
-  data:
-    driver: local-persist
-    driver_opts:
-      mountpoint: ${BOT_MOUNT_DIR}
-  db-data:
-    driver: local-persist
-    driver_opts:
-      mountpoint: ${DB_MOUNT_DIR}
+      - ./database:/var/lib/postgresql/data
