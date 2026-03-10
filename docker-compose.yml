@@ -44,6 +44,10 @@ services:
       - JAVA_TOOL_OPTIONS=-Dlog4j.configurationFile=log4j2-prod.xml
                           -XX:MinRAMPercentage=${JVM_MIN_RAM_PERCENTAGE}
                           -XX:MaxRAMPercentage=${JVM_MAX_RAM_PERCENTAGE}
+                          -XX:+CrashOnOutOfMemoryError
+                          -XX:+HeapDumpOnOutOfMemoryError
+                          -XX:HeapDumpPath=${BOT_DATA_DIR}/dumps
+                          -XX:+UseCompactObjectHeaders
       - HONEYCOMB_API_KEY=${HONEYCOMB_API_KEY}
       - SERVICE_NAME=${SERVICE_NAME}
       - SAMPLE_RATE=${SAMPLE_RATE}
