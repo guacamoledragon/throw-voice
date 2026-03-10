@@ -11,7 +11,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: 1
+          cpus: '1'
           memory: 6G
     environment:
       - APP_URL=${APP_URL}
@@ -58,7 +58,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: 1
+          cpus: '1'
           memory: 2G
     environment:
       - POSTGRES_PASSWORD=${DB_PASSWORD}
