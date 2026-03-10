@@ -81,3 +81,14 @@ services:
       - "127.0.0.1:5432:5432"
     volumes:
       - ./database:/var/lib/postgresql/data
+  pghero:
+    image: ankane/pghero
+    restart: on-failure:100
+    depends_on:
+      - database
+    environment:
+      - DATABASE_URL=postgres://${DB_USER}:${DB_PASSWORD_URL_ENCODED}@database:5432/${DB_NAME}
+    ports:
+      - "127.0.0.1:8080:8080"
+    logging:
+      <<: *logging
