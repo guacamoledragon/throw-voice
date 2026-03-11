@@ -642,8 +642,15 @@
         </plugins>
       </reporting>
     </profile>
-    <profile>
+     <profile>
       <id>lite</id>
+      <dependencies>
+        <dependency>
+          <groupId>club.minnced</groupId>
+          <artifactId>jdave-native-win-x86-64</artifactId>
+          <version>0.1.7</version>
+        </dependency>
+      </dependencies>
       <build>
         <plugins>
           <plugin>
@@ -671,6 +678,7 @@
                       <mainClass>${main.class}</mainClass>
                       <manifestEntries>
                         <Multi-Release>true</Multi-Release>
+                        <Enable-Native-Access>ALL-UNNAMED</Enable-Native-Access>
                       </manifestEntries>
                     </transformer>
                   </transformers>
@@ -679,12 +687,13 @@
                       <exclude>aws.sdk.kotlin:*</exclude>
                       <exclude>aws.smithy.kotlin:*</exclude>
                       <exclude>software.amazon.awssdk.crt:*</exclude>
-                      <exclude>com.squareup.okhttp3:okhttp-jvm</exclude>
-                      <exclude>com.squareup.okhttp3:okhttp-coroutines-jvm</exclude>
-                      <exclude>org.postgresql:*</exclude>
-                      <exclude>org.clojure:*</exclude>
-                      <exclude>nrepl:*</exclude>
                       <exclude>io.grpc:*</exclude>
+                      <exclude>nrepl:*</exclude>
+                      <exclude>org.apache.logging.log4j:log4j-layout-template-json</exclude>
+                      <exclude>org.checkerframework:checker-qual</exclude>
+                      <exclude>org.clojure:*</exclude>
+                      <exclude>org.flywaydb:flyway-database-postgresql</exclude>
+                      <exclude>org.postgresql:*</exclude>
                     </excludes>
                   </artifactSet>
                   <filters>
@@ -707,6 +716,10 @@
                       <artifact>club.minnced:opus-java-natives</artifact>
                       <excludes>
                         <exclude>natives/darwin/**</exclude>
+                        <exclude>natives/linux-aarch64/**</exclude>
+                        <exclude>natives/linux-arm/**</exclude>
+                        <exclude>natives/linux-x86/**</exclude>
+                        <exclude>natives/win32-x86/**</exclude>
                       </excludes>
                     </filter>
                     <filter>
@@ -714,9 +727,22 @@
                       <excludes>
                         <exclude>com/sun/jna/aix-ppc*/**</exclude>
                         <exclude>com/sun/jna/darwin*/**</exclude>
+                        <exclude>com/sun/jna/dragonflybsd*/**</exclude>
                         <exclude>com/sun/jna/freebsd*/**</exclude>
+                        <exclude>com/sun/jna/linux-aarch64/**</exclude>
+                        <exclude>com/sun/jna/linux-arm/**</exclude>
+                        <exclude>com/sun/jna/linux-armel/**</exclude>
+                        <exclude>com/sun/jna/linux-loongarch64/**</exclude>
+                        <exclude>com/sun/jna/linux-mips64el/**</exclude>
+                        <exclude>com/sun/jna/linux-ppc/**</exclude>
+                        <exclude>com/sun/jna/linux-ppc64le/**</exclude>
+                        <exclude>com/sun/jna/linux-riscv64/**</exclude>
+                        <exclude>com/sun/jna/linux-s390x/**</exclude>
+                        <exclude>com/sun/jna/linux-x86/**</exclude>
                         <exclude>com/sun/jna/openbsd*/**</exclude>
                         <exclude>com/sun/jna/sunos*/**</exclude>
+                        <exclude>com/sun/jna/win32-aarch64/**</exclude>
+                        <exclude>com/sun/jna/win32-x86/**</exclude>
                       </excludes>
                     </filter>
                   </filters>

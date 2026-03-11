@@ -8,14 +8,14 @@ services:
   bot:
     image: registry.gitlab.com/pawabot/pawa:${VERSION}
     init: true
-    depends_on:
-      - datastore
     deploy:
       resources:
         limits:
-          cpus: 1
+          cpus: '1'
           memory: 6G
     environment:
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
       - APP_URL=${APP_URL}
       - BOT_ACTIVITY=${BOT_ACTIVITY}
       - BOT_DATA_DIR=${BOT_DATA_DIR}
@@ -36,6 +36,7 @@ services:
       - DS_BASEURL=${DS_BASEURL}
       - DS_BUCKET=${DS_BUCKET}
       - DS_HOST=${DS_HOST}
+      - DS_REGION=${DS_REGION}
       - DS_SECRET_KEY=${DS_SECRET_KEY}
       - OVERRIDE_FILE=${OVERRIDE_FILE}
       - TRACING_API_KEY=${TRACING_API_KEY}
@@ -43,57 +44,52 @@ services:
       - JAVA_TOOL_OPTIONS=-Dlog4j.configurationFile=log4j2-prod.xml
                           -XX:MinRAMPercentage=${JVM_MIN_RAM_PERCENTAGE}
                           -XX:MaxRAMPercentage=${JVM_MAX_RAM_PERCENTAGE}
+                          -XX:+CrashOnOutOfMemoryError
+                          -XX:+HeapDumpOnOutOfMemoryError
+                          -XX:HeapDumpPath=${BOT_DATA_DIR}/dumps
+                          -XX:+UseCompactObjectHeaders
+      - HONEYCOMB_API_KEY=${HONEYCOMB_API_KEY}
       - SERVICE_NAME=${SERVICE_NAME}
       - SAMPLE_RATE=${SAMPLE_RATE}
       - OTEL_JAVAAGENT_ENABLED=false
-      # - OTEL_LOG_LEVEL=debug
-      # - OTEL_RESOURCE_ATTRIBUTES=${OTEL_RESOURCE_ATTRIBUTES}
-      # - OTEL_EXPORTER_OTLP_HEADERS=${OTEL_EXPORTER_OTLP_HEADERS}
-      # - OTEL_EXPORTER_OTLP_ENDPOINT=${OTEL_EXPORTER_OTLP_ENDPOINT}
     ports:
       - "127.0.0.1:7888:7888"
-    restart: on-failure:100
+    restart: unless-stopped
     volumes:
-      - data:${BOT_DATA_DIR}
+      - ./data:${BOT_DATA_DIR}
       - ./logs:/app/logs
     logging:
       <<: *logging
   database:
-    image: postgres@sha256:b6a3459825427f08ab886545c64d4e5754aa425c5eea678d5359f06a9bf7faab
-    command: -c logging_collector=on -c log_directory=logs -c log_min_duration_statement=0 -c log_statement=none
+    image: postgres:17.2-alpine
+    command: >
+      -c logging_collector=on
+      -c log_directory=logs
+      -c log_min_duration_statement=0
+      -c log_statement=none
+      -c shared_preload_libraries=pg_stat_statements
+      -c pg_stat_statements.track=all
     deploy:
       resources:
         limits:
-          cpus: 1
+          cpus: '1'
           memory: 2G
+    restart: unless-stopped
     environment:
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_DB=${DB_NAME}
     ports:
       - "127.0.0.1:5432:5432"
     volumes:
-      - db-data:/var/lib/postgresql/data
-  # otel-collector:
-  #   image: otel/opentelemetry-collector-contrib
-  #   volumes:
-  #     - ./otel-collector-config.yaml:/etc/otelcol-contrib/config.yaml
-  #   ports:
-  #     - "127.0.0.1:1888:1888" # pprof extension
-  #     - "127.0.0.1:8888:8888" # Prometheus metrics exposed by the Collector
-  #     - "127.0.0.1:8889:8889" # Prometheus exporter metrics
-  #     - "127.0.0.1:13133:13133" # health_check extension
-  #     - "127.0.0.1:4317:4317" # OTLP gRPC receiver
-  #     - "127.0.0.1:4318:4318" # OTLP http receiver
-  #     - "127.0.0.1:55679:55679" # zpages extension
-  #   logging:
-  #     <<: *logging
-
-volumes:
-  data:
-    driver: local-persist
-    driver_opts:
-      mountpoint: ${BOT_MOUNT_DIR}
-  db-data:
-    driver: local-persist
-    driver_opts:
-      mountpoint: ${DB_MOUNT_DIR}
+      - ./database:/var/lib/postgresql/data
+  pghero:
+    image: ankane/pghero
+    restart: on-failure:100
+    depends_on:
+      - database
+    environment:
+      - DATABASE_URL=postgres://${DB_USER}:${DB_PASSWORD_URL_ENCODED}@database:5432/${DB_NAME}
+    ports:
+      - "127.0.0.1:8080:8080"
+    logging:
+      <<: *logging
