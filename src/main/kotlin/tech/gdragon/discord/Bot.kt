@@ -21,6 +21,7 @@ import org.jetbrains.exposed.sql.batchInsert
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.java.KoinJavaComponent.getKoin
 import tech.gdragon.api.pawa.Pawa
+import tech.gdragon.koin.getBooleanProperty
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.audio.Record
 import tech.gdragon.commands.audio.Save
@@ -110,7 +111,7 @@ class Bot(private val token: String, private val pawa: Pawa) {
       // Register Listeners
       shardManager.addEventListener(EventListener(pawa), SystemEventListener())
 
-      val prefixCommandsEnabled = getKoin().getProperty("BOT_PREFIX_COMMANDS", "true").toBoolean()
+      val prefixCommandsEnabled = getKoin().getBooleanProperty("BOT_PREFIX_COMMANDS")
       if (prefixCommandsEnabled) {
         shardManager.addEventListener(PrefixCommandListener(pawa))
       }
