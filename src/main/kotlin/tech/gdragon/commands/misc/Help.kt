@@ -54,6 +54,13 @@ class Help : CommandHandler() {
       setThumbnail(event.jda.selfUser.avatarUrl)
     }
 
+    if (!pawa.isStandalone) {
+      embed.setDescription(
+        ":warning: **Prefix commands (and aliases) will be removed on May 1, 2026.** " +
+          "Please use slash commands instead."
+      )
+    }
+
     val defaultChannel = BotUtils.defaultTextChannel(event.guild) ?: event.channel
     val commands = Command.entries.toTypedArray()
     commands
