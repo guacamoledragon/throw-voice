@@ -36,6 +36,7 @@ import tech.gdragon.db.dao.Application
 import tech.gdragon.db.table.Tables.Guilds
 import tech.gdragon.db.table.Tables.Settings
 import tech.gdragon.listener.EventListener
+import tech.gdragon.listener.PrefixCommandListener
 import tech.gdragon.listener.SystemEventListener
 import javax.security.auth.login.LoginException
 import kotlin.time.Duration.Companion.seconds
@@ -108,6 +109,12 @@ class Bot(private val token: String, private val pawa: Pawa) {
 
       // Register Listeners
       shardManager.addEventListener(EventListener(pawa), SystemEventListener())
+
+      val prefixCommandsEnabled = getKoin().getProperty("BOT_PREFIX_COMMANDS", "true").toBoolean()
+      if (prefixCommandsEnabled) {
+        shardManager.addEventListener(PrefixCommandListener(pawa))
+      }
+
       registerSlashCommands()
 
       // Update Slash commands
