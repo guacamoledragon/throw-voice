@@ -48,10 +48,9 @@ pg-backup password='password' port='5432':
 pg-migrate password='password' port='5432':
   docker run --rm \
          --network host \
-         -v ($env.PWD + "/sql:/flyway/sql") \
-         -v ($env.PWD + "/conf:/flyway/conf") \
-         -v ($env.PWD + "/data:/flyway/data") \
-         flyway/flyway:10.11-alpine \
+         -v "${PWD}/sql:/flyway/sql" \
+         -v "${PWD}/conf:/flyway/conf" \
+         flyway/flyway:10 \
          -user=postgres -password={{ password }} \
          -url=jdbc:postgresql://localhost:{{ port }}/settings \
          migrate
