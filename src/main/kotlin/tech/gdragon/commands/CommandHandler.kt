@@ -55,14 +55,13 @@ fun handleCommand(parentSpan: Span, event: MessageReceivedEvent, pawa: Pawa, pre
   command?.handler?.let {
 
     parentSpan.setAttribute("command", command.name.lowercase())
-    parentSpan.setAttribute("aliased", aliased)
 
     val span = getKoin().get<Tracer>()
       .spanBuilder("${command.name} Command")
       .setParent(Context.current().with(parentSpan))
       .startSpan()
     span.makeCurrent().use { _ ->
-      withLoggingContext("command" to command.name) {
+      withLoggingContext("command" to command.name, "aliased" to aliased.toString()) {
         logger.info {
           "Executing command: ${command.name}"
         }
