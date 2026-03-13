@@ -61,45 +61,49 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
     if (pawa.isStandalone || event.user.idLong == TRIGOMAN) {
       when {
         RecoverRecordingCommand.EVENT_NAME == event.name -> {
-          event.deferReply().queue()
+          withLoggingContext("command" to "recover-recording") {
+            logger.info { "Executing command: recover-recording" }
 
-          val datastore = getKoin().get<Datastore>()
-          val recoverRecordingCommand = RecoverRecordingCommand(pawa, datastore, event.target.contentRaw)
+            event.deferReply().queue()
 
-          event.target.addReaction(Emoji.fromUnicode("👀")).queue()
-          if (recoverRecordingCommand.results.isEmpty()) {
-            event.hook.send("No Session IDs in message found.").queue()
-            event.target.addReaction(Emoji.fromUnicode("❌")).queue()
-          } else {
-            val privateMessageAction = event.target.author
-              .openPrivateChannel()
-              .flatMap { privateChannel ->
-                val successfulReplies = recoverRecordingCommand
-                  .successfulRecordings()
-                  .map { RecordingReply(it.recording!!, pawa.config.appUrl).message }
-                  .map(privateChannel::sendMessage)
-                val failedReply = privateChannel
-                  .sendMessage(ErrorEmbed(
-                    "Recording Not Found",
-                    "Could not find these Session ID:\n ```${
-                      recoverRecordingCommand.failedRecordings().joinToString("\n") { it.id }
-                    }```\n If this is a mistake, contact support server."
-                  ).message)
+            val datastore = getKoin().get<Datastore>()
+            val recoverRecordingCommand = RecoverRecordingCommand(pawa, datastore, event.target.contentRaw)
 
-                RestAction.allOf(successfulReplies + failedReply)
-              }
+            event.target.addReaction(Emoji.fromUnicode("👀")).queue()
+            if (recoverRecordingCommand.results.isEmpty()) {
+              event.hook.send("No Session IDs in message found.").queue()
+              event.target.addReaction(Emoji.fromUnicode("❌")).queue()
+            } else {
+              val privateMessageAction = event.target.author
+                .openPrivateChannel()
+                .flatMap { privateChannel ->
+                  val successfulReplies = recoverRecordingCommand
+                    .successfulRecordings()
+                    .map { RecordingReply(it.recording!!, pawa.config.appUrl).message }
+                    .map(privateChannel::sendMessage)
+                  val failedReply = privateChannel
+                    .sendMessage(ErrorEmbed(
+                      "Recording Not Found",
+                      "Could not find these Session ID:\n ```${
+                        recoverRecordingCommand.failedRecordings().joinToString("\n") { it.id }
+                      }```\n If this is a mistake, contact support server."
+                    ).message)
 
-            privateMessageAction.queue({
-              val message = """
-                |${event.target.author.asMention} Please check your DMs :bow:
-                |$recoverRecordingCommand
-              """.trimMargin()
+                  RestAction.allOf(successfulReplies + failedReply)
+                }
 
-              event.hook.send(message).queue()
-              event.target.addReaction(Emoji.fromUnicode("✅")).queue()
-            }, {
-              event.hook.send("Failed to DM ${event.target.author.asMention} about recovered recordings.").queue()
-            })
+              privateMessageAction.queue({
+                val message = """
+                  |${event.target.author.asMention} Please check your DMs :bow:
+                  |$recoverRecordingCommand
+                """.trimMargin()
+
+                event.hook.send(message).queue()
+                event.target.addReaction(Emoji.fromUnicode("✅")).queue()
+              }, {
+                event.hook.send("Failed to DM ${event.target.author.asMention} about recovered recordings.").queue()
+              })
+            }
           }
         }
       }
