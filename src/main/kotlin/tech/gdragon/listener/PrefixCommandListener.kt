@@ -77,7 +77,7 @@ class PrefixCommandListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
             if (!pawa.isStandalone) {
               BotUtils.sendMessage(
                 defaultChannel,
-                ":warning: **Prefix commands (and aliases) will be removed on May 1, 2026.** " +
+                ":warning: **Prefix commands (and aliases) will be removed <t:1777593600:D> (<t:1777593600:R>).** " +
                   "Please switch to slash commands: `/record`, `/save`, `/stop`, etc. " +
                   "Type `/` in the message bar to see all available commands."
               )

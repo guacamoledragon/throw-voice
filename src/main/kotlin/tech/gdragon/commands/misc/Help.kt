@@ -56,7 +56,7 @@ class Help : CommandHandler() {
 
     if (!pawa.isStandalone) {
       embed.setDescription(
-        ":warning: **Prefix commands (and aliases) will be removed on May 1, 2026.** " +
+        ":warning: **Prefix commands (and aliases) will be removed <t:1777593600:D> (<t:1777593600:R>).** " +
           "Please use slash commands instead."
       )
     }
