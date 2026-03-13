@@ -6,6 +6,8 @@ This is the full list of commands available, but on a daily basis, you wont need
 
 ## Prefix Commands
 
+!> **Prefix commands (and aliases) will be removed on May 1, 2026.** Please switch to [Slash Commands](#slash-commands) — type `/` in the message bar to see all available commands.
+
 |                                         Command | Description                                                                                      |
 |------------------------------------------------:|--------------------------------------------------------------------------------------------------|
 |               [alias](commands/prefix/alias.md) | Creates an alias for a command                                                                   |

@@ -1,6 +1,8 @@
 # slash
 > Manage Slash command settings.
 
+!> **Deprecated:** Prefix commands will be removed on May 1, 2026. Please use [slash commands](/commands.md#slash-commands) instead.
+
 ## Usage
 Using Slash commands requires inviting the bot with special permissions and registering the Slash commands on a Discord server. This will command will make this tenable for [Pawa Lite](/pawalite) users.
 
