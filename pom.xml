@@ -265,7 +265,7 @@
     <dependency>
       <groupId>org.clojure</groupId>
       <artifactId>clojure</artifactId>
-      <version>1.12.3</version>
+      <version>1.12.4</version>
     </dependency>
     <dependency>
       <groupId>org.flywaydb</groupId>
