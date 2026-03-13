@@ -33,6 +33,7 @@ fun handleCommand(parentSpan: Span, event: MessageReceivedEvent, pawa: Pawa, pre
   val rawCommand = tokens.first()
   val args = tokens.drop(1).toTypedArray()
 
+  var aliased = false
   val command = try {
     Command.valueOf(rawCommand.uppercase())
   } catch (_: IllegalArgumentException) {
@@ -45,12 +46,16 @@ fun handleCommand(parentSpan: Span, event: MessageReceivedEvent, pawa: Pawa, pre
         ?.name
     }
 
-    alias?.let(Command::valueOf)
+    alias?.let {
+      aliased = true
+      Command.valueOf(it)
+    }
   }
 
   command?.handler?.let {
 
     parentSpan.setAttribute("command", command.name.lowercase())
+    parentSpan.setAttribute("aliased", aliased)
 
     val span = getKoin().get<Tracer>()
       .spanBuilder("${command.name} Command")
