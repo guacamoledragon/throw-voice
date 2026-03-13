@@ -55,7 +55,6 @@ fun handleCommand(parentSpan: Span, event: MessageReceivedEvent, pawa: Pawa, pre
   command?.handler?.let {
 
     parentSpan.setAttribute("command", command.name.lowercase())
-    parentSpan.setAttribute("aliased", aliased)
 
     val span = getKoin().get<Tracer>()
       .spanBuilder("${command.name} Command")
