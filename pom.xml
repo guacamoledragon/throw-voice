@@ -27,7 +27,7 @@
     <slf4j.version>2.0.9</slf4j.version>
     <log4j.version>2.25.3</log4j.version>
     <otel.version>2.16.0</otel.version>
-    <surefire.version>3.5.2</surefire.version>
+    <surefire.version>3.5.5</surefire.version>
   </properties>
 
   <dependencyManagement>
