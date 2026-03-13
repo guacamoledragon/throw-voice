@@ -1,6 +1,8 @@
 # status
 > Displays connection status information.
 
+!> **Deprecated:** Prefix commands will be removed on May 1, 2026. Please use [slash commands](/commands.md#slash-commands) instead.
+
 ## Usage
 This system command displays information about the active shard [pawa](https://pawa.im) connections. Only available to [Pawa Lite](/pawalite) users and [pawa](https://pawa.im) administrators.
 

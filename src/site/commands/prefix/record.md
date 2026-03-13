@@ -1,6 +1,8 @@
 ### record
 > Record voice channel
 
+!> **Deprecated:** Prefix commands will be removed on May 1, 2026. Please use [slash commands](/commands.md#slash-commands) instead.
+
 This command is the reason you're using this bot, so if something isn't working as expected, please report in the support server.
 
 ## How to Use

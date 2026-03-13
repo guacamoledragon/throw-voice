@@ -73,6 +73,15 @@ class PrefixCommandListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
             handleCommand(span, event, pawa, prefix, rawContent)
             // Update activity
             BotUtils.updateActivity(event.guild)
+
+            if (!pawa.isStandalone) {
+              BotUtils.sendMessage(
+                defaultChannel,
+                ":warning: **Prefix commands (and aliases) will be removed <t:1777593600:D> (<t:1777593600:R>).** " +
+                  "Please switch to slash commands: `/record`, `/save`, `/stop`, etc. " +
+                  "Type `/` in the message bar to see all available commands."
+              )
+            }
           } catch (e: InvalidCommand) {
             BotUtils.sendMessage(defaultChannel, ":no_entry_sign: _Usage: `${e.usage(prefix)}`_")
             logger.warn { "[$rawContent] ${e.reason}" }
