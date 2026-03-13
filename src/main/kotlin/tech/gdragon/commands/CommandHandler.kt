@@ -62,7 +62,7 @@ fun handleCommand(parentSpan: Span, event: MessageReceivedEvent, pawa: Pawa, pre
       .setParent(Context.current().with(parentSpan))
       .startSpan()
     span.makeCurrent().use { _ ->
-      withLoggingContext("command" to command.name) {
+      withLoggingContext("command" to command.name, "aliased" to aliased.toString()) {
         logger.info {
           "Executing command: ${command.name}"
         }
