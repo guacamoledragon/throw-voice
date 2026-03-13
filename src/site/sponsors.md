@@ -2,4 +2,4 @@
 
 Thank you for supporting the development of pawa!
 
-[![torigen](https://avatars.githubusercontent.com/u/78496244?v=4 ':class=sponsors')](https://github.com/torigen)
+[![SoulSpirit82](https://avatars.githubusercontent.com/u/252282262?v=4 ':class=sponsors')](https://github.com/SoulSpirit82)
