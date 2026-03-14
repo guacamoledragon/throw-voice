@@ -7,8 +7,12 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 ## [Unreleased]
 
 ### Added
+- `BOT_RECORDER_TYPE` environment variable to toggle between `LEGACY` (RxJava) and `QUEUE` (BlockingQueue) audio recorder implementations at startup
+- `AudioRecorder` interface to abstract both recorder implementations
+- Tests for both recorder implementations proving deadlock bugs in LEGACY and resilience in QUEUE
 
 ### Changed
+- All recorder interactions now go through the `AudioRecorder` interface instead of hard-casting to concrete types
 
 ### Deprecated
 

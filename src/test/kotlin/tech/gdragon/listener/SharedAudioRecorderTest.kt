@@ -119,13 +119,14 @@ class SharedAudioRecorderTest : FunSpec({
           "APP_URL" to "http://localhost",
           "BOT_DATA_DIR" to tempDir.absolutePath,
           "BOT_FILE_FORMAT" to "mp3",
+          "BOT_RECORDER_TYPE" to "QUEUE",
           "BOT_STANDALONE" to "false",
           "BOT_MP3_VBR" to "false",
         )
       )
       modules(module {
         single<Datastore> { mockDatastore }
-        single<Pawa> { Pawa(db, PawaConfig { isStandalone = false }) }
+        single<Pawa> { Pawa(db, PawaConfig { isStandalone = false; recorderType = tech.gdragon.api.pawa.RecorderType.QUEUE }) }
       })
     }
 

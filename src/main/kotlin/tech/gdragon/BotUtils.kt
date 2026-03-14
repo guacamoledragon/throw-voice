@@ -42,7 +42,7 @@ import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.now
 import tech.gdragon.db.table.Tables.Guilds
 import tech.gdragon.discord.message.RecordingStartedReply
-import tech.gdragon.api.pawa.RecorderImpl
+import tech.gdragon.api.pawa.RecorderType
 import tech.gdragon.listener.AudioRecorder
 import tech.gdragon.listener.CombinedAudioRecorderHandler
 import tech.gdragon.listener.SharedAudioRecorder
@@ -369,12 +369,12 @@ object BotUtils {
     } ?: 1.0
 
     val pawa: Pawa = getKoin().get()
-    val recorder: AudioRecorder = when (pawa.recorderImpl) {
-      RecorderImpl.LEGACY -> {
+    val recorder: AudioRecorder = when (pawa.recorderType) {
+      RecorderType.LEGACY -> {
         logger.info { "Using LEGACY recorder (CombinedAudioRecorderHandler)" }
         CombinedAudioRecorderHandler(volume, channel, messageChannel)
       }
-      RecorderImpl.QUEUE -> {
+      RecorderType.QUEUE -> {
         logger.info { "Using QUEUE recorder (BaseAudioRecorder)" }
         if (pawa.isStandalone) StandaloneAudioRecorder(volume, channel, messageChannel)
         else SharedAudioRecorder(volume, channel, messageChannel)

@@ -27,7 +27,7 @@ open class Pawa(val db: Database, val config: PawaConfig = PawaConfig.invoke()) 
           appUrl = getProperty("APP_URL", "")
           dataDirectory = getProperty("BOT_DATA_DIR", "")
           isStandalone = getBooleanProperty("BOT_STANDALONE")
-          recorderImpl = RecorderImpl.fromString(getPropertyOrNull("BOT_RECORDER_IMPL"))
+          recorderType = RecorderType.fromString(getProperty("BOT_RECORDER_TYPE"))
         }
         Pawa(get(), config)
       }
@@ -35,7 +35,7 @@ open class Pawa(val db: Database, val config: PawaConfig = PawaConfig.invoke()) 
   }
 
   val isStandalone = config.isStandalone
-  val recorderImpl = config.recorderImpl
+  val recorderType = config.recorderType
   val logger = KotlinLogging.logger { }
 
   private var _ignoredUsers: MutableMap<String, List<Long>> = mutableMapOf()
