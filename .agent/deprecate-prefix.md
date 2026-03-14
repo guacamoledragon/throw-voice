@@ -794,3 +794,37 @@ drops prefix support.
    Context Menu command which reads `event.target.contentRaw` to extract session IDs.
    `GUILD_MESSAGES` also kept for `onPrivateMessageReceived`. Neither can be dropped
    after prefix removal.
+
+---
+
+## Phase 3 Implementation Notes
+
+Decisions made during implementation that differ from or extend the plan:
+
+1. **Step 3.3 — `tech.gdragon.commands.logger` reference:** Chose option (b) — replaced
+   with EventListener's own `logger` instance rather than creating a new `Logging.kt` file.
+   Simpler, fewer files, same behavior (both loggers use `KotlinLogging.logger {}`).
+
+2. **`SaveDestination.kt` still uses `SaveLocation` i18n class:** The plan did not account
+   for this dependency. `SaveDestination` (the slash replacement for the prefix `SaveLocation`
+   command) imports `tech.gdragon.i18n.SaveLocation` for its `current`, `channel`, and
+   `permissions` translations. The `SaveLocation` i18n class was retained with only those
+   3 properties (removed `notFound`, `fail`, `usage` which were prefix-only). The
+   corresponding `savelocation.current`, `savelocation.channel`, `savelocation.permissions`
+   translation keys were restored in the 12 locale files that had them.
+
+3. **`/alias` slash command documentation removed:** The plan mentioned removing prefix
+   command docs but did not explicitly call out `src/site/commands/slash/alias.md`. Since
+   the `/alias` slash command was removed in Step 3.5, its documentation was also deleted.
+
+4. **i18n `usage` properties on surviving classes:** The plan did not mention cleaning up
+   the `usage` lambda properties on i18n classes like `AutoSave`, `Record`, `Stop`, etc.
+   These properties would throw `MissingResourceException` at class construction time
+   because the `*.usage` translation keys were deleted. All `usage` properties were removed
+   from surviving i18n classes, and dead i18n classes (`Alias`, `Help`, `Prefix`,
+   `RemoveAlias`, `Language`) were deleted along with their Babel factory methods and
+   `commandTranslator` entries.
+
+5. **`last-prefix-support` tag:** The plan says to tag the last commit before Phase 3.
+   This was NOT done in this branch since we're working in a git-worktree and Phase 2
+   isn't complete yet. **TODO: Tag should be applied to master before merging Phase 3.**
