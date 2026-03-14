@@ -25,7 +25,9 @@ import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionE
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException
 import net.dv8tion.jda.api.utils.FileUpload
 import net.dv8tion.jda.api.utils.messages.MessageCreateData
+import net.dv8tion.jda.api.audio.AudioReceiveHandler
 import net.dv8tion.jda.internal.managers.AudioManagerImpl
+import org.koin.java.KoinJavaComponent.getKoin
 import org.jetbrains.exposed.dao.exceptions.EntityNotFoundException
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.Op
@@ -40,7 +42,11 @@ import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.now
 import tech.gdragon.db.table.Tables.Guilds
 import tech.gdragon.discord.message.RecordingStartedReply
+import tech.gdragon.api.pawa.RecorderImpl
+import tech.gdragon.listener.AudioRecorder
 import tech.gdragon.listener.CombinedAudioRecorderHandler
+import tech.gdragon.listener.SharedAudioRecorder
+import tech.gdragon.listener.StandaloneAudioRecorder
 import java.io.File
 import java.io.FileInputStream
 import java.time.Instant
@@ -198,11 +204,10 @@ object BotUtils {
     voiceChannel: AudioChannel,
     messageChannel: MessageChannel,
     save: Boolean
-  ): CombinedAudioRecorderHandler {
-    // TODO: This method should be broken up into two, one that stops and saves and another one that leaves voice channel
+  ): AudioRecorder {
     val guild = voiceChannel.guild
     val audioManager = guild.audioManager as AudioManagerImpl
-    val recorder = audioManager.receivingHandler as CombinedAudioRecorderHandler
+    val recorder = audioManager.receivingHandler as AudioRecorder
 
     withLoggingContext("guild" to voiceChannel.guild.name, "text-channel" to messageChannel.name) {
       logger.debug { "Leaving voice channel" }
@@ -215,14 +220,13 @@ object BotUtils {
 
       val (recording, recordingLock) =
         if (save) {
-
           // Upload recording to the default specified channel
           val destinationChannel = defaultTextChannel(guild) ?: messageChannel
           sendMessage(destinationChannel, ":floppy_disk: **Saving <#${voiceChannel.id}>'s recording...**")
           recorder.saveRecording(voiceChannel, destinationChannel)
         } else Pair(null, null)
 
-      recorder.disconnect(!save, recording, recordingLock)
+      recorder.disconnect(save, recording, recordingLock)
     }
 
     return recorder
@@ -327,7 +331,7 @@ object BotUtils {
   fun recordVoiceChannel(
     channel: AudioChannel,
     messageChannel: MessageChannel
-  ): CombinedAudioRecorderHandler {
+  ): AudioRecorder {
     require(messageChannel.canTalk()) {
       updateNickname(channel.guild.selfMember, "CANNOT WRITE")
       "no-write-permission"
@@ -364,8 +368,20 @@ object BotUtils {
         ?.toDouble()
     } ?: 1.0
 
-    val recorder = CombinedAudioRecorderHandler(volume, channel, messageChannel)
-    audioManager.receivingHandler = recorder
+    val pawa: Pawa = getKoin().get()
+    val recorder: AudioRecorder = when (pawa.recorderImpl) {
+      RecorderImpl.LEGACY -> {
+        logger.info { "Using LEGACY recorder (CombinedAudioRecorderHandler)" }
+        CombinedAudioRecorderHandler(volume, channel, messageChannel)
+      }
+      RecorderImpl.QUEUE -> {
+        logger.info { "Using QUEUE recorder (BaseAudioRecorder)" }
+        if (pawa.isStandalone) StandaloneAudioRecorder(volume, channel, messageChannel)
+        else SharedAudioRecorder(volume, channel, messageChannel)
+      }
+    }
+
+    audioManager.receivingHandler = recorder as AudioReceiveHandler
     recordingStatus(channel.guild.selfMember, true)
 
     return recorder

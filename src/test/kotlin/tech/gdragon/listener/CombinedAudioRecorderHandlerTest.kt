@@ -181,7 +181,7 @@ class CombinedAudioRecorderHandlerTest : FunSpec({
     feedAudioFrames(recorder, 30)
 
     val (recording, lock) = recorder.saveRecording(mockVoiceChannel, mockMessageChannel)
-    recorder.disconnect(false, recording, lock)
+    recorder.disconnect(save = true, recording, lock)
 
     // If we reach here, no deadlock occurred
     recording shouldNotBe null
@@ -212,7 +212,7 @@ class CombinedAudioRecorderHandlerTest : FunSpec({
     elapsed.shouldBeGreaterThan(2_500)
 
     // Cleanup
-    recorder.disconnect(false, recording, lock)
+    recorder.disconnect(save = true, recording, lock)
 
     // Restore fast mock for other tests
     every { BotUtils.uploadFile(any(), any(), any()) } returns null
@@ -252,7 +252,7 @@ class CombinedAudioRecorderHandlerTest : FunSpec({
     //  3. The callback's lock.release(1) is inside queueFile?.let { } — never reached
     //  4. disconnect's lock.acquire(1) at the end blocks forever
     val future = CompletableFuture.runAsync {
-      recorder.disconnect(false, null, lock)
+      recorder.disconnect(save = true, null, lock)
     }
 
     // Assert: the future does NOT complete — proving the permanent deadlock.
