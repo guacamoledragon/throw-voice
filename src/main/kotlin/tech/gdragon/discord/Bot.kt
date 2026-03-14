@@ -23,7 +23,6 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.core.inList
 import org.koin.java.KoinJavaComponent.getKoin
 import tech.gdragon.api.pawa.Pawa
-import tech.gdragon.koin.getBooleanProperty
 import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.audio.Record
 import tech.gdragon.commands.audio.Save
@@ -39,7 +38,6 @@ import tech.gdragon.db.dao.Application
 import tech.gdragon.db.table.Tables.Guilds
 import tech.gdragon.db.table.Tables.Settings
 import tech.gdragon.listener.EventListener
-import tech.gdragon.listener.PrefixCommandListener
 import tech.gdragon.listener.SystemEventListener
 import javax.security.auth.login.LoginException
 import kotlin.time.Duration.Companion.seconds
@@ -112,11 +110,6 @@ class Bot(private val token: String, private val pawa: Pawa) {
 
       // Register Listeners
       shardManager.addEventListener(EventListener(pawa), SystemEventListener())
-
-      val prefixCommandsEnabled = getKoin().getBooleanProperty("BOT_PREFIX_COMMANDS")
-      if (prefixCommandsEnabled) {
-        shardManager.addEventListener(PrefixCommandListener(pawa))
-      }
 
       registerSlashCommands()
 
