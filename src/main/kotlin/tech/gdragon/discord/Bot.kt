@@ -23,17 +23,12 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.core.inList
 import org.koin.java.KoinJavaComponent.getKoin
 import tech.gdragon.api.pawa.Pawa
-import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.audio.Record
 import tech.gdragon.commands.audio.Save
 import tech.gdragon.commands.audio.Stop
-import tech.gdragon.commands.debug.Status
-import tech.gdragon.commands.debug.Test
-import tech.gdragon.commands.misc.Help
 import tech.gdragon.commands.settings.*
 import tech.gdragon.commands.slash.Info
 import tech.gdragon.commands.slash.Recover
-import tech.gdragon.commands.slash.Slash
 import tech.gdragon.db.dao.Application
 import tech.gdragon.db.table.Tables.Guilds
 import tech.gdragon.db.table.Tables.Settings
@@ -42,7 +37,6 @@ import tech.gdragon.listener.SystemEventListener
 import javax.security.auth.login.LoginException
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
-import tech.gdragon.i18n.Alias as AliasTranslator
 import tech.gdragon.i18n.AutoStop as AutoStopTranslator
 
 class Bot(private val token: String, private val pawa: Pawa) {
@@ -185,28 +179,6 @@ class Bot(private val token: String, private val pawa: Pawa) {
 
   private fun registerSlashCommands() {
     shardManager.run {
-      onCommand(Alias.command.name) { event ->
-        event.guild?.let {
-          val translator: AliasTranslator = pawa.translator(it.idLong)
-
-          val commandName = event.getOption("command")?.asString
-          val alias = event.getOption("alias")?.asString
-          if (commandName != null && alias != null) {
-            val command = Command.valueOf(commandName.uppercase())
-            pawa
-              .createAlias(it.idLong, command, alias)
-              ?.let {
-                event.reply(":dancers: _${translator.new(alias, commandName)}_").await()
-              }
-              ?: event.reply(":no_entry_sign: _${translator.invalid(commandName)}_").await()
-          } else {
-            logger.error {
-              "No command or alias was provided"
-            }
-          }
-        }
-      }
-
       onCommand(AutoRecord.command.name, consumer = AutoRecord.slashHandler(pawa))
       onCommand(AutoStop.command.name) { event ->
         if (event.isFromGuild) {
@@ -260,7 +232,6 @@ class Bot(private val token: String, private val pawa: Pawa) {
     api()
       .updateCommands {
         addCommands(
-          Alias.command,
           AutoRecord.command,
           AutoStop.command,
           AutoSave.command,
@@ -292,64 +263,4 @@ class Bot(private val token: String, private val pawa: Pawa) {
       }
     }
   }
-}
-
-enum class Command {
-  ALIAS {
-    override val handler: CommandHandler = Alias()
-  },
-  AUTORECORD {
-    override val handler: CommandHandler = AutoRecord()
-  },
-  AUTOSAVE {
-    override val handler: CommandHandler = AutoSave()
-  },
-  AUTOSTOP {
-    override val handler: CommandHandler = AutoStop()
-  },
-  HELP {
-    override val handler: CommandHandler = Help()
-  },
-  IGNORE {
-    override val handler: CommandHandler = Ignore()
-  },
-  INFO {
-    override val handler: CommandHandler = Info()
-  },
-  LANG {
-    override val handler: CommandHandler = Language()
-  },
-  PREFIX {
-    override val handler: CommandHandler = Prefix()
-  },
-  RECORD {
-    override val handler: CommandHandler = Record()
-  },
-  REMOVEALIAS {
-    override val handler: CommandHandler = RemoveAlias()
-  },
-  SAVE {
-    override val handler: CommandHandler = Save()
-  },
-  SAVELOCATION {
-    override val handler: CommandHandler = SaveLocation()
-  },
-  SLASH {
-    override val handler: CommandHandler = Slash()
-  },
-  STATUS {
-    override val handler: CommandHandler = Status()
-  },
-  STOP {
-    override val handler: CommandHandler = Stop()
-  },
-  VOLUME {
-    override val handler: CommandHandler = Volume()
-  },
-  TEST {
-    override val handler: CommandHandler = Test()
-  };
-
-  abstract val handler: CommandHandler
-  // TODO: add a command property here for Slash commands
 }
