@@ -21,7 +21,6 @@ import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.dao.Recording
 import tech.gdragon.db.now
-import tech.gdragon.discord.Command
 import java.io.File
 import java.io.FileOutputStream
 import java.nio.file.Files
@@ -46,30 +45,6 @@ fun pawaTests(db: Database, ds: Datastore, isStandalone: Boolean) = funSpec {
     }
 
     Pawa(db, config)
-  }
-
-  context("when alias") {
-    test("doesn't exist, it should be created") {
-      val alias = pawa.createAlias(guildId, Command.RECORD, "r")
-      alias.shouldNotBeNull()
-      alias.alias.shouldBe("r")
-      alias.name.shouldBe("RECORD")
-    }
-
-    test("exists, it shouldn't be created") {
-      val alias = pawa.createAlias(guildId, Command.RECORD, "r")
-      alias.shouldNotBeNull()
-    }
-
-    test("command is \"alias\" it shouldn't be created") {
-      val alias = pawa.createAlias(guildId, Command.ALIAS, "a")
-      alias.shouldBeNull()
-    }
-
-    test("is a command name, it shouldn't be created") {
-      val alias = pawa.createAlias(guildId, Command.RECORD, "record")
-      alias.shouldBeNull()
-    }
   }
 
   context("when recover") {
