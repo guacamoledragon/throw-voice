@@ -311,7 +311,7 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
       pawa.recordings.filterValues { it == event.guild?.idLong }.keys.firstOrNull()
     event.guild?.let(BotUtils::updateActivity)
     withLoggingContext("command" to commandName, "session-id" to sessionId) {
-      tech.gdragon.commands.logger.info {
+      logger.info {
         "Executing command: $commandName"
       }
       super.onSlashCommandInteraction(event)
