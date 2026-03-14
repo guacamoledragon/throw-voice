@@ -14,6 +14,7 @@ import java.util.concurrent.Semaphore
 interface AudioRecorder {
   val session: String
   val recording: Recording?
+  var volume: Double
 
   fun saveRecording(
     voiceChannel: AudioChannel,

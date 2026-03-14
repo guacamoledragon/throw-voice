@@ -10,8 +10,7 @@ import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionE
 import net.dv8tion.jda.api.managers.AudioManager
 import tech.gdragon.api.pawa.Pawa
 import tech.gdragon.discord.message.RecordingReply
-import tech.gdragon.listener.SharedAudioRecorder
-import tech.gdragon.listener.StandaloneAudioRecorder
+import tech.gdragon.listener.AudioRecorder
 
 object BetaSave {
   val logger = KotlinLogging.logger { }
@@ -25,14 +24,11 @@ object BetaSave {
       val voiceChannel = audioManager.connectedChannel!!
       val messageChannel = event.messageChannel
 
-      val recorder = if (pawa.isStandalone)
-        audioManager.receivingHandler as StandaloneAudioRecorder
-      else
-        audioManager.receivingHandler as SharedAudioRecorder
+      val recorder = audioManager.receivingHandler as AudioRecorder
 
       audioManager.closeAudioConnection()
       val (recording, lock) = recorder.saveRecording(voiceChannel, messageChannel)
-      recorder.disconnect(lock)
+      recorder.disconnect(save = true, recording, lock)
 
       if (recording != null) {
         val reply = RecordingReply(recording, pawa.config.appUrl)

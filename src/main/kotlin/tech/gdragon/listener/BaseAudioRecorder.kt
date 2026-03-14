@@ -35,7 +35,7 @@ import kotlin.concurrent.thread
  * Base class containing core audio recording functionality shared by both standalone and shared recorders.
  */
 abstract class BaseAudioRecorder(
-  var volume: Double,
+  override var volume: Double,
   val voiceChannel: AudioChannel,
   val messageChannel: MessageChannel
 ) : AudioReceiveHandler, KoinComponent, AudioRecorder {

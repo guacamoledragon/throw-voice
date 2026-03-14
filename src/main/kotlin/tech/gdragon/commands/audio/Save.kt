@@ -17,7 +17,7 @@ import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.discord.message.RecordingReply
 import tech.gdragon.i18n.Babel
 import tech.gdragon.i18n.Lang
-import tech.gdragon.listener.CombinedAudioRecorderHandler
+import tech.gdragon.listener.AudioRecorder
 import net.dv8tion.jda.api.entities.Guild as DiscordGuild
 import tech.gdragon.i18n.Save as SaveTranslator
 
@@ -58,7 +58,7 @@ class Save : CommandHandler() {
         if (message != null) {
           BotUtils.reply(event, MessageCreate(message))
         } else {
-          val recorder = event.guild?.audioManager?.receivingHandler as? CombinedAudioRecorderHandler
+          val recorder = event.guild?.audioManager?.receivingHandler as? AudioRecorder
           val recording = recorder?.recording!!
           val recordingEmbed = RecordingReply(recording, pawa.config.appUrl)
           BotUtils.reply(event, recordingEmbed.message)

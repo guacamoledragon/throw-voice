@@ -74,7 +74,7 @@ class RecordingDisposable {
 data class RecordingQueue(val fileBuffer: File) : QueueFile(fileBuffer)
 
 class CombinedAudioRecorderHandler(
-  var volume: Double,
+  override var volume: Double,
   val voiceChannel: AudioChannel,
   val messageChannel: MessageChannel
 ) : AudioReceiveHandler, KoinComponent, AudioRecorder {

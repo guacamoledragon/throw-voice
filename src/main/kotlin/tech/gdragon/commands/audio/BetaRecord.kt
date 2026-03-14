@@ -8,8 +8,7 @@ import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent
 import net.dv8tion.jda.api.managers.AudioManager
 import tech.gdragon.api.pawa.Pawa
-import tech.gdragon.listener.SharedAudioRecorder
-import tech.gdragon.listener.StandaloneAudioRecorder
+import tech.gdragon.BotUtils
 
 object BetaRecord {
   val command = Command("record", "Start recording voice channel.")
@@ -24,14 +23,9 @@ object BetaRecord {
     } else {
       event.deferReply().await()
 
-      audioManager.openAudioConnection(voiceChannel)
-      val recorder = if (pawa.isStandalone)
-        StandaloneAudioRecorder(1.0, voiceChannel, textChannel)
-      else
-        SharedAudioRecorder(1.0, voiceChannel, textChannel)
-
-      audioManager.receivingHandler = recorder
-      event.hook.sendMessage("Recording Started!`${recorder.session}`").await()
+      val recorder = BotUtils.recordVoiceChannel(voiceChannel, textChannel)
+      pawa.startRecording(recorder.session, event.guild!!.idLong)
+      event.hook.sendMessage("Recording Started! `${recorder.session}`").await()
     }
   }
 }
