@@ -9,7 +9,6 @@ import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.exposedLogger
 import org.jetbrains.exposed.v1.core.like
-import tech.gdragon.db.table.Tables.Aliases
 import tech.gdragon.db.table.Tables.Applications
 import tech.gdragon.db.table.Tables.Channels
 import tech.gdragon.db.table.Tables.Guilds
@@ -18,24 +17,6 @@ import java.time.Duration
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import tech.gdragon.db.table.Tables.Settings as SettingsTable
-
-class Alias(id: EntityID<Int>) : IntEntity(id) {
-  companion object : IntEntityClass<Alias>(Aliases) {
-    fun findOrCreate(name: String, alias: String, settings: Settings): Alias {
-      return find { (Aliases.name eq name) and (Aliases.alias eq alias) and (Aliases.settings eq settings.id) }
-        .firstOrNull()
-        ?: Alias.new {
-          this.name = name
-          this.alias = alias
-          this.settings = settings
-        }
-    }
-  }
-
-  var name by Aliases.name
-  var alias by Aliases.alias
-  var settings by Settings referencedOn Aliases.settings
-}
 
 class Application(id: EntityID<Long>) : LongEntity(id) {
   companion object : LongEntityClass<Application>(Applications) {
@@ -136,11 +117,9 @@ class Settings(id: EntityID<Long>) : LongEntity(id) {
 
   var autoSave by SettingsTable.autoSave
   var defaultTextChannel by SettingsTable.defaultTextChannel
-  var prefix by SettingsTable.prefix
   var volume by SettingsTable.volume
   var language by SettingsTable.language
   var guild by Guild referencedOn SettingsTable.guild
 
   val channels by Channel referrersOn Channels.settings
-  val aliases by Alias referrersOn Aliases.settings
 }
