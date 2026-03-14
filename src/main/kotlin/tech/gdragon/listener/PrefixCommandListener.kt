@@ -1,5 +1,6 @@
 package tech.gdragon.listener
 
+import com.github.benmanes.caffeine.cache.Caffeine
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.oshai.kotlinlogging.withLoggingContext
 import io.opentelemetry.api.trace.StatusCode
@@ -12,11 +13,17 @@ import tech.gdragon.BotUtils
 import tech.gdragon.api.pawa.Pawa
 import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.commands.handleCommand
+import java.util.concurrent.TimeUnit
 
 class PrefixCommandListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
 
   private val logger = KotlinLogging.logger {}
   private val website: String = getKoin().getProperty("BOT_WEBSITE", "http://localhost:8080/")
+
+  /** Tracks which guilds have already seen the deprecation warning today. */
+  private val deprecationWarningCache = Caffeine.newBuilder()
+    .expireAfterWrite(24L, TimeUnit.HOURS)
+    .build<Long, Boolean>()
 
   override fun onMessageReceived(event: MessageReceivedEvent) {
     when {
@@ -74,7 +81,8 @@ class PrefixCommandListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
             // Update activity
             BotUtils.updateActivity(event.guild)
 
-            if (!pawa.isStandalone) {
+            if (!pawa.isStandalone && deprecationWarningCache.getIfPresent(event.guild.idLong) == null) {
+              deprecationWarningCache.put(event.guild.idLong, true)
               BotUtils.sendMessage(
                 defaultChannel,
                 ":warning: **Prefix commands (and aliases) will be removed <t:1777593600:D> (<t:1777593600:R>).** " +
