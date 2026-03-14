@@ -73,32 +73,14 @@ object Babel {
   private val autostop: MutableMap<Lang, AutoStop> = mutableMapOf()
   fun autostop(lang: Lang) = autostop.getOrPut(lang) { AutoStop(lang) }
 
-  private val alias: MutableMap<Lang, Alias> = mutableMapOf()
-  fun alias(lang: Lang) = alias.getOrPut(lang) { Alias(lang) }
-
-  private val help: MutableMap<Lang, Help> = mutableMapOf()
-  fun help(lang: Lang) = help.getOrPut(lang) { Help(lang) }
-
   private val ignore: MutableMap<Lang, Ignore> = mutableMapOf()
   fun ignore(lang: Lang) = ignore.getOrPut(lang) { Ignore(lang) }
-
-  private val language: MutableMap<Lang, Language> = mutableMapOf()
-  fun language(lang: Lang) = language.getOrPut(lang) { Language(lang) }
-
-  private val prefix: MutableMap<Lang, Prefix> = mutableMapOf()
-  fun prefix(lang: Lang) = prefix.getOrPut(lang) { Prefix(lang) }
 
   private val record: MutableMap<Lang, Record> = mutableMapOf()
   fun record(lang: Lang) = record.getOrPut(lang) { Record(lang) }
 
-  private val removealias: MutableMap<Lang, RemoveAlias> = mutableMapOf()
-  fun removealias(lang: Lang) = removealias.getOrPut(lang) { RemoveAlias(lang) }
-
   private val save: MutableMap<Lang, Save> = mutableMapOf()
   fun save(lang: Lang) = save.getOrPut(lang) { Save(lang) }
-
-  private val savelocation: MutableMap<Lang, SaveLocation> = mutableMapOf()
-  fun savelocation(lang: Lang) = savelocation.getOrPut(lang) { SaveLocation(lang) }
 
   private val slash: MutableMap<Lang, Slash> = mutableMapOf()
   fun slash(lang: Lang) = slash.getOrPut(lang) { Slash(lang) }
@@ -118,7 +100,6 @@ object Babel {
 
   inline fun <reified T> commandTranslator(lang: Lang): T {
     return when (T::class) {
-      Alias::class -> alias(lang) as T
       AutoRecord::class -> autorecord(lang) as T
       AutoStop::class -> autostop(lang) as T
       AutoSave::class -> autosave(lang) as T
@@ -126,22 +107,10 @@ object Babel {
       Record::class -> record(lang) as T
       Stop::class -> stop(lang) as T
       Save::class -> save(lang) as T
-      SaveLocation::class -> savelocation(lang) as T
       Volume::class -> volume(lang) as T
       else -> throw IllegalArgumentException("Language: $lang was not found!")
     }
   }
-}
-
-class Alias(lang: Lang) {
-  private val resource = Babel.resource(lang)
-
-  val command: (String) -> String = { alias -> resource.getString("alias.command").format("**`$alias`**") }
-  val exists: (String) -> String = { alias -> resource.getString("alias.exists").format("**`$alias`**") }
-  val invalid: (String) -> String = { command -> resource.getString("alias.invalid").format("**`$command`**") }
-  val new: (String, String) -> String =
-    { alias, command -> resource.getString("alias.new").format("**`$alias", "$command`**") }
-  val usage: (String) -> String = { s -> resource.getString("alias.usage").format(s) }
 }
 
 class AutoSave(lang: Lang) {
@@ -150,7 +119,6 @@ class AutoSave(lang: Lang) {
   val noop: String = resource.getString("autosave.noop")
   val off: String = resource.getString("autosave.off")
   val on: String = resource.getString("autosave.on")
-  val usage: (String) -> String = { prefix -> resource.getString("autosave.usage").format(prefix) }
 }
 
 class AutoRecord(lang: Lang) {
@@ -161,7 +129,6 @@ class AutoRecord(lang: Lang) {
   val one: (String, String) -> String = { channelId, number -> resource.getString("autorecord.one").format("**<#$channelId>**", "**$number**") }
   val some: (String) -> String = { channelId -> resource.getString("autorecord.some").format("**<#$channelId>**") }
   val notFound: String = resource.getString("autorecord.not_found")
-  val usage: (String) -> String = { prefix -> resource.getString("autorecord.usage").format(prefix) }
   val description: String = resource.getString("autorecord.description")
 }
 
@@ -173,15 +140,6 @@ class AutoStop(lang: Lang) {
   val one: (String, String) -> String =
     { channelId, number -> resource.getString("autostop.one").format("**<#${channelId}>**", "**$number**") }
   val some: (String) -> String = { channelId -> resource.getString("autostop.some").format("**<#$channelId>**") }
-  val usage: (String) -> String = { prefix -> resource.getString("autostop.usage").format(prefix) }
-}
-
-class Help(lang: Lang) {
-  private val resource = Babel.resource(lang)
-
-  val checkDm: (String) -> String = { userId -> resource.getString("help.check_dm").format("**<@$userId>**") }
-  val embedTitle: (String) -> String = { website -> resource.getString("help.embed_title").format(website) }
-  val usage: (String) -> String = { prefix -> resource.getString("help.usage").format(prefix) }
 }
 
 class Ignore(lang: Lang) {
@@ -190,25 +148,6 @@ class Ignore(lang: Lang) {
   val beta: String = resource.getString("ignore.beta")
   val ignore: (String) -> String = { users -> resource.getString("ignore.ignore").format(users) }
   val notRecording: String = resource.getString("ignore.not_recording")
-  val usage: (String) -> String = { prefix -> resource.getString("ignore.usage").format(prefix) }
-}
-
-class Language(lang: Lang) {
-  private val resource = Babel.resource(lang)
-
-  val usage: (String) -> String = { prefix ->
-    resource
-      .getString("language.usage")
-      .format(prefix, Babel.languages)
-  }
-}
-
-class Prefix(lang: Lang) {
-  private val resource = Babel.resource(lang)
-
-  val changed: (String) -> String = { prefix -> resource.getString("prefix.changed").format("**`${prefix}`**") }
-  val notChanged: (String) -> String = { prefix -> resource.getString("prefix.not_changed").format("**`$prefix`**") }
-  val usage: (String) -> String = { prefix -> resource.getString("prefix.usage").format(prefix) }
 }
 
 class Record(lang: Lang) {
@@ -245,16 +184,6 @@ class Record(lang: Lang) {
            """.trimMargin()
   }
 
-  val usage: (String) -> String = { prefix -> resource.getString("record.usage").format(prefix) }
-}
-
-class RemoveAlias(lang: Lang) {
-  private val resource = Babel.resource(lang)
-
-  val doesNotExist: (String) -> String =
-    { alias -> resource.getString("removealias.does_not_exist").format("**`$alias`**") }
-  val remove: (String) -> String = { alias -> resource.getString("removealias.remove").format("**`$alias`**") }
-  val usage: (String) -> String = { prefix -> resource.getString("removealias.usage").format(prefix) }
 }
 
 class Save(lang: Lang) {
@@ -262,7 +191,6 @@ class Save(lang: Lang) {
 
   val notRecording: String = resource.getString("save.not_recording")
   val channelNotFound: (String) -> String = { channel -> resource.getString("save.channel_not_found").format(channel) }
-  val usage: (String) -> String = { prefix -> resource.getString("save.usage").format(prefix, prefix) }
   val description: String = resource.getString("save.description")
 }
 
@@ -273,9 +201,6 @@ class SaveLocation(lang: Lang) {
   val channel: (String) -> String = { channel -> resource.getString("savelocation.channel").format("**$channel**") }
   val permissions: (String) -> String =
     { channel -> resource.getString("savelocation.permissions").format("**$channel**") }
-  val notFound: (String) -> String = { channel -> resource.getString("savelocation.not_found").format("**$channel**") }
-  val fail: String = resource.getString("savelocation.fail")
-  val usage: (String) -> String = { prefix -> resource.getString("savelocation.usage").format(prefix, prefix) }
 }
 
 class Slash(lang: Lang) {
@@ -290,7 +215,6 @@ class Stop(lang: Lang) {
   val leaveChannel: (String) -> String =
     { channelId -> resource.getString("stop.leave_channel").format("**<#$channelId>**") }
   val noChannel: String = resource.getString("stop.no_channel")
-  val usage: (String) -> String = { prefix -> resource.getString("stop.usage").format(prefix) }
 }
 
 class Volume(lang: Lang) {
@@ -298,5 +222,4 @@ class Volume(lang: Lang) {
 
   val recording: (String) -> String = { volume -> resource.getString("volume.recording").format("**$volume%**") }
   val notRecording: String = resource.getString("volume.not_recording")
-  val usage: (String) -> String = { prefix -> resource.getString("volume.usage").format(prefix) }
 }
