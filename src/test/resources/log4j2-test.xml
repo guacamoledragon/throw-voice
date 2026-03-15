@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+  <Properties>
+    <Property name="globalPattern">
+      %d{YYYY-MM-dd'T'HH:mm:ssZ} [%level] %logger{1.} - %msg%n
+    </Property>
+  </Properties>
+  <Appenders>
+    <Console name="Console">
+      <PatternLayout pattern="${globalPattern}" charset="UTF-8"/>
+    </Console>
+  </Appenders>
+  <Loggers>
+    <Root level="warn">
+      <AppenderRef ref="Console"/>
+    </Root>
+    <Logger name="tech.gdragon.listener.BaseAudioRecorder" level="off"/>
+    <Logger name="tech.gdragon.listener.SharedAudioRecorder" level="off"/>
+    <Logger name="io.mockk" level="off"/>
+    <Logger name="org.flywaydb" level="error"/>
+    <Logger name="tech.gdragon.listener.CombinedAudioRecorderHandler" level="error"/>
+  </Loggers>
+</Configuration>
