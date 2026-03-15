@@ -144,6 +144,7 @@ abstract class BaseAudioRecorder(
   }
 
   private fun encodeAndWriteAudio(audioData: AudioData, mp3Buffer: ByteArray) {
+    if (!isRecording.get()) return
     val encoder = lameEncoder ?: return
     val queue = queueFile ?: return
 
@@ -274,7 +275,11 @@ abstract class BaseAudioRecorder(
     try {
       if (!processingExecutor.isShutdown) {
         processingExecutor.shutdown()
-        processingExecutor.awaitTermination(5, TimeUnit.SECONDS)
+      }
+      audioQueue.clear()
+      if (!processingExecutor.awaitTermination(5, TimeUnit.SECONDS)) {
+        processingExecutor.shutdownNow()
+        processingExecutor.awaitTermination(2, TimeUnit.SECONDS)
       }
       queueFile?.close()
       lameEncoder?.close()
