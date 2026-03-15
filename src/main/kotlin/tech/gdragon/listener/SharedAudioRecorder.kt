@@ -24,6 +24,7 @@ class SharedAudioRecorder(volume: Double, voiceChannel: AudioChannel, messageCha
   }
 
   private val afkCounter = java.util.concurrent.atomic.AtomicInteger(0)
+  private val afkTriggered = java.util.concurrent.atomic.AtomicBoolean(false)
   private val recordingSize = java.util.concurrent.atomic.AtomicLong(0L)
   private val limitWarning = java.util.concurrent.atomic.AtomicBoolean(false)
 
@@ -36,10 +37,11 @@ class SharedAudioRecorder(volume: Double, voiceChannel: AudioChannel, messageCha
       afkCounter.incrementAndGet()
     } else {
       afkCounter.set(0)
+      afkTriggered.set(false)
     }
 
     val isAfk = afkCounter.get() >= AFK_LIMIT
-    if (isAfk) {
+    if (isAfk && afkTriggered.compareAndSet(false, true)) {
       withLoggingContext("guild" to voiceChannel.guild.name, "voice-channel" to voiceChannel.name) {
         logger.debug { "AFK detected." }
       }
