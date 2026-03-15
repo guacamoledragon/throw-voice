@@ -75,7 +75,7 @@ interface Database {
 class EmbeddedDatabase(private val dbFilename: String, type: String = "file", options: String = "") : Database {
   private val logger = KotlinLogging.logger { }
   private var _database: ExposedDatabase? = null
-  override val database = _database
+  override val database get() = _database
 
   val url: String = "jdbc:h2:$type:$dbFilename;$options"
 
@@ -151,7 +151,7 @@ class EmbeddedDatabase(private val dbFilename: String, type: String = "file", op
 
 class RemoteDatabase(val url: String, private val username: String, private val password: String) : Database {
   private var _database: ExposedDatabase? = null
-  override val database = _database
+  override val database get() = _database
 
   override fun connect() {
     if (_database != null) {
