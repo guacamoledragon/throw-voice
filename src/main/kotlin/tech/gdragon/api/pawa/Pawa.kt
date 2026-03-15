@@ -45,7 +45,7 @@ open class Pawa(val db: Database, val config: PawaConfig = PawaConfig.invoke()) 
     get() = Collections.unmodifiableMap(_recordings)
 
   fun language(guildId: Long): Lang {
-    return transaction { Guild[guildId].settings.language }
+    return transaction(db.database) { Guild[guildId].settings.language }
   }
 
   inline fun <reified T> translator(guildId: Long): T {
@@ -124,7 +124,7 @@ open class Pawa(val db: Database, val config: PawaConfig = PawaConfig.invoke()) 
   }
 
   fun setLocale(guildId: Long, locale: String): Pair<Lang, Lang> {
-    return transaction {
+    return transaction(db.database) {
       val guild = Guild[guildId]
       val prev = guild.settings.language
       val newLang = Lang.valueOf(locale)
@@ -136,7 +136,7 @@ open class Pawa(val db: Database, val config: PawaConfig = PawaConfig.invoke()) 
   }
 
   fun saveDestination(guildId: Long, channelId: Long?) {
-    transaction {
+    transaction(db.database) {
       val guild = Guild[guildId]
       guild.settings.defaultTextChannel = channelId
     }
@@ -159,7 +159,7 @@ open class Pawa(val db: Database, val config: PawaConfig = PawaConfig.invoke()) 
    * [volumePercent] will be clamped between 0.0 and 1.0.
    */
   fun volume(guildId: Long, volumePercent: Double): Double {
-    return transaction {
+    return transaction(db.database) {
       val actualVolume = volumePercent.coerceIn(0.0..1.0)
       Settings
         .find { Tables.Settings.guild eq guildId }
@@ -212,7 +212,7 @@ open class Pawa(val db: Database, val config: PawaConfig = PawaConfig.invoke()) 
         RecoverResult(sessionId, recording)
       } else {
 
-        val recording = transaction {
+        val recording = transaction(db.database) {
           Recording.findById(sessionId)
         }
 
@@ -227,12 +227,12 @@ open class Pawa(val db: Database, val config: PawaConfig = PawaConfig.invoke()) 
   }
 
   fun uploadRecording(sessionId: String, mp3File: File, datastore: Datastore): Recording? {
-    val recording = transaction {
+    val recording = transaction(db.database) {
       Recording.findById(sessionId)
     }
 
     return recording?.let {
-      transaction {
+      transaction(db.database) {
         logger.info { "Re-uploading recording" }
         val result = datastore.upload("${it.guild.id.value}/${mp3File.name}", mp3File)
 
@@ -243,7 +243,7 @@ open class Pawa(val db: Database, val config: PawaConfig = PawaConfig.invoke()) 
           duration = extractDuration(mp3File)
         }
       }
-    } ?: transaction {
+    } ?: transaction(db.database) {
       Guild.findById(408795211901173762L)?.let {
         logger.info { "Uploading recording and creating dummy Recording record." }
         val result = datastore.upload("${it.id.value}/${mp3File.name}", mp3File)
