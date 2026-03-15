@@ -23,6 +23,7 @@ import tech.gdragon.data.Datastore
 import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.dao.Recording
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.IOException
 import java.time.Duration
@@ -43,6 +44,7 @@ abstract class BaseAudioRecorder(
   companion object {
     private const val BITRATE = 128
     private const val AUDIO_QUEUE_CAPACITY = 2000
+    private const val BATCH_SIZE = 10 // ~200ms of audio at 50fps, mirrors CARH's buffer(200ms, 8)
   }
 
   protected val logger = KotlinLogging.logger { }
@@ -124,14 +126,22 @@ abstract class BaseAudioRecorder(
 
   private fun processAudioLoop() {
     val mp3Buffer = ByteArray(8192)
+    val batchBuffer = mutableListOf<AudioData>()
 
     while (isRecording.get() || audioQueue.isNotEmpty()) {
       try {
         val audioData = audioQueue.poll(100, TimeUnit.MILLISECONDS)
-        if (audioData != null) {
-          if (shouldProcessAudio(audioData)) {
-            encodeAndWriteAudio(audioData, mp3Buffer)
-          }
+        if (audioData != null && shouldProcessAudio(audioData)) {
+          batchBuffer.add(audioData)
+        }
+
+        // Flush batch when full, or when draining remaining frames after recording stops
+        val shouldFlush = batchBuffer.size >= BATCH_SIZE
+          || (!isRecording.get() && audioQueue.isEmpty() && batchBuffer.isNotEmpty())
+
+        if (shouldFlush) {
+          encodeAndWriteBatch(batchBuffer, mp3Buffer)
+          batchBuffer.clear()
         }
       } catch (e: InterruptedException) {
         Thread.currentThread().interrupt()
@@ -141,36 +151,65 @@ abstract class BaseAudioRecorder(
       }
     }
 
+    // Flush any remaining frames that didn't fill a complete batch
+    if (batchBuffer.isNotEmpty()) {
+      try {
+        encodeAndWriteBatch(batchBuffer, mp3Buffer)
+      } catch (e: Exception) {
+        logger.error(e) { "Error flushing final audio batch: $session" }
+      }
+    }
+
+    // Flush LAME encoder's internal buffer (up to 1152 samples / ~24ms)
+    try {
+      val encoder = lameEncoder
+      val queue = queueFile
+      if (encoder != null && queue != null && fileFormat != "pcm") {
+        val flushed = encoder.encodeFinish(mp3Buffer)
+        if (flushed > 0) {
+          queue.add(mp3Buffer.copyOf(flushed))
+          onAudioDataWritten(flushed)
+        }
+      }
+    } catch (e: Exception) {
+      logger.warn(e) { "Failed to flush LAME encoder: $session" }
+    }
+
     logger.debug { "Audio processing loop ended for session: $session" }
   }
 
-  private fun encodeAndWriteAudio(audioData: AudioData, mp3Buffer: ByteArray) {
+  private fun encodeAndWriteBatch(batch: List<AudioData>, mp3Buffer: ByteArray) {
     val encoder = lameEncoder ?: return
     val queue = queueFile ?: return
 
     try {
-      // Encode audio to MP3
-      val bytesEncoded = if (fileFormat == "pcm") {
-        audioData.data.size
-      } else {
-        encoder.encodeBuffer(audioData.data, 0, audioData.data.size, mp3Buffer)
+      val baos = ByteArrayOutputStream()
+
+      for (audioData in batch) {
+        if (fileFormat == "pcm") {
+          baos.write(audioData.data)
+        } else {
+          val bytesEncoded = encoder.encodeBuffer(audioData.data, 0, audioData.data.size, mp3Buffer)
+          if (bytesEncoded > 0) {
+            baos.write(mp3Buffer, 0, bytesEncoded)
+          }
+        }
       }
 
-      if (bytesEncoded > 0) {
-        val dataToWrite = if (fileFormat == "pcm") audioData.data else mp3Buffer.copyOf(bytesEncoded)
-
+      val dataToWrite = baos.toByteArray()
+      if (dataToWrite.isNotEmpty()) {
         // Apply size management policy
         handleSizeLimit(queue, dataToWrite)
 
-        // Write to queue file
+        // Write to queue file — single write for the entire batch
         queue.add(dataToWrite)
         onAudioDataWritten(dataToWrite.size)
 
-        logger.debug { "Encoded ${dataToWrite.size} bytes for session: $session" }
+        logger.debug { "Encoded batch of ${batch.size} frames (${dataToWrite.size} bytes) for session: $session" }
       }
 
     } catch (e: IOException) {
-      logger.warn(e) { "Failed to write audio data: $session" }
+      logger.warn(e) { "Failed to write audio batch: $session" }
     }
   }
 
