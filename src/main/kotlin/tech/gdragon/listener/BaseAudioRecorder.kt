@@ -35,10 +35,10 @@ import kotlin.concurrent.thread
  * Base class containing core audio recording functionality shared by both standalone and shared recorders.
  */
 abstract class BaseAudioRecorder(
-  var volume: Double,
+  override var volume: Double,
   val voiceChannel: AudioChannel,
   val messageChannel: MessageChannel
-) : AudioReceiveHandler, KoinComponent {
+) : AudioReceiveHandler, KoinComponent, AudioRecorder {
 
   companion object {
     private const val BITRATE = 128
@@ -69,8 +69,8 @@ abstract class BaseAudioRecorder(
   protected var queueFile: QueueFile? = null
   protected var lameEncoder: LameEncoder? = null
 
-  val session: String get() = ulid
-  val recording: Recording? get() = recordingRecord
+  override val session: String get() = ulid
+  override val recording: Recording? get() = recordingRecord
   val duration: Duration get() = Duration.ofMillis(durationCounter.get() * 20L)
 
   init {
@@ -173,10 +173,12 @@ abstract class BaseAudioRecorder(
     }
   }
 
-  fun saveRecording(
+  override fun saveRecording(
     voiceChannel: AudioChannel,
     messageChannel: MessageChannel
   ): Pair<Recording?, Semaphore> {
+    val saveStartMs = System.currentTimeMillis()
+    logger.info { "[QUEUE] saveRecording started: $session, duration=$duration, impl=QUEUE" }
     isRecording.set(false)
     val recordingLock = Semaphore(1, true)
     recordingLock.acquire()
@@ -191,7 +193,10 @@ abstract class BaseAudioRecorder(
       logger.warn { "Audio processing didn't complete in time: $session" }
     }
 
-    // Process the recording
+    val saveElapsedMs = System.currentTimeMillis() - saveStartMs
+    logger.info { "[QUEUE] saveRecording completed (upload in background): $session, elapsed=${saveElapsedMs}ms, impl=QUEUE" }
+
+    // Process the recording in a background thread
     thread {
       try {
         processCompletedRecording(voiceChannel, messageChannel)
@@ -279,7 +284,15 @@ abstract class BaseAudioRecorder(
     }
   }
 
-  fun silenceUser(userId: Long) = silencedUsers.add(userId)
+  override fun disconnect(save: Boolean, recording: Recording?, recordingLock: Semaphore?) {
+    val disconnectStartMs = System.currentTimeMillis()
+    logger.info { "[QUEUE] disconnect started: $session, save=$save, impl=QUEUE" }
+    disconnect(recordingLock)
+    val disconnectElapsedMs = System.currentTimeMillis() - disconnectStartMs
+    logger.info { "[QUEUE] disconnect completed: $session, elapsed=${disconnectElapsedMs}ms, impl=QUEUE" }
+  }
+
+  override fun silenceUser(userId: Long) { silencedUsers.add(userId) }
 
   fun uploadAttachment(messageChannel: MessageChannel, recordingFile: File, filename: String): Message? {
     return if (recordingFile.length() < Message.MAX_FILE_SIZE)

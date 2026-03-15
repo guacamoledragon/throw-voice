@@ -13,7 +13,7 @@ import tech.gdragon.commands.CommandHandler
 import tech.gdragon.commands.InvalidCommand
 import tech.gdragon.i18n.Babel
 import tech.gdragon.i18n.Lang
-import tech.gdragon.listener.CombinedAudioRecorderHandler
+import tech.gdragon.listener.AudioRecorder
 import net.dv8tion.jda.api.entities.Guild as DiscordGuild
 import tech.gdragon.i18n.Ignore as IgnoreTranslator
 
@@ -41,7 +41,7 @@ class Ignore : CommandHandler() {
         ?.containsAll(listOf(authorId, guild.jda.selfUser.idLong)) ?: false
 
       return if (isRecording) {
-        (guild.audioManager.receivingHandler as? CombinedAudioRecorderHandler)!!.let { audioRecorderHandler ->
+        (guild.audioManager.receivingHandler as? AudioRecorder)!!.let { audioRecorderHandler ->
           // These two are redundant, eventually need to migrate the source of truth to the Pawa API class
           ignoredUserIds.forEach(audioRecorderHandler::silenceUser)
           pawa.ignoreUsers(audioRecorderHandler.session, ignoredUserIds)

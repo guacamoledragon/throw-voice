@@ -15,7 +15,7 @@ import tech.gdragon.db.dao.Recording
 import tech.gdragon.db.now
 import tech.gdragon.discord.message.RecordingReply
 import tech.gdragon.i18n.Lang
-import tech.gdragon.listener.CombinedAudioRecorderHandler
+import tech.gdragon.listener.AudioRecorder
 
 class Test : CommandHandler() {
   override fun action(args: Array<String>, event: MessageReceivedEvent, pawa: Pawa) {
@@ -31,7 +31,7 @@ class Test : CommandHandler() {
     BotUtils.sendMessage(event.channel, message)
     Thread.sleep(1000L)
     Save.handler(pawa, event.guild, event.channel)
-    val recorder = event.guild.audioManager.receivingHandler as? CombinedAudioRecorderHandler
+    val recorder = event.guild.audioManager.receivingHandler as? AudioRecorder
     val recording = recorder?.recording!!
     //    val recording = transaction { Recording.all().first() }
     val recordingEmbed = RecordingReply(recording, pawa.config.appUrl)

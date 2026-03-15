@@ -10,8 +10,7 @@ import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent
 import net.dv8tion.jda.api.managers.AudioManager
 import tech.gdragon.api.pawa.Pawa
-import tech.gdragon.listener.SharedAudioRecorder
-import tech.gdragon.listener.StandaloneAudioRecorder
+import tech.gdragon.listener.AudioRecorder
 
 object BetaIgnore {
   val command = Command("ignore", "Ignore audio from specified during User for current recording.") {
@@ -26,10 +25,7 @@ object BetaIgnore {
     } else {
       val ignoreUser = event.getOption<User>("user")!!.idLong
 
-      val recorder = if (pawa.isStandalone)
-        audioManager.receivingHandler as StandaloneAudioRecorder
-      else
-        audioManager.receivingHandler as SharedAudioRecorder
+      val recorder = audioManager.receivingHandler as AudioRecorder
 
       pawa.ignoreUsers(recorder.session, listOf(ignoreUser))
       recorder.silenceUser(ignoreUser)

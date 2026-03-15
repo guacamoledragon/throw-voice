@@ -74,10 +74,10 @@ class RecordingDisposable {
 data class RecordingQueue(val fileBuffer: File) : QueueFile(fileBuffer)
 
 class CombinedAudioRecorderHandler(
-  var volume: Double,
+  override var volume: Double,
   val voiceChannel: AudioChannel,
   val messageChannel: MessageChannel
-) : AudioReceiveHandler, KoinComponent {
+) : AudioReceiveHandler, KoinComponent, AudioRecorder {
   companion object {
     private const val AFK_MINUTES = 2
     private const val AFK_LIMIT = (AFK_MINUTES * 60 * 1000) / 20                      // 2 minutes in ms over 20ms increments
@@ -122,10 +122,10 @@ class CombinedAudioRecorderHandler(
 
   private var scope: Scope = span.makeCurrent()
 
-  val session: String
+  override val session: String
     get() = ulid ?: ""
 
-  val recording: Recording?
+  override val recording: Recording?
     get() = recordingRecord
 
   /**
@@ -268,10 +268,12 @@ class CombinedAudioRecorderHandler(
     return singleObservable
   }
 
-  fun saveRecording(
+  override fun saveRecording(
     voiceChannel: AudioChannel,
     messageChannel: MessageChannel
   ): Pair<Recording?, Semaphore> {
+    val saveStartMs = System.currentTimeMillis()
+    logger.info { "[LEGACY] saveRecording started: $session, duration=${duration}, impl=LEGACY" }
     canReceive = false
     val recordingLock = Semaphore(1, true)
     recordingLock.acquire()
@@ -334,6 +336,9 @@ class CombinedAudioRecorderHandler(
 
     // TODO: Does this do copy by value or reference?
     val recording = recordingRecord
+
+    val saveElapsedMs = System.currentTimeMillis() - saveStartMs
+    logger.info { "[LEGACY] saveRecording completed: $session, elapsed=${saveElapsedMs}ms, impl=LEGACY" }
 
     return Pair(recording, recordingLock)
   }
@@ -423,7 +428,7 @@ class CombinedAudioRecorderHandler(
     }
   }
 
-  fun disconnect(dispose: Boolean = true, recording: Recording? = null, recordingLock: Semaphore? = null) {
+  private fun disconnectInternal(dispose: Boolean = true, recording: Recording? = null, recordingLock: Semaphore? = null) {
     // Stop accepting audio from Discord
     canReceive = false
 
@@ -502,7 +507,15 @@ class CombinedAudioRecorderHandler(
       logger.warn { "Could not delete file ${recording.name}." }
   }
 
-  fun silenceUser(userId: Long) = silencedUsers.add(userId)
+  override fun disconnect(save: Boolean, recording: Recording?, recordingLock: Semaphore?) {
+    val disconnectStartMs = System.currentTimeMillis()
+    logger.info { "[LEGACY] disconnect started: $session, save=$save, impl=LEGACY" }
+    disconnectInternal(!save, recording, recordingLock)
+    val disconnectElapsedMs = System.currentTimeMillis() - disconnectStartMs
+    logger.info { "[LEGACY] disconnect completed: $session, elapsed=${disconnectElapsedMs}ms, impl=LEGACY" }
+  }
+
+  override fun silenceUser(userId: Long) { silencedUsers.add(userId) }
 
   override fun canReceiveUser(): Boolean = false
 

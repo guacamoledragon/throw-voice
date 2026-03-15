@@ -1,6 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="App (Standalone)" type="JetRunConfigurationType">
     <envs>
+      <env name="BOT_RECORDER_TYPE" value="LEGACY" />
       <env name="BOT_STANDALONE" value="true" />
       <env name="OVERRIDE_FILE" value="dev-standalone.properties" />
       <env name="LOG_LEVEL" value="debug" />
