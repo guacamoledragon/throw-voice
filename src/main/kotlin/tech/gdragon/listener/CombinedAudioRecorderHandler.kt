@@ -111,6 +111,7 @@ class CombinedAudioRecorderHandler(
 
   private var canReceive = true
   private var afkCounter = 0
+  private var afkTriggered = false
   private var durationCounter = 0L
 
   private var filename: String? = null
@@ -142,11 +143,18 @@ class CombinedAudioRecorderHandler(
     if (standalone) {
       return false
     } else {
-      if (userCount == 0) afkCounter++ else afkCounter = 0
+      if (userCount == 0) {
+        afkCounter++
+      } else {
+        afkCounter = 0
+        afkTriggered = false
+      }
 
       val isAfk = afkCounter >= AFK_LIMIT
 
-      if (isAfk) {
+      if (isAfk && !afkTriggered) {
+        afkTriggered = true
+
         withLoggingContext("guild" to voiceChannel.guild.name, "voice-channel" to voiceChannel.name) {
           logger.debug { "AFK detected." }
         }
