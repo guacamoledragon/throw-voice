@@ -61,6 +61,7 @@ abstract class BaseAudioRecorder(
   // Recording state
   protected val isRecording = AtomicBoolean(true)
   protected val durationCounter = AtomicLong(0L)
+  protected val droppedFrameCount = AtomicLong(0L)
   protected val silencedUsers: MutableSet<Long> = mutableSetOf()
 
   // Recording session data
@@ -216,7 +217,9 @@ abstract class BaseAudioRecorder(
       "guild" to voiceChannel.guild.name,
       "guild.id" to voiceChannel.guild.id,
       "text-channel" to messageChannel.name,
-      "session-id" to session
+      "session-id" to session,
+      "audio.frames.dropped" to droppedFrameCount.get().toString(),
+      "audio.queue.depth" to audioQueue.size.toString()
     ) {
       try {
         logger.info { "Processing completed recording: $session, queue size: ${queue.size()}" }
@@ -323,7 +326,7 @@ abstract class BaseAudioRecorder(
         if (!audioQueue.offer(data)) {
           audioQueue.poll()
           audioQueue.offer(data)
-          logger.debug { "Audio queue full, dropped oldest frame: $session" }
+          droppedFrameCount.incrementAndGet()
         }
       }
 
