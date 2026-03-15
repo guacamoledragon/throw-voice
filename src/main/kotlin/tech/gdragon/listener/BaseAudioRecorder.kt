@@ -145,7 +145,6 @@ abstract class BaseAudioRecorder(
   }
 
   private fun encodeAndWriteAudio(audioData: AudioData, mp3Buffer: ByteArray) {
-    if (!isRecording.get()) return
     val encoder = lameEncoder ?: return
     val queue = queueFile ?: return
 
