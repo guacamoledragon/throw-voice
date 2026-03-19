@@ -251,7 +251,7 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
       }
 
       RecoverConfirmationReply.CONFIRM_PREFIX -> {
-        withLoggingContext("session-id" to sessionId, "guild" to guild.name) {
+        withLoggingContext("session-id" to sessionId, "guild" to guild.name, "command" to RecoverConfirmationReply.CONFIRM_PREFIX) {
           // Check if bot is currently in a voice call (recording still active)
           if (guild.audioManager.isConnected) {
             event
@@ -265,9 +265,7 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
           event.deferReply().queue()
 
           val datastore = getKoin().get<Datastore>()
-          val result = withLoggingContext("session-id" to sessionId) {
-            pawa.recoverRecording(datastore, sessionId)
-          }
+          val result = pawa.recoverRecording(datastore, sessionId)
 
           val interaction =
             if (result.recording == null) {
