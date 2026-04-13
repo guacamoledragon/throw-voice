@@ -3,6 +3,7 @@
 (require '[babashka.process :as p]
          '[clojure.string :as str]
          '[clojure.java.io :as io]
+         '[clojure.edn :as edn]
          '[cheshire.core :as json])
 
 (def progress-file ".dep-progress")
@@ -12,7 +13,7 @@
 
 (defn read-progress []
   (if (.exists (io/file progress-file))
-    (read-string (slurp progress-file))
+    (edn/read-string (slurp progress-file))
     {}))
 
 (defn write-progress! [m]
@@ -37,67 +38,32 @@
       :out
       str/trim))
 
-(defn sh-ok?
-  "Run a command, return true if exit code is 0."
-  [& args]
-  (let [proc (-> (apply p/process {:out :inherit :err :inherit} args) deref)]
-    (zero? (:exit proc))))
-
-(defn current-branch []
-  (sh "git" "branch" "--show-current"))
-
-(defn warn-if-not-master []
-  (let [branch (current-branch)]
-    (when (not= branch "master")
-      (println (str "Warning: not on master (currently on '" branch "').\n"
-                    "Cherry-picks will land on this branch instead of master.\n")))))
-
-(defn check-not-blocked!
-  "Exit if there's a failed or in-progress entry."
-  []
-  (when-let [[pr status] (blocked-entry)]
-    (println (str "Error: PR #" pr " is " (name status) ".\n"
-                  "Run 'just dep-skip' to resolve it before processing more PRs."))
-    (System/exit 1)))
-
 ;; --- Cherry-pick + test logic ---
-
-(defn cherry-pick!
-  "Fetch and cherry-pick a PR. Returns:
-   :ok        — cherry-pick succeeded, ready to test
-   :empty     — cherry-pick was empty (already applied), recorded as passed
-   Exits the process on conflict."
-  [pr-number branch-name pr-title]
-  (sh "git" "fetch" "github" branch-name)
-  (let [cp (-> (p/process {:out :string :err :string} "git" "cherry-pick" "FETCH_HEAD") deref)]
-    (if (zero? (:exit cp))
-      :ok
-      (let [output (str (:out cp) (:err cp))]
-        (if (str/includes? output "empty")
-          (do
-            (try (sh "git" "cherry-pick" "--abort") (catch Exception _))
-            (update-progress! pr-number :passed)
-            (println (str "PR #" pr-number " already applied, skipping."))
-            :empty)
-          (do
-            (update-progress! pr-number :in-progress)
-            (println (str "Cherry-pick conflict for PR #" pr-number ".\n" output "\n"
-                          "Resolve conflicts and run 'git cherry-pick --continue', or run 'just dep-skip'."))
-            (System/exit 1)))))))
 
 (defn cherry-pick-and-test!
   "Cherry-pick a dependabot PR and run tests. Returns :passed or :failed.
    Exits the process on conflict."
   [pr-number branch-name pr-title]
   (println (str "\n=== PR #" pr-number ": " pr-title " (" branch-name ") ==="))
-
-  (let [cp-result (cherry-pick! pr-number branch-name pr-title)]
-    (if (= :empty cp-result)
-      :passed
+  (sh "git" "fetch" "github" branch-name)
+  (let [cp (-> (p/process {:out :string :err :string} "git" "cherry-pick" "FETCH_HEAD") deref)]
+    (if-not (zero? (:exit cp))
+      (let [output (str (:out cp) (:err cp))]
+        (if (str/includes? output "empty")
+          (do
+            (try (sh "git" "cherry-pick" "--abort") (catch Exception _))
+            (update-progress! pr-number :passed)
+            (println (str "PR #" pr-number " already applied, skipping."))
+            :passed)
+          (do
+            (update-progress! pr-number :in-progress)
+            (println (str "Cherry-pick conflict for PR #" pr-number ".\n" output "\n"
+                          "Resolve conflicts and run 'git cherry-pick --continue', or run 'just dep-skip'."))
+            (System/exit 1))))
       (do
         (update-progress! pr-number :in-progress)
         (println "Running tests...")
-        (if (sh-ok? "mvn" "clean" "test")
+        (if (zero? (:exit (deref (p/process {:out :inherit :err :inherit} "mvn" "clean" "test"))))
           (do
             (update-progress! pr-number :passed)
             (println (str "PR #" pr-number " passed."))
@@ -110,35 +76,19 @@
 ;; --- Subcommands ---
 
 (defn cmd-skip []
-  (let [progress (read-progress)]
-    (when (empty? progress)
-      (println "No .dep-progress file found — nothing to skip.")
+  (let [[pr-number _] (blocked-entry)]
+    (when-not pr-number
+      (println "No in-progress or failed PR to skip.")
       (System/exit 1))
 
-    (let [[pr-number _] (blocked-entry)]
-      (when-not pr-number
-        (println "No in-progress or failed PR to skip.")
-        (System/exit 1))
+    (if (.exists (io/file ".git/CHERRY_PICK_HEAD"))
+      (sh "git" "cherry-pick" "--abort")
+      (sh "git" "reset" "--hard" "HEAD~1"))
 
-      (if (.exists (io/file ".git/CHERRY_PICK_HEAD"))
-        (do
-          (println "Aborting conflicted cherry-pick...")
-          (sh "git" "cherry-pick" "--abort"))
-        (let [head-msg (sh "git" "log" "-1" "--format=%s")]
-          (when-not (re-matches #"Bump .+ from .+ to .+" head-msg)
-            (println (str "HEAD doesn't look like a dependabot commit, refusing to reset.\n"
-                          "HEAD: " head-msg))
-            (System/exit 1))
-          (sh "git" "reset" "--hard" "HEAD~1")))
-
-      (update-progress! pr-number :skipped)
-      (println (str "Skipped PR #" pr-number ", ready for next PR.")))))
+    (update-progress! pr-number :skipped)
+    (println (str "Skipped PR #" pr-number ", ready for next PR."))))
 
 (defn cmd-test [pr-number]
-  (warn-if-not-master)
-  (check-not-blocked!)
-
-  ;; Get branch name from PR
   (let [pr-json (sh "gh" "pr" "view" (str pr-number) "--repo" repo
                      "--json" "headRefName,title")
         pr-data (json/parse-string pr-json true)
@@ -148,9 +98,6 @@
       (System/exit 1))))
 
 (defn cmd-test-all []
-  (warn-if-not-master)
-  (check-not-blocked!)
-
   ;; Fetch open dependabot PRs sorted by createdAt ascending
   (let [prs-json (sh "gh" "pr" "list" "--repo" repo
                       "--state" "open" "--author" "app/dependabot"
@@ -179,12 +126,8 @@
                   (System/exit 1))
                 (recur (rest remaining) (inc processed) skipped))))
           ;; All done
-          (println (str "\n=== Done: " processed " processed, " skipped " skipped, "
-                        (+ processed skipped) " total ===\n"
-                        "Next steps:\n"
-                        "  git log --oneline origin/master..master\n"
-                        "  git push origin master && git push github master\n"
-                        "  rm .dep-progress")))))))
+          (println (str "\n=== Done: " processed " processed, " skipped " skipped ===\n"
+                        "Push and rm .dep-progress when ready.")))))))
 
 ;; --- Entry point ---
 

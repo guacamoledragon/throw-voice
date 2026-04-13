@@ -2,7 +2,7 @@ set dotenv-load := false
 
 # Run the app locally with local S3 (Minio), equivalent to IntelliJ "App Dev (local-s3)"
 run-dev:
-  BOT_RECORDER_TYPE=LEGACY BOT_STANDALONE=false LOG_LEVEL=info OVERRIDE_FILE=dev.properties \
+  OVERRIDE_FILE=dev.properties \
   mvn clean compile exec:java \
     -Dexec.mainClass=tech.gdragon.App \
     -Dlog4j.configurationFile=log4j2-prod.xml
