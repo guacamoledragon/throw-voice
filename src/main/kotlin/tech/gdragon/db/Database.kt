@@ -23,7 +23,7 @@ interface Database {
         val isStandalone = getBooleanProperty("BOT_STANDALONE")
         if (isStandalone) {
           logger.info("Creating Embedded Database Module")
-          val dataDirectory: String = getProperty<String>("BOT_DATA_DIR") ?: ""
+          val dataDirectory: String = getProperty("BOT_DATA_DIR")
           val dbPath = "$dataDirectory/embedded-database"
 
           logger.info("Ensure directory exists: $dbPath")
@@ -38,10 +38,10 @@ interface Database {
           }
         } else {
           logger.info("Creating Remote Database Module")
-          val host: String = getProperty<String>("DB_HOST") ?: ""
-          val dbName: String = getProperty<String>("DB_NAME") ?: ""
-          val username: String = getProperty<String>("DB_USER") ?: ""
-          val password: String = getProperty<String>("DB_PASSWORD") ?: ""
+          val host: String = getProperty("DB_HOST")
+          val dbName: String = getProperty("DB_NAME")
+          val username: String = getProperty("DB_USER")
+          val password: String = getProperty("DB_PASSWORD")
 
           val url = "jdbc:postgresql://$host/$dbName"
 
