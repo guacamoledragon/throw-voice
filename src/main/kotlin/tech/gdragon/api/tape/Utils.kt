@@ -1,6 +1,9 @@
 package tech.gdragon.api.tape
 
 import com.squareup.tape.QueueFile
+import de.sciss.jump3r.lowlevel.LameEncoder
+import de.sciss.jump3r.mp3.LameGlobalFlags
+import de.sciss.jump3r.mp3.VBRTag
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jaudiotagger.audio.AudioFileIO
 import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException
@@ -8,6 +11,7 @@ import org.jaudiotagger.audio.mp3.MP3File
 import org.jaudiotagger.tag.FieldKey
 import java.io.File
 import java.io.FileOutputStream
+import java.io.RandomAccessFile
 import java.time.Duration
 
 val logger = KotlinLogging.logger { }
@@ -43,6 +47,27 @@ fun addCommentToMp3(mp3: File, comment: String?) {
       }
     }
   }
+}
+
+/**
+ * Writes a Xing/VBR header to the first frame of the MP3 file using LAME's internal VBR data.
+ * Uses reflection to access [LameEncoder]'s private `gfp` and package-private `vbr` fields.
+ * This header is required for browsers and audio libraries to compute accurate duration for VBR files.
+ */
+fun writeVbrTag(encoder: LameEncoder, mp3: File) {
+  val gfpField = LameEncoder::class.java.getDeclaredField("gfp")
+  gfpField.isAccessible = true
+  val gfp = gfpField.get(encoder) as LameGlobalFlags
+
+  val vbrField = LameEncoder::class.java.getDeclaredField("vbr")
+  vbrField.isAccessible = true
+  val vbrTag = vbrField.get(encoder) as VBRTag
+
+  RandomAccessFile(mp3, "rw").use { raf ->
+    vbrTag.putVbrTag(gfp, raf)
+  }
+
+  logger.info { "Wrote VBR/Xing header to $mp3" }
 }
 
 fun extractDuration(mp3: File): Duration =
