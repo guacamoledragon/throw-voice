@@ -5,7 +5,7 @@ import io.github.oshai.kotlinlogging.withLoggingContext
 import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import tech.gdragon.db.now
 import java.io.File
 import kotlin.concurrent.thread

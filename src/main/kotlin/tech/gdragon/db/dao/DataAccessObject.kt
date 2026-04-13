@@ -1,13 +1,14 @@
 package tech.gdragon.db.dao
 
 import net.dv8tion.jda.api.entities.User
-import org.jetbrains.exposed.dao.*
-import org.jetbrains.exposed.dao.id.EntityID
-import org.jetbrains.exposed.sql.Op
-import org.jetbrains.exposed.sql.SortOrder
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.exposedLogger
+import org.jetbrains.exposed.v1.dao.*
+import org.jetbrains.exposed.v1.core.dao.id.EntityID
+import org.jetbrains.exposed.v1.core.Op
+import org.jetbrains.exposed.v1.core.SortOrder
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.exposedLogger
+import org.jetbrains.exposed.v1.core.like
 import tech.gdragon.db.table.Tables.Aliases
 import tech.gdragon.db.table.Tables.Applications
 import tech.gdragon.db.table.Tables.Channels

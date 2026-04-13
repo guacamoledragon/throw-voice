@@ -1,7 +1,7 @@
 package tech.gdragon.db
 
-import org.jetbrains.exposed.sql.ColumnType
-import org.jetbrains.exposed.sql.vendors.currentDialect
+import org.jetbrains.exposed.v1.core.ColumnType
+import org.jetbrains.exposed.v1.core.vendors.currentDialect
 import tech.gdragon.i18n.Lang
 
 class LanguageColumnType : ColumnType<Lang>() {

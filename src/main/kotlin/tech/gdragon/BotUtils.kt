@@ -28,13 +28,15 @@ import net.dv8tion.jda.api.utils.messages.MessageCreateData
 import net.dv8tion.jda.api.audio.AudioReceiveHandler
 import net.dv8tion.jda.internal.managers.AudioManagerImpl
 import org.koin.java.KoinJavaComponent.getKoin
-import org.jetbrains.exposed.dao.exceptions.EntityNotFoundException
-import org.jetbrains.exposed.dao.id.EntityID
-import org.jetbrains.exposed.sql.Op
-import org.jetbrains.exposed.sql.SqlExpressionBuilder
-import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.dao.exceptions.EntityNotFoundException
+import org.jetbrains.exposed.v1.core.dao.id.EntityID
+import org.jetbrains.exposed.v1.core.Op
+import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.less
+import org.jetbrains.exposed.v1.core.notInList
+import org.jetbrains.exposed.v1.jdbc.transactions.suspendTransaction
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import tech.gdragon.api.pawa.Pawa
 import tech.gdragon.db.asyncTransaction
 import tech.gdragon.db.dao.Channel
@@ -240,7 +242,7 @@ object BotUtils {
    */
   fun leaveInactiveGuilds(jda: JDA, afterDays: Long, whitelist: List<Long>): Int {
     logger.info { "Leaving all Guilds that haven't been active in the past $afterDays days." }
-    val op: SqlExpressionBuilder.() -> Op<Boolean> = {
+    val op: () -> Op<Boolean> = {
       val now = LocalDate.now()
       val from = now
         .minusDays(afterDays)
@@ -258,7 +260,7 @@ object BotUtils {
 
     // Find all ancient guilds and ask the Bot to leave them, or mark them as inactive if already gone
     val guilds = transaction {
-      Guild.find(op).map {
+      Guild.find { op() }.map {
         object {
           val id = it.id.value
           val name = it.name
@@ -278,7 +280,7 @@ object BotUtils {
               logger.error(e) { "Could not leave server '$guild'!" }
             })
             ?: run {
-              newSuspendedTransaction {
+              suspendTransaction {
                 Guild[it.id].active = false
               }
               logger.warn { "No longer in this guild ${it.name}, but marking as inactive" }
