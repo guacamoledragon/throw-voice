@@ -3,13 +3,13 @@ package tech.gdragon
 import de.sciss.jump3r.lowlevel.LameEncoder
 import net.dv8tion.jda.api.audio.AudioReceiveHandler
 import org.apache.commons.io.FileUtils
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.between
-import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.not
-import org.jetbrains.exposed.sql.transactions.TransactionManager
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.SchemaUtils
+import org.jetbrains.exposed.v1.core.between
+import org.jetbrains.exposed.v1.jdbc.deleteWhere
+import org.jetbrains.exposed.v1.core.not
+import org.jetbrains.exposed.v1.jdbc.transactions.TransactionManager
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.joda.time.DateTime
 import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
@@ -26,7 +26,7 @@ import java.sql.Connection
 fun dropAllTables() {
   val database = "settings.db"
   Database.connect("jdbc:sqlite:$database", driver = "org.sqlite.JDBC")
-  TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_READ_UNCOMMITTED
+  TransactionManager.primaryDatabase!!.transactionManager.defaultIsolationLevel = Connection.TRANSACTION_READ_UNCOMMITTED
 
   transaction {
     SchemaUtils.drop(*Tables.allTables)
@@ -39,7 +39,7 @@ fun basicTest() {
     val statement = it.createStatement()
     statement.executeUpdate("PRAGMA foreign_keys = ON")
   })
-  TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_READ_UNCOMMITTED
+  TransactionManager.primaryDatabase!!.transactionManager.defaultIsolationLevel = Connection.TRANSACTION_READ_UNCOMMITTED
 
   transaction {
     SchemaUtils.drop(*Tables.allTables)
@@ -75,8 +75,8 @@ fun testAutoJoin() {
 fun removeUnusedGuilds() {
   transaction {
     Guilds.deleteWhere {
-      val now = DateTime.now()
-      not(lastActiveOn.between(now.minusDays(30), now))
+      val now = java.time.Instant.now()
+      not(lastActiveOn.between(now.minus(30, java.time.temporal.ChronoUnit.DAYS), now))
     }
   }
 }

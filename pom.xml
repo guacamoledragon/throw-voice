@@ -12,7 +12,7 @@
 
   <properties>
     <argLine>-XX:+EnableDynamicAgentLoading --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.lang.reflect=ALL-UNNAMED</argLine>
-    <exposed.version>0.56.0</exposed.version>
+    <exposed.version>1.1.1</exposed.version>
     <flyway.version>10.11.0</flyway.version>
     <jda.version>6.3.1</jda.version>
     <jda-ktx.version>0.14.1</jda-ktx.version>
@@ -324,15 +324,9 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>org.jetbrains.exposed</groupId>
-      <artifactId>exposed-jodatime</artifactId>
-      <version>${exposed.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.jetbrains.kotlin</groupId>
-          <artifactId>kotlin-stdlib-jdk8</artifactId>
-        </exclusion>
-      </exclusions>
+      <groupId>joda-time</groupId>
+      <artifactId>joda-time</artifactId>
+      <version>2.12.7</version>
     </dependency>
     <dependency>
       <groupId>org.jetbrains.exposed</groupId>

@@ -2,7 +2,7 @@ package tech.gdragon.commands.debug
 
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import tech.gdragon.BotUtils
 import tech.gdragon.BotUtils.TRIGOMAN
 import tech.gdragon.api.pawa.Pawa

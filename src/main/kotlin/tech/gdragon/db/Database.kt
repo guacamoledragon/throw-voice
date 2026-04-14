@@ -5,21 +5,21 @@ import io.opentelemetry.api.GlobalOpenTelemetry
 import io.opentelemetry.instrumentation.jdbc.datasource.JdbcTelemetry
 import org.flywaydb.core.Flyway
 import org.flywaydb.core.api.output.MigrateResult
-import org.jetbrains.exposed.sql.DatabaseConfig
-import org.jetbrains.exposed.sql.transactions.TransactionManager
-import org.joda.time.DateTimeZone
 import org.koin.dsl.module
+import org.jetbrains.exposed.v1.core.DatabaseConfig
+import org.jetbrains.exposed.v1.jdbc.transactions.TransactionManager
+import org.jetbrains.exposed.v1.jdbc.Database as ExposedDatabase
+import org.joda.time.DateTimeZone
 import org.postgresql.ds.PGSimpleDataSource
 import tech.gdragon.db.h2.Upgrader
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
-import org.jetbrains.exposed.sql.Database as ExposedDatabase
 import tech.gdragon.koin.getBooleanProperty
 
 interface Database {
   companion object {
-    fun module() = module(createdAtStart = true) {
-      single<Database> {
+    fun module() = module {
+      single<Database>(createdAtStart = true) {
         val isStandalone = getBooleanProperty("BOT_STANDALONE")
         if (isStandalone) {
           logger.info("Creating Embedded Database Module")
@@ -71,7 +71,7 @@ interface Database {
  * @param type The type of database to create, e.g. "file" or "mem"
  * @param options The database options, e.g. "DB_CLOSE_DELAY=-1"
  */
-@OptIn(org.jetbrains.exposed.sql.ExperimentalKeywordApi::class)
+@OptIn(org.jetbrains.exposed.v1.core.ExperimentalKeywordApi::class)
 class EmbeddedDatabase(private val dbFilename: String, type: String = "file", options: String = "") : Database {
   private val logger = KotlinLogging.logger { }
   private var _database: ExposedDatabase? = null
