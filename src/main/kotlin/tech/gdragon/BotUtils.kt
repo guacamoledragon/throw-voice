@@ -98,7 +98,7 @@ object BotUtils {
                 val recorder = recordVoiceChannel(channel, messageChannel)
                 pawa.startRecording(recorder.session, guild.idLong)
                 val lang = pawa.language(guild.idLong)
-                val message = RecordingStartedReply(channel.id, recorder.session, lang).message
+                val message = RecordingStartedReply(channel.id, recorder.session, lang, pawa.recoverEnabled).message
                 sendMessage(messageChannel, message)
               } catch (e: IllegalArgumentException) {
                 val errorMessage = when (e.message) {
