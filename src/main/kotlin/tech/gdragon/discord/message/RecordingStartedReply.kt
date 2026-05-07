@@ -36,14 +36,12 @@ class RecordingStartedReply(channelId: String, sessionId: String, lang: Lang, re
     }
   }
 
-  val component = row(
-    secondary("$BUTTON_ID_PREFIX:$sessionId", label = "Recover")
-  )
-
   val message = MessageCreate {
     embeds += embed
     if (recoverEnabled) {
-      components += component
+      components += row(
+        secondary("$BUTTON_ID_PREFIX:$sessionId", label = "Recover")
+      )
     }
   }
 }
