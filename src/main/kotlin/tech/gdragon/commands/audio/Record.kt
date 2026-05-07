@@ -67,7 +67,7 @@ class Record : CommandHandler() {
               val recorder = BotUtils.recordVoiceChannel(voiceChannel, messageChannel)
               pawa.startRecording(recorder.session, guild.idLong)
               val lang = pawa.language(guild.idLong)
-              RecordingStartedReply(voiceChannel.id, recorder.session, lang).message
+              RecordingStartedReply(voiceChannel.id, recorder.session, lang, pawa.recoverEnabled).message
             } catch (e: IllegalArgumentException) {
               val errorMessage = when (e.message) {
                 "no-write-permission" ->
