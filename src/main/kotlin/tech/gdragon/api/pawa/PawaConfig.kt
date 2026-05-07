@@ -27,7 +27,8 @@ class PawaConfig private constructor(
   val appUrl: String,
   val dataDirectory: String,
   val isStandalone: Boolean,
-  val recorderType: RecorderType
+  val recorderType: RecorderType,
+  val recoverEnabled: Boolean
 ) {
 
   class Builder(
@@ -49,7 +50,12 @@ class PawaConfig private constructor(
     /**
      * Which recorder implementation to use. Must be set via `BOT_RECORDER_TYPE`.
      */
-    var recorderType: RecorderType? = null
+    var recorderType: RecorderType? = null,
+
+    /**
+     * Whether the Recover button/flow is enabled. Set via `BOT_RECOVER_ENABLED`. Defaults to `true`.
+     */
+    var recoverEnabled: Boolean? = null
   )
 
   companion object {
@@ -61,7 +67,8 @@ class PawaConfig private constructor(
         isStandalone = builder.isStandalone ?: false,
         recorderType = requireNotNull(builder.recorderType) {
           "BOT_RECORDER_TYPE must be set. Valid values: LEGACY, QUEUE"
-        }
+        },
+        recoverEnabled = builder.recoverEnabled ?: true
       )
     }
   }
