@@ -76,7 +76,7 @@ class S3DatastoreIntegrationTest : FunSpec({
 })
 
 class S3DatastoreEnabled : EnabledCondition {
-  override fun enabled(kclass: KClass<out Spec>): Boolean {
+  override fun evaluate(kclass: KClass<out Spec>): Boolean {
     val required = listOf("DS_ACCESS_KEY", "DS_SECRET_KEY", "DS_HOST", "DS_REGION", "DS_BASEURL", "DS_BUCKET")
     return required.all { System.getenv(it)?.isNotBlank() == true }
   }
