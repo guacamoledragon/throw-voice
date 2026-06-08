@@ -14,6 +14,7 @@
     <argLine>-XX:+EnableDynamicAgentLoading --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.lang.reflect=ALL-UNNAMED</argLine>
     <exposed.version>1.1.1</exposed.version>
     <flyway.version>12.8.1</flyway.version>
+    <jackson.version>2.22.0</jackson.version>
     <jda.version>6.4.2</jda.version>
     <jda-ktx.version>0.14.2</jda-ktx.version>
     <jdave.version>0.1.8</jdave.version>
@@ -25,7 +26,7 @@
     <main.class>tech.gdragon.App</main.class>
     <mockk.version>1.14.7</mockk.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <slf4j.version>2.0.9</slf4j.version>
+    <slf4j.version>2.0.17</slf4j.version>
     <log4j.version>2.25.4</log4j.version>
     <otel.instrumentation.version>2.26.1-alpha</otel.instrumentation.version>
     <surefire.version>3.5.5</surefire.version>
@@ -33,6 +34,13 @@
 
   <dependencyManagement>
     <dependencies>
+      <dependency>
+        <groupId>com.fasterxml.jackson</groupId>
+        <artifactId>jackson-bom</artifactId>
+        <version>${jackson.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
       <dependency>
         <groupId>io.opentelemetry.instrumentation</groupId>
         <artifactId>opentelemetry-instrumentation-bom-alpha</artifactId>
@@ -67,28 +75,6 @@
       <groupId>aws.sdk.kotlin</groupId>
       <artifactId>s3-jvm</artifactId>
       <version>1.6.34</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>slf4j-api</artifactId>
-          <groupId>org.slf4j</groupId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.jetbrains.kotlin</groupId>
-          <artifactId>kotlin-stdlib</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.jetbrains.kotlin</groupId>
-          <artifactId>kotlin-stdlib-common</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.jetbrains.kotlin</groupId>
-          <artifactId>kotlin-stdlib-jdk8</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.jetbrains.kotlinx</groupId>
-          <artifactId>kotlinx-coroutines-core-jvm</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>com.h2database</groupId>
@@ -99,21 +85,6 @@
       <groupId>club.minnced</groupId>
       <artifactId>jda-ktx</artifactId>
       <version>${jda-ktx.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.jetbrains.kotlin</groupId>
-          <artifactId>kotlin-stdlib-jdk8</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.jetbrains.kotlinx</groupId>
-          <artifactId>kotlinx-coroutines-core-jvm</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
-      <version>2.21.0</version>
     </dependency>
     <dependency>
       <groupId>com.squareup</groupId>
@@ -139,20 +110,6 @@
       <groupId>io.github.oshai</groupId>
       <artifactId>kotlin-logging-jvm</artifactId>
       <version>8.0.4</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.jetbrains.kotlin</groupId>
-          <artifactId>kotlin-stdlib-jdk8</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.jetbrains.kotlin</groupId>
-          <artifactId>kotlin-stdlib-common</artifactId>
-        </exclusion>
-        <exclusion>
-          <artifactId>slf4j-api</artifactId>
-          <groupId>org.slf4j</groupId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>io.opentelemetry</groupId>
@@ -175,32 +132,6 @@
       <groupId>net.dv8tion</groupId>
       <artifactId>JDA</artifactId>
       <version>${jda.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>com.fasterxml.jackson.core</groupId>
-          <artifactId>jackson-databind</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>com.fasterxml.jackson.core</groupId>
-          <artifactId>jackson-core</artifactId>
-        </exclusion>
-        <exclusion>
-          <artifactId>slf4j-api</artifactId>
-          <groupId>org.slf4j</groupId>
-        </exclusion>
-        <exclusion>
-          <groupId>com.squareup.okio</groupId>
-          <artifactId>okio-jvm</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>com.squareup.okhttp3</groupId>
-          <artifactId>okhttp</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.jetbrains.kotlin</groupId>
-          <artifactId>kotlin-stdlib</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>club.minnced</groupId>
@@ -246,20 +177,6 @@
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-slf4j2-impl</artifactId>
       <version>${log4j.version}</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>slf4j-api</artifactId>
-          <groupId>org.slf4j</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>org.apache.logging.log4j</artifactId>
-          <groupId>log4j-api</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>org.apache.logging.log4j</artifactId>
-          <groupId>log4j-core</groupId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.clojure</groupId>
@@ -281,46 +198,16 @@
       <groupId>org.jetbrains.exposed</groupId>
       <artifactId>exposed-core</artifactId>
       <version>${exposed.version}</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>slf4j-api</artifactId>
-          <groupId>org.slf4j</groupId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.jetbrains.kotlin</groupId>
-          <artifactId>kotlin-reflect</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.jetbrains.kotlin</groupId>
-          <artifactId>kotlin-stdlib</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.jetbrains.kotlinx</groupId>
-          <artifactId>kotlinx-coroutines-core-jvm</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.jetbrains.exposed</groupId>
       <artifactId>exposed-dao</artifactId>
       <version>${exposed.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.jetbrains.kotlin</groupId>
-          <artifactId>kotlin-stdlib-jdk8</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.jetbrains.exposed</groupId>
       <artifactId>exposed-jdbc</artifactId>
       <version>${exposed.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.jetbrains.kotlin</groupId>
-          <artifactId>kotlin-stdlib-jdk8</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>joda-time</groupId>
@@ -331,27 +218,11 @@
       <groupId>org.jetbrains.exposed</groupId>
       <artifactId>exposed-java-time</artifactId>
       <version>${exposed.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.jetbrains.kotlin</groupId>
-          <artifactId>kotlin-stdlib-jdk8</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.jetbrains.kotlinx</groupId>
       <artifactId>kotlinx-coroutines-core-jvm</artifactId>
-      <version>1.9.0</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.jetbrains.kotlin</groupId>
-          <artifactId>kotlin-stdlib-common</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.jetbrains.kotlin</groupId>
-          <artifactId>kotlin-stdlib-jdk8</artifactId>
-        </exclusion>
-      </exclusions>
+      <version>1.11.0</version>
     </dependency>
     <dependency>
       <groupId>org.jetbrains.kotlin</groupId>
@@ -364,38 +235,9 @@
       <version>${kotlin.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.jetbrains.kotlin</groupId>
-      <artifactId>kotlin-stdlib-jdk8</artifactId>
-      <version>${kotlin.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.insert-koin</groupId>
-      <artifactId>koin-core</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>org.jetbrains.kotlin</groupId>
-          <artifactId>kotlin-stdlib-common</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
       <groupId>io.insert-koin</groupId>
       <artifactId>koin-core-jvm</artifactId>
       <version>${koin.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.jetbrains.kotlin</groupId>
-          <artifactId>kotlin-stdlib-jdk8</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.jetbrains.kotlin</groupId>
-          <artifactId>kotlin-stdlib-jdk7</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.jetbrains.kotlin</groupId>
-          <artifactId>kotlin-stdlib-common</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>io.insert-koin</groupId>
@@ -416,12 +258,6 @@
       <groupId>com.github.ben-manes.caffeine</groupId>
       <artifactId>caffeine</artifactId>
       <version>3.2.3</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.checkerframework</groupId>
-          <artifactId>checker-qual</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
 
     <dependency>
@@ -450,56 +286,12 @@
       <groupId>io.kotest</groupId>
       <artifactId>kotest-runner-junit5-jvm</artifactId>
       <version>${kotest.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.jetbrains.kotlin</groupId>
-          <artifactId>kotlin-reflect</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.jetbrains.kotlin</groupId>
-          <artifactId>kotlin-stdlib</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.jetbrains.kotlin</groupId>
-          <artifactId>kotlin-stdlib-common</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.jetbrains.kotlin</groupId>
-          <artifactId>kotlin-stdlib-jdk8</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.jetbrains.kotlinx</groupId>
-          <artifactId>kotlinx-coroutines-core-jvm</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.opentest4j</groupId>
-          <artifactId>opentest4j</artifactId>
-        </exclusion>
-      </exclusions>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>io.kotest</groupId>
       <artifactId>kotest-assertions-core-jvm</artifactId>
       <version>${kotest.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.jetbrains.kotlin</groupId>
-          <artifactId>kotlin-reflect</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.jetbrains.kotlin</groupId>
-          <artifactId>kotlin-stdlib-common</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.jetbrains.kotlin</groupId>
-          <artifactId>kotlin-stdlib-jdk8</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.jetbrains.kotlinx</groupId>
-          <artifactId>kotlinx-coroutines-core-jvm</artifactId>
-        </exclusion>
-      </exclusions>
       <scope>test</scope>
     </dependency>
     <dependency>
