@@ -16,6 +16,7 @@
     <flyway.version>12.8.1</flyway.version>
     <jda.version>6.4.2</jda.version>
     <jda-ktx.version>0.14.2</jda-ktx.version>
+    <jdave.version>0.1.8</jdave.version>
     <koin.version>4.2.1</koin.version>
     <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
     <kotlin.compiler.jvmTarget>25</kotlin.compiler.jvmTarget>
@@ -204,12 +205,12 @@
     <dependency>
       <groupId>club.minnced</groupId>
       <artifactId>jdave-api</artifactId>
-      <version>0.1.7</version>
+      <version>${jdave.version}</version>
     </dependency>
     <dependency>
       <groupId>club.minnced</groupId>
       <artifactId>jdave-native-linux-x86-64</artifactId>
-      <version>0.1.7</version>
+      <version>${jdave.version}</version>
     </dependency>
     <dependency>
       <groupId>net.jodah</groupId>
@@ -655,7 +656,7 @@
         <dependency>
           <groupId>club.minnced</groupId>
           <artifactId>jdave-native-win-x86-64</artifactId>
-          <version>0.1.7</version>
+          <version>${jdave.version}</version>
         </dependency>
       </dependencies>
       <build>
