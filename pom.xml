@@ -15,7 +15,7 @@
     <exposed.version>1.1.1</exposed.version>
     <flyway.version>12.8.1</flyway.version>
     <jda.version>6.4.2</jda.version>
-    <jda-ktx.version>0.14.1</jda-ktx.version>
+    <jda-ktx.version>0.14.2</jda-ktx.version>
     <koin.version>4.2.1</koin.version>
     <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
     <kotlin.compiler.jvmTarget>25</kotlin.compiler.jvmTarget>
