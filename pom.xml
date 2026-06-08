@@ -14,6 +14,7 @@
     <argLine>-XX:+EnableDynamicAgentLoading --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.lang.reflect=ALL-UNNAMED</argLine>
     <exposed.version>1.1.1</exposed.version>
     <flyway.version>12.8.1</flyway.version>
+    <jackson.version>2.22.0</jackson.version>
     <jda.version>6.4.2</jda.version>
     <jda-ktx.version>0.14.2</jda-ktx.version>
     <jdave.version>0.1.8</jdave.version>
@@ -33,6 +34,13 @@
 
   <dependencyManagement>
     <dependencies>
+      <dependency>
+        <groupId>com.fasterxml.jackson</groupId>
+        <artifactId>jackson-bom</artifactId>
+        <version>${jackson.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
       <dependency>
         <groupId>io.opentelemetry.instrumentation</groupId>
         <artifactId>opentelemetry-instrumentation-bom-alpha</artifactId>
@@ -77,11 +85,6 @@
       <groupId>club.minnced</groupId>
       <artifactId>jda-ktx</artifactId>
       <version>${jda-ktx.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
-      <version>2.21.0</version>
     </dependency>
     <dependency>
       <groupId>com.squareup</groupId>
