@@ -69,12 +69,12 @@
     <dependency>
       <groupId>aws.smithy.kotlin</groupId>
       <artifactId>http-client-engine-crt-jvm</artifactId>
-      <version>1.5.16</version>
+      <version>1.6.14</version>
     </dependency>
     <dependency>
       <groupId>aws.sdk.kotlin</groupId>
       <artifactId>s3-jvm</artifactId>
-      <version>1.6.34</version>
+      <version>1.6.90</version>
     </dependency>
     <dependency>
       <groupId>com.h2database</groupId>
