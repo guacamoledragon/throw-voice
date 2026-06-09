@@ -11,7 +11,6 @@ import org.jetbrains.exposed.v1.jdbc.transactions.TransactionManager
 import org.jetbrains.exposed.v1.jdbc.Database as ExposedDatabase
 import org.joda.time.DateTimeZone
 import org.postgresql.ds.PGSimpleDataSource
-import tech.gdragon.db.h2.Upgrader
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 import tech.gdragon.koin.getBooleanProperty
@@ -33,7 +32,6 @@ interface Database {
 
           EmbeddedDatabase(dbFilename).apply {
             connect()
-            upgrade()
             migrate()
           }
         } else {
@@ -123,29 +121,6 @@ class EmbeddedDatabase(private val dbFilename: String, type: String = "file", op
     }
 
     return result
-  }
-
-  /**
-   * Updates the H2 version on the fly.
-   */
-  fun upgrade() {
-    require(_database != null) {
-      "Database not initialized"
-    }
-
-    try {
-      // This will trigger a failure if the database is NOT already at the latest version.
-      val dbVersion = _database?.version
-      logger.info {
-        "Database version: $dbVersion, already up to date."
-      }
-    } catch (_: Exception) {
-      val upgrader = Upgrader(dbFilename)
-      upgrader.upgrade()
-
-      // Reconnect to the database to the updated version.
-      connect()
-    }
   }
 }
 
