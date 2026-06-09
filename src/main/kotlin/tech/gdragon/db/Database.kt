@@ -110,6 +110,11 @@ class EmbeddedDatabase(private val dbFilename: String, type: String = "file", op
       .locations("h2")
       .load()
 
+    // V1__create-bot-tables.sql was changed from the DATETIME type (removed in H2 2.4.x) to
+    // TIMESTAMP. On databases where V1 was already applied this changes its recorded checksum, so
+    // realign it before migrating to avoid a validation failure. No-op on fresh databases.
+    flyway.repair()
+
     val result = flyway.migrate().also {
       it
         .migrations
