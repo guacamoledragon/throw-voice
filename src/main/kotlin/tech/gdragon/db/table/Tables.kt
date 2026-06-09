@@ -2,7 +2,6 @@ package tech.gdragon.db.table
 
 import org.jetbrains.exposed.v1.core.dao.id.EntityID
 import org.jetbrains.exposed.v1.core.dao.id.IdTable
-import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
 import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
 import org.jetbrains.exposed.v1.core.Column
 import org.jetbrains.exposed.v1.core.ReferenceOption
@@ -24,17 +23,10 @@ object Tables {
 
   object Settings : LongIdTable() {
     val autoSave = bool("autosave").default(false)
-    val prefix = text("prefix").default("!")
     val defaultTextChannel = long("defaulttextchannel").nullable()
     val volume = decimal("volume", 3, 2).default(BigDecimal.valueOf(0.8))
     val guild = reference("guild", Guilds, ReferenceOption.CASCADE).uniqueIndex()
     val language = registerColumn("language", LanguageColumnType()).default(Lang.EN)
-  }
-
-  object Aliases : IntIdTable() {
-    val name = text("name")
-    val alias = text("alias")
-    val settings = reference("settings", Settings, ReferenceOption.CASCADE)
   }
 
   object Applications : LongIdTable() {
@@ -60,5 +52,5 @@ object Tables {
     val guild = reference("guild", Guilds, ReferenceOption.CASCADE)
   }
 
-  val allTables = arrayOf(Applications, Aliases, Channels, Guilds, Recordings, Settings)
+  val allTables = arrayOf(Applications, Channels, Guilds, Recordings, Settings)
 }

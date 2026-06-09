@@ -12,7 +12,6 @@ import tech.gdragon.data.Datastore
 import tech.gdragon.db.Database
 import tech.gdragon.db.dao.*
 import tech.gdragon.db.table.Tables
-import tech.gdragon.discord.Command
 import tech.gdragon.i18n.Babel
 import tech.gdragon.i18n.Lang
 import tech.gdragon.koin.getBooleanProperty
@@ -54,34 +53,6 @@ open class Pawa(val db: Database, val config: PawaConfig = PawaConfig.invoke()) 
   inline fun <reified T> translator(guildId: Long): T {
     val lang = language(guildId)
     return Babel.commandTranslator(lang)
-  }
-
-  fun createAlias(guildId: Long, command: Command, alias: String): Alias? {
-    // Command cannot be ALIAS and the alias cannot be the name of an existing command
-    val isValidAlias = (Command.ALIAS != command) &&
-      Command
-        .entries
-        .map { it.name.lowercase() }
-        .none { it == alias.lowercase() }
-
-    return when (isValidAlias) {
-      true -> transaction(db.database) {
-        Settings
-          .find { Tables.Settings.guild eq guildId }
-          .firstOrNull()
-          ?.let { settings ->
-            Alias.findOrCreate(command.name, alias, settings)
-          }
-      }
-
-      // Otherwise, don't create a new alias
-      false -> {
-        logger.warn {
-          "Could not create alias for ${command.name}"
-        }
-        null
-      }
-    }
   }
 
   /**

@@ -4,35 +4,10 @@ This is the full list of commands available, but on a daily basis, you wont need
 
 ?> _NOTE_ Anything between <> is mandatory. Anything in [] is optional. Vertical bar | means 'or', either side of bar is valid choice.
 
-## Prefix Commands
-
-!> **Prefix commands (and aliases) will be removed on May 1, 2026.** Please switch to [Slash Commands](#slash-commands) — type `/` in the message bar to see all available commands.
-
-|                                         Command | Description                                                                                      |
-|------------------------------------------------:|--------------------------------------------------------------------------------------------------|
-|               [alias](commands/prefix/alias.md) | Creates an alias for a command                                                                   |
-|     [autorecord](commands/prefix/autorecord.md) | Configure the number of users in a voice channel before [pawa](https://pawa.im) begins recording |
-|         [autosave](commands/prefix/autosave.md) | Automatically save recording                                                                     |
-|         [autostop](commands/prefix/autostop.md) | Configure the number of users in a voice channel before [pawa](https://pawa.im) stops recording  |
-|                                            help | Sends you a DM with these commands, including any [alias](commands/prefix/alias.md)es            |
-|             [ignore](commands/prefix/ignore.md) | Ignore a bot during recording session.                                                           |
-|                 [info](commands/prefix/info.md) | Displays information about [pawa](https://pawa.im) for the caller's server.                      |
-|                 [lang](commands/prefix/lang.md) | Specifies the language to use.                                                                   |
-|             [record](commands/prefix/record.md) | Start recording                                                                                  |
-|                 [stop](commands/prefix/stop.md) | Stop recording                                                                                   |
-|             [prefix](commands/prefix/prefix.md) | Change prefix                                                                                    |
-|   [removeAlias](commands/prefix/removealias.md) | Remove custom alias                                                                              |
-|                 [save](commands/prefix/save.md) | Saves current recording, either provides a link or uploads directly to Discord                   |
-| [saveLocation](commands/prefix/savelocation.md) | Default text channel for all messages                                                            |
-|               [slash](commands/prefix/slash.md) | Manage slash commands settings.                                                                  |
-|             [status](commands/prefix/status.md) | Displays connection status information.                                                          |
-|             [volume](commands/prefix/volume.md) | Set the recording volume                                                                         |
-
 ## Slash Commands
 
 |                                    Command | Description                                                                                     |
 |-------------------------------------------:|-------------------------------------------------------------------------------------------------|
-|           [alias](commands/slash/alias.md) | Creates an alias for a command                                                                  |
 | [autorecord](commands/slash/autorecord.md) | Will automatically record audio channel after a certain number of people join                   |
 |     [autosave](commands/slash/autosave.md) | Automatically save recording                                                                    |
 |     [autostop](commands/slash/autostop.md) | Configure the number of users in a voice channel before [pawa](https://pawa.im) stops recording |

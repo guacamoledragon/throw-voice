@@ -12,10 +12,10 @@ Before you get started, you must invite `pawa` to your own Discord server.
 
 With _two_ simple steps, you can record your own audio:
 
-1. Join a voice channel, then type `!record`
-1. Create and upload recording, type `!save`
+1. Join a voice channel, then type `/record`
+1. Create and upload recording, type `/save`
 
-!> If you `!stop` before `!save`, the recording will be **DELETED**!
+!> If you `/stop` before `/save`, the recording will be **DELETED**!
 
 ## Save Recording
 

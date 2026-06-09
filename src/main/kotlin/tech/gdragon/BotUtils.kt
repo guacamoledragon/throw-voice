@@ -1,6 +1,5 @@
 package tech.gdragon
 
-import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import dev.minn.jda.ktx.messages.MessageCreate
 import io.azam.ulidj.ULID
@@ -67,8 +66,6 @@ object BotUtils {
     .expireAfterWrite(1L, TimeUnit.HOURS)
     .softValues()
     .build<Long, Instant>()
-
-  private val guildCache: Cache<Long, String> = Caffeine.newBuilder().build()
 
   /**
    * AutoRecord voice channel if it meets the auto record criterion
@@ -169,30 +166,6 @@ object BotUtils {
       .map { it.value }
       .filter { ULID.isValid(it) }
       .toSet()
-  }
-
-  @WithSpan("Get Guild Prefix")
-  fun getPrefix(guild: DiscordGuild): String {
-    return guild.run {
-      guildCache.getIfPresent(idLong) ?: transaction {
-        logger.debug { "Cache Miss! Obtaining prefix for $idLong" }
-        // HACK: Create settings for a guild that needs to be accessed. This is a problem when restarting bot.
-        // TODO: On bot initialization, I should be able to check which Guilds the bot is connected to and purge/add respectively
-        val prefix = Guild.findOrCreate(idLong, name).settings.prefix
-        guildCache.put(idLong, prefix)
-        prefix
-      }
-    }
-  }
-
-  fun setPrefix(guild: DiscordGuild, newPrefix: String): String {
-    return guild.run {
-      transaction {
-        val prefix = Guild.findById(idLong)!!.settings.apply { prefix = newPrefix }.prefix
-        guildCache.put(idLong, prefix)
-        prefix
-      }
-    }
   }
 
   @WithSpan("Is Self Bot")

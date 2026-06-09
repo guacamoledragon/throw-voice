@@ -37,6 +37,12 @@ Key constraints:
 - Combined/mixed audio always requires PCM decoding first — there is no "combined Opus" from JDA
 - May not address the chipmunk root cause alone (QueueFile I/O pressure is the likely bottleneck, not CPU encoding time), but would be a good optimization on top of the batching fix
 
+## Feature: Localize slash command names and descriptions
+
+Discord supports [localized slash commands](https://discord.com/developers/docs/interactions/application-commands#localization) via `nameLocalizations` and `descriptionLocalizations`. The old prefix `Help` command displayed localized command descriptions based on the guild's `/lang` setting. Now that prefix commands are removed, slash command localization would be the proper way to surface translated command names/descriptions natively in Discord's UI.
+
+JDA supports this via `CommandData.setNameLocalizations()` / `setDescriptionLocalizations()`. The existing `translations*.properties` files already have many of the needed strings.
+
 ## Cleanup: Remove `src/assembly` directory
 
 The `src/assembly` directory (docker-compose, `.env`) is out of date and no longer reflects the current deployment setup. Delete it entirely.
