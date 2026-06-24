@@ -48,6 +48,7 @@ services:
                           -XX:+CrashOnOutOfMemoryError
                           -XX:+HeapDumpOnOutOfMemoryError
                           -XX:HeapDumpPath=${BOT_DATA_DIR}/dumps
+                          -XX:ErrorFile=${BOT_DATA_DIR}/dumps/hs_err_pid%p.log
                           -XX:+UseCompactObjectHeaders
       - HONEYCOMB_API_KEY=${HONEYCOMB_API_KEY}
       - SERVICE_NAME=${SERVICE_NAME}
