@@ -32,8 +32,8 @@ import tech.gdragon.db.dao.Guild as GuildDao
 /**
  * Tests for [SharedAudioRecorder] (the [BaseAudioRecorder] subclass for non-standalone mode).
  *
- * These tests demonstrate that the newer BlockingQueue-based architecture avoids the
- * deadlock and blocking issues present in [CombinedAudioRecorderHandler]:
+ * These tests demonstrate that the BlockingQueue-based architecture avoids the
+ * deadlock and blocking issues of the former RxJava recorder:
  *
  * 1. **saveRecording returns quickly** — the upload runs in a background thread, so the
  *    calling thread is not held during I/O.
@@ -119,14 +119,13 @@ class SharedAudioRecorderTest : FunSpec({
           "APP_URL" to "http://localhost",
           "BOT_DATA_DIR" to tempDir.absolutePath,
           "BOT_FILE_FORMAT" to "mp3",
-          "BOT_RECORDER_TYPE" to "QUEUE",
           "BOT_STANDALONE" to "false",
           "BOT_MP3_VBR" to "false",
         )
       )
       modules(module {
         single<Datastore> { mockDatastore }
-        single<Pawa> { Pawa(db, PawaConfig { isStandalone = false; recorderType = tech.gdragon.api.pawa.RecorderType.QUEUE }) }
+        single<Pawa> { Pawa(db, PawaConfig { isStandalone = false }) }
       })
     }
 

@@ -41,7 +41,6 @@ fun pawaTests(db: Database, ds: Datastore, isStandalone: Boolean) = funSpec {
     val config = PawaConfig {
       this.isStandalone = isStandalone
       this.dataDirectory = tempdir().path
-      this.recorderType = RecorderType.LEGACY
     }
 
     Pawa(db, config)

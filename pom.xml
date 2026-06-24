@@ -124,11 +124,6 @@
       <artifactId>opentelemetry-jdbc</artifactId>
     </dependency>
     <dependency>
-      <groupId>io.reactivex.rxjava2</groupId>
-      <artifactId>rxjava</artifactId>
-      <version>2.2.21</version>
-    </dependency>
-    <dependency>
       <groupId>net.dv8tion</groupId>
       <artifactId>JDA</artifactId>
       <version>${jda.version}</version>

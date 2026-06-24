@@ -18,6 +18,5 @@
     <Logger name="tech.gdragon.listener.SharedAudioRecorder" level="off"/>
     <Logger name="io.mockk" level="off"/>
     <Logger name="org.flywaydb" level="error"/>
-    <Logger name="tech.gdragon.listener.CombinedAudioRecorderHandler" level="error"/>
   </Loggers>
 </Configuration>

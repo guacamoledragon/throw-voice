@@ -43,9 +43,7 @@ import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.now
 import tech.gdragon.db.table.Tables.Guilds
 import tech.gdragon.discord.message.RecordingStartedReply
-import tech.gdragon.api.pawa.RecorderType
 import tech.gdragon.listener.AudioRecorder
-import tech.gdragon.listener.CombinedAudioRecorderHandler
 import tech.gdragon.listener.SharedAudioRecorder
 import tech.gdragon.listener.StandaloneAudioRecorder
 import java.io.File
@@ -344,17 +342,9 @@ object BotUtils {
     } ?: 1.0
 
     val pawa: Pawa = getKoin().get()
-    val recorder: AudioRecorder = when (pawa.recorderType) {
-      RecorderType.LEGACY -> {
-        logger.info { "Using LEGACY recorder (CombinedAudioRecorderHandler)" }
-        CombinedAudioRecorderHandler(volume, channel, messageChannel)
-      }
-      RecorderType.QUEUE -> {
-        logger.info { "Using QUEUE recorder (BaseAudioRecorder)" }
-        if (pawa.isStandalone) StandaloneAudioRecorder(volume, channel, messageChannel)
-        else SharedAudioRecorder(volume, channel, messageChannel)
-      }
-    }
+    val recorder: AudioRecorder =
+      if (pawa.isStandalone) StandaloneAudioRecorder(volume, channel, messageChannel)
+      else SharedAudioRecorder(volume, channel, messageChannel)
 
     audioManager.receivingHandler = recorder as AudioReceiveHandler
     recordingStatus(channel.guild.selfMember, true)

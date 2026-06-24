@@ -11,7 +11,6 @@ import io.mockk.mockk
 import tech.gdragon.api.commands.RecoverResult
 import tech.gdragon.api.pawa.Pawa
 import tech.gdragon.api.pawa.PawaConfig
-import tech.gdragon.api.pawa.RecorderType
 import tech.gdragon.data.Datastore
 import tech.gdragon.data.LocalDatastore
 import tech.gdragon.db.Database
@@ -20,7 +19,7 @@ import tech.gdragon.db.dao.Recording
 class RecoverRecordingCommandTest : FunSpec({
 
   val db: Database = mockk(relaxed = true)
-  val config = PawaConfig { dataDirectory = "/tmp"; recorderType = RecorderType.LEGACY }
+  val config = PawaConfig { dataDirectory = "/tmp" }
   val datastore: Datastore = mockk<LocalDatastore>(relaxed = true)
   val recording: Recording = mockk<Recording>(relaxed = true)
 

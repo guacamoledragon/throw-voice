@@ -8,8 +8,8 @@ import java.util.concurrent.Semaphore
 /**
  * Common interface for audio recorder implementations.
  *
- * Both [CombinedAudioRecorderHandler] (legacy RxJava) and [BaseAudioRecorder] (queue-based)
- * implement this so callers like [tech.gdragon.BotUtils] can work with either without hard casts.
+ * Implemented by the [BaseAudioRecorder] (queue-based) hierarchy so callers like
+ * [tech.gdragon.BotUtils] work against the abstraction rather than a concrete type.
  */
 interface AudioRecorder {
   val session: String

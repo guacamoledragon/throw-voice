@@ -219,7 +219,7 @@ abstract class BaseAudioRecorder(
     messageChannel: MessageChannel
   ): Pair<Recording?, Semaphore> {
     val saveStartMs = System.currentTimeMillis()
-    logger.info { "[QUEUE] saveRecording started: $session, duration=$duration, impl=QUEUE" }
+    logger.info { "saveRecording started: $session, duration=$duration" }
     isRecording.set(false)
     val recordingLock = Semaphore(1, true)
     recordingLock.acquire()
@@ -235,7 +235,7 @@ abstract class BaseAudioRecorder(
     }
 
     val saveElapsedMs = System.currentTimeMillis() - saveStartMs
-    logger.info { "[QUEUE] saveRecording completed (upload in background): $session, elapsed=${saveElapsedMs}ms, impl=QUEUE" }
+    logger.info { "saveRecording completed (upload in background): $session, elapsed=${saveElapsedMs}ms" }
 
     // Process the recording in a background thread
     thread {
@@ -338,10 +338,10 @@ abstract class BaseAudioRecorder(
 
   override fun disconnect(save: Boolean, recording: Recording?, recordingLock: Semaphore?) {
     val disconnectStartMs = System.currentTimeMillis()
-    logger.info { "[QUEUE] disconnect started: $session, save=$save, impl=QUEUE" }
+    logger.info { "disconnect started: $session, save=$save" }
     disconnect(recordingLock)
     val disconnectElapsedMs = System.currentTimeMillis() - disconnectStartMs
-    logger.info { "[QUEUE] disconnect completed: $session, elapsed=${disconnectElapsedMs}ms, impl=QUEUE" }
+    logger.info { "disconnect completed: $session, elapsed=${disconnectElapsedMs}ms" }
   }
 
   override fun silenceUser(userId: Long) { silencedUsers.add(userId) }
