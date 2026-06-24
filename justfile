@@ -18,7 +18,7 @@ docker-build:
 
 docker-run:
   docker run --rm -it \
-    --env BOT_RECORDER_TYPE=LEGACY --env BOT_STANDALONE=false --env OVERRIDE_FILE=settings.properties --env OTEL_JAVAAGENT_ENABLED=false --env TZ="America/Los_Angeles" \
+    --env BOT_STANDALONE=false --env OVERRIDE_FILE=settings.properties --env OTEL_JAVAAGENT_ENABLED=false --env TZ="America/Los_Angeles" \
     -v "${PWD}/dev.docker.properties:/app/settings.properties" \
     -v "${PWD}/data:/app/data" \
     -p 7888:7888 \
