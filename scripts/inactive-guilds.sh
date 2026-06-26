@@ -4,9 +4,7 @@
 #
 # Read-only: runs a single SELECT, never writes.
 #
-# Connection details are taken from the environment so nothing about the
-# deployment lives in this (open-source) repo. Set these first, e.g. in a local
-# untracked .envrc:
+# Connection details are taken from the environment:
 #   PAWA_DB_SSH       SSH host running the database container
 #   PAWA_DB_CONTAINER Postgres container name
 #   PAWA_DB_ENV_FILE  path on that host to the env file exporting DB_USER/DB_NAME
