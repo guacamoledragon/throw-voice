@@ -39,13 +39,16 @@ import kotlin.concurrent.thread
 abstract class BaseAudioRecorder(
   override var volume: Double,
   val voiceChannel: AudioChannel,
-  val messageChannel: MessageChannel
+  val messageChannel: MessageChannel,
+  /** Max time [disconnect] waits for the background upload before giving up. */
+  protected val uploadWaitTimeout: Duration = DEFAULT_UPLOAD_WAIT
 ) : AudioReceiveHandler, KoinComponent, AudioRecorder {
 
   companion object {
     private const val BITRATE = 128
     private const val AUDIO_QUEUE_CAPACITY = 2000
     private const val BATCH_SIZE = 10 // ~200ms of audio at 50fps, mirrors CARH's buffer(200ms, 8)
+    val DEFAULT_UPLOAD_WAIT: Duration = Duration.ofSeconds(60)
   }
 
   protected val logger = KotlinLogging.logger { }
@@ -306,14 +309,25 @@ abstract class BaseAudioRecorder(
 
   fun disconnect(recordingLock: Semaphore? = null) {
     isRecording.set(false)
-    recordingLock?.let { lock ->
-      try {
-        lock.acquire()
-        lock.release()
-      } catch (e: InterruptedException) {
-        Thread.currentThread().interrupt()
-      }
+
+    val uploadFinished = if (recordingLock == null) true
+    else try {
+      recordingLock.tryAcquire(uploadWaitTimeout.toMillis(), TimeUnit.MILLISECONDS)
+    } catch (e: InterruptedException) {
+      Thread.currentThread().interrupt()
+      false
     }
+
+    if (!uploadFinished) {
+      // Upload didn't finish in time (typically a network stall). Free the caller
+      // instead of blocking forever — the background upload thread keeps running
+      // and owns queueFile/lameEncoder, so we skip cleanup() to avoid closing
+      // them mid-upload. ponytail: rare path; the leaked handles get GC'd.
+      logger.warn { "Upload did not finish within ${uploadWaitTimeout.toSeconds()}s; disconnecting without cleanup: $session" }
+      return
+    }
+
+    recordingLock?.release()
     cleanup()
     recordingLock?.release()
   }

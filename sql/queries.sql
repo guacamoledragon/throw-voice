@@ -47,12 +47,6 @@ where id = 333055724198559745
   and ifnull(created_on, '') not like '%Z';
 
 
-select *
-from Guilds
-where date(last_active_on)
-  not between date('now', '-30 days') and date('now')
-limit 50;
-
 select region
 from Guilds
 where region not null

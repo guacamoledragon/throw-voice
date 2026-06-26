@@ -23,8 +23,10 @@ import tech.gdragon.data.UploadResult
 import tech.gdragon.db.EmbeddedDatabase
 import java.io.File
 import java.io.IOException
+import java.time.Duration
 import java.time.Instant
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import net.dv8tion.jda.api.entities.Guild as DiscordGuild
 import tech.gdragon.db.dao.Guild as GuildDao
@@ -258,5 +260,43 @@ class SharedAudioRecorderTest : FunSpec({
     every {
       tech.gdragon.api.tape.queueFileIntoMp3(any<com.squareup.tape.QueueFile>(), any())
     } answers { callOriginal() }
+  }
+
+  // ---------------------------------------------------------------------------
+  // disconnect must not block forever when the upload hangs (e.g. network stall)
+  // ---------------------------------------------------------------------------
+
+  test("disconnect returns within the timeout even when the upload hangs indefinitely").config(
+    timeout = kotlin.time.Duration.parse("15s")
+  ) {
+    // Arrange: upload blocks until released, simulating a stalled network call
+    val uploadGate = CountDownLatch(1)
+    every { BotUtils.uploadFile(any(), any(), any()) } answers {
+      uploadGate.await(20, TimeUnit.SECONDS) // self-frees as a safety net
+      null
+    }
+
+    // 2s upload-wait so the test is fast; prod default is 60s
+    val recorder = SharedAudioRecorder(
+      1.0, mockVoiceChannel, mockMessageChannel,
+      uploadWaitTimeout = Duration.ofSeconds(2)
+    )
+    feedAudioFrames(recorder, 30)
+
+    val (_, lock) = recorder.saveRecording(mockVoiceChannel, mockMessageChannel)
+
+    // Act: disconnect must give up after uploadWaitTimeout instead of blocking
+    val start = System.currentTimeMillis()
+    val future = CompletableFuture.runAsync { recorder.disconnect(lock) }
+    future.get(10, TimeUnit.SECONDS) // throws if disconnect blocked on the hung upload
+    val elapsed = System.currentTimeMillis() - start
+
+    // Returned because of the timeout (~2s), not because the upload finished
+    elapsed.shouldBeGreaterThan(1_500)
+    elapsed.shouldBeLessThan(6_000)
+
+    // Release the still-blocked upload thread and restore mock
+    uploadGate.countDown()
+    every { BotUtils.uploadFile(any(), any(), any()) } returns null
   }
 })
