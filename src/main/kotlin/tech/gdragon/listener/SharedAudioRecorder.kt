@@ -13,7 +13,12 @@ import kotlin.concurrent.thread
 /**
  * Shared server audio recorder with AFK detection, size limits, and Discord upload options.
  */
-class SharedAudioRecorder(volume: Double, voiceChannel: AudioChannel, messageChannel: MessageChannel) : BaseAudioRecorder(volume, voiceChannel, messageChannel) {
+class SharedAudioRecorder(
+  volume: Double,
+  voiceChannel: AudioChannel,
+  messageChannel: MessageChannel,
+  uploadWaitTimeout: java.time.Duration = DEFAULT_UPLOAD_WAIT
+) : BaseAudioRecorder(volume, voiceChannel, messageChannel, uploadWaitTimeout) {
 
   companion object {
     private const val AFK_MINUTES = 2
