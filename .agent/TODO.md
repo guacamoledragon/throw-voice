@@ -46,3 +46,19 @@ JDA supports this via `CommandData.setNameLocalizations()` / `setDescriptionLoca
 ## Cleanup: Remove `src/assembly` directory
 
 The `src/assembly` directory (docker-compose, `.env`) is out of date and no longer reflects the current deployment setup. Delete it entirely.
+
+## Evaluate: Drop `GatewayIntent.MESSAGE_CONTENT` after prefix removal
+
+With prefix commands gone, the main remaining consumer of the privileged `MESSAGE_CONTENT` intent is the "Recover Recording" message context menu, which reads `event.target.contentRaw` to regex-extract ULID session IDs (`BotUtils.findSessionID()`). Users typically right-click the bot's own `RecordingStartedReply` — and bots always see their own message content regardless of intent — so the intent could potentially be dropped if recovery is refactored to parse only the bot's own embeds, or to store session IDs in message metadata. Note `GUILD_MESSAGES` is still required for `onPrivateMessageReceived`. Dropping a privileged intent reduces Discord verification overhead.
+
+## Release: cut a version documenting prefix command removal
+
+On a separate branch (not the prefix-removal MR), cut the next release that ships the prefix-command clean sweep. Bump `pom.xml` `<version>` (2.17.0 → next, e.g. 2.18.0 — the project does not follow SemVer, so confirm the number) and add a `### Removed` entry to `CHANGELOG.md` noting prefix command support is removed from both Pawa and PawaLite (prefix commands, `Help`/`Prefix`/`RemoveAlias`/`SaveLocation`/`Slash`/`Status`/`Test`, aliases + `/alias`, `BOT_PREFIX_COMMANDS`, and the `prefix` column / `aliases` table drops). The existing `v2.17.0` release tag is the last version that includes prefix support, so it serves as the recovery point — no separate `last-prefix-support` tag needed.
+
+## Feature: Background auto-recovery for failed recordings
+
+Replace the manual `/recover` command (an owner-gated bandaid — see `Recover.kt:27`, restricted to `TRIGOMAN`) with a background process that automatically retries recordings that failed to upload.
+
+When an upload fails, the `.mp3`/`.queue` files are left in `{BOT_DATA_DIR}/recordings/` and the `Recording` row persists with an empty `url`. A background worker could periodically scan for those rows (or leftover files), re-run `pawa.recoverRecording`, and notify the original channel on success — no human in the loop, no Session ID hand-off via the support server.
+
+Re-evaluate priority **after the disconnect-timeout fix (MR !141) is deployed**: bounding the disconnect wait may already eliminate most upload-failure cases, in which case this can stay low priority or be dropped. Decide based on observed failure rate post-deploy — **check the [Recording Upload Failures](https://ui.honeycomb.io/gdragon-d9/environments/prod/board/wPrXbD6xGwN) Honeycomb board** (baseline at creation: ~8.6% of upload attempts failed; the `Upload did not finish` hung-upload panel only populates once MR !141 ships). If the failure rate stays low after deploy, drop this feature. Until then, `/recover` remains the stopgap.
