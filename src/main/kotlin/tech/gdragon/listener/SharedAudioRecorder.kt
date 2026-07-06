@@ -114,8 +114,12 @@ class SharedAudioRecorder(
           }
         }
 
-        val appUrl = getKoin().getProperty<String>("APP_URL")
-        val recordingUrl = "$appUrl/v1/recordings?guild=${voiceChannel.guild.idLong}&session-id=$session"
+        val appUrl = pawa.config.appUrl
+        val recordingUrl = if (appUrl.startsWith("discord://")) {
+          attachment.proxyUrl
+        } else {
+          "$appUrl/v1/recordings?guild=${voiceChannel.guild.idLong}&session-id=$session"
+        }
         val message = """|:microphone2: **Recording for <#${voiceChannel.id}> has been uploaded!**
                                 |$recordingUrl""".trimMargin()
 
@@ -134,10 +138,12 @@ class SharedAudioRecorder(
           }
         }
 
-        val appUrl = getKoin().getProperty<String>("APP_URL")
-        val recordingUrl = if (appUrl != null) {
+        val appUrl = pawa.config.appUrl
+        val recordingUrl = if (appUrl.startsWith("discord://")) {
+          result.url
+        } else {
           "$appUrl/v1/recordings?guild=${voiceChannel.guild.idLong}&session-id=$session"
-        } else result.url
+        }
 
         val message = """|:microphone2: **Recording for <#${voiceChannel.id}> has been uploaded!**
                                 |$recordingUrl
