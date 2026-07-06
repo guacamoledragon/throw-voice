@@ -37,6 +37,9 @@ Deployed: legacy recorder removed; `-XX:ErrorFile` → mounted volume; bounded
   cleanup, no `url` in DB. Every Discord-side upload error therefore requires
   `/recover`. Fixing this (fall back to datastore + APP_URL link when the
   attachment upload throws) would have delivered all 8 of this week's losses.
+  Fixed in code (attachment failure now falls back to the datastore upload);
+  after deploy, expect `Discord attachment upload failed, falling back to
+  datastore` WARNs instead of leftover files.
 - **`hs_err` dumps were silently lost until now:** `-XX:ErrorFile` pointed at
   `${BOT_DATA_DIR}/dumps/` but the directory never existed and the JVM doesn't
   create it. Fixed 2026-07-06 (`mkdir /opt/pawa/data/dumps`, mode 777). Dumps
@@ -46,6 +49,8 @@ Deployed: legacy recorder removed; `-XX:ErrorFile` → mounted volume; bounded
   local file. 3 of the 11 on-disk `.mp3` were successful-recovery residue
   (matching `Recovering <ulid> from queue file` → `Finished uploading`). When
   counting, cross-check each ULID's session logs.
+  Fixed in code (recovery now deletes the regenerated file after a successful
+  upload); once deployed, the on-disk count is trustworthy again.
 - **`Upload did not finish within 60s` WARNs are not real hangs:** all 4
   occurrences this week were large files (37–44 MB) that finished uploading
   seconds after the WARN and cleaned up normally. MR !141 works; the 60s bound
