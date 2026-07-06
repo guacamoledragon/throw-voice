@@ -326,4 +326,30 @@ class SharedAudioRecorderTest : FunSpec({
     // Restore the shared mock for subsequent tests
     every { BotUtils.uploadFile(any(), any(), any()) } returns null
   }
+
+  test("degrades to error message and leaves file on disk when the datastore fallback also fails").config(
+    timeout = kotlin.time.Duration.parse("15s")
+  ) {
+    // Arrange: Discord rejects the upload AND the datastore is down (e.g. S3 outage)
+    every { BotUtils.uploadFile(any(), any(), any()) } throws
+      RuntimeException("400001: Access to file uploads has been limited for this guild")
+    every { mockDatastore.upload(any(), any()) } throws RuntimeException("S3 is down")
+
+    val recorder = SharedAudioRecorder(1.0, mockVoiceChannel, mockMessageChannel)
+    feedAudioFrames(recorder, 30)
+
+    val (_, lock) = recorder.saveRecording(mockVoiceChannel, mockMessageChannel)
+    recorder.disconnect(lock)
+
+    // Assert: today's behavior — error message with the session ID, file kept for /recover
+    verify {
+      BotUtils.sendMessage(any(), match<String> { it.contains("Error uploading recording") })
+    }
+    File(tempDir, "recordings/${recorder.session}.mp3").exists() shouldBe true
+
+    // Restore the shared mocks for subsequent tests
+    every { BotUtils.uploadFile(any(), any(), any()) } returns null
+    every { mockDatastore.upload(any(), any()) } returns
+      UploadResult("key", Instant.now(), 100L, "http://localhost/rec.mp3")
+  }
 })
