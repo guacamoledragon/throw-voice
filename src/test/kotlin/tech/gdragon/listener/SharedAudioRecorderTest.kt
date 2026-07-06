@@ -145,6 +145,14 @@ class SharedAudioRecorderTest : FunSpec({
     every { tech.gdragon.api.tape.queueFileIntoMp3(any<com.squareup.tape.QueueFile>(), any()) } answers { callOriginal() }
   }
 
+  // Restore the shared stubs even when a test fails mid-body, so one failure
+  // doesn't cascade throwing mocks into the remaining tests.
+  afterTest {
+    every { BotUtils.uploadFile(any(), any(), any()) } returns null
+    every { mockDatastore.upload(any(), any()) } returns
+      UploadResult("key", Instant.now(), 100L, "http://localhost/rec.mp3")
+  }
+
   afterSpec {
     unmockkObject(BotUtils)
     unmockkStatic("tech.gdragon.api.tape.UtilsKt")
@@ -315,16 +323,14 @@ class SharedAudioRecorderTest : FunSpec({
     val (recording, lock) = recorder.saveRecording(mockVoiceChannel, mockMessageChannel)
     recorder.disconnect(lock)
 
-    // Assert: recording was delivered via the datastore instead
-    verify { mockDatastore.upload(any(), any()) }
+    // Assert: THIS recording was delivered via the datastore (key carries the session ULID,
+    // so calls recorded by earlier tests can't satisfy the verification)
+    verify { mockDatastore.upload(match { it.endsWith("${recorder.session}.mp3") }, any()) }
     transaction {
       Recording.findById(recording!!.id.value)!!.url shouldBe "http://localhost/rec.mp3"
     }
     // Local file was cleaned up (no leftover .mp3 requiring /recover)
     File(tempDir, "recordings/${recorder.session}.mp3").exists() shouldBe false
-
-    // Restore the shared mock for subsequent tests
-    every { BotUtils.uploadFile(any(), any(), any()) } returns null
   }
 
   test("degrades to error message and leaves file on disk when the datastore fallback also fails").config(
@@ -346,10 +352,5 @@ class SharedAudioRecorderTest : FunSpec({
       BotUtils.sendMessage(any(), match<String> { it.contains("Error uploading recording") })
     }
     File(tempDir, "recordings/${recorder.session}.mp3").exists() shouldBe true
-
-    // Restore the shared mocks for subsequent tests
-    every { BotUtils.uploadFile(any(), any(), any()) } returns null
-    every { mockDatastore.upload(any(), any()) } returns
-      UploadResult("key", Instant.now(), 100L, "http://localhost/rec.mp3")
   }
 })
