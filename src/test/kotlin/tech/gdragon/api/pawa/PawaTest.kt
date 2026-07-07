@@ -119,6 +119,30 @@ fun pawaTests(db: Database, ds: Datastore, isStandalone: Boolean) = funSpec {
       result.recording.id.shouldBe(record.id)
       result.recording.url.shouldNotBe(record.url)
     }
+
+    test("it should delete the regenerated mp3 file after a successful recovery upload") {
+      val dataDirectory = pawa.config.dataDirectory
+      val sessionId = ULID.random()
+
+      // Create queue file (simulates a recording whose upload never happened)
+      Files.createDirectories(File(dataDirectory, "recordings").toPath())
+      QueueFile(File(dataDirectory, "recordings/$sessionId.queue"))
+
+      transaction(db.database) {
+        val guild = Guild.findOrCreate(guildId, "Test Guild")
+        val channel = Channel.findOrCreate(1L, "fake-voice-channel", guildId)
+
+        Recording.new(sessionId) {
+          this.channel = channel
+          this.guild = guild
+        }
+      }
+      val result = pawa.recoverRecording(ds, sessionId)
+
+      result.recording.shouldNotBeNull()
+      // The regenerated mp3 must not linger on disk after the datastore upload
+      File(dataDirectory, "recordings/$sessionId.mp3").exists() shouldBe false
+    }
   }
 }
 

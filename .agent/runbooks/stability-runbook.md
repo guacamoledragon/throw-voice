@@ -37,6 +37,9 @@ Deployed: legacy recorder removed; `-XX:ErrorFile` → mounted volume; bounded
   cleanup, no `url` in DB. Every Discord-side upload error therefore requires
   `/recover`. Fixing this (fall back to datastore + APP_URL link when the
   attachment upload throws) would have delivered all 8 of this week's losses.
+  Fixed in code (MR !142: attachment failure now falls back to the datastore
+  upload); after deploy, expect `Discord attachment upload failed, falling back
+  to datastore` WARNs instead of leftover files.
 - **`hs_err` dumps were silently lost until now:** `-XX:ErrorFile` pointed at
   `${BOT_DATA_DIR}/dumps/` but the directory never existed and the JVM doesn't
   create it. Fixed 2026-07-06 (`mkdir /opt/pawa/data/dumps`, mode 777). Dumps
@@ -46,6 +49,8 @@ Deployed: legacy recorder removed; `-XX:ErrorFile` → mounted volume; bounded
   local file. 3 of the 11 on-disk `.mp3` were successful-recovery residue
   (matching `Recovering <ulid> from queue file` → `Finished uploading`). When
   counting, cross-check each ULID's session logs.
+  Fixed in code (MR !142: recovery now deletes the regenerated file after a
+  successful upload); once deployed, the on-disk count is trustworthy again.
 - **`Upload did not finish within 60s` WARNs are not real hangs:** all 4
   occurrences this week were large files (37–44 MB) that finished uploading
   seconds after the WARN and cleaned up normally. MR !141 works; the 60s bound
@@ -101,6 +106,14 @@ this agent.
    recovered. (Ignore `.queue` count for the goal — those leak on every
    recording regardless of success; see "Disk leak" below.)
 
+   **Metric meaning changes once MR !142 deploys:** a lingering `.mp3` then
+   means *both* the Discord attachment and the datastore upload failed for
+   that save (or the JVM died mid-processing) — Discord-side refusals
+   (400001, permissions) self-heal via the fallback, and successful
+   recoveries no longer leave residue, so the raw count is trustworthy
+   without session-log cross-checking. Expected post-deploy baseline: ~0;
+   any growth signals a datastore outage or crash-induced loss.
+
 2. **Crash dumps.** The single most valuable artifact — still none captured:
    ```sh
    ssh pawa.im 'ls -la /opt/pawa/data/dumps/'
@@ -119,7 +132,10 @@ this agent.
 
 5. **Honeycomb queries** (env `prod`, dataset `pawa`) if you need raw numbers —
    filter `message` with `starts-with`:
-   - Upload failures: `Error uploading recording`
+   - Upload failures: `Error uploading recording` (post-!142 this means BOTH
+     Discord and the datastore failed — much rarer, much more serious)
+   - Datastore fallback engagements (post-!142): `Discord attachment upload
+     failed` — how often Discord refused a file and the fallback delivered it
    - Processing failures: `Failed to process completed recording`
    - Hung uploads (MR !141 signal): `Upload did not finish`
    - Restarts: `ONLINE: Connected to`
@@ -172,8 +188,13 @@ DAVE mandatory). So two tracks run in parallel:
   to see if this is working. Feed `hs_err` evidence upstream.
 
 - **Track B — make losses self-heal (this is what actually hits the goal):**
-  build the **Background auto-recovery** feature (see `../TODO.md`). A worker
-  scans `/app/data/recordings/` for leftover `.mp3`/`.queue` (or `Recording`
+  the first step shipped as **MR !142** (datastore fallback on Discord upload
+  failure) — it self-heals every Discord-side refusal, which caused all 8 of
+  this week's losses. The remaining gap is crash-mid-processing and
+  datastore-outage losses; whether the **Background auto-recovery** feature
+  (see `../TODO.md`) is still needed depends on how the leftover-`.mp3` count
+  trends after !142 deploys. If a worker is still warranted: it scans
+  `/app/data/recordings/` for leftover `.mp3`/`.queue` (or `Recording`
   rows that were saved but have no `url`), re-runs `pawa.recoverRecording`, and
   notifies the original channel — no human, no `/recover`. This delivers "no one
   needs to recover" **even while crashes continue**, which is why it's the

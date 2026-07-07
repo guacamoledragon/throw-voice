@@ -203,7 +203,7 @@ open class Pawa(val db: Database, val config: PawaConfig = PawaConfig.invoke()) 
       Recording.findById(sessionId)
     }
 
-    return recording?.let {
+    val uploaded = recording?.let {
       transaction(db.database) {
         logger.info { "Re-uploading recording" }
         val result = datastore.upload("${it.guild.id.value}/${mp3File.name}", mp3File)
@@ -228,6 +228,14 @@ open class Pawa(val db: Database, val config: PawaConfig = PawaConfig.invoke()) 
           url = result.url
           duration = extractDuration(mp3File)
         }
+      }
+    }
+
+    return uploaded?.also {
+      if (mp3File.delete()) {
+        logger.info { "Deleted local file ${mp3File.name} after recovery upload." }
+      } else {
+        logger.warn { "Could not delete local file ${mp3File.name} after recovery upload." }
       }
     }
   }

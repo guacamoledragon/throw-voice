@@ -9,7 +9,8 @@ class PawaConfig private constructor(
 
   class Builder(
     /**
-     * The URL of the pawa recordings app. Defaults to [https://app.pawa.im](https://app.pawa.im)
+     * The URL of the pawa recordings app. Falls back to the `discord://` sentinel when unset —
+     * consumers check `startsWith("discord://")` to mean "no app URL configured".
      */
     var appUrl: String = "",
 

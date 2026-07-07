@@ -2,7 +2,6 @@ package tech.gdragon.listener
 
 import com.squareup.tape.QueueFile
 import io.github.oshai.kotlinlogging.withLoggingContext
-import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
@@ -25,7 +24,6 @@ class SharedAudioRecorder(
     private const val AFK_LIMIT = (AFK_MINUTES * 60 * 1000) / 20          // 2 minutes in 20ms increments
     private const val MAX_RECORDING_MB = 256L
     private const val MAX_RECORDING_SIZE = MAX_RECORDING_MB * 1024 * 1024 // 256MB
-    private const val DISCORD_MAX_RECORDING_SIZE = Message.MAX_FILE_SIZE
   }
 
   private val afkCounter = java.util.concurrent.atomic.AtomicInteger(0)
@@ -95,10 +93,40 @@ class SharedAudioRecorder(
     try {
       val filename = recordingFile.name
 
-      val attachment = uploadAttachment(messageChannel, recordingFile, filename)?.attachments?.first()
+      // Try Discord first — attachments are free storage that stays valid for the lifetime
+      // of the server. A null attachment means Discord did NOT take the file, whether by
+      // size (uploadAttachment's gate), guild upload limit (400001), or missing permissions;
+      // in all of those cases fall back to the datastore so the recording is never stranded.
+      val attachment = try {
+        uploadAttachment(messageChannel, recordingFile, filename)?.attachments?.first()
+      } catch (e: Exception) {
+        logger.warn(e) { "Discord attachment upload failed, falling back to datastore: $session" }
+        null
+      }
 
-      if (recordingFile.length() >= DISCORD_MAX_RECORDING_SIZE) {
-        // Upload to datastore for large files
+      if (attachment != null) {
+        // Discord-only upload
+        transaction {
+          recordingRecord?.apply {
+            size = recordingFile.length()
+            modifiedOn = now()
+            url = attachment.proxyUrl
+            duration = this@SharedAudioRecorder.duration
+          }
+        }
+
+        val appUrl = pawa.config.appUrl
+        val recordingUrl = if (appUrl.startsWith("discord://")) {
+          attachment.proxyUrl
+        } else {
+          "$appUrl/v1/recordings?guild=${voiceChannel.guild.idLong}&session-id=$session"
+        }
+        val message = """|:microphone2: **Recording for <#${voiceChannel.id}> has been uploaded!**
+                                |$recordingUrl""".trimMargin()
+
+        tech.gdragon.BotUtils.sendMessage(messageChannel, message)
+      } else {
+        // Large files, or Discord upload failed → upload to datastore
         val recordingKey = "${voiceChannel.guild.id}/$filename"
         val result = datastore.upload(recordingKey, recordingFile)
 
@@ -111,32 +139,17 @@ class SharedAudioRecorder(
           }
         }
 
-        val appUrl = getKoin().getProperty<String>("APP_URL")
-        val recordingUrl = if (appUrl != null) {
+        val appUrl = pawa.config.appUrl
+        val recordingUrl = if (appUrl.startsWith("discord://")) {
+          result.url
+        } else {
           "$appUrl/v1/recordings?guild=${voiceChannel.guild.idLong}&session-id=$session"
-        } else result.url
+        }
 
         val message = """|:microphone2: **Recording for <#${voiceChannel.id}> has been uploaded!**
                                 |$recordingUrl
                                 |
                                 |_Recording will only be available for 24hrs_""".trimMargin()
-
-        tech.gdragon.BotUtils.sendMessage(messageChannel, message)
-      } else {
-        // Discord-only upload
-        transaction {
-          recordingRecord?.apply {
-            size = recordingFile.length()
-            modifiedOn = now()
-            url = attachment?.proxyUrl ?: "Discord Only"
-            duration = this@SharedAudioRecorder.duration
-          }
-        }
-
-        val appUrl = getKoin().getProperty<String>("APP_URL")
-        val recordingUrl = "$appUrl/v1/recordings?guild=${voiceChannel.guild.idLong}&session-id=$session"
-        val message = """|:microphone2: **Recording for <#${voiceChannel.id}> has been uploaded!**
-                                |$recordingUrl""".trimMargin()
 
         tech.gdragon.BotUtils.sendMessage(messageChannel, message)
       }

@@ -5,6 +5,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.engine.spec.tempdir
 import io.kotest.matchers.longs.shouldBeGreaterThan
 import io.kotest.matchers.longs.shouldBeLessThan
+import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.*
 import net.dv8tion.jda.api.audio.CombinedAudio
@@ -21,6 +22,7 @@ import tech.gdragon.api.pawa.PawaConfig
 import tech.gdragon.data.Datastore
 import tech.gdragon.data.UploadResult
 import tech.gdragon.db.EmbeddedDatabase
+import tech.gdragon.db.dao.Recording
 import java.io.File
 import java.io.IOException
 import java.time.Duration
@@ -141,6 +143,14 @@ class SharedAudioRecorderTest : FunSpec({
     mockkStatic("tech.gdragon.api.tape.UtilsKt")
     every { tech.gdragon.api.tape.addCommentToMp3(any(), any()) } just Runs
     every { tech.gdragon.api.tape.queueFileIntoMp3(any<com.squareup.tape.QueueFile>(), any()) } answers { callOriginal() }
+  }
+
+  // Restore the shared stubs even when a test fails mid-body, so one failure
+  // doesn't cascade throwing mocks into the remaining tests.
+  afterTest {
+    every { BotUtils.uploadFile(any(), any(), any()) } returns null
+    every { mockDatastore.upload(any(), any()) } returns
+      UploadResult("key", Instant.now(), 100L, "http://localhost/rec.mp3")
   }
 
   afterSpec {
@@ -298,5 +308,49 @@ class SharedAudioRecorderTest : FunSpec({
     // Release the still-blocked upload thread and restore mock
     uploadGate.countDown()
     every { BotUtils.uploadFile(any(), any(), any()) } returns null
+  }
+
+  test("falls back to datastore when Discord attachment upload throws").config(
+    timeout = kotlin.time.Duration.parse("15s")
+  ) {
+    // Arrange: Discord rejects the attachment upload (e.g. 400001 guild upload limit)
+    every { BotUtils.uploadFile(any(), any(), any()) } throws
+      RuntimeException("400001: Access to file uploads has been limited for this guild")
+
+    val recorder = SharedAudioRecorder(1.0, mockVoiceChannel, mockMessageChannel)
+    feedAudioFrames(recorder, 30)
+
+    val (recording, lock) = recorder.saveRecording(mockVoiceChannel, mockMessageChannel)
+    recorder.disconnect(lock)
+
+    // Assert: THIS recording was delivered via the datastore (key carries the session ULID,
+    // so calls recorded by earlier tests can't satisfy the verification)
+    verify { mockDatastore.upload(match { it.endsWith("${recorder.session}.mp3") }, any()) }
+    transaction {
+      Recording.findById(recording!!.id.value)!!.url shouldBe "http://localhost/rec.mp3"
+    }
+    // Local file was cleaned up (no leftover .mp3 requiring /recover)
+    File(tempDir, "recordings/${recorder.session}.mp3").exists() shouldBe false
+  }
+
+  test("degrades to error message and leaves file on disk when the datastore fallback also fails").config(
+    timeout = kotlin.time.Duration.parse("15s")
+  ) {
+    // Arrange: Discord rejects the upload AND the datastore is down (e.g. S3 outage)
+    every { BotUtils.uploadFile(any(), any(), any()) } throws
+      RuntimeException("400001: Access to file uploads has been limited for this guild")
+    every { mockDatastore.upload(any(), any()) } throws RuntimeException("S3 is down")
+
+    val recorder = SharedAudioRecorder(1.0, mockVoiceChannel, mockMessageChannel)
+    feedAudioFrames(recorder, 30)
+
+    val (_, lock) = recorder.saveRecording(mockVoiceChannel, mockMessageChannel)
+    recorder.disconnect(lock)
+
+    // Assert: today's behavior — error message with the session ID, file kept for /recover
+    verify {
+      BotUtils.sendMessage(any(), match<String> { it.contains("Error uploading recording") })
+    }
+    File(tempDir, "recordings/${recorder.session}.mp3").exists() shouldBe true
   }
 })
