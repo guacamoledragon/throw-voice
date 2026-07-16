@@ -129,6 +129,13 @@
       <version>${jda.version}</version>
     </dependency>
     <dependency>
+      <!-- Same version JDA resolves transitively (runtime scope); needed at compile
+           scope by our patched net.dv8tion.jda.internal.audio.Decoder -->
+      <groupId>net.java.dev.jna</groupId>
+      <artifactId>jna</artifactId>
+      <version>5.18.1</version>
+    </dependency>
+    <dependency>
       <groupId>club.minnced</groupId>
       <artifactId>jdave-api</artifactId>
       <version>${jdave.version}</version>
@@ -505,6 +512,16 @@
                         <exclude>META-INF/DEPENDENCIES</exclude>
                         <exclude>META-INF/LICENSE</exclude>
                         <exclude>META-INF/NOTICE</exclude>
+                      </excludes>
+                    </filter>
+                    <filter>
+                      <!-- Our patched Decoder (src/main/kotlin/net/dv8tion/...) replaces
+                           JDA's copy, which SIGSEGVs on decode-after-close. Remove this
+                           filter and the patched class when DecoderRaceTest's canary
+                           fails (= upstream fixed it). -->
+                      <artifact>net.dv8tion:JDA</artifact>
+                      <excludes>
+                        <exclude>net/dv8tion/jda/internal/audio/Decoder.class</exclude>
                       </excludes>
                     </filter>
                     <filter>
