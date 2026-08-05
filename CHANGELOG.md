@@ -17,6 +17,8 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 ### Deprecated
 
 ### Fixed
+- MP3 recordings now carry a valid Xing/VBR header (ffmpeg remux at finalization), so players report correct duration. Replaces the `writeVbrTag` reflection hack, which silently failed in production.
+- Speaker comments (ID3) are now actually written to recordings — jaudiotagger previously failed silently on the invalid first frame.
 
 ### Security
 

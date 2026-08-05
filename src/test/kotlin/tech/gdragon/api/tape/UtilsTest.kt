@@ -1,19 +1,20 @@
 package tech.gdragon.api.tape
 
+import com.squareup.tape.QueueFile
 import de.sciss.jump3r.lowlevel.LameEncoder
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.engine.spec.tempdir
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.longs.shouldBeGreaterThan
+import io.kotest.matchers.longs.shouldBeLessThan
 import java.io.File
 import java.io.FileOutputStream
 import javax.sound.sampled.AudioFormat
 
 /**
- * Unit tests for [writeVbrTag].
+ * Unit tests for tape utilities.
  *
- * No mocking needed — uses a real [LameEncoder] to produce a small VBR MP3, then verifies
- * that [writeVbrTag] writes a Xing header into the first frame.
+ * No mocking needed — uses real encoders and file operations to verify core tape functionality.
  */
 class UtilsTest : FunSpec({
 
@@ -44,45 +45,66 @@ class UtilsTest : FunSpec({
   }
 
   /**
-   * Check if the Xing header marker exists in the first frame of the MP3.
-   * For MPEG1 stereo, the Xing tag is at offset 36 (4-byte frame header + 32-byte side info).
+   * Check if a Xing/Info header marker exists near the start of the MP3.
    */
   fun hasXingHeader(mp3: File): Boolean {
-    val head = mp3.readBytes().take(200).toByteArray()
-    val xing = "Xing".toByteArray()
-    return (0..head.size - 4).any { i ->
-      head[i] == xing[0] && head[i + 1] == xing[1] && head[i + 2] == xing[2] && head[i + 3] == xing[3]
+    val head = mp3.readBytes().take(1024).toByteArray()
+    val markers = listOf("Xing".toByteArray(), "Info".toByteArray())
+    return markers.any { m ->
+      (0..head.size - 4).any { i ->
+        head[i] == m[0] && head[i + 1] == m[1] && head[i + 2] == m[2] && head[i + 3] == m[3]
+      }
     }
   }
 
-  test("writeVbrTag adds Xing header to VBR MP3") {
+  test("remuxWithXingHeader adds Xing header and preserves audio") {
     val dir = tempdir()
     val (encoder, mp3File) = encodeVbrMp3(dir)
-
-    // Before: no Xing header
-    hasXingHeader(mp3File) shouldBe false
-
-    // Act
-    writeVbrTag(encoder, mp3File)
-
-    // After: Xing header present
-    mp3File.length().shouldBeGreaterThan(0)
-    hasXingHeader(mp3File) shouldBe true
-
     encoder.close()
-  }
-
-  test("writeVbrTag does not corrupt file — size stays reasonable") {
-    val dir = tempdir()
-    val (encoder, mp3File) = encodeVbrMp3(dir)
     val sizeBefore = mp3File.length()
 
-    writeVbrTag(encoder, mp3File)
+    // Before: jump3r leaves a zeroed placeholder, no Xing marker
+    hasXingHeader(mp3File) shouldBe false
 
-    // putVbrTag overwrites first frame in-place, file size should not change drastically
-    val sizeAfter = mp3File.length()
-    sizeAfter shouldBe sizeBefore
+    remuxWithXingHeader(mp3File)
 
+    hasXingHeader(mp3File) shouldBe true
+    // Audio frames are copied; only a small Xing frame is added
+    mp3File.length().shouldBeGreaterThan(sizeBefore)
+    mp3File.length().shouldBeLessThan(sizeBefore + 10_000)
+  }
+
+  /**
+   * Encode silent PCM frames into a tape QueueFile of mp3 chunks, like the recorder does.
+   */
+  fun encodeVbrIntoQueue(dir: File, frames: Int = 50): File {
+    val queueFileFile = File(dir, "test.queue")
+    val queue = QueueFile(queueFileFile)
+    val encoder = LameEncoder(audioFormat, 128, LameEncoder.CHANNEL_MODE_AUTO, LameEncoder.QUALITY_HIGHEST, true)
+    val mp3Buffer = ByteArray(8192)
+    val pcmFrame = ByteArray(3840)
+
+    repeat(frames) {
+      val encoded = encoder.encodeBuffer(pcmFrame, 0, pcmFrame.size, mp3Buffer)
+      if (encoded > 0) queue.add(mp3Buffer.copyOf(encoded))
+    }
+    val flushed = encoder.encodeFinish(mp3Buffer)
+    if (flushed > 0) queue.add(mp3Buffer.copyOf(flushed))
     encoder.close()
+    queue.close()
+
+    return queueFileFile
+  }
+
+  test("drained queue remuxes to mp3 with Xing header") {
+    val dir = tempdir()
+    val queueFile = encodeVbrIntoQueue(dir)
+    val mp3 = File(dir, "out.mp3")
+
+    queueFileIntoMp3(queueFile, mp3)
+    remuxWithXingHeader(mp3)
+
+    mp3.length().shouldBeGreaterThan(0)
+    hasXingHeader(mp3) shouldBe true
   }
 })
