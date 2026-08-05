@@ -24,6 +24,7 @@ RUN mvn -B -Dversion="${VERSION:-dev}" -Dtimestamp="${BUILD_DATE}" -Drevision="$
 
 FROM gcr.io/distroless/java25
 LABEL maintainer="Jose V. Trigueros <jose@gdragon.tech>"
+COPY --from=mwader/static-ffmpeg:8.0 /ffmpeg /usr/local/bin/ffmpeg
 
 ARG BUILD_DATE
 ARG VCS_REF

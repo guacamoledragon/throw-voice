@@ -12,6 +12,8 @@ cache: &maven-cache
 
 test:
   image: maven:3.9-eclipse-temurin-25-alpine
+  before_script:
+    - apk add --no-cache ffmpeg
   only:
     changes: &code-changes
       - Dockerfile
