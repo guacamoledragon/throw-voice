@@ -57,7 +57,7 @@ class UtilsTest : FunSpec({
     }
   }
 
-test("remuxWithXingHeader adds Xing header and preserves audio") {
+  test("remuxWithXingHeader adds Xing header and preserves audio") {
     val dir = tempdir()
     val (encoder, mp3File) = encodeVbrMp3(dir)
     encoder.close()
