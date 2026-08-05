@@ -39,7 +39,7 @@ test:
   stage: test
 
 container:
-  image: docker:27
+  image: docker:29
   cache: {}
   rules:
     - if: $CI_COMMIT_TAG
@@ -51,6 +51,7 @@ container:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - |
       docker build --quiet \
+             --provenance=false \
              --cache-from $CI_REGISTRY/pawabot/pawa:latest \
              -t $CI_REGISTRY/pawabot/pawa:${VERSION} \
              --build-arg VCS_REF=${CI_COMMIT_SHORT_SHA} \
