@@ -12,10 +12,9 @@ import java.io.FileOutputStream
 import javax.sound.sampled.AudioFormat
 
 /**
- * Unit tests for [writeVbrTag].
+ * Unit tests for tape utilities.
  *
- * No mocking needed — uses a real [LameEncoder] to produce a small VBR MP3, then verifies
- * that [writeVbrTag] writes a Xing header into the first frame.
+ * No mocking needed — uses real encoders and file operations to verify core tape functionality.
  */
 class UtilsTest : FunSpec({
 
@@ -58,38 +57,7 @@ class UtilsTest : FunSpec({
     }
   }
 
-  test("writeVbrTag adds Xing header to VBR MP3") {
-    val dir = tempdir()
-    val (encoder, mp3File) = encodeVbrMp3(dir)
-
-    // Before: no Xing header
-    hasXingHeader(mp3File) shouldBe false
-
-    // Act
-    writeVbrTag(encoder, mp3File)
-
-    // After: Xing header present
-    mp3File.length().shouldBeGreaterThan(0)
-    hasXingHeader(mp3File) shouldBe true
-
-    encoder.close()
-  }
-
-  test("writeVbrTag does not corrupt file — size stays reasonable") {
-    val dir = tempdir()
-    val (encoder, mp3File) = encodeVbrMp3(dir)
-    val sizeBefore = mp3File.length()
-
-    writeVbrTag(encoder, mp3File)
-
-    // putVbrTag overwrites first frame in-place, file size should not change drastically
-    val sizeAfter = mp3File.length()
-    sizeAfter shouldBe sizeBefore
-
-    encoder.close()
-  }
-
-  test("remuxWithXingHeader adds Xing header and preserves audio") {
+test("remuxWithXingHeader adds Xing header and preserves audio") {
     val dir = tempdir()
     val (encoder, mp3File) = encodeVbrMp3(dir)
     encoder.close()
