@@ -5,6 +5,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.engine.spec.tempdir
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.longs.shouldBeGreaterThan
+import io.kotest.matchers.longs.shouldBeLessThan
 import java.io.File
 import java.io.FileOutputStream
 import javax.sound.sampled.AudioFormat
@@ -44,14 +45,15 @@ class UtilsTest : FunSpec({
   }
 
   /**
-   * Check if the Xing header marker exists in the first frame of the MP3.
-   * For MPEG1 stereo, the Xing tag is at offset 36 (4-byte frame header + 32-byte side info).
+   * Check if a Xing/Info header marker exists near the start of the MP3.
    */
   fun hasXingHeader(mp3: File): Boolean {
-    val head = mp3.readBytes().take(200).toByteArray()
-    val xing = "Xing".toByteArray()
-    return (0..head.size - 4).any { i ->
-      head[i] == xing[0] && head[i + 1] == xing[1] && head[i + 2] == xing[2] && head[i + 3] == xing[3]
+    val head = mp3.readBytes().take(1024).toByteArray()
+    val markers = listOf("Xing".toByteArray(), "Info".toByteArray())
+    return markers.any { m ->
+      (0..head.size - 4).any { i ->
+        head[i] == m[0] && head[i + 1] == m[1] && head[i + 2] == m[2] && head[i + 3] == m[3]
+      }
     }
   }
 
@@ -84,5 +86,33 @@ class UtilsTest : FunSpec({
     sizeAfter shouldBe sizeBefore
 
     encoder.close()
+  }
+
+  test("remuxWithXingHeader adds Xing header and preserves audio") {
+    val dir = tempdir()
+    val (encoder, mp3File) = encodeVbrMp3(dir)
+    encoder.close()
+    val sizeBefore = mp3File.length()
+
+    // Before: jump3r leaves a zeroed placeholder, no Xing marker
+    hasXingHeader(mp3File) shouldBe false
+
+    remuxWithXingHeader(mp3File)
+
+    hasXingHeader(mp3File) shouldBe true
+    // Audio frames are copied; only a small Xing frame is added
+    mp3File.length().shouldBeGreaterThan(sizeBefore)
+    mp3File.length().shouldBeLessThan(sizeBefore + 10_000)
+  }
+
+  test("remuxWithXingHeader leaves file untouched when ffmpeg is missing") {
+    val dir = tempdir()
+    val (encoder, mp3File) = encodeVbrMp3(dir)
+    encoder.close()
+    val bytesBefore = mp3File.readBytes()
+
+    remuxWithXingHeader(mp3File, ffmpeg = "/nonexistent/ffmpeg")
+
+    mp3File.readBytes().contentEquals(bytesBefore) shouldBe true
   }
 })

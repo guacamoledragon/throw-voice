@@ -12,7 +12,10 @@ import org.jaudiotagger.tag.FieldKey
 import java.io.File
 import java.io.FileOutputStream
 import java.io.RandomAccessFile
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
 import java.time.Duration
+import java.util.concurrent.TimeUnit
 
 val logger = KotlinLogging.logger { }
 
@@ -30,6 +33,65 @@ fun queueFileIntoMp3(queueFile: QueueFile, mp3: File): File {
   queueFile.close()
 
   return mp3
+}
+
+/**
+ * Remuxes the MP3 in place via ffmpeg (`-c copy -write_xing 1`) so it carries a valid
+ * Xing/VBR header — required for players to compute correct duration on VBR files.
+ * Audio frames are copied byte-for-byte, nothing is re-encoded.
+ *
+ * On any failure (ffmpeg missing, non-zero exit, timeout, or no header in the output)
+ * the original file is left untouched and the failure is logged.
+ */
+fun remuxWithXingHeader(mp3: File, ffmpeg: String = "ffmpeg") {
+  val tmp = File(mp3.parentFile, "${mp3.nameWithoutExtension}.remux.mp3")
+  val ffmpegLog = File(mp3.parentFile, "${mp3.nameWithoutExtension}.remux.log")
+
+  try {
+    val process = ProcessBuilder(
+      ffmpeg, "-y", "-i", mp3.absolutePath,
+      "-c", "copy", "-write_xing", "1",
+      "-map_metadata", "-1", "-fflags", "+bitexact",
+      tmp.absolutePath
+    )
+      .redirectErrorStream(true)
+      .redirectOutput(ffmpegLog)
+      .start()
+
+    if (!process.waitFor(60, TimeUnit.SECONDS)) {
+      process.destroyForcibly()
+      logger.error { "ffmpeg timed out remuxing $mp3, keeping original" }
+      return
+    }
+    if (process.exitValue() != 0) {
+      logger.error { "ffmpeg exit ${process.exitValue()} remuxing $mp3, keeping original: ${ffmpegLog.readText().takeLast(500)}" }
+      return
+    }
+    if (!hasXingOrInfoHeader(tmp)) {
+      logger.error { "ffmpeg output for $mp3 has no Xing/Info header, keeping original" }
+      return
+    }
+
+    Files.move(tmp.toPath(), mp3.toPath(), StandardCopyOption.ATOMIC_MOVE)
+    logger.info { "Remuxed $mp3 with Xing header" }
+  } catch (e: Exception) {
+    logger.error(e) { "Could not remux $mp3, keeping original: ${e.message}" }
+  } finally {
+    tmp.delete()
+    ffmpegLog.delete()
+  }
+}
+
+private fun hasXingOrInfoHeader(mp3: File): Boolean {
+  val head = ByteArray(1024)
+  val read = mp3.inputStream().use { it.read(head) }
+  if (read < 4) return false
+  val markers = listOf("Xing".toByteArray(), "Info".toByteArray())
+  return markers.any { m ->
+    (0..read - 4).any { i ->
+      head[i] == m[0] && head[i + 1] == m[1] && head[i + 2] == m[2] && head[i + 3] == m[3]
+    }
+  }
 }
 
 fun addCommentToMp3(mp3: File, comment: String?) {
