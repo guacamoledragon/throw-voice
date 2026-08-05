@@ -1,5 +1,6 @@
 package tech.gdragon.api.tape
 
+import com.squareup.tape.QueueFile
 import de.sciss.jump3r.lowlevel.LameEncoder
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.engine.spec.tempdir
@@ -114,5 +115,38 @@ class UtilsTest : FunSpec({
     remuxWithXingHeader(mp3File, ffmpeg = "/nonexistent/ffmpeg")
 
     mp3File.readBytes().contentEquals(bytesBefore) shouldBe true
+  }
+
+  /**
+   * Encode silent PCM frames into a tape QueueFile of mp3 chunks, like the recorder does.
+   */
+  fun encodeVbrIntoQueue(dir: File, frames: Int = 50): File {
+    val queueFileFile = File(dir, "test.queue")
+    val queue = QueueFile(queueFileFile)
+    val encoder = LameEncoder(audioFormat, 128, LameEncoder.CHANNEL_MODE_AUTO, LameEncoder.QUALITY_HIGHEST, true)
+    val mp3Buffer = ByteArray(8192)
+    val pcmFrame = ByteArray(3840)
+
+    repeat(frames) {
+      val encoded = encoder.encodeBuffer(pcmFrame, 0, pcmFrame.size, mp3Buffer)
+      if (encoded > 0) queue.add(mp3Buffer.copyOf(encoded))
+    }
+    val flushed = encoder.encodeFinish(mp3Buffer)
+    if (flushed > 0) queue.add(mp3Buffer.copyOf(flushed))
+    encoder.close()
+    queue.close()
+
+    return queueFileFile
+  }
+
+  test("queueFileIntoMp3 produces an mp3 with a Xing header") {
+    val dir = tempdir()
+    val queueFile = encodeVbrIntoQueue(dir)
+    val mp3 = File(dir, "out.mp3")
+
+    queueFileIntoMp3(queueFile, mp3)
+
+    mp3.length().shouldBeGreaterThan(0)
+    hasXingHeader(mp3) shouldBe true
   }
 })

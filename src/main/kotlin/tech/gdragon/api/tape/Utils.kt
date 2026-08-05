@@ -23,6 +23,7 @@ fun queueFileIntoMp3(q: File, mp3: File): File = queueFileIntoMp3(QueueFile(q), 
 
 /**
  * Takes the contents of the [QueueFile] into a [File], this is a stateful operation.
+ * When the target is an mp3, it is remuxed so it carries a valid Xing/VBR header.
  */
 fun queueFileIntoMp3(queueFile: QueueFile, mp3: File): File {
   FileOutputStream(mp3).use { fos ->
@@ -31,6 +32,10 @@ fun queueFileIntoMp3(queueFile: QueueFile, mp3: File): File {
     }
   }
   queueFile.close()
+
+  if (mp3.extension == "mp3") {
+    remuxWithXingHeader(mp3)
+  }
 
   return mp3
 }
