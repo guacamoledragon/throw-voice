@@ -96,7 +96,7 @@ class UtilsTest : FunSpec({
     return queueFileFile
   }
 
-  test("queueFileIntoMp3 produces an mp3 with a Xing header") {
+  test("drained queue remuxes to mp3 with Xing header") {
     val dir = tempdir()
     val queueFile = encodeVbrIntoQueue(dir)
     val mp3 = File(dir, "out.mp3")
