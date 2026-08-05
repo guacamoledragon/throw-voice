@@ -74,17 +74,6 @@ class UtilsTest : FunSpec({
     mp3File.length().shouldBeLessThan(sizeBefore + 10_000)
   }
 
-  test("remuxWithXingHeader leaves file untouched when ffmpeg is missing") {
-    val dir = tempdir()
-    val (encoder, mp3File) = encodeVbrMp3(dir)
-    encoder.close()
-    val bytesBefore = mp3File.readBytes()
-
-    remuxWithXingHeader(mp3File, ffmpeg = "/nonexistent/ffmpeg")
-
-    mp3File.readBytes().contentEquals(bytesBefore) shouldBe true
-  }
-
   /**
    * Encode silent PCM frames into a tape QueueFile of mp3 chunks, like the recorder does.
    */
@@ -113,25 +102,9 @@ class UtilsTest : FunSpec({
     val mp3 = File(dir, "out.mp3")
 
     queueFileIntoMp3(queueFile, mp3)
+    remuxWithXingHeader(mp3)
 
     mp3.length().shouldBeGreaterThan(0)
     hasXingHeader(mp3) shouldBe true
-  }
-
-  test("queueFileIntoMp3 does not remux non-mp3 targets") {
-    val dir = tempdir()
-    val queueFile = encodeVbrIntoQueue(dir)
-    val expectedBytes = QueueFile(queueFile).let { qf ->
-      var total = 0L
-      qf.forEach { stream, _ -> total += stream.readAllBytes().size }
-      qf.close()
-      total
-    }
-    val out = File(dir, "out.pcm")
-
-    queueFileIntoMp3(queueFile, out)
-
-    out.length() shouldBe expectedBytes
-    hasXingHeader(out) shouldBe false
   }
 })

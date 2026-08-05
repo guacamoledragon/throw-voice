@@ -29,10 +29,6 @@ fun queueFileIntoMp3(queueFile: QueueFile, mp3: File): File {
   }
   queueFile.close()
 
-  if (mp3.extension == "mp3" && mp3.length() > 0) {
-    remuxWithXingHeader(mp3)
-  }
-
   return mp3
 }
 
@@ -49,7 +45,10 @@ fun queueFileIntoMp3(queueFile: QueueFile, mp3: File): File {
  * duration is exact, seek position is not. Only a container with a per-sample index
  * (e.g. m4a) fixes seek accuracy.
  */
-fun remuxWithXingHeader(mp3: File, ffmpeg: String = "ffmpeg") {
+fun remuxWithXingHeader(mp3: File) {
+  if (mp3.length() <= 0) return
+
+  val ffmpeg = "ffmpeg"
   val tmp = File(mp3.parentFile, "${mp3.nameWithoutExtension}.remux.mp3")
   val ffmpegLog = File(mp3.parentFile, "${mp3.nameWithoutExtension}.remux.log")
 

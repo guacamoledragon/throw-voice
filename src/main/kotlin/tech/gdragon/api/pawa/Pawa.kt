@@ -167,7 +167,9 @@ open class Pawa(val db: Database, val config: PawaConfig = PawaConfig.invoke()) 
       // This is a side effect
       queueFile.exists() -> {
         logger.info { "Recovering $sessionId from queue file." }
-        queueFileIntoMp3(queueFile, mp3File).exists()
+        val _mp3File = queueFileIntoMp3(queueFile, mp3File)
+        remuxWithXingHeader(_mp3File)
+        _mp3File.exists()
       }
 
       queueFile.exists().not() && mp3File.exists().not() -> {

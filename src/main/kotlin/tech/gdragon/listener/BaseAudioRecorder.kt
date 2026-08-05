@@ -19,6 +19,7 @@ import tech.gdragon.BotUtils
 import tech.gdragon.api.pawa.Pawa
 import tech.gdragon.api.tape.addCommentToMp3
 import tech.gdragon.api.tape.queueFileIntoMp3
+import tech.gdragon.api.tape.remuxWithXingHeader
 import tech.gdragon.data.Datastore
 import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
@@ -267,6 +268,8 @@ abstract class BaseAudioRecorder(
 
         val recordingFile = File("$dataDirectory/recordings/$ulid.$fileFormat")
         queueFileIntoMp3(queue, recordingFile)
+
+        remuxWithXingHeader(recordingFile)
 
         addCommentToMp3(recordingFile, recording?.speakers?.joinToString(prefix = "Speakers: ") { it.name })
 
