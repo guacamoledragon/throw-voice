@@ -117,4 +117,21 @@ class UtilsTest : FunSpec({
     mp3.length().shouldBeGreaterThan(0)
     hasXingHeader(mp3) shouldBe true
   }
+
+  test("queueFileIntoMp3 does not remux non-mp3 targets") {
+    val dir = tempdir()
+    val queueFile = encodeVbrIntoQueue(dir)
+    val expectedBytes = QueueFile(queueFile).let { qf ->
+      var total = 0L
+      qf.forEach { stream, _ -> total += stream.readAllBytes().size }
+      qf.close()
+      total
+    }
+    val out = File(dir, "out.pcm")
+
+    queueFileIntoMp3(queueFile, out)
+
+    out.length() shouldBe expectedBytes
+    hasXingHeader(out) shouldBe false
+  }
 })

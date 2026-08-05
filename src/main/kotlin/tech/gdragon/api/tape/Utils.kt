@@ -29,7 +29,7 @@ fun queueFileIntoMp3(queueFile: QueueFile, mp3: File): File {
   }
   queueFile.close()
 
-  if (mp3.extension == "mp3") {
+  if (mp3.extension == "mp3" && mp3.length() > 0) {
     remuxWithXingHeader(mp3)
   }
 
@@ -61,7 +61,7 @@ fun remuxWithXingHeader(mp3: File, ffmpeg: String = "ffmpeg") {
 
     if (!process.waitFor(60, TimeUnit.SECONDS)) {
       process.destroyForcibly()
-      logger.error { "ffmpeg timed out remuxing $mp3, keeping original" }
+      logger.error { "ffmpeg timed out remuxing $mp3, keeping original: ${ffmpegLog.readText().takeLast(500)}" }
       return
     }
     if (process.exitValue() != 0) {
@@ -69,7 +69,7 @@ fun remuxWithXingHeader(mp3: File, ffmpeg: String = "ffmpeg") {
       return
     }
     if (!hasXingOrInfoHeader(tmp)) {
-      logger.error { "ffmpeg output for $mp3 has no Xing/Info header, keeping original" }
+      logger.error { "ffmpeg output for $mp3 has no Xing/Info header, keeping original: ${ffmpegLog.readText().takeLast(500)}" }
       return
     }
 
@@ -84,12 +84,11 @@ fun remuxWithXingHeader(mp3: File, ffmpeg: String = "ffmpeg") {
 }
 
 private fun hasXingOrInfoHeader(mp3: File): Boolean {
-  val head = ByteArray(1024)
-  val read = mp3.inputStream().use { it.read(head) }
-  if (read < 4) return false
+  val head = mp3.inputStream().use { it.readNBytes(1024) }
+  if (head.size < 4) return false
   val markers = listOf("Xing".toByteArray(), "Info".toByteArray())
   return markers.any { m ->
-    (0..read - 4).any { i ->
+    (0..head.size - 4).any { i ->
       head[i] == m[0] && head[i + 1] == m[1] && head[i + 2] == m[2] && head[i + 3] == m[3]
     }
   }

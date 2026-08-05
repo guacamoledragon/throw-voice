@@ -8,6 +8,7 @@ import tech.gdragon.api.commands.RecoverResult
 import tech.gdragon.api.commands.safeFile
 import tech.gdragon.api.tape.extractDuration
 import tech.gdragon.api.tape.queueFileIntoMp3
+import tech.gdragon.api.tape.remuxWithXingHeader
 import tech.gdragon.data.Datastore
 import tech.gdragon.db.Database
 import tech.gdragon.db.dao.*
@@ -159,6 +160,7 @@ open class Pawa(val db: Database, val config: PawaConfig = PawaConfig.invoke()) 
     val mp3Exists: Boolean = when {
       mp3File.exists() -> {
         logger.info { "Recovering from mp3 file." }
+        remuxWithXingHeader(mp3File)
         true
       }
 
