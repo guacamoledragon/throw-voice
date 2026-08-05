@@ -43,6 +43,11 @@ fun queueFileIntoMp3(queueFile: QueueFile, mp3: File): File {
  *
  * On any failure (ffmpeg missing, non-zero exit, timeout, or no header in the output)
  * the original file is left untouched and the failure is logged.
+ *
+ * Known ceiling: the Xing TOC is a fixed 100-entry table, so on long VBR recordings
+ * seeking stays coarse (~34 s buckets on an hour-long file) even with a correct header —
+ * duration is exact, seek position is not. Only a container with a per-sample index
+ * (e.g. m4a) fixes seek accuracy.
  */
 fun remuxWithXingHeader(mp3: File, ffmpeg: String = "ffmpeg") {
   val tmp = File(mp3.parentFile, "${mp3.nameWithoutExtension}.remux.mp3")
