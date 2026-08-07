@@ -18,7 +18,7 @@
     <jda.version>6.4.2</jda.version>
     <jda-ktx.version>0.14.2</jda-ktx.version>
     <jdave.version>0.1.8</jdave.version>
-    <koin.version>4.2.1</koin.version>
+    <koin.version>4.2.2</koin.version>
     <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
     <kotlin.compiler.jvmTarget>25</kotlin.compiler.jvmTarget>
     <kotlin.version>2.4.10</kotlin.version>
