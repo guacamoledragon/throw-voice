@@ -22,7 +22,7 @@
     <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
     <kotlin.compiler.jvmTarget>25</kotlin.compiler.jvmTarget>
     <kotlin.version>2.4.10</kotlin.version>
-    <kotest.version>6.1.11</kotest.version>
+    <kotest.version>6.2.3</kotest.version>
     <main.class>tech.gdragon.App</main.class>
     <mockk.version>1.14.11</mockk.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
