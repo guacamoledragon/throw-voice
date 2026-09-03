@@ -1,34 +1,35 @@
 # Terms of Use
 
-**Pawa Companion for iOS** — last updated 3 September 2026.
+Last updated 3 September 2026.
 
-These terms cover the Pawa Companion iOS app. Using the app means you accept them.
+These terms cover **pawa**, the Discord voice-channel recording bot, and **Pawa Companion**, its
+iOS app. Using either means you accept them.
 
-## The app is free and as-is
+## Free and as-is
 
-Pawa Companion costs nothing and comes with no warranty of any kind. We do not promise it will
-work on your device, keep working, or stay available.
+Both are free and come with no warranty of any kind. We do not promise they will work, keep
+working, or stay available.
 
 ## Recording is your responsibility
 
-You are responsible for having the right to record, save, and keep the audio you put in this
-app. Recording a voice conversation has consent rules that differ from place to place, and
+You are responsible for having the right to record, save, and keep the audio you put through
+pawa. Recording a voice conversation has consent rules that differ from place to place, and
 sometimes from person to person in the same call. Know the rules that apply to you — we cannot
 tell you what they are, and nothing here is legal advice.
 
-Using this app does not change anything you owe Discord under
+Using pawa does not change anything you owe Discord under
 [their terms](https://discord.com/terms).
 
 ## Lost recordings
 
-pawa's links are signed and expire 24 hours after the recording is made. Once a link expires the
-audio is gone from Discord's side. We are not liable for recordings you lose, whether a link
-expired, a download failed, or a saved file went missing.
+Recordings we store are deleted after 24 hours, and their links stop working at the same time.
+Once that happens the audio is gone and we cannot bring it back. We are not liable for
+recordings you lose, whether a link expired, a download failed, or a saved file went missing.
 
 ## Liability
 
-To the extent the law allows, we are not liable for any damages arising from your use of the
-app.
+To the extent the law allows, we are not liable for any damages arising from your use of pawa or
+Pawa Companion.
 
 ## Apple
 

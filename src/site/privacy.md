@@ -1,21 +1,37 @@
 # Privacy Policy
 
-**Pawa Companion for iOS** — last updated 3 September 2026.
+Last updated 3 September 2026.
 
-This policy covers the Pawa Companion iOS app. The pawa bot and this website are separate.
+This policy covers **pawa**, the Discord voice-channel recording bot, and **Pawa Companion**,
+its iOS app. The app opens recordings the bot made and does nothing on its own, so the two are
+described together here.
 
-## What the app collects
+## The bot
 
-Nothing. There are no accounts, no analytics, no crash reporting, no advertising, and no
-third-party SDKs that collect data. Nothing about you or your device is sent to us, because
-there is no server of ours to send it to.
+**Recordings.** pawa records the voice channel you tell it to record. A recording contains the
+audio of everyone speaking in that channel while it runs. When you `/save`, the recording is
+either uploaded to Discord — where it lives under
+[Discord's privacy policy](https://discord.com/privacy) and stays as long as the message does —
+or stored by us and given a download link that stops working after 24 hours. Recordings we store
+are deleted after 24 hours. We do not listen to them, and we do not hand them to anyone.
 
-## What happens to your audio
+**What we keep.** Your server's and channels' Discord IDs and names, your bot settings, and
+metadata about each recording: its ID, size, timestamps and link. That is what makes the bot
+work across restarts. We do not store Discord user IDs, message content, or anything about who
+was in a channel.
 
-**Downloading.** Opening a pawa recording link makes the app fetch that recording straight from
-Discord's CDN (`media.discordapp.net`) using the signed link you opened. That request goes to
-Discord, and [Discord's privacy policy](https://discord.com/privacy) covers it. It is the only
-network request the app makes.
+**Operating the service.** Our servers keep ordinary logs and performance metrics. They are for
+keeping the bot running, not for profiling you.
+
+## The app
+
+Pawa Companion collects nothing. There are no accounts, no analytics, no crash reporting, no
+advertising, and no third-party SDKs that collect data. Nothing about you or your device is sent
+to us, because the app talks to no server of ours at all.
+
+**Downloading.** Opening a pawa recording link makes the app fetch that recording using the
+signed link you opened. That request goes to whoever is hosting the file — Discord's CDN, or our
+download host — and nothing about you is attached to it.
 
 **Saving.** A saved recording is written to storage on your device and copied nowhere else.
 Deleting the app deletes the recordings it saved.
@@ -27,9 +43,14 @@ anyone.
 **Sharing.** If you use the share sheet, the recording goes wherever you send it. What happens
 to it after that is up to that destination's own policy.
 
+## This website
+
+pawa.im uses privacy-friendly analytics that count page views without cookies or cross-site
+tracking. The app does not use them.
+
 ## Children
 
-Pawa Companion is not directed at children under 13.
+Neither pawa nor Pawa Companion is directed at children under 13.
 
 ## Changes
 
