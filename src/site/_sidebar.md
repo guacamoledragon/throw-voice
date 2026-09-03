@@ -7,6 +7,10 @@
   - [DIY](self-hosting.md)
   - [Pawa Lite](pawalite.md)
   - [Configuration](configuration.md)
+- Legal & Support
+  - [Support](support.md)
+  - [Privacy Policy](privacy.md)
+  - [Terms of Use](terms.md)
 - Attributions
   - [Sponsors](sponsors.md)
 - [Changelog](changelog.md)
