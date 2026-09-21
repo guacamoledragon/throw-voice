@@ -33,6 +33,23 @@ Finally, push atomically so the branch and tag are published together:
 git push --atomic origin master vX.Y.Z
 ```
 
+## Testing a Change Before Release
+
+A test stack runs in Coolify at `https://lab.rmnhb.com` (service `pawa-test`), separate
+from production: its own Discord bot app, Postgres, and MinIO bucket.
+
+It builds the bot from source at a git ref instead of pulling a released image:
+
+1. Push the branch to GitLab.
+2. In Coolify → `pawa-test` → Environment Variables, set `PAWA_REF` to the
+   branch, tag, or full 40-char commit SHA (short SHAs fail).
+3. Redeploy. `sql-fetch` checks out the same ref, so Flyway applies that
+   branch's migrations before the bot starts.
+4. Healthy start: the bot log shows `Creating Remote Database Module` and an
+   `Invite URL:` line.
+
+Migrations are not rolled back when switching to an older ref.
+
 ## Kotlin Language Server (KLS) Setup
 
 KLS requires special setup because:
