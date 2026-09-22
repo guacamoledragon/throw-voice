@@ -96,6 +96,30 @@ class UtilsTest : FunSpec({
     return queueFileFile
   }
 
+  /**
+   * Executable reproduction of work item #96.
+   *
+   * A recording that ends 4 bytes into an incomplete frame survives the remux with that frame
+   * intact, and ffmpeg counts it in the Xing header. Release 2 trims the tail before the remux,
+   * and the final assertion below then becomes `shouldBe 0L`.
+   */
+  test("remux keeps the incomplete final frame of a clipped mp3") {
+    val dir = tempdir()
+    val (encoder, clean) = encodeVbrMp3(dir)
+    encoder.close()
+
+    val clipped = File(dir, "clipped.mp3")
+    val cleanBytes = clean.readBytes()
+    clipped.writeBytes(cleanBytes.copyOf(cleanBytes.size - 4))
+
+    walkMp3Frames(clipped)!!.shortfall shouldBe 4L
+
+    remuxWithXingHeader(clipped)
+
+    hasXingHeader(clipped) shouldBe true
+    walkMp3Frames(clipped)!!.shortfall.shouldBeGreaterThan(0L)
+  }
+
   test("drained queue remuxes to mp3 with Xing header") {
     val dir = tempdir()
     val queueFile = encodeVbrIntoQueue(dir)

@@ -2,6 +2,7 @@ package tech.gdragon.api.tape
 
 import com.squareup.tape.QueueFile
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.github.oshai.kotlinlogging.withLoggingContext
 import org.jaudiotagger.audio.AudioFileIO
 import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException
 import org.jaudiotagger.audio.mp3.MP3File
@@ -47,6 +48,8 @@ fun queueFileIntoMp3(queueFile: QueueFile, mp3: File): File {
 fun remuxWithXingHeader(mp3: File) {
   if (mp3.length() <= 0) return
 
+  logTailCheck(mp3, "pre-remux")
+
   val ffmpeg = "ffmpeg"
   val tmp = File(mp3.parentFile, "${mp3.nameWithoutExtension}.remux.mp3")
   val ffmpegLog = File(mp3.parentFile, "${mp3.nameWithoutExtension}.remux.log")
@@ -76,6 +79,8 @@ fun remuxWithXingHeader(mp3: File) {
       return
     }
 
+    logTailCheck(tmp, "post-remux")
+
     Files.move(tmp.toPath(), mp3.toPath(), StandardCopyOption.ATOMIC_MOVE)
     logger.info { "Remuxed $mp3 with Xing header" }
   } catch (e: Exception) {
@@ -83,6 +88,30 @@ fun remuxWithXingHeader(mp3: File) {
   } finally {
     tmp.delete()
     ffmpegLog.delete()
+  }
+}
+
+/**
+ * Walks the frame headers and records the result as MDC fields, one event per file per stage.
+ *
+ * Measurement only — nothing is repaired here yet (work item #96). Clean files are logged too,
+ * because they are the denominator: a single Honeycomb query over
+ * `message starts-with "Mp3 tail check"` grouped by `audio.mp3.tail.shortfall` gives the rate.
+ */
+private fun logTailCheck(mp3: File, stage: String) {
+  val walk = walkMp3Frames(mp3)
+
+  if (walk == null) {
+    logger.warn { "Mp3 tail check found no frame header in $mp3" }
+    return
+  }
+
+  withLoggingContext(walk.loggingFields(stage, mp3.length())) {
+    if (walk.shortfall > 0L) {
+      logger.warn { "Mp3 tail check found an incomplete final frame in $mp3" }
+    } else {
+      logger.info { "Mp3 tail check" }
+    }
   }
 }
 

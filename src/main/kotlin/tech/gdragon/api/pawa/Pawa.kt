@@ -1,6 +1,7 @@
 package tech.gdragon.api.pawa
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.github.oshai.kotlinlogging.withLoggingContext
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.core.eq
 import org.koin.dsl.module
@@ -151,7 +152,13 @@ open class Pawa(val db: Database, val config: PawaConfig = PawaConfig.invoke()) 
    *   * If file was not found, re-send the URL (could be a Discord upload)
    * If recording cannot be recovered, return null.
    */
-  open fun recoverRecording(datastore: Datastore, sessionId: String): RecoverResult {
+  open fun recoverRecording(datastore: Datastore, sessionId: String): RecoverResult =
+    // Carry the session into the MDC so the mp3 tail check and the upload share a Honeycomb column
+    withLoggingContext("session-id" to sessionId) {
+      doRecoverRecording(datastore, sessionId)
+    }
+
+  private fun doRecoverRecording(datastore: Datastore, sessionId: String): RecoverResult {
 
     // Attempt to recover regardless of whether there's a database recording
     val mp3File = safeFile("${config.dataDirectory}/recordings", "$sessionId.mp3")
