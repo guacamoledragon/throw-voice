@@ -10,6 +10,7 @@ import io.kotest.matchers.longs.shouldBeLessThan
 import java.io.File
 import java.io.FileOutputStream
 import javax.sound.sampled.AudioFormat
+import kotlin.random.Random
 
 /**
  * Unit tests for tape utilities.
@@ -97,13 +98,12 @@ class UtilsTest : FunSpec({
   }
 
   /**
-   * Executable reproduction of work item #96.
+   * Work item #96, the truncated-input case.
    *
-   * A recording that ends 4 bytes into an incomplete frame survives the remux with that frame
-   * intact, and ffmpeg counts it in the Xing header. Release 2 trims the tail before the remux,
-   * and the final assertion below then becomes `shouldBe 0L`.
+   * ffmpeg copies an incomplete trailing frame byte for byte and counts it in the Xing header,
+   * so the declared sample count exceeds the data. Nothing the bot uploads may end that way.
    */
-  test("remux keeps the incomplete final frame of a clipped mp3") {
+  test("remux of a clipped mp3 produces a file that ends on a frame boundary") {
     val dir = tempdir()
     val (encoder, clean) = encodeVbrMp3(dir)
     encoder.close()
@@ -112,12 +112,60 @@ class UtilsTest : FunSpec({
     val cleanBytes = clean.readBytes()
     clipped.writeBytes(cleanBytes.copyOf(cleanBytes.size - 4))
 
+    // Precondition: the fixture really is damaged.
     walkMp3Frames(clipped)!!.shortfall shouldBe 4L
 
     remuxWithXingHeader(clipped)
 
     hasXingHeader(clipped) shouldBe true
-    walkMp3Frames(clipped)!!.shortfall.shouldBeGreaterThan(0L)
+    walkMp3Frames(clipped)!!.shortfall shouldBe 0L
+  }
+
+  /**
+   * Encode into a QueueFile and never call [LameEncoder.encodeFinish].
+   *
+   * This is what a recorder leaves behind when the JVM dies mid-recording, and also when
+   * `saveRecording` reads the queue before `processAudioLoop` flushed. `lame_encode_flush`
+   * is what pads the final frame to its declared length, so without it the last frame stays
+   * short. Work item #96.
+   */
+  fun encodeVbrIntoQueueWithoutFlush(dir: File, frames: Int = 300): File {
+    val queueFileFile = File(dir, "noflush.queue")
+    val queue = QueueFile(queueFileFile)
+    val encoder = LameEncoder(audioFormat, 128, LameEncoder.CHANNEL_MODE_AUTO, LameEncoder.QUALITY_HIGHEST, true)
+    val mp3Buffer = ByteArray(8192)
+    val pcmFrame = ByteArray(3840)
+    val random = Random(42)
+
+    repeat(frames) {
+      // Noise, so VBR frame lengths vary the way speech makes them vary.
+      random.nextBytes(pcmFrame)
+      val encoded = encoder.encodeBuffer(pcmFrame, 0, pcmFrame.size, mp3Buffer)
+      if (encoded > 0) queue.add(mp3Buffer.copyOf(encoded))
+    }
+    // No encodeFinish on purpose.
+    encoder.close()
+    queue.close()
+
+    return queueFileFile
+  }
+
+  /**
+   * Work item #96, the missing-flush case. This is the path /recover takes after a crash.
+   */
+  test("recovering a recording that never flushed produces a file ending on a frame boundary") {
+    val dir = tempdir()
+    val queueFile = encodeVbrIntoQueueWithoutFlush(dir)
+    val mp3 = File(dir, "recovered.mp3")
+
+    queueFileIntoMp3(queueFile, mp3)
+
+    // Precondition: a queue with no flush really does yield an incomplete final frame.
+    walkMp3Frames(mp3)!!.shortfall.shouldBeGreaterThan(0L)
+
+    remuxWithXingHeader(mp3)
+
+    walkMp3Frames(mp3)!!.shortfall shouldBe 0L
   }
 
   test("drained queue remuxes to mp3 with Xing header") {
