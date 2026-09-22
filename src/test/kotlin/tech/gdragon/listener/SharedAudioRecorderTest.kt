@@ -3,6 +3,7 @@ package tech.gdragon.listener
 import io.kotest.core.annotation.Isolate
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.engine.spec.tempdir
+import io.kotest.matchers.ints.shouldBeGreaterThanOrEqual
 import io.kotest.matchers.longs.shouldBeGreaterThan
 import io.kotest.matchers.longs.shouldBeLessThan
 import io.kotest.matchers.shouldBe
@@ -19,6 +20,8 @@ import org.koin.dsl.module
 import tech.gdragon.BotUtils
 import tech.gdragon.api.pawa.Pawa
 import tech.gdragon.api.pawa.PawaConfig
+import tech.gdragon.api.tape.Mp3Walk
+import tech.gdragon.api.tape.walkMp3Frames
 import tech.gdragon.data.Datastore
 import tech.gdragon.data.UploadResult
 import tech.gdragon.db.EmbeddedDatabase
@@ -352,5 +355,38 @@ class SharedAudioRecorderTest : FunSpec({
       BotUtils.sendMessage(any(), match<String> { it.contains("Error uploading recording") })
     }
     File(tempDir, "recordings/${recorder.session}.mp3").exists() shouldBe true
+  }
+
+  /**
+   * Work item #96, the drain-timeout case. The mp3 must not be assembled before the
+   * processing loop encodes the last frame and adds the LAME flush to the queue.
+   */
+  test("mp3 is assembled only after the processing loop drains, even past the drain timeout").config(
+    timeout = kotlin.time.Duration.parse("30s")
+  ) {
+    var assembled: Mp3Walk? = null
+    every { tech.gdragon.api.tape.queueFileIntoMp3(any<com.squareup.tape.QueueFile>(), any()) } answers {
+      callOriginal().also { assembled = walkMp3Frames(it) }
+    }
+
+    try {
+      val recorder = SharedAudioRecorder(
+        1.0, mockVoiceChannel, mockMessageChannel,
+        drainTimeout = Duration.ofMillis(1)
+      )
+      val fed = 1_000
+      repeat(fed) { recorder.handleCombinedAudio(createMockCombinedAudio()) }
+
+      val (_, lock) = recorder.saveRecording(mockVoiceChannel, mockMessageChannel)
+      recorder.disconnect(lock)
+
+      val walk = assembled!!
+      walk.shortfall shouldBe 0L
+      walk.frameCount shouldBeGreaterThanOrEqual fed * 960 / 1152
+    } finally {
+      every {
+        tech.gdragon.api.tape.queueFileIntoMp3(any<com.squareup.tape.QueueFile>(), any())
+      } answers { callOriginal() }
+    }
   }
 })
