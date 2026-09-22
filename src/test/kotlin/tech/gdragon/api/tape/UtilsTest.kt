@@ -2,11 +2,13 @@ package tech.gdragon.api.tape
 
 import com.squareup.tape.QueueFile
 import de.sciss.jump3r.lowlevel.LameEncoder
+import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.engine.spec.tempdir
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.longs.shouldBeGreaterThan
 import io.kotest.matchers.longs.shouldBeLessThan
+import org.opentest4j.TestAbortedException
 import java.io.File
 import java.io.FileOutputStream
 import javax.sound.sampled.AudioFormat
@@ -119,6 +121,31 @@ class UtilsTest : FunSpec({
 
     hasXingHeader(clipped) shouldBe true
     walkMp3Frames(clipped)!!.shortfall shouldBe 0L
+  }
+
+  /**
+   * Work item #96: a failure in the tail check or the trim must not escape the remux. A thrown
+   * error fails the upload in saveRecording and aborts /recover, although the mp3 is usable.
+   */
+  test("remux leaves an mp3 it cannot trim unchanged and does not throw") {
+    val dir = tempdir()
+    val (encoder, clean) = encodeVbrMp3(dir)
+    encoder.close()
+
+    val clipped = File(dir, "readonly.mp3")
+    val cleanBytes = clean.readBytes()
+    val clippedBytes = cleanBytes.copyOf(cleanBytes.size - 4)
+    clipped.writeBytes(clippedBytes)
+    clipped.setWritable(false) shouldBe true
+
+    try {
+      if (clipped.canWrite()) throw TestAbortedException("read-only file is still writable, probably running as root")
+
+      shouldNotThrowAny { remuxWithXingHeader(clipped) }
+      clipped.readBytes() shouldBe clippedBytes
+    } finally {
+      clipped.setWritable(true)
+    }
   }
 
   /**
