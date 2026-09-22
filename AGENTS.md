@@ -81,3 +81,28 @@ The wrapper script `~/.bin/kotlin-language-server-lsp` runs KLS under Java 21 JD
   (setq lsp-kotlin--language-server-path (executable-find "kotlin-language-server-lsp"))
   (setq lsp-kotlin-compiler-jvm-target "25"))
 ```
+
+## Honeycomb MCP Usage
+
+Team `gdragon-d9`, environment `prod`, dataset `pawa`. Board links, SSH access and the
+periodic checks are in `.agent/runbooks/stability-runbook.md`.
+
+- Call `get_workspace_context` first, to confirm the environments and the datasets.
+- Call `find_columns` or `get_dataset_columns` before a query. Do not guess a column name.
+- Name the environment and the dataset in every query.
+- Use a human-readable time range such as `-7d`. Do not use epoch timestamps.
+
+### How data reaches the dataset
+
+Each row in `pawa` is a log event, not a trace. `docker-compose.yml` sets
+`OTEL_JAVAAGENT_ENABLED=false`, so `@WithSpan` and OTEL metrics reach nothing.
+`log4j2-prod.xml` writes through `EcsLayout.json`, which flattens the MDC into the JSON root
+and stringifies every value.
+
+A key that `withLoggingContext` sets therefore becomes a **string** column: `session-id`,
+`guild`, `audio.frames.dropped`, `audio.mp3.tail.shortfall`. Aggregate with `COUNT` and
+`GROUP BY`. For arithmetic, add a calculated field such as `INT($audio.mp3.tail.shortfall)`.
+The dataset already uses that pattern for `recording.size`.
+
+To add a new queryable number, pass it through `withLoggingContext` with a stable key. The key
+names are a query contract, because boards and triggers read them.
