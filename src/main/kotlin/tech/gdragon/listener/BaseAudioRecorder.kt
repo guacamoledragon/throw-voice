@@ -234,10 +234,14 @@ abstract class BaseAudioRecorder(
 
     // Wait for processing to complete
     processingExecutor.shutdown()
-    try {
+    val drained = try {
       processingExecutor.awaitTermination(drainTimeout.toMillis(), TimeUnit.MILLISECONDS)
     } catch (e: InterruptedException) {
-      logger.warn { "Audio processing didn't complete in time: $session" }
+      Thread.currentThread().interrupt()
+      false
+    }
+    if (!drained) {
+      logger.warn { "Audio processing did not finish within ${drainTimeout.toMillis()}ms, upload waits for it: $session" }
     }
 
     val saveElapsedMs = System.currentTimeMillis() - saveStartMs
@@ -246,7 +250,7 @@ abstract class BaseAudioRecorder(
     // Process the recording in a background thread
     thread {
       try {
-        processCompletedRecording(voiceChannel, messageChannel)
+        if (drained || awaitProcessingLoop()) processCompletedRecording(voiceChannel, messageChannel)
       } finally {
         recordingLock.release()
       }
@@ -254,6 +258,14 @@ abstract class BaseAudioRecorder(
 
     return Pair(recordingRecord, recordingLock)
   }
+
+  private fun awaitProcessingLoop(): Boolean =
+    try {
+      processingExecutor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS)
+    } catch (e: InterruptedException) {
+      logger.error { "Interrupted before audio processing finished, queue kept for /recover: $session" }
+      false
+    }
 
   private fun processCompletedRecording(voiceChannel: AudioChannel, messageChannel: MessageChannel) {
     val queue = queueFile ?: return
