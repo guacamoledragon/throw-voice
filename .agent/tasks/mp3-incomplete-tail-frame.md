@@ -77,7 +77,7 @@ the produced mp3 still ends on a frame boundary.
 **Fix 2 — repair the tail.** Call `trimIncompleteTrailingFrame` before the ffmpeg step, and
 replace the `hasXingOrInfoHeader` guard with one that also requires `shortfall == 0` on the
 ffmpeg output. `remuxWithXingHeader` has three callers (`BaseAudioRecorder.kt:272`,
-`Pawa.kt:163`, `Pawa.kt:171`), so putting the repair inside that function covers all of them.
+`Pawa.kt:170`, `Pawa.kt:178`), so putting the repair inside that function covers all of them.
 
 ## Do not
 
