@@ -50,6 +50,9 @@ fun remuxWithXingHeader(mp3: File) {
 
   logTailCheck(mp3, "pre-remux")
 
+  val trimmed = trimIncompleteTrailingFrame(mp3)
+  if (trimmed > 0L) logger.warn { "Trimmed $trimmed bytes of an incomplete final frame from $mp3" }
+
   val ffmpeg = "ffmpeg"
   val tmp = File(mp3.parentFile, "${mp3.nameWithoutExtension}.remux.mp3")
   val ffmpegLog = File(mp3.parentFile, "${mp3.nameWithoutExtension}.remux.log")
@@ -79,7 +82,11 @@ fun remuxWithXingHeader(mp3: File) {
       return
     }
 
-    logTailCheck(tmp, "post-remux")
+    val remuxed = logTailCheck(tmp, "post-remux")
+    if (remuxed == null || remuxed.shortfall != 0L) {
+      logger.error { "ffmpeg output for $mp3 does not end on a frame boundary, keeping original" }
+      return
+    }
 
     Files.move(tmp.toPath(), mp3.toPath(), StandardCopyOption.ATOMIC_MOVE)
     logger.info { "Remuxed $mp3 with Xing header" }
@@ -94,16 +101,15 @@ fun remuxWithXingHeader(mp3: File) {
 /**
  * Walks the frame headers and records the result as MDC fields, one event per file per stage.
  *
- * Measurement only — nothing is repaired here yet (work item #96). Clean files are logged too,
- * because they are the denominator: a single Honeycomb query over
+ * Clean files are logged too, because they are the denominator: a single Honeycomb query over
  * `message starts-with "Mp3 tail check"` grouped by `audio.mp3.tail.shortfall` gives the rate.
  */
-private fun logTailCheck(mp3: File, stage: String) {
+private fun logTailCheck(mp3: File, stage: String): Mp3Walk? {
   val walk = walkMp3Frames(mp3)
 
   if (walk == null) {
     logger.warn { "Mp3 tail check found no frame header in $mp3" }
-    return
+    return null
   }
 
   withLoggingContext(walk.loggingFields(stage, mp3.length())) {
@@ -113,6 +119,7 @@ private fun logTailCheck(mp3: File, stage: String) {
       logger.info { "Mp3 tail check" }
     }
   }
+  return walk
 }
 
 private fun hasXingOrInfoHeader(mp3: File): Boolean {
