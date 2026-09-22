@@ -8,6 +8,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import kotlinx.coroutines.runBlocking
 import org.testcontainers.containers.MinIOContainer
+import org.testcontainers.utility.DockerImageName
 import java.io.File
 
 class S3DatastoreTest : FunSpec({
@@ -20,7 +21,10 @@ class S3DatastoreTest : FunSpec({
 
   beforeSpec {
     // Start MinIO container
-    minioContainer = MinIOContainer("minio/minio:RELEASE.2025-05-24T17-08-30Z")
+    minioContainer = MinIOContainer(
+      DockerImageName.parse("quay.io/minio/minio:RELEASE.2025-05-24T17-08-30Z")
+        .asCompatibleSubstituteFor("minio/minio")
+    )
       .withUserName(testAccessKey)
       .withPassword(testSecretKey)
       .withExposedPorts(9000)
