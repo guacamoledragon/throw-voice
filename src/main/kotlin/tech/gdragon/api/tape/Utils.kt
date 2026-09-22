@@ -48,16 +48,16 @@ fun queueFileIntoMp3(queueFile: QueueFile, mp3: File): File {
 fun remuxWithXingHeader(mp3: File) {
   if (mp3.length() <= 0) return
 
-  logTailCheck(mp3, "pre-remux")
-
-  val trimmed = trimIncompleteTrailingFrame(mp3)
-  if (trimmed > 0L) logger.warn { "Trimmed $trimmed bytes of an incomplete final frame from $mp3" }
-
   val ffmpeg = "ffmpeg"
   val tmp = File(mp3.parentFile, "${mp3.nameWithoutExtension}.remux.mp3")
   val ffmpegLog = File(mp3.parentFile, "${mp3.nameWithoutExtension}.remux.log")
 
   try {
+    logTailCheck(mp3, "pre-remux")
+
+    val trimmed = trimIncompleteTrailingFrame(mp3)
+    if (trimmed > 0L) logger.warn { "Trimmed $trimmed bytes of an incomplete final frame from $mp3" }
+
     val process = ProcessBuilder(
       ffmpeg, "-y", "-i", mp3.absolutePath,
       "-c", "copy", "-write_xing", "1",
