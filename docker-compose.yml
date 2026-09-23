@@ -11,7 +11,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1'
+          cpus: '2'
           memory: 6G
     environment:
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
