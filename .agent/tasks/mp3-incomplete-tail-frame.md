@@ -1,21 +1,23 @@
 # Task: Stop emitting mp3 files that end with an incomplete frame (#96)
 
 Work item: https://gitlab.com/pawabot/pawa/-/work_items/96
-Triage comment (read this first): https://gitlab.com/pawabot/pawa/-/work_items/96#note_3887254367
+Triage comment: https://gitlab.com/pawabot/pawa/-/work_items/96#note_3887254367
+Branch: `mp3-tail-telemetry` (MR !146)
 
-Continue on the existing branch `mp3-tail-telemetry` (MR !146). The groundwork and the two
-failing tests are already there. Do not start from `master`.
+## Status
 
-The cause is known and reproducible. **Two tests fail. Make them pass without weakening them.**
+**Done.** Both fixes are on the branch. CI passed. The test bot showed the result for each of the
+two paths. The work is ready for merge and a release.
 
 ## Root cause
 
-`lame_encode_flush` in jump3r is documented to "pad with ancillary data so last frame is
-complete". `LameEncoder.encodeFinish` is its only caller. A recording that never reaches
-`encodeFinish` keeps a final frame whose header declares more bytes than the encoder emitted.
-ffmpeg then copies that frame and counts it in the Xing header, so the declared sample count
-exceeds the data. Apple's `AVAudioFile` trusts that count and `SpeechAnalyzer` fails on the
-last packet, which the companion app shows as `_GenericObjCError error 0` and no transcript.
+`lame_encode_flush` in jump3r pads the last frame to its declared length.
+`LameEncoder.encodeFinish` is its only caller. A recording that never gets to `encodeFinish` keeps
+a final frame whose header declares more bytes than the encoder wrote.
+
+ffmpeg copies that frame and counts it in the Xing header, so the declared sample count is more
+than the data. Apple's `AVAudioFile` trusts that count, and `SpeechAnalyzer` fails on the last
+packet. The companion app then shows `_GenericObjCError error 0` and no transcript.
 
 Same PCM, same encoder, one difference:
 
@@ -24,81 +26,81 @@ Same PCM, same encoder, one difference:
 | With `encodeFinish` | 252 | **0** |
 | Without `encodeFinish` | 249 | **21** |
 
-## Two paths reach that state
+## Two paths to that state
 
-1. **The JVM dies during a recording.** `/recover` rebuilds the mp3 from the `.queue` file.
+1. **The JVM stops during a recording.** `/recover` makes the mp3 again from the `.queue` file.
    The flush can never run, so this path always needs the tail repair.
-2. **`saveRecording` reads the queue before the flush lands.**
-   `BaseAudioRecorder.kt:235` calls `processingExecutor.awaitTermination(10, SECONDS)` and
-   throws the result away. If the drain is not finished, `processCompletedRecording` assembles
-   the mp3 while `processAudioLoop` has not yet added the flush entry. No crash is needed.
-   This path explains the originally reported file: an ordinary 9:10 save, uploaded correctly,
-   4 bytes short.
+2. **`saveRecording` read the queue before the flush got to it.** The result of
+   `awaitTermination` was discarded. If the drain was slow, `processCompletedRecording` made the
+   mp3 before `processAudioLoop` added the flush. This path explains the first report: a
+   normal save, 4 bytes short.
 
-That timeout is silent. The `logger.warn { "Audio processing didn't complete in time" }` sits
-inside `catch (e: InterruptedException)`, so a real timeout logs nothing.
+## The fixes
 
-## Start here
+| Commit | Change |
+|---|---|
+| `950b61b` | Fix 2. `remuxWithXingHeader` calls `trimIncompleteTrailingFrame` before ffmpeg. The ffmpeg output replaces the file only if it has a Xing header and `shortfall == 0`. |
+| `731de18` | Adds the `drainTimeout` constructor parameter. The default stays at 10 seconds. |
+| `dab9efb` | Adds a test for path 2. Before the fix, it failed with a shortfall of 163. |
+| `f8b6a75` | Fix 1. The upload thread waits for the processing loop to end before it makes the mp3. A drain timeout now writes a warning to the log. |
+| `87138a7` | The tail check and the trim are now inside the `try` block of the remux. An IO error from either one no longer stops an upload or `/recover`. |
+| `2b3475d` | Tests that a read-only mp3 stays unchanged and that the remux does not throw. When the test runs as root, it is skipped. |
 
-```sh
-mvn -Dtest='UtilsTest,Mp3FrameWalkTest' -DfailIfNoTests=false test
-```
+The fix in `remuxWithXingHeader` covers all three callers: `saveRecording` and the two
+`/recover` paths in `Pawa.kt`.
 
-```
-UtilsTest > remux of a clipped mp3 produces a file that ends on a frame boundary
-  expected:<0L> but was:<4L>
-UtilsTest > recovering a recording that never flushed produces a file ending on a frame boundary
-  expected:<0L> but was:<64L>
-```
+## Verification
 
-Both assert their precondition first, so a failure means the requirement is unmet, not that the
-fixture is wrong. `Mp3FrameWalkTest` has 11 tests and they all pass. Keep them passing.
+**Local:**
 
-## What already exists — do not rewrite it
+- The two tests that failed before now pass. Their assertions did not change.
+- All 11 `Mp3FrameWalkTest` tests pass.
+- The new tests in `SharedAudioRecorderTest` and `UtilsTest` pass.
+- The full suite has 8 failures, in `DecoderRaceTest`, `PawaTest`, `S3DatastoreTest` and
+  `DatabaseTest`. The same 8 fail on `master`. They need a Docker environment.
+- The fixture below had a shortfall of 31. The remux trimmed 65 bytes, and the result has a
+  shortfall of 0.
 
-- `src/main/kotlin/tech/gdragon/api/tape/Mp3FrameWalk.kt` — `walkMp3Frames`,
-  `trimIncompleteTrailingFrame`, `Mp3Walk.loggingFields`. Covered by the 11 tests.
-- `trimIncompleteTrailingFrame` is finished and tested but **deliberately never called**.
-- `remuxWithXingHeader` logs `audio.mp3.*` MDC fields before and after the ffmpeg step.
-  Measurement only. It repairs nothing.
-- `UtilsTest.encodeVbrIntoQueueWithoutFlush` reproduces what a killed recorder leaves on disk.
-  It encodes noise, not silence, so VBR frame lengths vary the way speech makes them vary.
+**Test bot, 2026-09-22 (`PAWA_REF=mp3-tail-telemetry` at `2b3475d`):**
 
-## The two fixes
+| Test | Session | `pre-remux` shortfall | Trim | `post-remux` shortfall |
+|---|---|---|---|---|
+| Normal save, 38 s | `01M35VRKJJMAP3AKVG9K1QJXPR` | 0 | none | 0 |
+| Killed at 1 min 41 s, then `/recover` | `01M35W31K2GPV2KK7A20NBKEJD` | 31 | 65 bytes | 0 |
 
-**Fix 1 — make the flush land.** Use the `awaitTermination` result instead of discarding it,
-and do not assemble the mp3 until the processing loop has finished.
+The normal save had a clean tail before the remux, so fix 1 worked. The killed recording showed
+the same numbers as the local fixture, so fix 2 worked. The log had no errors.
 
-A deterministic test needs a seam, because the 10 seconds is a literal. Add a constructor
-parameter beside the existing `uploadWaitTimeout`, for example
-`drainTimeout: Duration = DEFAULT_DRAIN_WAIT`. A test can then set it very low and assert that
-the produced mp3 still ends on a frame boundary.
+## Constraints for later changes
 
-**Fix 2 — repair the tail.** Call `trimIncompleteTrailingFrame` before the ffmpeg step, and
-replace the `hasXingOrInfoHeader` guard with one that also requires `shortfall == 0` on the
-ffmpeg output. `remuxWithXingHeader` has three callers (`BaseAudioRecorder.kt:272`,
-`Pawa.kt:170`, `Pawa.kt:178`), so putting the repair inside that function covers all of them.
+- Do not increase the drain timeout. It sets only how long the caller waits. It does not set
+  when the queue is read.
+- Do not change the tail assertions to `shouldBeGreaterThan(0L)`.
+- Keep the ID3v1 and `3DI` guard in `trimIncompleteTrailingFrame`. `/recover` can run on a file
+  that `addCommentToMp3` tagged before. Without the guard, the trim removes the tag.
+- The `audio.mp3.*` MDC keys are a query contract. Do not change their names.
 
-## Do not
+## Known issue, not fixed
 
-- Do not widen the 10-second timeout. That hides the fault instead of removing it.
-- Do not relax either failing assertion to `shouldBeGreaterThan(0L)`. An earlier version of the
-  first test did exactly that as a characterization test, and it was replaced on purpose.
-- Do not drop the ID3v1 and `3DI` guard in `trimIncompleteTrailingFrame`. `/recover` can run on
-  a file that `addCommentToMp3` already tagged, and without the guard the trim eats the tag.
+`syncFrom` in `Mp3FrameWalk.kt` accepts a frame without the next-frame check if the frame
+gets to the end of the file. After a resync, a false `0xFF 0xFx` pattern in the last 1 to
+1.4 KB can then show a shortfall that is not real.
+
+On the ffmpeg output, a false shortfall makes the remux keep the original file, and that file
+has no Xing header. This needs bytes that are not frames in the stream. ffmpeg output normally
+has none, so the risk is low. The code review of MR !146 found this issue.
 
 ## Real-world fixture (internal, not in git)
 
-A recording made on the test bot and killed mid-session, kept for this task:
+A recording made on the test bot and stopped during the session:
 
 ```
 .agent/fixtures/96/01M3579CX0WK2Y8A0Y42JXGM4Z.queue
 md5 bf9d50dd6fbdb970b770ae779d27d11f   1048576 bytes
 ```
 
-`*.queue` and `*.mp3` are gitignored, so the file stays local. Reading it does not modify it.
-
-Rebuild the classpath once, then walk it:
+`*.queue` and `*.mp3` are gitignored, so the file stays local. Reading it does not change it.
+To walk it, make the classpath once and then run the script:
 
 ```sh
 mvn -q dependency:build-classpath -Dmdep.outputFile=/tmp/cp.txt -DincludeScope=runtime
@@ -107,47 +109,42 @@ var q = new java.io.File(".agent/fixtures/96/01M3579CX0WK2Y8A0Y42JXGM4Z.queue");
 var out = new java.io.File("/tmp/recovered.mp3");
 tech.gdragon.api.tape.UtilsKt.queueFileIntoMp3(q, out);
 System.out.println(tech.gdragon.api.tape.Mp3FrameWalkKt.walkMp3Frames(out));
+tech.gdragon.api.tape.UtilsKt.remuxWithXingHeader(out);
+System.out.println(tech.gdragon.api.tape.Mp3FrameWalkKt.walkMp3Frames(out));
 /exit
 EOF
 jshell --class-path "target/classes:$(cat /tmp/cp.txt)" --execution local -q /tmp/walk.jsh
 ```
 
-Expected today:
+Expected result:
 
 ```
 Mp3Walk(audioStart=0, frameCount=6841, lastFrameEnd=845640, shortfall=31, resyncCount=0)
+Mp3Walk(audioStart=20, frameCount=6842, lastFrameEnd=845852, shortfall=0, resyncCount=0)
 ```
-
-After fix 2, the same file through `remuxWithXingHeader` must report `shortfall=0`. Before the
-fix it reports 31 at both stages, and the trim removes 65 bytes.
 
 ## Environments (internal)
 
 - **Production.** Docker context `pawa` → `ssh://pawa.im`, container `pawa_bot_1`. It runs
-  `2.17.0-4312cbc2`, so none of this code is deployed there. **Read only.** The sandbox blocks
-  production reads until the user approves each one.
+  `2.17.0-4312cbc2`, so it does not have this code yet. **Read only.**
 - **Test bot.** Coolify on `sakura.local`. Use `docker -H ssh://sakura.local`. The container is
-  `bot-xmxfo2ye3adyvhnaty21xxfw`. The image is distroless, so there is no shell: use
-  `docker cp`, never `docker exec ... sh`. Logs are at `/app/logs/app.json`, recordings at
-  `/app/data/recordings`. Test guild id `333055724198559745`.
+  `bot-xmxfo2ye3adyvhnaty21xxfw`. The image is distroless, so it has no shell. Use `docker cp`,
+  not `docker exec ... sh`. Logs are at `/app/logs/app.json`, recordings at
+  `/app/data/recordings`. The test guild id is `333055724198559745`.
+- **Test bot version.** `PAWA_VERSION` and the image labels do not show the built commit. To
+  find which code runs, examine the classes in `/app/pawa-dev.jar`.
 - **Honeycomb.** Team `gdragon-d9`, dataset `pawa`, environments `prod` and `dev`. `honeytail`
-  ships `logs/app.json` and it does **not** run on the test host, so nothing from the test bot
-  reaches Honeycomb. The `audio.mp3.*` columns do not exist in either environment yet. See the
-  Honeycomb section in `AGENTS.md`.
+  does not run on the test host, so no test-bot data gets to Honeycomb. The `audio.mp3.*`
+  columns will show in `prod` after the release.
 
-## Verification checklist
+## Follow-ups, not part of this task
 
-- Both previously failing tests pass.
-- All 11 `Mp3FrameWalkTest` tests still pass.
-- The fixture above reports `shortfall=0` after the remux.
-- Eight tests fail on `master` too, in `DecoderRaceTest`, `PawaTest`, `S3DatastoreTest` and
-  `DatabaseTest`. They need a working Docker environment and are unrelated. Compare against a
-  `master` baseline before blaming your change.
-
-## Optional follow-ups, not part of this task
-
-- Deploy the branch to production to measure the forward rate, including how often the silent
-  drain timeout in path 2 actually bites.
-- Walk the 1,041 leftover `.queue` files on the production host through the nREPL for a
-  historical rate. One `.queue` leaks per recording whether the save succeeded or not, so they
-  are an unbiased sample of about four days. This needs its own session.
+- Release, then measure the rates in Honeycomb. Group `Mp3 tail check` events by
+  `audio.mp3.stage` and `audio.mp3.tail.shortfall`. Count the drain warnings
+  (`Audio processing did not finish within`) to see how frequently path 2 occurs.
+- Walk the 1,041 leftover `.queue` files on the production host through the nREPL to get a
+  historical rate. One `.queue` leaks per recording, so they are an unbiased sample of about
+  four days. This needs its own session.
+- The `.queue` leak itself. A saved recording keeps its `.queue`, so `/recover` offers sessions
+  that were already uploaded.
+- Fix the `syncFrom` issue above if a false shortfall shows in the `prod` data.
