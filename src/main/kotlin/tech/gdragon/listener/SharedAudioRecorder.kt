@@ -16,8 +16,9 @@ class SharedAudioRecorder(
   volume: Double,
   voiceChannel: AudioChannel,
   messageChannel: MessageChannel,
-  uploadWaitTimeout: java.time.Duration = DEFAULT_UPLOAD_WAIT
-) : BaseAudioRecorder(volume, voiceChannel, messageChannel, uploadWaitTimeout) {
+  uploadWaitTimeout: java.time.Duration = DEFAULT_UPLOAD_WAIT,
+  drainTimeout: java.time.Duration = DEFAULT_DRAIN_WAIT
+) : BaseAudioRecorder(volume, voiceChannel, messageChannel, uploadWaitTimeout, drainTimeout) {
 
   companion object {
     private const val AFK_MINUTES = 2

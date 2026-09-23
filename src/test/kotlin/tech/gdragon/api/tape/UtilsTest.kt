@@ -2,14 +2,17 @@ package tech.gdragon.api.tape
 
 import com.squareup.tape.QueueFile
 import de.sciss.jump3r.lowlevel.LameEncoder
+import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.engine.spec.tempdir
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.longs.shouldBeGreaterThan
 import io.kotest.matchers.longs.shouldBeLessThan
+import org.opentest4j.TestAbortedException
 import java.io.File
 import java.io.FileOutputStream
 import javax.sound.sampled.AudioFormat
+import kotlin.random.Random
 
 /**
  * Unit tests for tape utilities.
@@ -94,6 +97,102 @@ class UtilsTest : FunSpec({
     queue.close()
 
     return queueFileFile
+  }
+
+  /**
+   * Work item #96, the truncated-input case.
+   *
+   * ffmpeg copies an incomplete trailing frame byte for byte and counts it in the Xing header,
+   * so the declared sample count exceeds the data. Nothing the bot uploads may end that way.
+   */
+  test("remux of a clipped mp3 produces a file that ends on a frame boundary") {
+    val dir = tempdir()
+    val (encoder, clean) = encodeVbrMp3(dir)
+    encoder.close()
+
+    val clipped = File(dir, "clipped.mp3")
+    val cleanBytes = clean.readBytes()
+    clipped.writeBytes(cleanBytes.copyOf(cleanBytes.size - 4))
+
+    // Precondition: the fixture really is damaged.
+    walkMp3Frames(clipped)!!.shortfall shouldBe 4L
+
+    remuxWithXingHeader(clipped)
+
+    hasXingHeader(clipped) shouldBe true
+    walkMp3Frames(clipped)!!.shortfall shouldBe 0L
+  }
+
+  /**
+   * Work item #96: a failure in the tail check or the trim must not escape the remux. A thrown
+   * error fails the upload in saveRecording and aborts /recover, although the mp3 is usable.
+   */
+  test("remux leaves an mp3 it cannot trim unchanged and does not throw") {
+    val dir = tempdir()
+    val (encoder, clean) = encodeVbrMp3(dir)
+    encoder.close()
+
+    val clipped = File(dir, "readonly.mp3")
+    val cleanBytes = clean.readBytes()
+    val clippedBytes = cleanBytes.copyOf(cleanBytes.size - 4)
+    clipped.writeBytes(clippedBytes)
+    clipped.setWritable(false) shouldBe true
+
+    try {
+      if (clipped.canWrite()) throw TestAbortedException("read-only file is still writable, probably running as root")
+
+      shouldNotThrowAny { remuxWithXingHeader(clipped) }
+      clipped.readBytes() shouldBe clippedBytes
+    } finally {
+      clipped.setWritable(true)
+    }
+  }
+
+  /**
+   * Encode into a QueueFile and never call [LameEncoder.encodeFinish].
+   *
+   * This is what a recorder leaves behind when the JVM dies mid-recording, and also when
+   * `saveRecording` reads the queue before `processAudioLoop` flushed. `lame_encode_flush`
+   * is what pads the final frame to its declared length, so without it the last frame stays
+   * short. Work item #96.
+   */
+  fun encodeVbrIntoQueueWithoutFlush(dir: File, frames: Int = 300): File {
+    val queueFileFile = File(dir, "noflush.queue")
+    val queue = QueueFile(queueFileFile)
+    val encoder = LameEncoder(audioFormat, 128, LameEncoder.CHANNEL_MODE_AUTO, LameEncoder.QUALITY_HIGHEST, true)
+    val mp3Buffer = ByteArray(8192)
+    val pcmFrame = ByteArray(3840)
+    val random = Random(42)
+
+    repeat(frames) {
+      // Noise, so VBR frame lengths vary the way speech makes them vary.
+      random.nextBytes(pcmFrame)
+      val encoded = encoder.encodeBuffer(pcmFrame, 0, pcmFrame.size, mp3Buffer)
+      if (encoded > 0) queue.add(mp3Buffer.copyOf(encoded))
+    }
+    // No encodeFinish on purpose.
+    encoder.close()
+    queue.close()
+
+    return queueFileFile
+  }
+
+  /**
+   * Work item #96, the missing-flush case. This is the path /recover takes after a crash.
+   */
+  test("recovering a recording that never flushed produces a file ending on a frame boundary") {
+    val dir = tempdir()
+    val queueFile = encodeVbrIntoQueueWithoutFlush(dir)
+    val mp3 = File(dir, "recovered.mp3")
+
+    queueFileIntoMp3(queueFile, mp3)
+
+    // Precondition: a queue with no flush really does yield an incomplete final frame.
+    walkMp3Frames(mp3)!!.shortfall.shouldBeGreaterThan(0L)
+
+    remuxWithXingHeader(mp3)
+
+    walkMp3Frames(mp3)!!.shortfall shouldBe 0L
   }
 
   test("drained queue remuxes to mp3 with Xing header") {

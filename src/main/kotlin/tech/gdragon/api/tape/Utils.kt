@@ -2,6 +2,7 @@ package tech.gdragon.api.tape
 
 import com.squareup.tape.QueueFile
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.github.oshai.kotlinlogging.withLoggingContext
 import org.jaudiotagger.audio.AudioFileIO
 import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException
 import org.jaudiotagger.audio.mp3.MP3File
@@ -52,6 +53,11 @@ fun remuxWithXingHeader(mp3: File) {
   val ffmpegLog = File(mp3.parentFile, "${mp3.nameWithoutExtension}.remux.log")
 
   try {
+    logTailCheck(mp3, "pre-remux")
+
+    val trimmed = trimIncompleteTrailingFrame(mp3)
+    if (trimmed > 0L) logger.warn { "Trimmed $trimmed bytes of an incomplete final frame from $mp3" }
+
     val process = ProcessBuilder(
       ffmpeg, "-y", "-i", mp3.absolutePath,
       "-c", "copy", "-write_xing", "1",
@@ -76,6 +82,12 @@ fun remuxWithXingHeader(mp3: File) {
       return
     }
 
+    val remuxed = logTailCheck(tmp, "post-remux")
+    if (remuxed == null || remuxed.shortfall != 0L) {
+      logger.error { "ffmpeg output for $mp3 does not end on a frame boundary, keeping original" }
+      return
+    }
+
     Files.move(tmp.toPath(), mp3.toPath(), StandardCopyOption.ATOMIC_MOVE)
     logger.info { "Remuxed $mp3 with Xing header" }
   } catch (e: Exception) {
@@ -84,6 +96,30 @@ fun remuxWithXingHeader(mp3: File) {
     tmp.delete()
     ffmpegLog.delete()
   }
+}
+
+/**
+ * Walks the frame headers and records the result as MDC fields, one event per file per stage.
+ *
+ * Clean files are logged too, because they are the denominator: a single Honeycomb query over
+ * `message starts-with "Mp3 tail check"` grouped by `audio.mp3.tail.shortfall` gives the rate.
+ */
+private fun logTailCheck(mp3: File, stage: String): Mp3Walk? {
+  val walk = walkMp3Frames(mp3)
+
+  if (walk == null) {
+    logger.warn { "Mp3 tail check found no frame header in $mp3" }
+    return null
+  }
+
+  withLoggingContext(walk.loggingFields(stage, mp3.length())) {
+    if (walk.shortfall > 0L) {
+      logger.warn { "Mp3 tail check found an incomplete final frame in $mp3" }
+    } else {
+      logger.info { "Mp3 tail check" }
+    }
+  }
+  return walk
 }
 
 private fun hasXingOrInfoHeader(mp3: File): Boolean {
