@@ -21,7 +21,6 @@ class S3DatastoreTest : FunSpec({
   lateinit var endpoint: String
 
   beforeSpec {
-    // SeaweedFS S3 gateway; the AWS_* variables create its admin identity
     seaweedContainer = GenericContainer("chrislusf/seaweedfs:4.47")
       .withCommand("server", "-s3")
       .withEnv("AWS_ACCESS_KEY_ID", testAccessKey)
