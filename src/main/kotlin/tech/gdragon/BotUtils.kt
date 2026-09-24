@@ -83,10 +83,7 @@ object BotUtils {
           withLoggingContext("guild" to guild.name, "voice-channel" to channel.name) {
             val audioManager = guild.audioManager
             val translator: RecordTranslator = pawa.translator(guild.idLong)
-            if (audioManager.isConnected) {
-              // Autorecord fires on every join; a reply here would repeat for each member, see #86
-              logger.debug { "Already connected to ${audioManager.connectedChannel?.name}, skipping autorecord" }
-            } else {
+            if (!audioManager.isConnected) {
               try {
                 val recorder = recordVoiceChannel(channel, messageChannel)
                 pawa.startRecording(recorder.session, guild.idLong)
