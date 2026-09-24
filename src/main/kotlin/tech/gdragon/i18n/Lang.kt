@@ -158,6 +158,9 @@ class Record(lang: Lang) {
   }
   val alreadyInChannel: (String) -> String =
     { channelId -> resource.getString("record.already_in_channel").format("**<#$channelId>**") }
+  val channelFull: (String) -> String = { channelId ->
+    resource.getString("record.channel_full").format("**<#$channelId>**")
+  }
   val cannotRecord: (String, String) -> String = { channelId, permission ->
     val permission = permission.replace('_', ' ')
     resource.getString("record.cannot_record").format("**<#$channelId>**", "`$permission`")
