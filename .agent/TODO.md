@@ -43,10 +43,6 @@ Discord supports [localized slash commands](https://discord.com/developers/docs/
 
 JDA supports this via `CommandData.setNameLocalizations()` / `setDescriptionLocalizations()`. The existing `translations*.properties` files already have many of the needed strings.
 
-## Cleanup: Remove `src/assembly` directory
-
-The `src/assembly` directory (docker-compose, `.env`) is out of date and no longer reflects the current deployment setup. Delete it entirely.
-
 ## Evaluate: Drop `GatewayIntent.MESSAGE_CONTENT` after prefix removal
 
 With prefix commands gone, the main remaining consumer of the privileged `MESSAGE_CONTENT` intent is the "Recover Recording" message context menu, which reads `event.target.contentRaw` to regex-extract ULID session IDs (`BotUtils.findSessionID()`). Users typically right-click the bot's own `RecordingStartedReply` — and bots always see their own message content regardless of intent — so the intent could potentially be dropped if recovery is refactored to parse only the bot's own embeds, or to store session IDs in message metadata. Note `GUILD_MESSAGES` is still required for `onPrivateMessageReceived`. Dropping a privileged intent reduces Discord verification overhead.

@@ -295,6 +295,12 @@
       <artifactId>kotest-assertions-core-jvm</artifactId>
       <version>${kotest.version}</version>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.jetbrains.kotlinx</groupId>
+          <artifactId>kotlinx-coroutines-jdk8</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>io.mockk</groupId>
@@ -343,21 +349,19 @@
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <version>3.7.1</version>
-        <configuration>
-          <descriptors>
-            <descriptor>src/assembly/src.xml</descriptor>
-          </descriptors>
-          <finalName>pawa</finalName>
-        </configuration>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>3.11.0</version>
         <executions>
           <execution>
-            <id>make-assembly</id>
+            <id>copy-dependencies</id>
             <phase>package</phase>
             <goals>
-              <goal>single</goal>
+              <goal>copy-dependencies</goal>
             </goals>
+            <configuration>
+              <includeScope>runtime</includeScope>
+              <outputDirectory>${project.build.directory}/lib</outputDirectory>
+            </configuration>
           </execution>
         </executions>
       </plugin>
@@ -568,16 +572,6 @@
             <executions>
               <execution>
                 <id>copy-dependencies</id>
-                <phase>none</phase>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-assembly-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>make-assembly</id>
                 <phase>none</phase>
               </execution>
             </executions>

@@ -14,7 +14,6 @@ WORKDIR /app
 COPY pom.xml .
 RUN mvn -B de.qaware.maven:go-offline-maven-plugin:resolve-dependencies
 
-COPY LICENSE .
 COPY src src
 
 ARG BUILD_DATE
@@ -46,7 +45,7 @@ ENV VERSION ${VERSION:-dev}
 
 WORKDIR $APP_DIR
 COPY --from=deps /home/curl_user/agent.jar .
-COPY --from=builder /app/target/pawa-release/lib lib
-COPY --from=builder /app/target/pawa-release/*.jar .
+COPY --from=builder /app/target/lib lib
+COPY --from=builder /app/target/*.jar .
 
 CMD ["java", "--enable-native-access=ALL-UNNAMED", "-javaagent:agent.jar", "-cp", "*:lib/*", "tech.gdragon.App"]
