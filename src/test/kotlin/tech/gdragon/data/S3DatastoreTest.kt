@@ -7,31 +7,31 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import kotlinx.coroutines.runBlocking
-import org.testcontainers.containers.MinIOContainer
-import org.testcontainers.utility.DockerImageName
+import org.testcontainers.containers.GenericContainer
+import org.testcontainers.containers.wait.strategy.Wait
 import java.io.File
 
 class S3DatastoreTest : FunSpec({
-  lateinit var minioContainer: MinIOContainer
+  lateinit var seaweedContainer: GenericContainer<*>
   lateinit var s3Datastore: S3Datastore
 
   val testBucketName = "test-recordings"
-  val testAccessKey = "minioadmin"
-  val testSecretKey = "minioadmin"
+  val testAccessKey = "seaweedadmin"
+  val testSecretKey = "seaweedadmin"
+  lateinit var endpoint: String
 
   beforeSpec {
-    // Start MinIO container
-    minioContainer = MinIOContainer(
-      DockerImageName.parse("quay.io/minio/minio:RELEASE.2025-05-24T17-08-30Z")
-        .asCompatibleSubstituteFor("minio/minio")
-    )
-      .withUserName(testAccessKey)
-      .withPassword(testSecretKey)
-      .withExposedPorts(9000)
+    // SeaweedFS S3 gateway; the AWS_* variables create its admin identity
+    seaweedContainer = GenericContainer("chrislusf/seaweedfs:4.47")
+      .withCommand("server", "-s3")
+      .withEnv("AWS_ACCESS_KEY_ID", testAccessKey)
+      .withEnv("AWS_SECRET_ACCESS_KEY", testSecretKey)
+      .withExposedPorts(8333)
+      .waitingFor(Wait.forHttp("/healthz").forPort(8333))
 
-    minioContainer.start()
+    seaweedContainer.start()
 
-    val endpoint = "http://${minioContainer.host}:${minioContainer.firstMappedPort}"
+    endpoint = "http://${seaweedContainer.host}:${seaweedContainer.firstMappedPort}"
 
     // Initialize your S3Datastore with test configuration
     s3Datastore = S3Datastore(
@@ -45,7 +45,7 @@ class S3DatastoreTest : FunSpec({
   }
 
   afterSpec {
-    minioContainer.stop()
+    seaweedContainer.stop()
   }
 
   test("upload file successfully") {
@@ -64,7 +64,7 @@ class S3DatastoreTest : FunSpec({
     // Verify file exists
     val s3Client = S3Client {
       region = "us-east-1"
-      endpointUrl = aws.smithy.kotlin.runtime.net.url.Url.parse(minioContainer.s3URL)
+      endpointUrl = aws.smithy.kotlin.runtime.net.url.Url.parse(endpoint)
       credentialsProvider = StaticCredentialsProvider {
         accessKeyId = testAccessKey
         secretAccessKey = testSecretKey
