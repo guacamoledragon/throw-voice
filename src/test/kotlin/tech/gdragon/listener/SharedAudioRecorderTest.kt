@@ -10,6 +10,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.*
 import net.dv8tion.jda.api.audio.CombinedAudio
+import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel
@@ -28,6 +29,7 @@ import tech.gdragon.db.EmbeddedDatabase
 import tech.gdragon.db.dao.Recording
 import java.io.File
 import java.io.IOException
+import java.io.RandomAccessFile
 import java.time.Duration
 import java.time.Instant
 import java.util.concurrent.CompletableFuture
@@ -98,6 +100,7 @@ class SharedAudioRecorderTest : FunSpec({
       every { idLong } returns guildId
       every { id } returns guildId.toString()
       every { name } returns "Test Guild BAR"
+      every { maxFileSize } returns Message.MAX_FILE_SIZE.toLong()
     }
 
     mockVoiceChannel = mockk<AudioChannel>(relaxed = true) {
@@ -387,6 +390,23 @@ class SharedAudioRecorderTest : FunSpec({
       every {
         tech.gdragon.api.tape.queueFileIntoMp3(any<com.squareup.tape.QueueFile>(), any())
       } answers { callOriginal() }
+    }
+  }
+
+  // Work item #81: boosted guilds accept larger uploads than the 10 MiB default.
+  test("uploadAttachment sends a file above the default limit when the guild allows it") {
+    every { mockVoiceChannel.guild.maxFileSize } returns 50L * 1024 * 1024
+    try {
+      val recorder = SharedAudioRecorder(1.0, mockVoiceChannel, mockMessageChannel)
+      val file = File(tempDir, "boosted.mp3")
+      RandomAccessFile(file, "rw").use { it.setLength(Message.MAX_FILE_SIZE + 1L) }
+
+      recorder.uploadAttachment(mockMessageChannel, file, "boosted.mp3")
+      recorder.disconnect()
+
+      verify { BotUtils.uploadFile(mockMessageChannel, file, "boosted.mp3") }
+    } finally {
+      every { mockVoiceChannel.guild.maxFileSize } returns Message.MAX_FILE_SIZE.toLong()
     }
   }
 })

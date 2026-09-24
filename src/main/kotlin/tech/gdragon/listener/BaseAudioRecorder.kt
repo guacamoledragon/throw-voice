@@ -374,7 +374,8 @@ abstract class BaseAudioRecorder(
   override fun silenceUser(userId: Long) { silencedUsers.add(userId) }
 
   fun uploadAttachment(messageChannel: MessageChannel, recordingFile: File, filename: String): Message? {
-    return if (recordingFile.length() < Message.MAX_FILE_SIZE)
+    // The guild limit grows with its boost tier, and is never below Message.MAX_FILE_SIZE
+    return if (recordingFile.length() < voiceChannel.guild.maxFileSize)
       BotUtils.uploadFile(messageChannel, recordingFile, filename)
     else null
   }
