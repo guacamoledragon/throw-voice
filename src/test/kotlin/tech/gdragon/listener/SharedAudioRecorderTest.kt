@@ -10,6 +10,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.*
 import net.dv8tion.jda.api.audio.CombinedAudio
+import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel
@@ -98,6 +99,7 @@ class SharedAudioRecorderTest : FunSpec({
       every { idLong } returns guildId
       every { id } returns guildId.toString()
       every { name } returns "Test Guild BAR"
+      every { maxFileSize } returns Message.MAX_FILE_SIZE.toLong()
     }
 
     mockVoiceChannel = mockk<AudioChannel>(relaxed = true) {
