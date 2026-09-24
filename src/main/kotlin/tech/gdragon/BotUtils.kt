@@ -332,7 +332,6 @@ object BotUtils {
     try {
       audioManager.openAudioConnection(channel)
     } catch (e: InsufficientPermissionException) {
-      // JDA refuses a full channel unless the bot can move members, see #90
       require(e.permission != Permission.VOICE_MOVE_OTHERS) { "channel-full" }
       throw e
     }
