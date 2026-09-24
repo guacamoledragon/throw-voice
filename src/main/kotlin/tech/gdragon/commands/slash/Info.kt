@@ -5,7 +5,9 @@ import dev.minn.jda.ktx.messages.Embed
 import net.dv8tion.jda.api.entities.MessageEmbed
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.isNotNull
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.dao.Settings
 import tech.gdragon.db.table.Tables
@@ -24,9 +26,10 @@ object Info {
         .firstOrNull()
         ?.let(Settings::wrapRow)
       val dateJoined = Guild[guild.idLong].joinedOn
+      // A recording gets a url only after it is saved; failed recordings keep a null url
       val recordingCount = Tables.Recordings
         .selectAll()
-        .where { Tables.Recordings.guild eq guild.idLong }
+        .where { (Tables.Recordings.guild eq guild.idLong) and Tables.Recordings.url.isNotNull() }
         .count()
 
       Embed {
