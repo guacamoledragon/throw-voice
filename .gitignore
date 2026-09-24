@@ -28,8 +28,6 @@ recordings/
 
 *.bat
 !build-docker.bat
-!start.bat
-!src/assembly/settings.db
 .classpath
 .factorypath
 .project
