@@ -26,7 +26,6 @@ object Info {
         .firstOrNull()
         ?.let(Settings::wrapRow)
       val dateJoined = Guild[guild.idLong].joinedOn
-      // A recording gets a url only after it is saved; failed recordings keep a null url
       val recordingCount = Tables.Recordings
         .selectAll()
         .where { (Tables.Recordings.guild eq guild.idLong) and Tables.Recordings.url.isNotNull() }
