@@ -83,12 +83,7 @@ object BotUtils {
           withLoggingContext("guild" to guild.name, "voice-channel" to channel.name) {
             val audioManager = guild.audioManager
             val translator: RecordTranslator = pawa.translator(guild.idLong)
-            if (audioManager.isConnected) {
-              sendMessage(
-                messageChannel,
-                ":no_entry_sign: _${translator.alreadyInChannel(audioManager.connectedChannel!!.id)}_"
-              )
-            } else {
+            if (!audioManager.isConnected) {
               try {
                 val recorder = recordVoiceChannel(channel, messageChannel)
                 pawa.startRecording(recorder.session, guild.idLong)
