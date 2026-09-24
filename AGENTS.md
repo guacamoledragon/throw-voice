@@ -50,6 +50,23 @@ It builds the bot from source at a git ref instead of pulling a released image:
 
 Migrations are not rolled back when switching to an older ref.
 
+## Writing and Reviewing Code
+
+- Do not write code comments that explain why a change was made or that point to an
+  issue (`see #86`). Put the reason in the commit message and the MR description.
+  Comments go stale.
+- Do not keep a test that checks one small condition and needs a lot of setup (an
+  embedded database, many mocks). Use it during development, then delete it. Tests are
+  code, and we must maintain them.
+- Do not keep an `if` branch that only writes a log. Negate the condition and keep one
+  branch.
+- Keep the MR description the same as the pushed code. If a change removes a test or a
+  log, update the description.
+- Stage files by name. Do not use `git commit -a`, because the working tree can have
+  local changes that are not part of the MR.
+- "Feedback on MR!N" means change the code on the branch. Do not post comments on the
+  MR unless the user asks for them.
+
 ## Kotlin Language Server (KLS) Setup
 
 KLS requires special setup because:

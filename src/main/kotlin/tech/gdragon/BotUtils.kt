@@ -104,6 +104,9 @@ object BotUtils {
                   "afk-channel" ->
                     ":no_entry_sign: _${translator.afkChannel(channel.id)}_"
 
+                  "channel-full" ->
+                    ":no_entry_sign: _${translator.channelFull(channel.id)}_"
+
                   else ->
                     ":no_entry_sign: _Unknown bad argument: ${e.message}_"
                 }
@@ -326,7 +329,12 @@ object BotUtils {
     }
 
     val audioManager = channel.guild.audioManager
-    audioManager.openAudioConnection(channel)
+    try {
+      audioManager.openAudioConnection(channel)
+    } catch (e: InsufficientPermissionException) {
+      require(e.permission != Permission.VOICE_MOVE_OTHERS) { "channel-full" }
+      throw e
+    }
     logger.info { "Connected to voice channel" }
 
     val volume = transaction {

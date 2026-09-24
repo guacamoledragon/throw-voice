@@ -76,6 +76,9 @@ object Record {
               "afk-channel" ->
                 ":no_entry_sign: _${translator.afkChannel(voiceChannel.id)}_"
 
+              "channel-full" ->
+                ":no_entry_sign: _${translator.channelFull(voiceChannel.id)}_"
+
               else ->
                 ":no_entry_sign: _Unknown bad argument: ${e.message}_"
             }
