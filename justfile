@@ -1,6 +1,6 @@
 set dotenv-load := false
 
-# Run the app locally with local S3 (Minio), equivalent to IntelliJ "App Dev (local-s3)"
+# Run the app locally with local S3 (SeaweedFS), equivalent to IntelliJ "App Dev (local-s3)"
 run-dev:
   OVERRIDE_FILE=dev.properties \
   mvn clean compile exec:java \
@@ -24,12 +24,12 @@ docker-run:
     -p 7888:7888 \
     pawa:dev
 
-# Start local Minio instance for development
-minio-start:
-  docker run --rm -it --name minio -p 9090:9000 -p 9091:9091 \
-  -e MINIO_ROOT_USER=minio -e MINIO_ROOT_PASSWORD=password -e MINIO_CONSOLE_ADDRESS=:9091 \
-  quay.io/minio/minio:RELEASE.2025-05-24T17-08-30Z \
-  server /opt/data
+# Start local S3 (SeaweedFS) for development
+seaweedfs-start:
+  docker run --rm -it --name seaweedfs -p 9090:8333 \
+  -e AWS_ACCESS_KEY_ID=minio -e AWS_SECRET_ACCESS_KEY=password \
+  chrislusf/seaweedfs:4.47 \
+  server -s3
 
 package-pawalite:
   mvn --version
