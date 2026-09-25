@@ -306,7 +306,7 @@
     <dependency>
       <groupId>net.bytebuddy</groupId>
       <artifactId>byte-buddy</artifactId>
-      <version>1.17.5</version>
+      <version>1.18.14</version>
       <scope>test</scope>
     </dependency>
     <dependency>
