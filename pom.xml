@@ -16,7 +16,7 @@
     <flyway.version>13.7.0</flyway.version>
     <jackson.version>2.22.3</jackson.version>
     <jda.version>6.7.0</jda.version>
-    <jda-ktx.version>0.14.2</jda-ktx.version>
+    <jda-ktx.version>0.15.0</jda-ktx.version>
     <jdave.version>0.1.8</jdave.version>
     <koin.version>4.2.2</koin.version>
     <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
