@@ -94,66 +94,46 @@ class SharedAudioRecorder(
     try {
       val filename = recordingFile.name
 
-      // Try Discord first — attachments are free storage that stays valid for the lifetime
-      // of the server. A null attachment means Discord did NOT take the file, whether by
-      // size (uploadAttachment's gate), guild upload limit (400001), or missing permissions;
-      // in all of those cases fall back to the datastore so the recording is never stranded.
+      // Discord attachment URLs expire, so the datastore URL is the one we store.
+      // A null attachment means Discord did NOT take the file: size, guild upload limit
+      // (400001), or missing permissions.
       val attachment = try {
         uploadAttachment(messageChannel, recordingFile, filename)?.attachments?.first()
       } catch (e: Exception) {
-        logger.warn(e) { "Discord attachment upload failed, falling back to datastore: $session" }
+        logger.warn(e) { "Discord attachment upload failed: $session" }
         null
       }
 
-      if (attachment != null) {
-        // Discord-only upload
-        transaction {
-          recordingRecord?.apply {
-            size = recordingFile.length()
-            modifiedOn = now()
-            url = attachment.proxyUrl
-            duration = this@SharedAudioRecorder.duration
-          }
-        }
-
-        val appUrl = pawa.config.appUrl
-        val recordingUrl = if (appUrl.startsWith("discord://")) {
-          attachment.proxyUrl
-        } else {
-          "$appUrl/v1/recordings?guild=${voiceChannel.guild.idLong}&session-id=$session"
-        }
-        val message = """|:microphone2: **Recording for <#${voiceChannel.id}> has been uploaded!**
-                                |$recordingUrl""".trimMargin()
-
-        tech.gdragon.BotUtils.sendMessage(messageChannel, message)
-      } else {
-        // Large files, or Discord upload failed → upload to datastore
-        val recordingKey = "${voiceChannel.guild.id}/$filename"
-        val result = datastore.upload(recordingKey, recordingFile)
-
-        transaction {
-          recordingRecord?.apply {
-            size = result.size
-            modifiedOn = result.timestamp
-            url = result.url
-            duration = this@SharedAudioRecorder.duration
-          }
-        }
-
-        val appUrl = pawa.config.appUrl
-        val recordingUrl = if (appUrl.startsWith("discord://")) {
-          result.url
-        } else {
-          "$appUrl/v1/recordings?guild=${voiceChannel.guild.idLong}&session-id=$session"
-        }
-
-        val message = """|:microphone2: **Recording for <#${voiceChannel.id}> has been uploaded!**
-                                |$recordingUrl
-                                |
-                                |_Recording will only be available for 24hrs_""".trimMargin()
-
-        tech.gdragon.BotUtils.sendMessage(messageChannel, message)
+      val result = try {
+        datastore.upload("${voiceChannel.guild.id}/$filename", recordingFile)
+      } catch (e: Exception) {
+        if (attachment == null) throw e
+        logger.warn(e) { "Datastore upload failed, storing the Discord URL: $session" }
+        null
       }
+
+      transaction {
+        recordingRecord?.apply {
+          size = result?.size ?: recordingFile.length()
+          modifiedOn = result?.timestamp ?: now()
+          url = result?.url ?: attachment!!.proxyUrl
+          duration = this@SharedAudioRecorder.duration
+        }
+      }
+
+      val appUrl = pawa.config.appUrl
+      val recordingUrl = if (appUrl.startsWith("discord://")) {
+        attachment?.proxyUrl ?: result!!.url
+      } else {
+        "$appUrl/v1/recordings?guild=${voiceChannel.guild.idLong}&session-id=$session"
+      }
+
+      val message = buildString {
+        append(":microphone2: **Recording for <#${voiceChannel.id}> has been uploaded!**\n$recordingUrl")
+        if (attachment == null) append("\n\n_Recording will only be available for 24hrs_")
+      }
+
+      tech.gdragon.BotUtils.sendMessage(messageChannel, message)
 
       // Cleanup local file
       if (recordingFile.delete()) {
