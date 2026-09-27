@@ -359,6 +359,25 @@ class SharedAudioRecorderTest : FunSpec({
     }
   }
 
+  test("links the datastore URL in the channel message when Discord takes the attachment").config(
+    timeout = kotlin.time.Duration.parse("15s")
+  ) {
+    every { BotUtils.uploadFile(any(), any(), any()) } returns discordMessage("https://cdn.discordapp.com/rec.mp3")
+    every { mockDatastore.upload(any(), any()) } answers {
+      UploadResult("key", Instant.now(), 100L, "http://localhost/${firstArg<String>()}")
+    }
+
+    val recorder = SharedAudioRecorder(1.0, mockVoiceChannel, mockMessageChannel)
+    feedAudioFrames(recorder, 30)
+
+    val (_, lock) = recorder.saveRecording(mockVoiceChannel, mockMessageChannel)
+    recorder.disconnect(lock)
+
+    verify {
+      BotUtils.sendMessage(any(), match<String> { it.endsWith("http://localhost/$guildId/${recorder.session}.mp3") })
+    }
+  }
+
   test("stores the Discord URL when the datastore upload fails").config(
     timeout = kotlin.time.Duration.parse("15s")
   ) {

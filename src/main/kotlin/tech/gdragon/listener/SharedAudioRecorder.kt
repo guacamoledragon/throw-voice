@@ -112,18 +112,20 @@ class SharedAudioRecorder(
         null
       }
 
+      val storedUrl = result?.url ?: attachment!!.proxyUrl
+
       transaction {
         recordingRecord?.apply {
           size = result?.size ?: recordingFile.length()
           modifiedOn = result?.timestamp ?: now()
-          url = result?.url ?: attachment!!.proxyUrl
+          url = storedUrl
           duration = this@SharedAudioRecorder.duration
         }
       }
 
       val appUrl = pawa.config.appUrl
       val recordingUrl = if (appUrl.startsWith("discord://")) {
-        attachment?.proxyUrl ?: result!!.url
+        storedUrl
       } else {
         "$appUrl/v1/recordings?guild=${voiceChannel.guild.idLong}&session-id=$session"
       }
