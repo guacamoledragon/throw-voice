@@ -13,6 +13,7 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 
 ### Changed
 - All recorder interactions now go through the `AudioRecorder` interface instead of hard-casting to concrete types
+- Every recording uploads to the datastore, and `recordings.url` stores the datastore URL. The Discord attachment still posts to the channel. If the datastore upload fails, the Discord URL is stored. When `APP_URL` is `discord://`, the upload message links the stored URL.
 
 ### Deprecated
 

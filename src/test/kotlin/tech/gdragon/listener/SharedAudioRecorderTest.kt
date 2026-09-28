@@ -338,6 +338,67 @@ class SharedAudioRecorderTest : FunSpec({
     File(tempDir, "recordings/${recorder.session}.mp3").exists() shouldBe false
   }
 
+  fun discordMessage(proxyUrl: String) = mockk<Message> {
+    every { attachments } returns listOf(mockk<Message.Attachment> { every { this@mockk.proxyUrl } returns proxyUrl })
+  }
+
+  test("stores the datastore URL when Discord takes the attachment").config(
+    timeout = kotlin.time.Duration.parse("15s")
+  ) {
+    every { BotUtils.uploadFile(any(), any(), any()) } returns discordMessage("https://cdn.discordapp.com/rec.mp3")
+
+    val recorder = SharedAudioRecorder(1.0, mockVoiceChannel, mockMessageChannel)
+    feedAudioFrames(recorder, 30)
+
+    val (recording, lock) = recorder.saveRecording(mockVoiceChannel, mockMessageChannel)
+    recorder.disconnect(lock)
+
+    verify { mockDatastore.upload(match { it.endsWith("${recorder.session}.mp3") }, any()) }
+    transaction {
+      Recording.findById(recording!!.id.value)!!.url shouldBe "http://localhost/rec.mp3"
+    }
+  }
+
+  test("links the datastore URL in the channel message when Discord takes the attachment").config(
+    timeout = kotlin.time.Duration.parse("15s")
+  ) {
+    every { BotUtils.uploadFile(any(), any(), any()) } returns discordMessage("https://cdn.discordapp.com/rec.mp3")
+    every { mockDatastore.upload(any(), any()) } answers {
+      UploadResult("key", Instant.now(), 100L, "http://localhost/${firstArg<String>()}")
+    }
+
+    val recorder = SharedAudioRecorder(1.0, mockVoiceChannel, mockMessageChannel)
+    feedAudioFrames(recorder, 30)
+
+    val (_, lock) = recorder.saveRecording(mockVoiceChannel, mockMessageChannel)
+    recorder.disconnect(lock)
+
+    verify {
+      BotUtils.sendMessage(any(), match<String> { it.endsWith("http://localhost/$guildId/${recorder.session}.mp3") })
+    }
+  }
+
+  test("stores the Discord URL when the datastore upload fails").config(
+    timeout = kotlin.time.Duration.parse("15s")
+  ) {
+    every { BotUtils.uploadFile(any(), any(), any()) } returns discordMessage("https://cdn.discordapp.com/rec.mp3")
+    every { mockDatastore.upload(any(), any()) } throws RuntimeException("S3 is down")
+
+    val recorder = SharedAudioRecorder(1.0, mockVoiceChannel, mockMessageChannel)
+    feedAudioFrames(recorder, 30)
+
+    val (recording, lock) = recorder.saveRecording(mockVoiceChannel, mockMessageChannel)
+    recorder.disconnect(lock)
+
+    transaction {
+      Recording.findById(recording!!.id.value)!!.url shouldBe "https://cdn.discordapp.com/rec.mp3"
+    }
+    verify(exactly = 0) {
+      BotUtils.sendMessage(any(), match<String> { it.contains(recorder.session) })
+    }
+    File(tempDir, "recordings/${recorder.session}.mp3").exists() shouldBe false
+  }
+
   test("degrades to error message and leaves file on disk when the datastore fallback also fails").config(
     timeout = kotlin.time.Duration.parse("15s")
   ) {
