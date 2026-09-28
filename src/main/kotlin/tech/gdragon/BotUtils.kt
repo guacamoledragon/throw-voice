@@ -86,7 +86,7 @@ object BotUtils {
             if (!audioManager.isConnected) {
               try {
                 val recorder = recordVoiceChannel(channel, messageChannel)
-                pawa.startRecording(recorder.session, guild.idLong)
+                pawa.startRecording(recorder, guild.idLong)
                 val lang = pawa.language(guild.idLong)
                 val message = RecordingStartedReply(channel.id, recorder.session, lang, pawa.recoverEnabled).message
                 sendMessage(messageChannel, message)

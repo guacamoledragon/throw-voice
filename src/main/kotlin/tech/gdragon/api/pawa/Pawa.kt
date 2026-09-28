@@ -17,9 +17,9 @@ import tech.gdragon.db.table.Tables
 import tech.gdragon.i18n.Babel
 import tech.gdragon.i18n.Lang
 import tech.gdragon.koin.getBooleanProperty
+import tech.gdragon.listener.AudioRecorder
 import java.io.File
 import java.math.BigDecimal
-import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
 open class Pawa(val db: Database, val config: PawaConfig = PawaConfig.invoke()) {
@@ -49,10 +49,13 @@ open class Pawa(val db: Database, val config: PawaConfig = PawaConfig.invoke()) 
   val logger = KotlinLogging.logger { }
 
   private val _ignoredUsers: MutableMap<String, List<Long>> = ConcurrentHashMap()
-  private val _recordings: MutableMap<String, Long> = ConcurrentHashMap()
+  private val _recorders: MutableMap<Long, AudioRecorder> = ConcurrentHashMap()
 
+  /**
+   * The session ID of each active recording, mapped to its guild ID.
+   */
   val recordings: Map<String, Long>
-    get() = Collections.unmodifiableMap(_recordings)
+    get() = _recorders.entries.associate { (guildId, recorder) -> recorder.session to guildId }
 
   fun language(guildId: Long): Lang {
     return transaction(db.database) { Guild[guildId].settings.language }
@@ -124,21 +127,29 @@ open class Pawa(val db: Database, val config: PawaConfig = PawaConfig.invoke()) 
     }
   }
 
-  fun ignoreUsers(session: String, ignoredUserIds: List<Long>) {
-    _ignoredUsers[session] = ignoredUserIds
+  fun startRecording(recorder: AudioRecorder, guildId: Long) {
+    _recorders[guildId] = recorder
   }
 
-  fun startRecording(session: String, guildId: Long) {
-    _recordings[session] = guildId
+  /**
+   * Silence [userId] in the active recording of [guildId].
+   *
+   * Returns `false` when the guild has no active recording.
+   */
+  fun silenceUser(guildId: Long, userId: Long): Boolean {
+    val recorder = _recorders[guildId] ?: return false
+    recorder.silenceUser(userId)
+    _ignoredUsers.merge(recorder.session, listOf(userId)) { old, new -> (old + new).distinct() }
+    return true
   }
 
   fun stopRecording(session: String) {
-    _recordings -= session
+    _recorders.values.removeIf { it.session == session }
     _ignoredUsers -= session
   }
 
   fun stopRecordings(guildId: Long) {
-    _recordings.filterValues { it == guildId }.keys.forEach(::stopRecording)
+    _recorders[guildId]?.session?.let(::stopRecording)
   }
 
   /**

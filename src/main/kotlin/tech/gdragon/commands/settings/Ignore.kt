@@ -9,7 +9,6 @@ import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionE
 import tech.gdragon.api.pawa.Pawa
 import tech.gdragon.i18n.Babel
 import tech.gdragon.i18n.Lang
-import tech.gdragon.listener.AudioRecorder
 import net.dv8tion.jda.api.entities.Guild as DiscordGuild
 import tech.gdragon.i18n.Ignore as IgnoreTranslator
 
@@ -35,15 +34,9 @@ object Ignore {
       ?.map { it.idLong }
       ?.containsAll(listOf(authorId, guild.jda.selfUser.idLong)) ?: false
 
-    return if (isRecording) {
-      (guild.audioManager.receivingHandler as? AudioRecorder)!!.let { audioRecorderHandler ->
-        // These two are redundant, eventually need to migrate the source of truth to the Pawa API class
-        ignoredUserIds.forEach(audioRecorderHandler::silenceUser)
-        pawa.ignoreUsers(audioRecorderHandler.session, ignoredUserIds)
-
-        val ignoredUsersMentions = ignoredUserIds.joinToString { "<@$it>" }
-        ":hear_no_evil: _${translator.ignore(ignoredUsersMentions)}_"
-      }
+    return if (isRecording && ignoredUserIds.all { pawa.silenceUser(guild.idLong, it) }) {
+      val ignoredUsersMentions = ignoredUserIds.joinToString { "<@$it>" }
+      ":hear_no_evil: _${translator.ignore(ignoredUsersMentions)}_"
     } else ":no_entry_sign: _${translator.notRecording}_"
   }
 }

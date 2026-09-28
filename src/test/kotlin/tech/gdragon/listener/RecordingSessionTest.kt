@@ -45,10 +45,13 @@ class RecordingSessionTest : FunSpec({
     every { idLong } returns guildId
   }
 
-  test("leaving voice removes the session") {
-    val recorder = mockk<AudioRecorder>(relaxed = true, moreInterfaces = arrayOf(AudioReceiveHandler::class)) {
-      every { session } returns "S1"
+  fun recorder(session: String) =
+    mockk<AudioRecorder>(relaxed = true, moreInterfaces = arrayOf(AudioReceiveHandler::class)) {
+      every { this@mockk.session } returns session
     }
+
+  test("leaving voice removes the session") {
+    val recorder = recorder("S1")
     val guild = guild()
     every { guild.audioManager } returns mockk<AudioManagerImpl>(relaxed = true) {
       every { receivingHandler } returns recorder as AudioReceiveHandler
@@ -56,7 +59,7 @@ class RecordingSessionTest : FunSpec({
     val voiceChannel = mockk<AudioChannel>(relaxed = true) {
       every { this@mockk.guild } returns guild
     }
-    pawa.startRecording("S1", guildId)
+    pawa.startRecording(recorder, guildId)
 
     BotUtils.leaveVoiceChannel(voiceChannel, mockk(relaxed = true), save = false)
 
@@ -70,8 +73,8 @@ class RecordingSessionTest : FunSpec({
       every { member.user.idLong } returns 42L
       every { member.user.jda.selfUser.idLong } returns 42L
     }
-    pawa.startRecording("S1", guildId)
-    pawa.startRecording("S2", otherGuildId)
+    pawa.startRecording(recorder("S1"), guildId)
+    pawa.startRecording(recorder("S2"), otherGuildId)
 
     EventListener(pawa).onGuildVoiceLeave(event)
 
@@ -82,8 +85,8 @@ class RecordingSessionTest : FunSpec({
     val event = mockk<GuildLeaveEvent>(relaxed = true) {
       every { guild } returns guild()
     }
-    pawa.startRecording("S1", guildId)
-    pawa.startRecording("S2", otherGuildId)
+    pawa.startRecording(recorder("S1"), guildId)
+    pawa.startRecording(recorder("S2"), otherGuildId)
 
     EventListener(pawa).onGuildLeave(event)
 
@@ -119,5 +122,27 @@ class RecordingSessionTest : FunSpec({
     maintenance("true") shouldBe true
     maintenance("") shouldBe false
     maintenance(null) shouldBe false
+  }
+
+  test("silenceUser silences the user in the active recorder of the guild") {
+    val recorder = recorder("S1")
+    val other = recorder("S2")
+    pawa.startRecording(recorder, guildId)
+    pawa.startRecording(other, otherGuildId)
+
+    pawa.silenceUser(guildId, 7L) shouldBe true
+
+    verify { recorder.silenceUser(7L) }
+    verify(exactly = 0) { other.silenceUser(any()) }
+  }
+
+  test("silenceUser returns false when the guild has no recording") {
+    val recorder = recorder("S1")
+    pawa.startRecording(recorder, guildId)
+    pawa.stopRecording("S1")
+
+    pawa.silenceUser(guildId, 7L) shouldBe false
+
+    verify(exactly = 0) { recorder.silenceUser(any()) }
   }
 })

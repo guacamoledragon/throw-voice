@@ -24,7 +24,7 @@ object BetaRecord {
       event.deferReply().await()
 
       val recorder = BotUtils.recordVoiceChannel(voiceChannel, textChannel)
-      pawa.startRecording(recorder.session, event.guild!!.idLong)
+      pawa.startRecording(recorder, event.guild!!.idLong)
       event.hook.sendMessage("Recording Started! `${recorder.session}`").await()
     }
   }
