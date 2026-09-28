@@ -11,7 +11,12 @@ import tech.gdragon.db.table.Tables
 import java.awt.Color
 import java.time.Duration
 
-class RecordingReply(recording: Recording, appBaseUrl: String, description: String? = "Here's your recording, enjoy!") {
+class RecordingReply(
+  recording: Recording,
+  appBaseUrl: String,
+  description: String? = "Here's your recording, enjoy!",
+  uploaded: Boolean = true
+) {
   private val guildId = recording.readValues[Tables.Recordings.guild].value
   private val sessionId = recording.id.value
   private val createdOn = formatShortDateTime(recording.createdOn)
@@ -65,8 +70,8 @@ class RecordingReply(recording: Recording, appBaseUrl: String, description: Stri
       value = size
       inline = true
     }
-    // Only is a local link or Discord upload
-    if (recordingUrl.startsWith("https://media.discordapp.net") || recordingUrl.startsWith("file://")) {
+    // Without an app URL, the stored URL is the only link
+    if (recordingUrl.isNotEmpty() && (appBaseUrl.startsWith("discord://") || recordingUrl.startsWith("file://"))) {
       field {
         name = "Recording Location"
         value = recordingUrl
@@ -76,7 +81,7 @@ class RecordingReply(recording: Recording, appBaseUrl: String, description: Stri
   }
 
   val component = row(
-    link(appRecordingUrl, label = "View Recording", disabled = appBaseUrl.startsWith("discord://")),
+    link(appRecordingUrl, label = "View Recording", disabled = !uploaded || appBaseUrl.startsWith("discord://")),
     link(voteUrl, label = "Vote", emoji = Emoji.fromUnicode("❤"))
   )
 

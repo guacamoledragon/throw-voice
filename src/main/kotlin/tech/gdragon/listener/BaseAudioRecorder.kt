@@ -226,6 +226,11 @@ abstract class BaseAudioRecorder(
   ): Pair<Recording?, Semaphore> {
     val saveStartMs = System.currentTimeMillis()
     logger.info { "saveRecording started: $session, duration=$duration" }
+    try {
+      announceSave(voiceChannel, messageChannel)
+    } catch (e: Exception) {
+      logger.error(e) { "Could not announce the save: $session" }
+    }
     isRecording.set(false)
     val recordingLock = Semaphore(1, true)
     recordingLock.acquire()
@@ -306,18 +311,30 @@ abstract class BaseAudioRecorder(
   }
 
   private fun handleEmptyRecording(channel: MessageChannel) {
-    // Same for both types
-    tech.gdragon.BotUtils.sendMessage(channel, ":no_entry_sign: _Recording is empty, not uploading._")
+    reportFailure(channel, ":no_entry_sign: _Recording is empty, not uploading._")
     transaction { recordingRecord?.delete() }
   }
 
   private fun handleRecordingError(channel: MessageChannel) {
-    // Same for both types
     val errorMessage = """
         |:no_entry_sign: _Error creating recording, please visit support server and provide Session ID._
         |_Session ID: `$session`_
         |""".trimMargin()
-    tech.gdragon.BotUtils.sendMessage(channel, errorMessage)
+    reportFailure(channel, errorMessage)
+  }
+
+  /**
+   * Tell the channel that the save started.
+   */
+  protected open fun announceSave(voiceChannel: AudioChannel, messageChannel: MessageChannel) {
+    BotUtils.sendMessage(messageChannel, ":floppy_disk: **Saving <#${voiceChannel.id}>'s recording...**")
+  }
+
+  /**
+   * Tell the channel that the save failed.
+   */
+  protected open fun reportFailure(messageChannel: MessageChannel, message: String) {
+    BotUtils.sendMessage(messageChannel, message)
   }
 
   fun disconnect(recordingLock: Semaphore? = null) {

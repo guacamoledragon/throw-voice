@@ -51,6 +51,7 @@ import java.io.FileInputStream
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
+import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
 import net.dv8tion.jda.api.entities.Guild as DiscordGuild
 import tech.gdragon.i18n.Record as RecordTranslator
@@ -194,7 +195,6 @@ object BotUtils {
         if (save) {
           // Upload recording to the default specified channel
           val destinationChannel = defaultTextChannel(guild) ?: messageChannel
-          sendMessage(destinationChannel, ":floppy_disk: **Saving <#${voiceChannel.id}>'s recording...**")
           recorder.saveRecording(voiceChannel, destinationChannel)
         } else Pair(null, null)
 
@@ -411,18 +411,20 @@ object BotUtils {
    * General message sending utility with error logging for MessageCreateData
    */
   @WithSpan("Send Message Data")
-  fun sendMessage(textChannel: MessageChannel?, message: MessageCreateData) {
-    try {
+  fun sendMessage(textChannel: MessageChannel?, message: MessageCreateData): CompletableFuture<Message>? {
+    return try {
       textChannel
         ?.sendMessage(message)
-        ?.queue(
-          { m -> logger.debug { "Send message - ${m.contentDisplay}" } },
-          { t -> logger.error { "Error sending message: ${t.message}" } }
-        )
+        ?.submit()
+        ?.whenComplete { m, t ->
+          if (t == null) logger.debug { "Send message - ${m.contentDisplay}" }
+          else logger.error { "Error sending message: ${t.message}" }
+        }
     } catch (e: InsufficientPermissionException) {
       logger.warn(e) {
         "Missing permission ${e.permission}"
       }
+      null
     }
   }
 

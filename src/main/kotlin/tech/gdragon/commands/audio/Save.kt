@@ -51,11 +51,14 @@ object Save {
       val message = handler(pawa, it, messageChannel)
       if (message != null) {
         BotUtils.reply(event, MessageCreate(message))
-      } else {
+      } else if (pawa.isStandalone) {
         val recorder = event.guild?.audioManager?.receivingHandler as? AudioRecorder
         val recording = recorder?.recording!!
         val recordingEmbed = RecordingReply(recording, pawa.config.appUrl)
         BotUtils.reply(event, recordingEmbed.message)
+      } else {
+        // The recorder sends the recording embed, and edits it when the upload is done
+        BotUtils.reply(event, MessageCreate(":floppy_disk: _Saving the recording..._"))
       }
     }
   }
