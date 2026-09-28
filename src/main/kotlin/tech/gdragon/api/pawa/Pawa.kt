@@ -20,6 +20,7 @@ import tech.gdragon.koin.getBooleanProperty
 import java.io.File
 import java.math.BigDecimal
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 
 open class Pawa(val db: Database, val config: PawaConfig = PawaConfig.invoke()) {
   companion object {
@@ -40,8 +41,8 @@ open class Pawa(val db: Database, val config: PawaConfig = PawaConfig.invoke()) 
   val recoverEnabled = config.recoverEnabled
   val logger = KotlinLogging.logger { }
 
-  private var _ignoredUsers: MutableMap<String, List<Long>> = mutableMapOf()
-  private var _recordings: MutableMap<String, Long> = mutableMapOf()
+  private val _ignoredUsers: MutableMap<String, List<Long>> = ConcurrentHashMap()
+  private val _recordings: MutableMap<String, Long> = ConcurrentHashMap()
 
   val recordings: Map<String, Long>
     get() = Collections.unmodifiableMap(_recordings)
