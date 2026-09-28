@@ -243,10 +243,12 @@
                               :when (.isConnected audio-manager)
                               :let [handler (.getReceivingHandler audio-manager)
                                     session (when (instance? AudioRecorder handler)
-                                              (.getSession ^AudioRecorder handler))]]
+                                              (.getSession ^AudioRecorder handler))
+                                    started-ms (some-> session ulid->epoch-ms)]]
                           {:guild   (.getName guild)
                            :session session
-                           :minutes (when session (quot (- now (ulid->epoch-ms session)) 60000))
+                           :started (some-> started-ms java.time.Instant/ofEpochMilli)
+                           :minutes (when started-ms (quot (- now started-ms) 60000))
                            :members (count (.getMembers (.getConnectedChannel audio-manager)))}))}))
 
 (comment
