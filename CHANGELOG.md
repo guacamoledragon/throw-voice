@@ -13,7 +13,7 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 
 ### Changed
 - The bot asks for the **Embed Links** permission. The invite link on the site and the `Invite URL:` log line include it. Guilds that added the bot before this change must give the permission themselves.
-- Every save path (`/save`, `/stop` with autosave, autostop and AFK) sends one recording embed. When the upload is done, the bot edits the embed. With `APP_URL`, **View Recording** is enabled. With `APP_URL=discord://`, the embed shows the stored URL. If the upload fails, the embed shows the error. The separate upload message with the link is removed. PawaLite does not change.
+- Every save path (`/save`, `/stop` with autosave, autostop and AFK) sends one recording embed. When the upload is done, the bot edits the embed. With `APP_URL`, **View Recording** is enabled. With `APP_URL=discord://`, the embed shows the stored URL. If the upload fails, the embed shows the error. The separate upload message with the link is removed. PawaLite shows the same embed.
 - All recorder interactions now go through the `AudioRecorder` interface instead of hard-casting to concrete types
 - Every recording uploads to the datastore, and `recordings.url` stores the datastore URL. The Discord attachment still posts to the channel. If the datastore upload fails, the Discord URL is stored.
 

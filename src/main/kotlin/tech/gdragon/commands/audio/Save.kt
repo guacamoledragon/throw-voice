@@ -11,8 +11,6 @@ import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent
 import tech.gdragon.BotUtils
 import tech.gdragon.api.pawa.Pawa
-import tech.gdragon.discord.message.RecordingReply
-import tech.gdragon.listener.AudioRecorder
 import net.dv8tion.jda.api.entities.Guild as DiscordGuild
 import tech.gdragon.i18n.Save as SaveTranslator
 
@@ -51,11 +49,6 @@ object Save {
       val message = handler(pawa, it, messageChannel)
       if (message != null) {
         BotUtils.reply(event, MessageCreate(message))
-      } else if (pawa.isStandalone) {
-        val recorder = event.guild?.audioManager?.receivingHandler as? AudioRecorder
-        val recording = recorder?.recording!!
-        val recordingEmbed = RecordingReply(recording, pawa.config.appUrl)
-        BotUtils.reply(event, recordingEmbed.message)
       } else {
         // The recorder sends the recording embed, and edits it when the upload is done
         BotUtils.reply(event, MessageCreate(":floppy_disk: _Saving the recording..._"))

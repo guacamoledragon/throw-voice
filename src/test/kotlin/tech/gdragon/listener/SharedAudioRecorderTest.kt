@@ -516,4 +516,23 @@ class SharedAudioRecorderTest : FunSpec({
     val speakers = RecordingReply(recorder.recording!!, "http://localhost").embed.fields.first { it.name == "Speakers" }.value!!
     speakers shouldContain "<@10000000000000000>"
   }
+
+  test("PawaLite shows the same embed, and sends no link message").config(
+    timeout = kotlin.time.Duration.parse("15s")
+  ) {
+    val recorder = StandaloneAudioRecorder(1.0, mockVoiceChannel, mockMessageChannel)
+    feedAudioFrames(recorder, 30)
+
+    val (_, lock) = recorder.saveRecording(mockVoiceChannel, mockMessageChannel)
+    recorder.disconnect(lock)
+
+    val sent = mutableListOf<MessageCreateData>()
+    verify { BotUtils.sendMessage(mockMessageChannel, capture(sent)) }
+    sent.count { it.embeds.singleOrNull()?.title?.contains(recorder.session) == true } shouldBe 1
+    edits.last().embeds.single().title!! shouldContain recorder.session
+    viewRecording(edits.last().components).isDisabled shouldBe false
+    verify(exactly = 0) {
+      BotUtils.sendMessage(any(), match<String> { it.contains("has been uploaded") || it.contains("Saving") })
+    }
+  }
 })

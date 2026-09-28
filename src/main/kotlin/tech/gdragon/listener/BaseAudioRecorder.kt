@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel
+import net.dv8tion.jda.api.utils.messages.MessageEditData
 import org.apache.commons.io.FileUtils
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.koin.core.component.KoinComponent
@@ -24,6 +25,7 @@ import tech.gdragon.data.Datastore
 import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.dao.Recording
+import tech.gdragon.discord.message.RecordingReply
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.IOException
@@ -323,18 +325,41 @@ abstract class BaseAudioRecorder(
     reportFailure(channel, errorMessage)
   }
 
+  /** The recording embed that [announceSave] sent. The upload edits it with the result. */
+  private var saveReply: CompletableFuture<Message>? = null
+
   /**
-   * Tell the channel that the save started.
+   * Send the recording embed, with View Recording disabled until the upload is done.
    */
-  protected open fun announceSave(voiceChannel: AudioChannel, messageChannel: MessageChannel) {
-    BotUtils.sendMessage(messageChannel, ":floppy_disk: **Saving <#${voiceChannel.id}>'s recording...**")
+  private fun announceSave(voiceChannel: AudioChannel, messageChannel: MessageChannel) {
+    val recording = recording
+      ?: return BotUtils.sendMessage(messageChannel, ":floppy_disk: **Saving <#${voiceChannel.id}>'s recording...**")
+    val reply = RecordingReply(recording, pawa.config.appUrl, ":floppy_disk: _Saving..._", uploaded = false)
+    saveReply = BotUtils.sendMessage(messageChannel, reply.message)
   }
 
   /**
-   * Tell the channel that the save failed.
+   * Show [message] in the recording embed, or send it as text when there is no embed.
    */
-  protected open fun reportFailure(messageChannel: MessageChannel, message: String) {
-    BotUtils.sendMessage(messageChannel, message)
+  protected fun reportFailure(messageChannel: MessageChannel, message: String) {
+    val recording = recording
+    if (saveReply == null || recording == null) return BotUtils.sendMessage(messageChannel, message)
+    editReply(RecordingReply(recording, pawa.config.appUrl, message, uploaded = false))
+  }
+
+  /**
+   * Show the uploaded recording in the recording embed.
+   */
+  protected fun reportUploaded() {
+    recording?.let { editReply(RecordingReply(it, pawa.config.appUrl)) }
+  }
+
+  private fun editReply(reply: RecordingReply) {
+    saveReply?.thenAccept { message ->
+      message
+        .editMessage(MessageEditData.fromCreateData(reply.message))
+        .queue(null) { t -> logger.error { "Error editing the recording message: ${t.message}" } }
+    }
   }
 
   fun disconnect(recordingLock: Semaphore? = null) {

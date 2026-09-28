@@ -2,15 +2,11 @@ package tech.gdragon.listener
 
 import com.squareup.tape.QueueFile
 import io.github.oshai.kotlinlogging.withLoggingContext
-import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel
-import net.dv8tion.jda.api.utils.messages.MessageEditData
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import tech.gdragon.db.now
-import tech.gdragon.discord.message.RecordingReply
 import java.io.File
-import java.util.concurrent.CompletableFuture
 import kotlin.concurrent.thread
 
 /**
@@ -35,29 +31,6 @@ class SharedAudioRecorder(
   private val afkTriggered = java.util.concurrent.atomic.AtomicBoolean(false)
   private val recordingSize = java.util.concurrent.atomic.AtomicLong(0L)
   private val limitWarning = java.util.concurrent.atomic.AtomicBoolean(false)
-
-  /** The recording embed that [announceSave] sent. The upload edits it with the result. */
-  private var saveReply: CompletableFuture<Message>? = null
-
-  override fun announceSave(voiceChannel: AudioChannel, messageChannel: MessageChannel) {
-    val recording = recording ?: return super.announceSave(voiceChannel, messageChannel)
-    val reply = RecordingReply(recording, pawa.config.appUrl, ":floppy_disk: _Saving..._", uploaded = false)
-    saveReply = tech.gdragon.BotUtils.sendMessage(messageChannel, reply.message)
-  }
-
-  override fun reportFailure(messageChannel: MessageChannel, message: String) {
-    val recording = recording
-    if (saveReply == null || recording == null) return super.reportFailure(messageChannel, message)
-    editReply(RecordingReply(recording, pawa.config.appUrl, message, uploaded = false))
-  }
-
-  private fun editReply(reply: RecordingReply) {
-    saveReply?.thenAccept { message ->
-      message
-        .editMessage(MessageEditData.fromCreateData(reply.message))
-        .queue(null) { t -> logger.error { "Error editing the recording message: ${t.message}" } }
-    }
-  }
 
   override fun shouldProcessAudio(audioData: AudioData): Boolean {
     return !checkAfkStatus(audioData.userCount)
@@ -150,7 +123,7 @@ class SharedAudioRecorder(
         }
       }
 
-      recording?.let { editReply(RecordingReply(it, pawa.config.appUrl)) }
+      reportUploaded()
 
       // Cleanup local file
       if (recordingFile.delete()) {
