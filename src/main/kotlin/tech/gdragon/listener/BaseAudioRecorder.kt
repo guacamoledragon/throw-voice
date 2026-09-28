@@ -416,8 +416,10 @@ abstract class BaseAudioRecorder(
   override fun silenceUser(userId: Long) { silencedUsers.add(userId) }
 
   fun uploadAttachment(messageChannel: MessageChannel, recordingFile: File, filename: String): Message? {
+    // ponytail: waits at most 5s for the embed; after that the attachment posts without the reply
+    val embed = runCatching { saveReply?.get(5, TimeUnit.SECONDS) }.getOrNull()
     return if (recordingFile.length() < voiceChannel.guild.maxFileSize)
-      BotUtils.uploadFile(messageChannel, recordingFile, filename)
+      BotUtils.uploadFile(messageChannel, recordingFile, filename, embed)
     else null
   }
 

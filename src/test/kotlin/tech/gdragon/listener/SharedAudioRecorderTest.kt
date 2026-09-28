@@ -158,7 +158,7 @@ class SharedAudioRecorderTest : FunSpec({
     every { BotUtils.sendMessage(any(), any<String>()) } just Runs
     every { BotUtils.sendMessage(any(), any<MessageCreateData>()) } returns
       CompletableFuture.completedFuture(replyMessage)
-    every { BotUtils.uploadFile(any(), any(), any()) } returns null
+    every { BotUtils.uploadFile(any(), any(), any(), any()) } returns null
 
     mockkStatic("tech.gdragon.api.tape.UtilsKt")
     every { tech.gdragon.api.tape.addCommentToMp3(any(), any()) } just Runs
@@ -170,7 +170,7 @@ class SharedAudioRecorderTest : FunSpec({
   beforeTest { edits.clear() }
 
   afterTest {
-    every { BotUtils.uploadFile(any(), any(), any()) } returns null
+    every { BotUtils.uploadFile(any(), any(), any(), any()) } returns null
     every { mockDatastore.upload(any(), any()) } returns
       UploadResult("key", Instant.now(), 100L, "http://localhost/rec.mp3")
   }
@@ -206,7 +206,7 @@ class SharedAudioRecorderTest : FunSpec({
 
   test("saveRecording returns quickly even when upload is slow") {
     // Arrange: upload takes 3 seconds
-    every { BotUtils.uploadFile(any(), any(), any()) } answers {
+    every { BotUtils.uploadFile(any(), any(), any(), any()) } answers {
       Thread.sleep(3_000)
       null
     }
@@ -233,7 +233,7 @@ class SharedAudioRecorderTest : FunSpec({
     disconnectElapsed.shouldBeGreaterThan(500)
 
     // Restore fast mock
-    every { BotUtils.uploadFile(any(), any(), any()) } returns null
+    every { BotUtils.uploadFile(any(), any(), any(), any()) } returns null
   }
 
   // ---------------------------------------------------------------------------
@@ -244,7 +244,7 @@ class SharedAudioRecorderTest : FunSpec({
     timeout = kotlin.time.Duration.parse("15s")
   ) {
     // Arrange: upload throws a RuntimeException (simulating S3/Discord failure)
-    every { BotUtils.uploadFile(any(), any(), any()) } throws RuntimeException("upload failed")
+    every { BotUtils.uploadFile(any(), any(), any(), any()) } throws RuntimeException("upload failed")
 
     val recorder = SharedAudioRecorder(1.0, mockVoiceChannel, mockMessageChannel)
     feedAudioFrames(recorder, 30)
@@ -262,7 +262,7 @@ class SharedAudioRecorderTest : FunSpec({
     future.get(5, TimeUnit.SECONDS)
 
     // Restore mock
-    every { BotUtils.uploadFile(any(), any(), any()) } returns null
+    every { BotUtils.uploadFile(any(), any(), any(), any()) } returns null
   }
 
   // ---------------------------------------------------------------------------
@@ -303,7 +303,7 @@ class SharedAudioRecorderTest : FunSpec({
   ) {
     // Arrange: upload blocks until released, simulating a stalled network call
     val uploadGate = CountDownLatch(1)
-    every { BotUtils.uploadFile(any(), any(), any()) } answers {
+    every { BotUtils.uploadFile(any(), any(), any(), any()) } answers {
       uploadGate.await(20, TimeUnit.SECONDS) // self-frees as a safety net
       null
     }
@@ -329,14 +329,14 @@ class SharedAudioRecorderTest : FunSpec({
 
     // Release the still-blocked upload thread and restore mock
     uploadGate.countDown()
-    every { BotUtils.uploadFile(any(), any(), any()) } returns null
+    every { BotUtils.uploadFile(any(), any(), any(), any()) } returns null
   }
 
   test("falls back to datastore when Discord attachment upload throws").config(
     timeout = kotlin.time.Duration.parse("15s")
   ) {
     // Arrange: Discord rejects the attachment upload (e.g. 400001 guild upload limit)
-    every { BotUtils.uploadFile(any(), any(), any()) } throws
+    every { BotUtils.uploadFile(any(), any(), any(), any()) } throws
       RuntimeException("400001: Access to file uploads has been limited for this guild")
 
     val recorder = SharedAudioRecorder(1.0, mockVoiceChannel, mockMessageChannel)
@@ -362,7 +362,7 @@ class SharedAudioRecorderTest : FunSpec({
   test("stores the datastore URL when Discord takes the attachment").config(
     timeout = kotlin.time.Duration.parse("15s")
   ) {
-    every { BotUtils.uploadFile(any(), any(), any()) } returns discordMessage("https://cdn.discordapp.com/rec.mp3")
+    every { BotUtils.uploadFile(any(), any(), any(), any()) } returns discordMessage("https://cdn.discordapp.com/rec.mp3")
 
     val recorder = SharedAudioRecorder(1.0, mockVoiceChannel, mockMessageChannel)
     feedAudioFrames(recorder, 30)
@@ -379,7 +379,7 @@ class SharedAudioRecorderTest : FunSpec({
   test("stores the Discord URL when the datastore upload fails").config(
     timeout = kotlin.time.Duration.parse("15s")
   ) {
-    every { BotUtils.uploadFile(any(), any(), any()) } returns discordMessage("https://cdn.discordapp.com/rec.mp3")
+    every { BotUtils.uploadFile(any(), any(), any(), any()) } returns discordMessage("https://cdn.discordapp.com/rec.mp3")
     every { mockDatastore.upload(any(), any()) } throws RuntimeException("S3 is down")
 
     val recorder = SharedAudioRecorder(1.0, mockVoiceChannel, mockMessageChannel)
@@ -401,7 +401,7 @@ class SharedAudioRecorderTest : FunSpec({
     timeout = kotlin.time.Duration.parse("15s")
   ) {
     // Arrange: Discord rejects the upload AND the datastore is down (e.g. S3 outage)
-    every { BotUtils.uploadFile(any(), any(), any()) } throws
+    every { BotUtils.uploadFile(any(), any(), any(), any()) } throws
       RuntimeException("400001: Access to file uploads has been limited for this guild")
     every { mockDatastore.upload(any(), any()) } throws RuntimeException("S3 is down")
 
@@ -534,5 +534,17 @@ class SharedAudioRecorderTest : FunSpec({
     verify(exactly = 0) {
       BotUtils.sendMessage(any(), match<String> { it.contains("has been uploaded") || it.contains("Saving") })
     }
+  }
+
+  test("the Discord attachment is a reply to the recording embed").config(
+    timeout = kotlin.time.Duration.parse("15s")
+  ) {
+    val recorder = SharedAudioRecorder(1.0, mockVoiceChannel, mockMessageChannel)
+    feedAudioFrames(recorder, 30)
+
+    val (_, lock) = recorder.saveRecording(mockVoiceChannel, mockMessageChannel)
+    recorder.disconnect(lock)
+
+    verify { BotUtils.uploadFile(mockMessageChannel, any(), "${recorder.session}.mp3", replyMessage) }
   }
 })

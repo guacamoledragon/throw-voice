@@ -460,13 +460,14 @@ object BotUtils {
     }
   }
 
-  fun uploadFile(messageChannel: MessageChannel, file: File, filename: String): Message? {
+  fun uploadFile(messageChannel: MessageChannel, file: File, filename: String, replyTo: Message? = null): Message? {
     val fileUpload = FileUpload.fromStreamSupplier(filename) {
       FileInputStream(file)
     }
 
     return messageChannel
       .sendFiles(fileUpload)
+      .apply { replyTo?.let { setMessageReference(it).failOnInvalidReply(false) } }
       .complete()
   }
 
