@@ -9,7 +9,9 @@
    (net.dv8tion.jda.api.entities.channel.concrete TextChannel)
    (net.dv8tion.jda.api.sharding DefaultShardManager)
    (org.koin.java KoinJavaComponent)
+   (tech.gdragon.api.pawa Pawa)
    (tech.gdragon.discord Bot)
+   (tech.gdragon.listener AudioRecorder)
    (java.sql Connection Date DriverManager)
    (java.util Properties)))
 
@@ -222,3 +224,30 @@
   ;; 2023-12-03 11:40:10.783308-08
 
   )
+
+(defn ulid->epoch-ms
+  "Read the timestamp in the first 10 characters of a ULID"
+  [ulid]
+  (reduce (fn [ms c] (+ (* ms 32) (str/index-of "0123456789ABCDEFGHJKMNPQRSTVWXYZ" c)))
+          0
+          (subs ulid 0 10)))
+
+(defn active-recordings
+  "Active recorder for each voice-connected guild, and the size of Pawa.recordings"
+  []
+  (let [now (System/currentTimeMillis)]
+    {:pawa-recordings (count (.getRecordings ^Pawa (KoinJavaComponent/get Pawa)))
+     :active          (vec
+                        (for [^Guild guild (.getGuilds @shard-manager)
+                              :let [audio-manager (.getAudioManager guild)]
+                              :when (.isConnected audio-manager)
+                              :let [handler (.getReceivingHandler audio-manager)
+                                    session (when (instance? AudioRecorder handler)
+                                              (.getSession ^AudioRecorder handler))]]
+                          {:guild   (.getName guild)
+                           :session session
+                           :minutes (when session (quot (- now (ulid->epoch-ms session)) 60000))
+                           :members (count (.getMembers (.getConnectedChannel audio-manager)))}))}))
+
+(comment
+  (active-recordings))
