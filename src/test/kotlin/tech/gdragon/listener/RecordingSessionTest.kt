@@ -123,4 +123,26 @@ class RecordingSessionTest : FunSpec({
     maintenance("") shouldBe false
     maintenance(null) shouldBe false
   }
+
+  test("silenceUser silences the user in the active recorder of the guild") {
+    val recorder = recorder("S1")
+    val other = recorder("S2")
+    pawa.startRecording(recorder, guildId)
+    pawa.startRecording(other, otherGuildId)
+
+    pawa.silenceUser(guildId, 7L) shouldBe true
+
+    verify { recorder.silenceUser(7L) }
+    verify(exactly = 0) { other.silenceUser(any()) }
+  }
+
+  test("silenceUser returns false when the guild has no recording") {
+    val recorder = recorder("S1")
+    pawa.startRecording(recorder, guildId)
+    pawa.stopRecording("S1")
+
+    pawa.silenceUser(guildId, 7L) shouldBe false
+
+    verify(exactly = 0) { recorder.silenceUser(any()) }
+  }
 })

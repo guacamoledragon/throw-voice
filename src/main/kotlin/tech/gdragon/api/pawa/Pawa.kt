@@ -127,12 +127,20 @@ open class Pawa(val db: Database, val config: PawaConfig = PawaConfig.invoke()) 
     }
   }
 
-  fun ignoreUsers(session: String, ignoredUserIds: List<Long>) {
-    _ignoredUsers[session] = ignoredUserIds
-  }
-
   fun startRecording(recorder: AudioRecorder, guildId: Long) {
     _recorders[guildId] = recorder
+  }
+
+  /**
+   * Silence [userId] in the active recording of [guildId].
+   *
+   * Returns `false` when the guild has no active recording.
+   */
+  fun silenceUser(guildId: Long, userId: Long): Boolean {
+    val recorder = _recorders[guildId] ?: return false
+    recorder.silenceUser(userId)
+    _ignoredUsers.merge(recorder.session, listOf(userId)) { old, new -> (old + new).distinct() }
+    return true
   }
 
   fun stopRecording(session: String) {

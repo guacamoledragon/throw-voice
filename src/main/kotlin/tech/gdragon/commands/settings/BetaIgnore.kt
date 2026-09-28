@@ -8,9 +8,7 @@ import dev.minn.jda.ktx.interactions.components.getOption
 import dev.minn.jda.ktx.messages.reply_
 import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent
-import net.dv8tion.jda.api.managers.AudioManager
 import tech.gdragon.api.pawa.Pawa
-import tech.gdragon.listener.AudioRecorder
 
 object BetaIgnore {
   val command = Command("ignore", "Ignore audio from specified during User for current recording.") {
@@ -18,19 +16,12 @@ object BetaIgnore {
   }
 
   fun handler(pawa: Pawa): suspend CoroutineEventListener.(GenericCommandInteractionEvent) -> Unit = { event ->
-    val audioManager: AudioManager = event.guild!!.audioManager
+    val ignoreUser = event.getOption<User>("user")!!.idLong
 
-    if (!audioManager.isConnected) {
-      event.reply_("Not connected, shoo!").await()
-    } else {
-      val ignoreUser = event.getOption<User>("user")!!.idLong
-
-      val recorder = audioManager.receivingHandler as AudioRecorder
-
-      pawa.ignoreUsers(recorder.session, listOf(ignoreUser))
-      recorder.silenceUser(ignoreUser)
-
+    if (pawa.silenceUser(event.guild!!.idLong, ignoreUser)) {
       event.reply_("Ignoring user: <@$ignoreUser>").await()
+    } else {
+      event.reply_("Not connected, shoo!").await()
     }
   }
 }
