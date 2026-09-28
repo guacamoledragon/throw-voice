@@ -251,5 +251,13 @@
                            :minutes (when started-ms (quot (- now started-ms) 60000))
                            :members (count (.getMembers (.getConnectedChannel audio-manager)))}))}))
 
+(defn maintenance!
+  "Set maintenance mode. When `on?` is true, the bot does not start new recordings."
+  [on?]
+  (.setMaintenance ^Pawa (KoinJavaComponent/get Pawa) (boolean on?)))
+
 (comment
-  (active-recordings))
+  ;; Before a restart: stop new recordings, then wait until :active is empty
+  (maintenance! true)
+  (active-recordings)
+  (maintenance! false))

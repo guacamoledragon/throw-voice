@@ -4,7 +4,8 @@ class PawaConfig private constructor(
   val appUrl: String,
   val dataDirectory: String,
   val isStandalone: Boolean,
-  val recoverEnabled: Boolean
+  val recoverEnabled: Boolean,
+  val maintenance: Boolean
 ) {
 
   class Builder(
@@ -27,7 +28,12 @@ class PawaConfig private constructor(
     /**
      * Whether the Recover button/flow is enabled. Set via `BOT_RECOVER_ENABLED`. Defaults to `true`.
      */
-    var recoverEnabled: Boolean? = null
+    var recoverEnabled: Boolean? = null,
+
+    /**
+     * The start value of maintenance mode. Set via `BOT_MAINTENANCE`. Defaults to `false`.
+     */
+    var maintenance: Boolean = false
   )
 
   companion object {
@@ -37,7 +43,8 @@ class PawaConfig private constructor(
         appUrl = builder.appUrl.ifBlank { "discord://" },
         dataDirectory = builder.dataDirectory.ifBlank { "./" },
         isStandalone = builder.isStandalone ?: false,
-        recoverEnabled = builder.recoverEnabled ?: true
+        recoverEnabled = builder.recoverEnabled ?: true,
+        maintenance = builder.maintenance
       )
     }
   }

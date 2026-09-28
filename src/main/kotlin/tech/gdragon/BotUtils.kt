@@ -92,6 +92,9 @@ object BotUtils {
                 sendMessage(messageChannel, message)
               } catch (e: IllegalArgumentException) {
                 val errorMessage = when (e.message) {
+                  "maintenance" ->
+                    ":tools: _${translator.maintenance}_"
+
                   "no-write-permission" ->
                     "Attempted to record, but bot cannot write to any channel."
 
@@ -303,6 +306,9 @@ object BotUtils {
     channel: AudioChannel,
     messageChannel: MessageChannel
   ): AudioRecorder {
+    val pawa: Pawa = getKoin().get()
+    require(!pawa.maintenance) { "maintenance" }
+
     require(messageChannel.canTalk()) {
       updateNickname(channel.guild.selfMember, "CANNOT WRITE")
       "no-write-permission"
@@ -344,7 +350,6 @@ object BotUtils {
         ?.toDouble()
     } ?: 1.0
 
-    val pawa: Pawa = getKoin().get()
     val recorder: AudioRecorder =
       if (pawa.isStandalone) StandaloneAudioRecorder(volume, channel, messageChannel)
       else SharedAudioRecorder(volume, channel, messageChannel)

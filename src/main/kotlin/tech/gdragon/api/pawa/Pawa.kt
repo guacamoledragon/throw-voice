@@ -31,6 +31,7 @@ open class Pawa(val db: Database, val config: PawaConfig = PawaConfig.invoke()) 
           dataDirectory = getProperty("BOT_DATA_DIR", "")
           isStandalone = getBooleanProperty("BOT_STANDALONE")
           recoverEnabled = getBooleanProperty("BOT_RECOVER_ENABLED") ?: true
+          maintenance = getProperty("BOT_MAINTENANCE", "false").toBoolean()
         }
         Pawa(get(), config)
       }
@@ -39,6 +40,12 @@ open class Pawa(val db: Database, val config: PawaConfig = PawaConfig.invoke()) 
 
   val isStandalone = config.isStandalone
   val recoverEnabled = config.recoverEnabled
+
+  /**
+   * When `true`, the bot does not start new recordings. Active recordings continue until they save.
+   */
+  @Volatile
+  var maintenance = config.maintenance
   val logger = KotlinLogging.logger { }
 
   private val _ignoredUsers: MutableMap<String, List<Long>> = ConcurrentHashMap()

@@ -64,6 +64,9 @@ object Record {
             RecordingStartedReply(voiceChannel.id, recorder.session, lang, pawa.recoverEnabled).message
           } catch (e: IllegalArgumentException) {
             val errorMessage = when (e.message) {
+              "maintenance" ->
+                ":tools: _${translator.maintenance}_"
+
               "no-write-permission" ->
                 ":no_entry_sign: _Must be able to write in ${messageChannel.asMention}_"
 
