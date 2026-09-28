@@ -37,9 +37,7 @@ object Ignore {
 
     return if (isRecording) {
       (guild.audioManager.receivingHandler as? AudioRecorder)!!.let { audioRecorderHandler ->
-        // These two are redundant, eventually need to migrate the source of truth to the Pawa API class
         ignoredUserIds.forEach(audioRecorderHandler::silenceUser)
-        pawa.ignoreUsers(audioRecorderHandler.session, ignoredUserIds)
 
         val ignoredUsersMentions = ignoredUserIds.joinToString { "<@$it>" }
         ":hear_no_evil: _${translator.ignore(ignoredUsersMentions)}_"

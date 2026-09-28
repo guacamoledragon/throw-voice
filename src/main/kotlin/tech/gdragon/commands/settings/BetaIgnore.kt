@@ -27,7 +27,6 @@ object BetaIgnore {
 
       val recorder = audioManager.receivingHandler as AudioRecorder
 
-      pawa.ignoreUsers(recorder.session, listOf(ignoreUser))
       recorder.silenceUser(ignoreUser)
 
       event.reply_("Ignoring user: <@$ignoreUser>").await()
