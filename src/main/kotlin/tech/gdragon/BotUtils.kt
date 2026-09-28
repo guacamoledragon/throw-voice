@@ -186,6 +186,7 @@ object BotUtils {
         closeAudioConnection(ConnectionStatus.NOT_CONNECTED)
         logger.debug { "Destroyed audio handlers" }
       }
+      getKoin().get<Pawa>().stopRecording(recorder.session)
 
       recordingStatus(voiceChannel.guild.selfMember, false)
 

@@ -27,6 +27,7 @@ object BetaSave {
       val recorder = audioManager.receivingHandler as AudioRecorder
 
       audioManager.closeAudioConnection()
+      pawa.stopRecording(recorder.session)
       val (recording, lock) = recorder.saveRecording(voiceChannel, messageChannel)
       recorder.disconnect(save = true, recording, lock)
 
