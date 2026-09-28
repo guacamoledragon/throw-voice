@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel
+import net.dv8tion.jda.api.utils.messages.MessageEditData
 import org.apache.commons.io.FileUtils
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.koin.core.component.KoinComponent
@@ -24,6 +25,8 @@ import tech.gdragon.data.Datastore
 import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.dao.Recording
+import tech.gdragon.discord.message.RecordingReply
+import tech.gdragon.i18n.Save as SaveTranslator
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.IOException
@@ -226,6 +229,11 @@ abstract class BaseAudioRecorder(
   ): Pair<Recording?, Semaphore> {
     val saveStartMs = System.currentTimeMillis()
     logger.info { "saveRecording started: $session, duration=$duration" }
+    try {
+      announceSave(messageChannel)
+    } catch (e: Exception) {
+      logger.error(e) { "Could not announce the save: $session" }
+    }
     isRecording.set(false)
     val recordingLock = Semaphore(1, true)
     recordingLock.acquire()
@@ -306,18 +314,56 @@ abstract class BaseAudioRecorder(
   }
 
   private fun handleEmptyRecording(channel: MessageChannel) {
-    // Same for both types
-    tech.gdragon.BotUtils.sendMessage(channel, ":no_entry_sign: _Recording is empty, not uploading._")
+    reportFailure(channel, ":no_entry_sign: _${translator.empty}_")
     transaction { recordingRecord?.delete() }
   }
 
   private fun handleRecordingError(channel: MessageChannel) {
-    // Same for both types
-    val errorMessage = """
-        |:no_entry_sign: _Error creating recording, please visit support server and provide Session ID._
+    reportFailure(channel, errorMessage(translator.errorCreating))
+  }
+
+  protected val translator: SaveTranslator by lazy { pawa.translator(voiceChannel.guild.idLong) }
+
+  protected fun errorMessage(text: String): String = """
+        |:no_entry_sign: _${text}_
         |_Session ID: `$session`_
         |""".trimMargin()
-    tech.gdragon.BotUtils.sendMessage(channel, errorMessage)
+
+  /** The recording embed that [announceSave] sent. The upload edits it with the result. */
+  private var saveReply: Message? = null
+
+  /**
+   * Send the recording embed, with View Recording disabled until the upload is done.
+   */
+  private fun announceSave(messageChannel: MessageChannel) {
+    val saving = ":floppy_disk: _${translator.saving}_"
+    val recording = recording ?: return BotUtils.sendMessage(messageChannel, saving)
+    val reply = RecordingReply(recording, pawa.config.appUrl, saving, uploaded = false)
+    saveReply = messageChannel.sendMessage(reply.message).complete()
+  }
+
+  /**
+   * Show [message] in the recording embed, or send it as text when there is no embed.
+   */
+  protected fun reportFailure(messageChannel: MessageChannel, message: String) {
+    val recording = recording
+    if (saveReply == null || recording == null) return BotUtils.sendMessage(messageChannel, message)
+    editReply(RecordingReply(recording, pawa.config.appUrl, message, uploaded = false))
+  }
+
+  /**
+   * Show the uploaded recording in the recording embed.
+   */
+  protected fun reportUploaded() {
+    recording?.let { editReply(RecordingReply(it, pawa.config.appUrl)) }
+  }
+
+  private fun editReply(reply: RecordingReply) {
+    try {
+      saveReply?.editMessage(MessageEditData.fromCreateData(reply.message))?.complete()
+    } catch (e: Exception) {
+      logger.error(e) { "Error editing the recording message: $session" }
+    }
   }
 
   fun disconnect(recordingLock: Semaphore? = null) {
@@ -375,7 +421,7 @@ abstract class BaseAudioRecorder(
 
   fun uploadAttachment(messageChannel: MessageChannel, recordingFile: File, filename: String): Message? {
     return if (recordingFile.length() < voiceChannel.guild.maxFileSize)
-      BotUtils.uploadFile(messageChannel, recordingFile, filename)
+      BotUtils.uploadFile(messageChannel, recordingFile, filename, saveReply)
     else null
   }
 

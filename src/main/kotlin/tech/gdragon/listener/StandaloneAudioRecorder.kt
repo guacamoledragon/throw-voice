@@ -47,12 +47,7 @@ class StandaloneAudioRecorder(volume: Double, voiceChannel: AudioChannel, messag
 
       uploadAttachment(messageChannel, recordingFile, filename)
 
-      // Send simple message with direct file URL
-      val message = """|:microphone2: **Recording for <#${voiceChannel.id}> has been uploaded!**
-                       |`${result.url}`
-                       |""".trimMargin()
-
-      tech.gdragon.BotUtils.sendMessage(messageChannel, message)
+      reportUploaded()
 
       // Cleanup local file
       if (recordingFile.delete()) {
@@ -63,10 +58,7 @@ class StandaloneAudioRecorder(volume: Double, voiceChannel: AudioChannel, messag
 
     } catch (e: Exception) {
       logger.error(e) { "Error uploading recording: $session" }
-      val errorMessage = """|:no_entry_sign: _Error uploading recording, please visit support server and provide Session ID._
-                            |_Session ID: `$session`_
-                            |""".trimMargin()
-      tech.gdragon.BotUtils.sendMessage(messageChannel, errorMessage)
+      reportFailure(messageChannel, errorMessage(translator.errorUploading))
     }
   }
 }

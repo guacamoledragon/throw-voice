@@ -45,6 +45,7 @@ class Bot(private val token: String, private val pawa: Pawa) {
   companion object {
     val PERMISSIONS = listOf(
       Permission.MESSAGE_ATTACH_FILES,
+      Permission.MESSAGE_EMBED_LINKS,
       Permission.MESSAGE_SEND,
       Permission.NICKNAME_CHANGE,
       Permission.USE_APPLICATION_COMMANDS,

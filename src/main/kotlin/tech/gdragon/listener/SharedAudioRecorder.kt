@@ -123,19 +123,7 @@ class SharedAudioRecorder(
         }
       }
 
-      val appUrl = pawa.config.appUrl
-      val recordingUrl = if (appUrl.startsWith("discord://")) {
-        storedUrl
-      } else {
-        "$appUrl/v1/recordings?guild=${voiceChannel.guild.idLong}&session-id=$session"
-      }
-
-      val message = buildString {
-        append(":microphone2: **Recording for <#${voiceChannel.id}> has been uploaded!**\n$recordingUrl")
-        if (attachment == null) append("\n\n_Recording will only be available for 24hrs_")
-      }
-
-      tech.gdragon.BotUtils.sendMessage(messageChannel, message)
+      reportUploaded()
 
       // Cleanup local file
       if (recordingFile.delete()) {
@@ -146,10 +134,7 @@ class SharedAudioRecorder(
 
     } catch (e: Exception) {
       logger.error(e) { "Error uploading recording: $session" }
-      val errorMessage =
-        """|:no_entry_sign: _Error uploading recording, please visit support server and provide Session ID._
-                                 |_Session ID: `$session`_""".trimMargin()
-      tech.gdragon.BotUtils.sendMessage(messageChannel, errorMessage)
+      reportFailure(messageChannel, errorMessage(translator.errorUploading))
     }
   }
 }

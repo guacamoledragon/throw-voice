@@ -56,4 +56,4 @@
       (retrieve-guild-commands guild)))
 
 (comment
-  "Invite URL: https://discord.com/oauth2/authorize?client_id=338897906524225538&scope=applications.commands+bot&permissions=2251328512")
+  "Invite URL: https://discord.com/oauth2/authorize?client_id=338897906524225538&scope=applications.commands+bot&permissions=2251344896")

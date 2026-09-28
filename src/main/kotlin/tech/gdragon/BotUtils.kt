@@ -194,7 +194,6 @@ object BotUtils {
         if (save) {
           // Upload recording to the default specified channel
           val destinationChannel = defaultTextChannel(guild) ?: messageChannel
-          sendMessage(destinationChannel, ":floppy_disk: **Saving <#${voiceChannel.id}>'s recording...**")
           recorder.saveRecording(voiceChannel, destinationChannel)
         } else Pair(null, null)
 
@@ -458,13 +457,14 @@ object BotUtils {
     }
   }
 
-  fun uploadFile(messageChannel: MessageChannel, file: File, filename: String): Message? {
+  fun uploadFile(messageChannel: MessageChannel, file: File, filename: String, replyTo: Message? = null): Message? {
     val fileUpload = FileUpload.fromStreamSupplier(filename) {
       FileInputStream(file)
     }
 
     return messageChannel
       .sendFiles(fileUpload)
+      .apply { replyTo?.let { setMessageReference(it).failOnInvalidReply(false) } }
       .complete()
   }
 

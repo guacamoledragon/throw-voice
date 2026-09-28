@@ -8,12 +8,15 @@ import io.kotest.matchers.longs.shouldBeGreaterThan
 import io.kotest.matchers.longs.shouldBeLessThan
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.string.shouldContain
 import io.mockk.*
 import net.dv8tion.jda.api.audio.CombinedAudio
 import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel
+import net.dv8tion.jda.api.utils.messages.MessageCreateData
+import net.dv8tion.jda.api.utils.messages.MessageEditData
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
@@ -27,6 +30,10 @@ import tech.gdragon.data.Datastore
 import tech.gdragon.data.UploadResult
 import tech.gdragon.db.EmbeddedDatabase
 import tech.gdragon.db.dao.Recording
+import tech.gdragon.discord.message.RecordingReply
+import tech.gdragon.i18n.Babel
+import tech.gdragon.i18n.Lang
+import tech.gdragon.i18n.Save as SaveTranslator
 import java.io.File
 import java.io.IOException
 import java.time.Duration
@@ -62,6 +69,19 @@ class SharedAudioRecorderTest : FunSpec({
   lateinit var mockVoiceChannel: AudioChannel
   lateinit var mockMessageChannel: MessageChannel
   lateinit var mockDatastore: Datastore
+
+  val appUrl = "https://app.test"
+  val sent = mutableListOf<MessageCreateData>()
+  val edits = mutableListOf<MessageEditData>()
+  val replyMessage = mockk<Message>(relaxed = true) {
+    every { editMessage(any<MessageEditData>()) } answers {
+      edits += firstArg<MessageEditData>()
+      mockk(relaxed = true)
+    }
+  }
+
+  fun viewRecording(components: List<net.dv8tion.jda.api.components.MessageTopLevelComponentUnion>) =
+    components.first().asActionRow().buttons.first { it.label == "View Recording" }
 
   fun createMockCombinedAudio(userCount: Int = 1): CombinedAudio {
     val audio = mockk<CombinedAudio>()
@@ -134,16 +154,17 @@ class SharedAudioRecorderTest : FunSpec({
       )
       modules(module {
         single<Datastore> { mockDatastore }
-        single<Pawa> { Pawa(db, PawaConfig { isStandalone = false }) }
+        single<Pawa> { Pawa(db, PawaConfig { isStandalone = false; this.appUrl = appUrl }) }
       })
     }
 
     mockkObject(BotUtils)
     every { BotUtils.sendMessage(any(), any<String>()) } just Runs
-    every {
-      BotUtils.sendMessage(any(), any<net.dv8tion.jda.api.utils.messages.MessageCreateData>())
-    } just Runs
-    every { BotUtils.uploadFile(any(), any(), any()) } returns null
+    every { BotUtils.sendMessage(any(), any<MessageCreateData>()) } just Runs
+    every { mockMessageChannel.sendMessage(capture(sent)) } returns mockk(relaxed = true) {
+      every { complete() } returns replyMessage
+    }
+    every { BotUtils.uploadFile(any(), any(), any(), any()) } returns null
 
     mockkStatic("tech.gdragon.api.tape.UtilsKt")
     every { tech.gdragon.api.tape.addCommentToMp3(any(), any()) } just Runs
@@ -152,8 +173,13 @@ class SharedAudioRecorderTest : FunSpec({
 
   // Restore the shared stubs even when a test fails mid-body, so one failure
   // doesn't cascade throwing mocks into the remaining tests.
+  beforeTest {
+    sent.clear()
+    edits.clear()
+  }
+
   afterTest {
-    every { BotUtils.uploadFile(any(), any(), any()) } returns null
+    every { BotUtils.uploadFile(any(), any(), any(), any()) } returns null
     every { mockDatastore.upload(any(), any()) } returns
       UploadResult("key", Instant.now(), 100L, "http://localhost/rec.mp3")
   }
@@ -189,7 +215,7 @@ class SharedAudioRecorderTest : FunSpec({
 
   test("saveRecording returns quickly even when upload is slow") {
     // Arrange: upload takes 3 seconds
-    every { BotUtils.uploadFile(any(), any(), any()) } answers {
+    every { BotUtils.uploadFile(any(), any(), any(), any()) } answers {
       Thread.sleep(3_000)
       null
     }
@@ -216,7 +242,7 @@ class SharedAudioRecorderTest : FunSpec({
     disconnectElapsed.shouldBeGreaterThan(500)
 
     // Restore fast mock
-    every { BotUtils.uploadFile(any(), any(), any()) } returns null
+    every { BotUtils.uploadFile(any(), any(), any(), any()) } returns null
   }
 
   // ---------------------------------------------------------------------------
@@ -227,7 +253,7 @@ class SharedAudioRecorderTest : FunSpec({
     timeout = kotlin.time.Duration.parse("15s")
   ) {
     // Arrange: upload throws a RuntimeException (simulating S3/Discord failure)
-    every { BotUtils.uploadFile(any(), any(), any()) } throws RuntimeException("upload failed")
+    every { BotUtils.uploadFile(any(), any(), any(), any()) } throws RuntimeException("upload failed")
 
     val recorder = SharedAudioRecorder(1.0, mockVoiceChannel, mockMessageChannel)
     feedAudioFrames(recorder, 30)
@@ -245,7 +271,7 @@ class SharedAudioRecorderTest : FunSpec({
     future.get(5, TimeUnit.SECONDS)
 
     // Restore mock
-    every { BotUtils.uploadFile(any(), any(), any()) } returns null
+    every { BotUtils.uploadFile(any(), any(), any(), any()) } returns null
   }
 
   // ---------------------------------------------------------------------------
@@ -286,7 +312,7 @@ class SharedAudioRecorderTest : FunSpec({
   ) {
     // Arrange: upload blocks until released, simulating a stalled network call
     val uploadGate = CountDownLatch(1)
-    every { BotUtils.uploadFile(any(), any(), any()) } answers {
+    every { BotUtils.uploadFile(any(), any(), any(), any()) } answers {
       uploadGate.await(20, TimeUnit.SECONDS) // self-frees as a safety net
       null
     }
@@ -312,14 +338,14 @@ class SharedAudioRecorderTest : FunSpec({
 
     // Release the still-blocked upload thread and restore mock
     uploadGate.countDown()
-    every { BotUtils.uploadFile(any(), any(), any()) } returns null
+    every { BotUtils.uploadFile(any(), any(), any(), any()) } returns null
   }
 
   test("falls back to datastore when Discord attachment upload throws").config(
     timeout = kotlin.time.Duration.parse("15s")
   ) {
     // Arrange: Discord rejects the attachment upload (e.g. 400001 guild upload limit)
-    every { BotUtils.uploadFile(any(), any(), any()) } throws
+    every { BotUtils.uploadFile(any(), any(), any(), any()) } throws
       RuntimeException("400001: Access to file uploads has been limited for this guild")
 
     val recorder = SharedAudioRecorder(1.0, mockVoiceChannel, mockMessageChannel)
@@ -345,7 +371,7 @@ class SharedAudioRecorderTest : FunSpec({
   test("stores the datastore URL when Discord takes the attachment").config(
     timeout = kotlin.time.Duration.parse("15s")
   ) {
-    every { BotUtils.uploadFile(any(), any(), any()) } returns discordMessage("https://cdn.discordapp.com/rec.mp3")
+    every { BotUtils.uploadFile(any(), any(), any(), any()) } returns discordMessage("https://cdn.discordapp.com/rec.mp3")
 
     val recorder = SharedAudioRecorder(1.0, mockVoiceChannel, mockMessageChannel)
     feedAudioFrames(recorder, 30)
@@ -359,29 +385,10 @@ class SharedAudioRecorderTest : FunSpec({
     }
   }
 
-  test("links the datastore URL in the channel message when Discord takes the attachment").config(
-    timeout = kotlin.time.Duration.parse("15s")
-  ) {
-    every { BotUtils.uploadFile(any(), any(), any()) } returns discordMessage("https://cdn.discordapp.com/rec.mp3")
-    every { mockDatastore.upload(any(), any()) } answers {
-      UploadResult("key", Instant.now(), 100L, "http://localhost/${firstArg<String>()}")
-    }
-
-    val recorder = SharedAudioRecorder(1.0, mockVoiceChannel, mockMessageChannel)
-    feedAudioFrames(recorder, 30)
-
-    val (_, lock) = recorder.saveRecording(mockVoiceChannel, mockMessageChannel)
-    recorder.disconnect(lock)
-
-    verify {
-      BotUtils.sendMessage(any(), match<String> { it.endsWith("http://localhost/$guildId/${recorder.session}.mp3") })
-    }
-  }
-
   test("stores the Discord URL when the datastore upload fails").config(
     timeout = kotlin.time.Duration.parse("15s")
   ) {
-    every { BotUtils.uploadFile(any(), any(), any()) } returns discordMessage("https://cdn.discordapp.com/rec.mp3")
+    every { BotUtils.uploadFile(any(), any(), any(), any()) } returns discordMessage("https://cdn.discordapp.com/rec.mp3")
     every { mockDatastore.upload(any(), any()) } throws RuntimeException("S3 is down")
 
     val recorder = SharedAudioRecorder(1.0, mockVoiceChannel, mockMessageChannel)
@@ -403,7 +410,7 @@ class SharedAudioRecorderTest : FunSpec({
     timeout = kotlin.time.Duration.parse("15s")
   ) {
     // Arrange: Discord rejects the upload AND the datastore is down (e.g. S3 outage)
-    every { BotUtils.uploadFile(any(), any(), any()) } throws
+    every { BotUtils.uploadFile(any(), any(), any(), any()) } throws
       RuntimeException("400001: Access to file uploads has been limited for this guild")
     every { mockDatastore.upload(any(), any()) } throws RuntimeException("S3 is down")
 
@@ -413,8 +420,10 @@ class SharedAudioRecorderTest : FunSpec({
     val (_, lock) = recorder.saveRecording(mockVoiceChannel, mockMessageChannel)
     recorder.disconnect(lock)
 
-    // Assert: today's behavior — error message with the session ID, file kept for /recover
-    verify {
+    // Assert: the embed shows the error, and the file stays for /recover
+    edits.last().embeds.single().description shouldContain "Error uploading recording"
+    viewRecording(edits.last().components).isDisabled shouldBe true
+    verify(exactly = 0) {
       BotUtils.sendMessage(any(), match<String> { it.contains("Error uploading recording") })
     }
     File(tempDir, "recordings/${recorder.session}.mp3").exists() shouldBe true
@@ -451,5 +460,97 @@ class SharedAudioRecorderTest : FunSpec({
         tech.gdragon.api.tape.queueFileIntoMp3(any<com.squareup.tape.QueueFile>(), any())
       } answers { callOriginal() }
     }
+  }
+
+  test("posts the recording embed when the save starts, with View Recording disabled").config(
+    timeout = kotlin.time.Duration.parse("15s")
+  ) {
+    val recorder = SharedAudioRecorder(1.0, mockVoiceChannel, mockMessageChannel)
+    feedAudioFrames(recorder, 30)
+
+    val (_, lock) = recorder.saveRecording(mockVoiceChannel, mockMessageChannel)
+    recorder.disconnect(lock)
+
+    val embeds = sent.filter { it.embeds.singleOrNull()?.title?.contains(recorder.session) == true }
+    embeds.size shouldBe 1
+    embeds.single().embeds.single().description shouldBe ":floppy_disk: _${Babel.commandTranslator<SaveTranslator>(Lang.EN).saving}_"
+    viewRecording(embeds.single().components).isDisabled shouldBe true
+  }
+
+  test("edits the embed when the upload is done, and sends no link message").config(
+    timeout = kotlin.time.Duration.parse("15s")
+  ) {
+    val recorder = SharedAudioRecorder(1.0, mockVoiceChannel, mockMessageChannel)
+    feedAudioFrames(recorder, 30)
+
+    val (_, lock) = recorder.saveRecording(mockVoiceChannel, mockMessageChannel)
+    recorder.disconnect(lock)
+
+    val edited = edits.last()
+    edited.embeds.single().title!! shouldContain recorder.session
+    viewRecording(edited.components).isDisabled shouldBe false
+    viewRecording(edited.components).url shouldBe "$appUrl/v1/recordings?guild=$guildId&session-id=${recorder.session}"
+    verify(exactly = 0) {
+      BotUtils.sendMessage(any(), match<String> { it.contains("has been uploaded") })
+    }
+  }
+
+  test("RecordingReply shows the stored URL only when APP_URL is discord://").config(
+    timeout = kotlin.time.Duration.parse("15s")
+  ) {
+    val recorder = SharedAudioRecorder(1.0, mockVoiceChannel, mockMessageChannel)
+    feedAudioFrames(recorder, 30)
+    val (recording, lock) = recorder.saveRecording(mockVoiceChannel, mockMessageChannel)
+    recorder.disconnect(lock)
+
+    fun location(appBaseUrl: String) =
+      RecordingReply(recording!!, appBaseUrl).embed.fields.firstOrNull { it.name == "Recording Location" }?.value
+
+    location("discord://") shouldBe "http://localhost/rec.mp3"
+    location(appUrl) shouldBe null
+  }
+
+  test("RecordingReply builds when the recording has many speakers").config(
+    timeout = kotlin.time.Duration.parse("15s")
+  ) {
+    val recorder = SharedAudioRecorder(1.0, mockVoiceChannel, mockMessageChannel)
+    repeat(100) { i ->
+      recorder.recording!!.speakers += mockk<User> { every { asMention } returns "<@${10_000_000_000_000_000L + i}>" }
+    }
+
+    val (_, lock) = recorder.saveRecording(mockVoiceChannel, mockMessageChannel)
+    recorder.disconnect(lock)
+
+    val speakers = RecordingReply(recorder.recording!!, "http://localhost").embed.fields.first { it.name == "Speakers" }.value!!
+    speakers shouldContain "<@10000000000000000>"
+  }
+
+  test("PawaLite shows the same embed, and sends no link message").config(
+    timeout = kotlin.time.Duration.parse("15s")
+  ) {
+    val recorder = StandaloneAudioRecorder(1.0, mockVoiceChannel, mockMessageChannel)
+    feedAudioFrames(recorder, 30)
+
+    val (_, lock) = recorder.saveRecording(mockVoiceChannel, mockMessageChannel)
+    recorder.disconnect(lock)
+
+    sent.count { it.embeds.singleOrNull()?.title?.contains(recorder.session) == true } shouldBe 1
+    edits.last().embeds.single().title!! shouldContain recorder.session
+    viewRecording(edits.last().components).isDisabled shouldBe false
+    verify(exactly = 0) {
+      BotUtils.sendMessage(any(), match<String> { it.contains("has been uploaded") || it.contains("Saving") })
+    }
+  }
+
+  test("the Discord attachment is a reply to the recording embed").config(
+    timeout = kotlin.time.Duration.parse("15s")
+  ) {
+    val recorder = SharedAudioRecorder(1.0, mockVoiceChannel, mockMessageChannel)
+    feedAudioFrames(recorder, 30)
+
+    val (_, lock) = recorder.saveRecording(mockVoiceChannel, mockMessageChannel)
+    recorder.disconnect(lock)
+
+    verify { BotUtils.uploadFile(mockMessageChannel, any(), "${recorder.session}.mp3", replyMessage) }
   }
 })

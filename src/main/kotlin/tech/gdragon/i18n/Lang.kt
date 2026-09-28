@@ -195,6 +195,10 @@ class Save(lang: Lang) {
   val notRecording: String = resource.getString("save.not_recording")
   val channelNotFound: (String) -> String = { channel -> resource.getString("save.channel_not_found").format(channel) }
   val description: String = resource.getString("save.description")
+  val saving: String = resource.getString("save.saving")
+  val empty: String = resource.getString("save.empty")
+  val errorCreating: String = resource.getString("save.error_creating")
+  val errorUploading: String = resource.getString("save.error_uploading")
 }
 
 class SaveLocation(lang: Lang) {
