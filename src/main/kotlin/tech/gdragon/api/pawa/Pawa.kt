@@ -41,6 +41,7 @@ open class Pawa(val db: Database, val config: PawaConfig = PawaConfig.invoke()) 
   val recoverEnabled = config.recoverEnabled
   val logger = KotlinLogging.logger { }
 
+  private val _ignoredUsers: MutableMap<String, List<Long>> = ConcurrentHashMap()
   private val _recordings: MutableMap<String, Long> = ConcurrentHashMap()
 
   val recordings: Map<String, Long>
@@ -116,12 +117,17 @@ open class Pawa(val db: Database, val config: PawaConfig = PawaConfig.invoke()) 
     }
   }
 
+  fun ignoreUsers(session: String, ignoredUserIds: List<Long>) {
+    _ignoredUsers[session] = ignoredUserIds
+  }
+
   fun startRecording(session: String, guildId: Long) {
     _recordings[session] = guildId
   }
 
   fun stopRecording(session: String) {
     _recordings -= session
+    _ignoredUsers -= session
   }
 
   fun stopRecordings(guildId: Long) {
