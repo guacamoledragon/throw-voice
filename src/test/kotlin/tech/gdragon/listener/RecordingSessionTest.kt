@@ -4,8 +4,12 @@ import io.kotest.core.annotation.Isolate
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.maps.shouldContainExactly
 import io.kotest.matchers.maps.shouldBeEmpty
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.spyk
+import io.mockk.verify
 import net.dv8tion.jda.api.audio.AudioReceiveHandler
 import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel
@@ -14,9 +18,13 @@ import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent
 import net.dv8tion.jda.internal.managers.AudioManagerImpl
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
+import org.koin.dsl.koinApplication
 import org.koin.dsl.module
 import tech.gdragon.BotUtils
 import tech.gdragon.api.pawa.Pawa
+import tech.gdragon.commands.audio.Record
+import tech.gdragon.db.Database
+import tech.gdragon.i18n.Lang
 
 @Isolate
 class RecordingSessionTest : FunSpec({
@@ -79,5 +87,36 @@ class RecordingSessionTest : FunSpec({
     EventListener(pawa).onGuildLeave(event)
 
     pawa.recordings.shouldContainExactly(mapOf("S2" to otherGuildId))
+  }
+
+  test("maintenance mode stops a new recording and tells the user") {
+    pawa = spyk(pawa) {
+      every { language(any()) } returns Lang.EN
+    }
+    pawa.maintenance = true
+    val audioManager = mockk<AudioManagerImpl>(relaxed = true)
+    val guild = guild()
+    every { guild.audioManager } returns audioManager
+    val voiceChannel = mockk<AudioChannel>(relaxed = true) {
+      every { this@mockk.guild } returns guild
+    }
+
+    val message = Record.handler(pawa, guild, voiceChannel, mockk(relaxed = true))
+
+    message.content shouldContain "maintenance"
+    verify(exactly = 0) { audioManager.openAudioConnection(any()) }
+    pawa.recordings.shouldBeEmpty()
+  }
+
+  test("BOT_MAINTENANCE sets the start value of maintenance mode") {
+    fun maintenance(value: String?) = koinApplication {
+      val required = mapOf("BOT_STANDALONE" to "false", "BOT_RECOVER_ENABLED" to "true")
+      properties(required + listOfNotNull(value?.let { "BOT_MAINTENANCE" to it }))
+      modules(module { single<Database> { mockk() } }, Pawa.module())
+    }.koin.get<Pawa>().maintenance
+
+    maintenance("true") shouldBe true
+    maintenance("") shouldBe false
+    maintenance(null) shouldBe false
   }
 })

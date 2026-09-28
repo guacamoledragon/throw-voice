@@ -10,6 +10,7 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 - `BOT_RECORDER_TYPE` environment variable to toggle between `LEGACY` (RxJava) and `QUEUE` (BlockingQueue) audio recorder implementations at startup
 - `AudioRecorder` interface to abstract both recorder implementations
 - Tests for both recorder implementations proving deadlock bugs in LEGACY and resilience in QUEUE
+- Maintenance mode. When it is on, `/record` and autorecord do not start a recording and tell the user. Active recordings continue until they save. `BOT_MAINTENANCE` sets the start value. `(repl/maintenance! true)` sets it while the bot runs.
 
 ### Changed
 - The bot asks for the **Embed Links** permission. The invite link on the site and the `Invite URL:` log line include it. Guilds that added the bot before this change must give the permission themselves.
