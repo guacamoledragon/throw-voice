@@ -26,9 +26,7 @@ object Stop {
         audioChannel.asGuildMessageChannel()
       }
 
-      val recorder = BotUtils.leaveVoiceChannel(audioChannel, guildChannel, save)
-
-      pawa.stopRecording(recorder.session)
+      BotUtils.leaveVoiceChannel(audioChannel, guildChannel, save)
       ":wave: _${translator.leaveChannel(audioChannel.id)}._"
     } else {
       ":no_entry_sign: _${translator.noChannel}_"
