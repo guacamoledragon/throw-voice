@@ -137,6 +137,7 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
 
   override fun onGuildLeave(event: GuildLeaveEvent) {
     withLoggingContext("guild" to event.guild.name) {
+      pawa.stopRecordings(event.guild.idLong)
       asyncTransaction {
         Guild
           .findById(event.guild.idLong)
@@ -177,7 +178,9 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
         logger.debug {
           "${event.guild.name}#${voiceChannel.name} - ${event.member.effectiveName} left voice channel"
         }
-        if (BotUtils.isSelfBot(event.member.user).not()) {
+        if (BotUtils.isSelfBot(event.member.user)) {
+          pawa.stopRecordings(event.guild.idLong)
+        } else {
           val save = pawa.autoSave(event.guild.idLong)
           BotUtils.autoStop(event.guild, voiceChannel, save)
         }

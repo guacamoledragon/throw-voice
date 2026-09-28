@@ -129,6 +129,10 @@ open class Pawa(val db: Database, val config: PawaConfig = PawaConfig.invoke()) 
     _ignoredUsers -= session
   }
 
+  fun stopRecordings(guildId: Long) {
+    _recordings.filterValues { it == guildId }.keys.forEach(::stopRecording)
+  }
+
   /**
    * Set the recording volume for a given [guildId], and return the set value 0.0 otherwise.
    * [volumePercent] will be clamped between 0.0 and 1.0.
