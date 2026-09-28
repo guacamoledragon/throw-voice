@@ -81,6 +81,11 @@ recover-queue id:
   scp pawa.im:/opt/pawa/data/recordings/{{ id }}.queue .
   java -jar ($env.PWD + "/../pawalite/pawa-recovery-tool.jar") {{ id }}.queue
 
+deploy-test ref=`git branch --show-current`:
+  curl -f -X PATCH -H "Authorization: Bearer $COOLIFY_API_KEY" -H 'Content-Type: application/json' \
+    -d '{"key":"PAWA_REF","value":"{{ ref }}"}' https://lab.rmnhb.com/api/v1/services/xmxfo2ye3adyvhnaty21xxfw/envs
+  curl -f -X POST -H "Authorization: Bearer $COOLIFY_API_KEY" 'https://lab.rmnhb.com/api/v1/deploy?uuid=xmxfo2ye3adyvhnaty21xxfw'
+
 # Expose Clojure REPL
 repl-port-forward:
   ssh -L 7888:localhost:7888 -N -T pawa.im
