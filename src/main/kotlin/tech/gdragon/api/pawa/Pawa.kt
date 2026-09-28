@@ -126,6 +126,7 @@ open class Pawa(val db: Database, val config: PawaConfig = PawaConfig.invoke()) 
 
   fun stopRecording(session: String) {
     _recordings -= session
+    _ignoredUsers -= session
   }
 
   /**
