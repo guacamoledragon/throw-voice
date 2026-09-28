@@ -51,7 +51,6 @@ import java.io.FileInputStream
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
-import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
 import net.dv8tion.jda.api.entities.Guild as DiscordGuild
 import tech.gdragon.i18n.Record as RecordTranslator
@@ -411,20 +410,18 @@ object BotUtils {
    * General message sending utility with error logging for MessageCreateData
    */
   @WithSpan("Send Message Data")
-  fun sendMessage(textChannel: MessageChannel?, message: MessageCreateData): CompletableFuture<Message>? {
-    return try {
+  fun sendMessage(textChannel: MessageChannel?, message: MessageCreateData) {
+    try {
       textChannel
         ?.sendMessage(message)
-        ?.submit()
-        ?.whenComplete { m, t ->
-          if (t == null) logger.debug { "Send message - ${m.contentDisplay}" }
-          else logger.error { "Error sending message: ${t.message}" }
-        }
+        ?.queue(
+          { m -> logger.debug { "Send message - ${m.contentDisplay}" } },
+          { t -> logger.error { "Error sending message: ${t.message}" } }
+        )
     } catch (e: InsufficientPermissionException) {
       logger.warn(e) {
         "Missing permission ${e.permission}"
       }
-      null
     }
   }
 

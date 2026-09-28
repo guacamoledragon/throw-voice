@@ -58,10 +58,7 @@ class StandaloneAudioRecorder(volume: Double, voiceChannel: AudioChannel, messag
 
     } catch (e: Exception) {
       logger.error(e) { "Error uploading recording: $session" }
-      val errorMessage = """|:no_entry_sign: _Error uploading recording, please visit support server and provide Session ID._
-                            |_Session ID: `$session`_
-                            |""".trimMargin()
-      reportFailure(messageChannel, errorMessage)
+      reportFailure(messageChannel, errorMessage(translator.errorUploading))
     }
   }
 }

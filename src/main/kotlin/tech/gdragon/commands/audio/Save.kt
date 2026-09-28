@@ -50,8 +50,8 @@ object Save {
       if (message != null) {
         BotUtils.reply(event, MessageCreate(message))
       } else {
-        // The recorder sends the recording embed, and edits it when the upload is done
-        BotUtils.reply(event, MessageCreate(":floppy_disk: _Saving the recording..._"))
+        val translator: SaveTranslator = pawa.translator(it.idLong)
+        BotUtils.reply(event, MessageCreate(":floppy_disk: _${translator.saving}_"))
       }
     }
   }

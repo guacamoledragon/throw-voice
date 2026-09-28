@@ -21,7 +21,6 @@ class RecordingReply(
   private val sessionId = recording.id.value
   private val createdOn = formatShortDateTime(recording.createdOn)
   private val expiresOn = formatRelativeTime(recording.createdOn.plus(Duration.ofDays(1L)))
-  // An embed field value is at most 1024 characters, and a mention is at most 23
   private val speakers = recording.speakers.joinToString(limit = 40) { it.asMention }.ifBlank { "N/A" }
   private val duration = recording.duration.let {
     if (it.isZero) {

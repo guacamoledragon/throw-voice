@@ -26,6 +26,7 @@ import tech.gdragon.db.dao.Channel
 import tech.gdragon.db.dao.Guild
 import tech.gdragon.db.dao.Recording
 import tech.gdragon.discord.message.RecordingReply
+import tech.gdragon.i18n.Save as SaveTranslator
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.IOException
@@ -229,7 +230,7 @@ abstract class BaseAudioRecorder(
     val saveStartMs = System.currentTimeMillis()
     logger.info { "saveRecording started: $session, duration=$duration" }
     try {
-      announceSave(voiceChannel, messageChannel)
+      announceSave(messageChannel)
     } catch (e: Exception) {
       logger.error(e) { "Could not announce the save: $session" }
     }
@@ -313,29 +314,32 @@ abstract class BaseAudioRecorder(
   }
 
   private fun handleEmptyRecording(channel: MessageChannel) {
-    reportFailure(channel, ":no_entry_sign: _Recording is empty, not uploading._")
+    reportFailure(channel, ":no_entry_sign: _${translator.empty}_")
     transaction { recordingRecord?.delete() }
   }
 
   private fun handleRecordingError(channel: MessageChannel) {
-    val errorMessage = """
-        |:no_entry_sign: _Error creating recording, please visit support server and provide Session ID._
-        |_Session ID: `$session`_
-        |""".trimMargin()
-    reportFailure(channel, errorMessage)
+    reportFailure(channel, errorMessage(translator.errorCreating))
   }
 
+  protected val translator: SaveTranslator by lazy { pawa.translator(voiceChannel.guild.idLong) }
+
+  protected fun errorMessage(text: String): String = """
+        |:no_entry_sign: _${text}_
+        |_Session ID: `$session`_
+        |""".trimMargin()
+
   /** The recording embed that [announceSave] sent. The upload edits it with the result. */
-  private var saveReply: CompletableFuture<Message>? = null
+  private var saveReply: Message? = null
 
   /**
    * Send the recording embed, with View Recording disabled until the upload is done.
    */
-  private fun announceSave(voiceChannel: AudioChannel, messageChannel: MessageChannel) {
-    val recording = recording
-      ?: return BotUtils.sendMessage(messageChannel, ":floppy_disk: **Saving <#${voiceChannel.id}>'s recording...**")
-    val reply = RecordingReply(recording, pawa.config.appUrl, ":floppy_disk: _Saving..._", uploaded = false)
-    saveReply = BotUtils.sendMessage(messageChannel, reply.message)
+  private fun announceSave(messageChannel: MessageChannel) {
+    val saving = ":floppy_disk: _${translator.saving}_"
+    val recording = recording ?: return BotUtils.sendMessage(messageChannel, saving)
+    val reply = RecordingReply(recording, pawa.config.appUrl, saving, uploaded = false)
+    saveReply = messageChannel.sendMessage(reply.message).complete()
   }
 
   /**
@@ -355,10 +359,10 @@ abstract class BaseAudioRecorder(
   }
 
   private fun editReply(reply: RecordingReply) {
-    saveReply?.thenAccept { message ->
-      message
-        .editMessage(MessageEditData.fromCreateData(reply.message))
-        .queue(null) { t -> logger.error { "Error editing the recording message: ${t.message}" } }
+    try {
+      saveReply?.editMessage(MessageEditData.fromCreateData(reply.message))?.complete()
+    } catch (e: Exception) {
+      logger.error(e) { "Error editing the recording message: $session" }
     }
   }
 
@@ -416,10 +420,8 @@ abstract class BaseAudioRecorder(
   override fun silenceUser(userId: Long) { silencedUsers.add(userId) }
 
   fun uploadAttachment(messageChannel: MessageChannel, recordingFile: File, filename: String): Message? {
-    // ponytail: waits at most 5s for the embed; after that the attachment posts without the reply
-    val embed = runCatching { saveReply?.get(5, TimeUnit.SECONDS) }.getOrNull()
     return if (recordingFile.length() < voiceChannel.guild.maxFileSize)
-      BotUtils.uploadFile(messageChannel, recordingFile, filename, embed)
+      BotUtils.uploadFile(messageChannel, recordingFile, filename, saveReply)
     else null
   }
 

@@ -31,6 +31,9 @@ import tech.gdragon.data.UploadResult
 import tech.gdragon.db.EmbeddedDatabase
 import tech.gdragon.db.dao.Recording
 import tech.gdragon.discord.message.RecordingReply
+import tech.gdragon.i18n.Babel
+import tech.gdragon.i18n.Lang
+import tech.gdragon.i18n.Save as SaveTranslator
 import java.io.File
 import java.io.IOException
 import java.time.Duration
@@ -68,6 +71,7 @@ class SharedAudioRecorderTest : FunSpec({
   lateinit var mockDatastore: Datastore
 
   val appUrl = "https://app.test"
+  val sent = mutableListOf<MessageCreateData>()
   val edits = mutableListOf<MessageEditData>()
   val replyMessage = mockk<Message>(relaxed = true) {
     every { editMessage(any<MessageEditData>()) } answers {
@@ -156,8 +160,10 @@ class SharedAudioRecorderTest : FunSpec({
 
     mockkObject(BotUtils)
     every { BotUtils.sendMessage(any(), any<String>()) } just Runs
-    every { BotUtils.sendMessage(any(), any<MessageCreateData>()) } returns
-      CompletableFuture.completedFuture(replyMessage)
+    every { BotUtils.sendMessage(any(), any<MessageCreateData>()) } just Runs
+    every { mockMessageChannel.sendMessage(capture(sent)) } returns mockk(relaxed = true) {
+      every { complete() } returns replyMessage
+    }
     every { BotUtils.uploadFile(any(), any(), any(), any()) } returns null
 
     mockkStatic("tech.gdragon.api.tape.UtilsKt")
@@ -167,7 +173,10 @@ class SharedAudioRecorderTest : FunSpec({
 
   // Restore the shared stubs even when a test fails mid-body, so one failure
   // doesn't cascade throwing mocks into the remaining tests.
-  beforeTest { edits.clear() }
+  beforeTest {
+    sent.clear()
+    edits.clear()
+  }
 
   afterTest {
     every { BotUtils.uploadFile(any(), any(), any(), any()) } returns null
@@ -462,10 +471,9 @@ class SharedAudioRecorderTest : FunSpec({
     val (_, lock) = recorder.saveRecording(mockVoiceChannel, mockMessageChannel)
     recorder.disconnect(lock)
 
-    val sent = mutableListOf<MessageCreateData>()
-    verify { BotUtils.sendMessage(mockMessageChannel, capture(sent)) }
     val embeds = sent.filter { it.embeds.singleOrNull()?.title?.contains(recorder.session) == true }
     embeds.size shouldBe 1
+    embeds.single().embeds.single().description shouldBe ":floppy_disk: _${Babel.commandTranslator<SaveTranslator>(Lang.EN).saving}_"
     viewRecording(embeds.single().components).isDisabled shouldBe true
   }
 
@@ -526,8 +534,6 @@ class SharedAudioRecorderTest : FunSpec({
     val (_, lock) = recorder.saveRecording(mockVoiceChannel, mockMessageChannel)
     recorder.disconnect(lock)
 
-    val sent = mutableListOf<MessageCreateData>()
-    verify { BotUtils.sendMessage(mockMessageChannel, capture(sent)) }
     sent.count { it.embeds.singleOrNull()?.title?.contains(recorder.session) == true } shouldBe 1
     edits.last().embeds.single().title!! shouldContain recorder.session
     viewRecording(edits.last().components).isDisabled shouldBe false
