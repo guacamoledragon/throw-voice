@@ -82,11 +82,11 @@ event with `message`, `log.level`, `log.logger`, `session-id`, `guild`,
 - Recording Upload Failures board: https://ui.honeycomb.io/gdragon-d9/environments/prod/board/wPrXbD6xGwN
 
 **Production host** (`pawa.im`, SSH). The bot container is `pawa_bot_1`
-(distroless — no shell inside); Postgres is `pawa_database_1`.
+(distroless — no shell inside); Postgres is `pawa-database-1`.
 - Live logs: `ssh pawa.im 'cd /opt/pawa && docker compose logs -n 200 bot'`
   or `ssh pawa.im 'tail -n 200 /opt/pawa/logs/app.json'`
 - DB (read-only, SELECT/`\d` only):
-  `ssh pawa.im 'set -a; . /opt/pawa/.env; docker exec -i pawa_database_1 psql -U "$DB_USER" -d "$DB_NAME"' <<'SQL' … SQL`
+  `ssh pawa.im 'set -a; . /opt/pawa/.env; docker exec -i pawa-database-1 psql -U "$DB_USER" -d "$DB_NAME"' <<'SQL' … SQL`
 - Crash dumps (host): `/opt/pawa/data/dumps/` (= `/app/data/dumps` in container).
 - Recordings on disk (host): `/opt/pawa/data/recordings/` (= `/app/data/recordings`).
 
