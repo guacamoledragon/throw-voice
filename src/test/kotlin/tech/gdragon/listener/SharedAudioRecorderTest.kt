@@ -8,6 +8,7 @@ import io.kotest.matchers.longs.shouldBeGreaterThan
 import io.kotest.matchers.longs.shouldBeLessThan
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.string.shouldContain
 import io.mockk.*
 import net.dv8tion.jda.api.audio.CombinedAudio
 import net.dv8tion.jda.api.entities.Message
@@ -27,6 +28,7 @@ import tech.gdragon.data.Datastore
 import tech.gdragon.data.UploadResult
 import tech.gdragon.db.EmbeddedDatabase
 import tech.gdragon.db.dao.Recording
+import tech.gdragon.discord.message.RecordingReply
 import java.io.File
 import java.io.IOException
 import java.time.Duration
@@ -451,5 +453,20 @@ class SharedAudioRecorderTest : FunSpec({
         tech.gdragon.api.tape.queueFileIntoMp3(any<com.squareup.tape.QueueFile>(), any())
       } answers { callOriginal() }
     }
+  }
+
+  test("RecordingReply builds when the recording has many speakers").config(
+    timeout = kotlin.time.Duration.parse("15s")
+  ) {
+    val recorder = SharedAudioRecorder(1.0, mockVoiceChannel, mockMessageChannel)
+    repeat(100) { i ->
+      recorder.recording!!.speakers += mockk<User> { every { asMention } returns "<@${10_000_000_000_000_000L + i}>" }
+    }
+
+    val (_, lock) = recorder.saveRecording(mockVoiceChannel, mockMessageChannel)
+    recorder.disconnect(lock)
+
+    val speakers = RecordingReply(recorder.recording!!, "http://localhost").embed.fields.first { it.name == "Speakers" }.value!!
+    speakers shouldContain "<@10000000000000000>"
   }
 })
