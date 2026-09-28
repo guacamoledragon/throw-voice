@@ -167,6 +167,7 @@ class Record(lang: Lang) {
   }
 
   val joinChannel: String = resource.getString("record.join_channel")
+  val maintenance: String = resource.getString("record.maintenance")
 
   fun cannotUpload(channelId: String, permission: String): String {
     val permission = permission.replace('_', ' ')

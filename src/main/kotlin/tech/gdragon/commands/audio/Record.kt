@@ -65,7 +65,7 @@ object Record {
           } catch (e: IllegalArgumentException) {
             val errorMessage = when (e.message) {
               "maintenance" ->
-                ":tools: _Pawa is in maintenance and cannot start a recording. Try again in a few minutes._"
+                ":tools: _${translator.maintenance}_"
 
               "no-write-permission" ->
                 ":no_entry_sign: _Must be able to write in ${messageChannel.asMention}_"

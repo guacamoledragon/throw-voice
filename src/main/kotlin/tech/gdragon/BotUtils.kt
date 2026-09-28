@@ -93,7 +93,7 @@ object BotUtils {
               } catch (e: IllegalArgumentException) {
                 val errorMessage = when (e.message) {
                   "maintenance" ->
-                    ":tools: _Pawa is in maintenance and cannot start a recording. Try again in a few minutes._"
+                    ":tools: _${translator.maintenance}_"
 
                   "no-write-permission" ->
                     "Attempted to record, but bot cannot write to any channel."

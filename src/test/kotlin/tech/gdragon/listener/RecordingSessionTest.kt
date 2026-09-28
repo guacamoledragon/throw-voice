@@ -5,7 +5,6 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.maps.shouldContainExactly
 import io.kotest.matchers.maps.shouldBeEmpty
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.string.shouldContain
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.spyk
@@ -24,7 +23,9 @@ import tech.gdragon.BotUtils
 import tech.gdragon.api.pawa.Pawa
 import tech.gdragon.commands.audio.Record
 import tech.gdragon.db.Database
+import tech.gdragon.i18n.Babel
 import tech.gdragon.i18n.Lang
+import tech.gdragon.i18n.Record as RecordTranslator
 
 @Isolate
 class RecordingSessionTest : FunSpec({
@@ -103,7 +104,7 @@ class RecordingSessionTest : FunSpec({
 
     val message = Record.handler(pawa, guild, voiceChannel, mockk(relaxed = true))
 
-    message.content shouldContain "maintenance"
+    message.content shouldBe ":tools: _${Babel.commandTranslator<RecordTranslator>(Lang.EN).maintenance}_"
     verify(exactly = 0) { audioManager.openAudioConnection(any()) }
     pawa.recordings.shouldBeEmpty()
   }
