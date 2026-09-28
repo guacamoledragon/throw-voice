@@ -14,8 +14,6 @@ services:
           cpus: '2'
           memory: 6G
     environment:
-      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
       - APP_URL=${APP_URL}
       - BOT_ACTIVITY=${BOT_ACTIVITY}
       - BOT_DATA_DIR=${BOT_DATA_DIR}
@@ -39,8 +37,6 @@ services:
       - DS_HOST=${DS_HOST}
       - DS_REGION=${DS_REGION}
       - DS_SECRET_KEY=${DS_SECRET_KEY}
-      - OVERRIDE_FILE=${OVERRIDE_FILE}
-      - TRACING_API_KEY=${TRACING_API_KEY}
       - TZ=${TZ}
       - JAVA_TOOL_OPTIONS=-Dlog4j.configurationFile=log4j2-prod.xml
                           -XX:MinRAMPercentage=${JVM_MIN_RAM_PERCENTAGE}
