@@ -179,7 +179,10 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
           "${event.guild.name}#${voiceChannel.name} - ${event.member.effectiveName} left voice channel"
         }
         if (BotUtils.isSelfBot(event.member.user)) {
-          pawa.stopRecordings(event.guild.idLong)
+          if (event.guild.idLong in pawa.recordings.values) {
+            val save = pawa.autoSave(event.guild.idLong)
+            BotUtils.leaveVoiceChannel(voiceChannel, voiceChannel.asGuildMessageChannel(), save)
+          }
         } else {
           val save = pawa.autoSave(event.guild.idLong)
           BotUtils.autoStop(event.guild, voiceChannel, save)

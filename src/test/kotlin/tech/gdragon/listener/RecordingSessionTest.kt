@@ -7,6 +7,8 @@ import io.kotest.matchers.maps.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkObject
+import io.mockk.unmockkObject
 import io.mockk.spyk
 import io.mockk.verify
 import net.dv8tion.jda.api.audio.AudioReceiveHandler
@@ -66,19 +68,74 @@ class RecordingSessionTest : FunSpec({
     pawa.recordings.shouldBeEmpty()
   }
 
-  test("the bot leaving voice removes the sessions of that guild only") {
-    val event = mockk<GuildVoiceUpdateEvent>(relaxed = true) {
-      every { guild } returns guild()
+  fun botLeftVoice(recorder: AudioRecorder, autoSave: Boolean): GuildVoiceUpdateEvent {
+    pawa = spyk(pawa) {
+      every { autoSave(guildId) } returns autoSave
+    }
+    val guild = guild()
+    every { guild.audioManager } returns mockk<AudioManagerImpl>(relaxed = true) {
+      every { receivingHandler } returns recorder as AudioReceiveHandler
+    }
+    return mockk<GuildVoiceUpdateEvent>(relaxed = true) {
+      every { this@mockk.guild } returns guild
+      every { channelLeft!!.guild } returns guild
       every { member.user.isBot } returns true
       every { member.user.idLong } returns 42L
       every { member.user.jda.selfUser.idLong } returns 42L
     }
-    pawa.startRecording(recorder("S1"), guildId)
-    pawa.startRecording(recorder("S2"), otherGuildId)
+  }
+
+  test("the bot leaving voice closes the recorder of that guild only") {
+    val recorder = recorder("S1")
+    val other = recorder("S2")
+    val event = botLeftVoice(recorder, autoSave = false)
+    pawa.startRecording(recorder, guildId)
+    pawa.startRecording(other, otherGuildId)
 
     EventListener(pawa).onGuildVoiceLeave(event)
 
+    verify { recorder.disconnect(false, null, null) }
+    verify(exactly = 0) { recorder.saveRecording(any(), any()) }
+    verify(exactly = 0) { other.disconnect(any(), any(), any()) }
     pawa.recordings.shouldContainExactly(mapOf("S2" to otherGuildId))
+  }
+
+  test("the bot leaving voice saves the recording when auto-save is on") {
+    mockkObject(BotUtils)
+    every { BotUtils.defaultTextChannel(any()) } returns null
+    val recorder = recorder("S1")
+    every { recorder.saveRecording(any(), any()) } returns Pair(null, null)
+    val event = botLeftVoice(recorder, autoSave = true)
+    pawa.startRecording(recorder, guildId)
+
+    EventListener(pawa).onGuildVoiceLeave(event)
+
+    verify { recorder.saveRecording(any(), any()) }
+    verify { recorder.disconnect(true, any(), any()) }
+    unmockkObject(BotUtils)
+  }
+
+  test("record does not start a second recording while the first one connects") {
+    pawa = spyk(pawa) {
+      every { language(any()) } returns Lang.EN
+    }
+    val audioManager = mockk<AudioManagerImpl>(relaxed = true) {
+      every { isConnected } returns false
+      every { connectedChannel } returns null
+    }
+    val guild = guild()
+    every { guild.audioManager } returns audioManager
+    val voiceChannel = mockk<AudioChannel>(relaxed = true) {
+      every { this@mockk.guild } returns guild
+      every { id } returns "9"
+    }
+    pawa.startRecording(recorder("S1"), guildId)
+
+    val message = Record.handler(pawa, guild, voiceChannel, mockk(relaxed = true))
+
+    message.content shouldBe ":no_entry_sign: _${Babel.commandTranslator<RecordTranslator>(Lang.EN).alreadyInChannel("9")}_"
+    verify(exactly = 0) { audioManager.openAudioConnection(any()) }
+    pawa.recordings.shouldContainExactly(mapOf("S1" to guildId))
   }
 
   test("the bot leaving the guild removes the sessions of that guild only") {
