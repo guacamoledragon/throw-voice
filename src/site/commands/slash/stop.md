@@ -1,4 +1,4 @@
-### stop
+# stop
 > Stop recording voice channel
 
 ```
