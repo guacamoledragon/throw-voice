@@ -46,9 +46,10 @@ object Record {
     val translator: RecordTranslator = pawa.translator(guild.idLong)
     return when {
       voiceChannel == null -> MessageCreate { content = ":no_entry_sign: _${translator.joinChannel}_" }
-      guild.audioManager.isConnected -> {
-        val connectedVoiceChannel = guild.audioManager.connectedChannel!!
-        MessageCreate { content = ":no_entry_sign: _${translator.alreadyInChannel(connectedVoiceChannel.id)}_" }
+      // ponytail: two /record calls less than ~50 ms apart can still both start; lock per guild if that shows up.
+      guild.audioManager.isConnected || guild.idLong in pawa.recordings.values -> {
+        val channelId = guild.audioManager.connectedChannel?.id ?: voiceChannel.id
+        MessageCreate { content = ":no_entry_sign: _${translator.alreadyInChannel(channelId)}_" }
       }
 
       else -> {
