@@ -17,7 +17,7 @@ This is the full list of commands available, but on a daily basis, you wont need
 |             [stop](commands/slash/stop.md) | Stop recording                                                                                  |
 |         [volume](commands/slash/volume.md) | Set the recording volume                                                                        |
 
-## Beta Commands
+## Premium Commands
 
 > [!WARNING] These aren't available yet, but just a preview of what they'll do.
 
