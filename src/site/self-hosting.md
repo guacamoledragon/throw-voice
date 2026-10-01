@@ -1,6 +1,6 @@
 # Self-hosting
 
-!> These instructions are out of date, will be updating as soon as possible!
+> [!WARNING] These instructions are out of date, will be updating as soon as possible!
 
 The main motivation for forking the project was to allow any Discord Guild owner to be able to host their own instance
 of this bot. In order to be able to do that, a bit of configuration is necessary, however, here's nothing special about

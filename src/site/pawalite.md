@@ -17,7 +17,7 @@ Run Pawa Lite wherever you want, whenever you want, and on your own terms. Use i
   <a class="button" href="https://lite.pawa.im">Buy Now</a>
 </div>
 
-?> _While on beta, Pawa Lite will be released in batches of 10, and price will increase after each batch runs out._
+> [!NOTE] _While on beta, Pawa Lite will be released in batches of 10, and price will increase after each batch runs out._
 
 See how simple the installation process is:
 

@@ -1,4 +1,4 @@
 # vs Craig
 
-?> TODO
+> [!NOTE] TODO
 

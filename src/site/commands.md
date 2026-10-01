@@ -2,7 +2,7 @@
 
 This is the full list of commands available, but on a daily basis, you wont need to use most of them. These commands aren't necessary but they do provide some quality of life improvements.
 
-?> _NOTE_ Anything between <> is mandatory. Anything in [] is optional. Vertical bar | means 'or', either side of bar is valid choice.
+> [!NOTE] _NOTE_ Anything between <> is mandatory. Anything in [] is optional. Vertical bar | means 'or', either side of bar is valid choice.
 
 ## Slash Commands
 
@@ -27,7 +27,7 @@ This is the full list of commands available, but on a daily basis, you wont need
   <a class="button" href="#/notify">Sign Up!</a>
 </div>
 
-!> These aren't available yet, but just a preview of what they'll do.
+> [!WARNING] These aren't available yet, but just a preview of what they'll do.
 
 |                              Command | Description                                      |
 |-------------------------------------:|--------------------------------------------------|
