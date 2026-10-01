@@ -8,7 +8,6 @@ This is the full list of commands available, but on a daily basis, you wont need
 
 |                                    Command | Description                                                                                     |
 |-------------------------------------------:|-------------------------------------------------------------------------------------------------|
-| [autorecord](commands/slash/autorecord.md) | Will automatically record audio channel after a certain number of people join                   |
 |     [autosave](commands/slash/autosave.md) | Automatically save recording                                                                    |
 |     [autostop](commands/slash/autostop.md) | Configure the number of users in a voice channel before [pawa](https://pawa.im) stops recording |
 |         [ignore](commands/slash/ignore.md) | Ignore a bot during recording session.                                                          |
@@ -22,7 +21,8 @@ This is the full list of commands available, but on a daily basis, you wont need
 
 > [!WARNING] These aren't available yet, but just a preview of what they'll do.
 
-|                              Command | Description                                      |
-|-------------------------------------:|--------------------------------------------------|
-| [recover](commands/slash/recover.md) | Attempts to recover a recording using Session ID |
-|                                 send | Sends a short recording to a user                |
+|                                    Command | Description                                                                   |
+|-------------------------------------------:|-------------------------------------------------------------------------------|
+| [autorecord](commands/slash/autorecord.md) | Will automatically record audio channel after a certain number of people join |
+|       [recover](commands/slash/recover.md) | Attempts to recover a recording using Session ID                              |
+|                                       send | Sends a short recording to a user                                             |
