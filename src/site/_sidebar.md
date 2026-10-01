@@ -3,7 +3,7 @@
   - [Commands](commands.md)
   - [Translations](translations.md)
 - Self Hosting
-  - [Pawa Lite](pawalite.md)
+  - [PawaLite](pawalite.md)
   - [Configuration](configuration.md)
 - Legal & Support
   - [Support](support.md)

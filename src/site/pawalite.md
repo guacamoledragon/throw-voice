@@ -1,4 +1,4 @@
-# Pawa Lite
+# PawaLite
 
 ![pawalite](_media/pawalite.png ':size=20%')
 
@@ -11,13 +11,13 @@ This is a standalone version of [pawa](https://pawa.im), meaning:
 
 > One launcher, one configuration file and you're off to the races!
 
-Run Pawa Lite wherever you want, whenever you want, and on your own terms. Use it for your meetings, podcasts, or creative project on your computer, it's **YOUR** data.
+Run PawaLite wherever you want, whenever you want, and on your own terms. Use it for your meetings, podcasts, or creative project on your computer, it's **YOUR** data.
 
 <div style="text-align: center">
   <a class="button" href="https://lite.pawa.im">Buy Now</a>
 </div>
 
-> [!NOTE] _While on beta, Pawa Lite will be released in batches of 10, and price will increase after each batch runs out._
+> [!NOTE] _While on beta, PawaLite will be released in batches of 10, and price will increase after each batch runs out._
 
 See how simple the installation process is:
 

@@ -51,7 +51,7 @@ If you want to try hosting your own bot, or website. I've used these hosting pla
 
 ## Self-hosting
 
-To run `pawa` on your own computer, see [Pawa Lite](pawalite.md).
+To run `pawa` on your own computer, see [PawaLite](pawalite.md).
 
 ## Attributions <!-- {docsify-ignore} -->
 
