@@ -16,5 +16,4 @@
 - [Changelog](changelog.md)
 ---
 - Alternatives
-  - [vs. Craig](craig.md)
   - [vs. MEE6](mee6.md)
