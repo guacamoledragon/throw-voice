@@ -24,7 +24,6 @@ See [Quickstart](quickstart.md) guide for more details.
 * Straightforward [commands](commands.md)
 * Uploads to Discord where you can keep recording _FOREVER_
 * Shareable recording URL
-* [Premium](commands.md) Advanced Commands
 
 ## Donate
 If you enjoy using `pawa` please consider donating 🤗
