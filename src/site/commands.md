@@ -25,4 +25,3 @@ This is the full list of commands available, but on a daily basis, you wont need
 |-------------------------------------------:|-------------------------------------------------------------------------------|
 | [autorecord](commands/slash/autorecord.md) | Will automatically record audio channel after a certain number of people join |
 |       [recover](commands/slash/recover.md) | Attempts to recover a recording using Session ID                              |
-|                                       send | Sends a short recording to a user                                             |
