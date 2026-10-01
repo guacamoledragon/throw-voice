@@ -25,4 +25,4 @@ This is the full list of commands available, but on a daily basis, you wont need
 |                              Command | Description                                      |
 |-------------------------------------:|--------------------------------------------------|
 | [recover](commands/slash/recover.md) | Attempts to recover a recording using Session ID |
-|             [send](commands/send.md) | Sends a short recording to a user                |
+|                                 send | Sends a short recording to a user                |
