@@ -26,7 +26,7 @@ See [Quickstart](quickstart.md) guide for more details.
 * Shareable recording URL
 * [Premium](commands.md) Advanced Commands
 
-# Donate
+## Donate
 If you enjoy using `pawa` please consider donating 🤗
 
 <div align="center">
@@ -39,14 +39,14 @@ If you enjoy using `pawa` please consider donating 🤗
 
 </div>
 
-# Spread the word!
+## Spread the word!
 
 * 🐤 Follow the [Twitter account](https://twitter.com/pawa_bot) or tweet using hashtag [#pawabot](https://twitter.com/search?q=%23pawabot)
 * 🗳️ Vote on [top.gg](https://top.gg/bot/pawa/vote)
 * ⭐ Leave a review on [bots.ondiscord.xyz](https://bots.ondiscord.xyz/bots/338897906524225538)
 * 🔄 Share with others!
 
-# Affiliates
+## Affiliates
 
 If you want to try hosting your own bot, or website. I've used these hosting platforms in the past, use my referral links:
 
@@ -55,15 +55,15 @@ If you want to try hosting your own bot, or website. I've used these hosting pla
 * [Linode](https://www.linode.com/?r=e655d87b0d382f2922e75de841b2f19d7403e2ca)
 * We collect anonymous basic analytics using [Simple Analytics](https://referral.simpleanalytics.com/pawa)
 
-# Self-hosting
+## Self-hosting
 
 To run `pawa` on your own computer, see [Pawa Lite](pawalite.md).
 
-# Attributions <!-- {docsify-ignore} -->
+## Attributions <!-- {docsify-ignore} -->
 
 - Original Java codebase by [ajm1996's](https://github.com/ajm1996) [DiscordEcho](https://github.com/ajm1996/DiscordEcho).
 
-# License
+## License
 
 ```
 Copyright (c) 2017-2022 Guacamole Dragon, LLC
