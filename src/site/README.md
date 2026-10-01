@@ -60,7 +60,7 @@ To run `pawa` on your own computer, see [PawaLite](pawalite.md).
 ## License
 
 ```
-Copyright (c) 2017-2022 Guacamole Dragon, LLC
+Copyright (c) 2017-2026 Guacamole Dragon, LLC
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
