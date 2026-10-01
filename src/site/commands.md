@@ -20,13 +20,6 @@ This is the full list of commands available, but on a daily basis, you wont need
 
 ## Beta Commands
 
-### If you'd like to get notified when they're ready, please sign up
-
-<br/>
-<div style="text-align: center">
-  <a class="button" href="#/notify">Sign Up!</a>
-</div>
-
 > [!WARNING] These aren't available yet, but just a preview of what they'll do.
 
 |                              Command | Description                                      |
