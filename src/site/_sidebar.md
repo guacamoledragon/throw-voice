@@ -4,7 +4,6 @@
   - [Translations](translations.md)
 
 - Self Hosting
-  - [DIY](self-hosting.md)
   - [Pawa Lite](pawalite.md)
   - [Configuration](configuration.md)
 - Legal & Support
