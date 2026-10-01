@@ -4,16 +4,12 @@
 > [!WARNING] This command is only available in [PawaLite](pawalite.md).
 
 ```
-/autorecord <audio-channel> <threshold>`
+/autorecord <audio-channel> <threshold>
 ```
 <details>
   <summary>Example</summary>
 
   ```
-  !autorecord bot-testing 10
+  /autorecord bot-testing 10
   ```
 </details>
-
-## Video Demonstration
-
-> TODO
