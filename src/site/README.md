@@ -31,10 +31,10 @@ If you enjoy using `pawa` please consider donating 🤗
 
 <div align="center">
 
-[![GitHub Sponsors](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub)](https://github.com/sponsors/jvtrigueros)  
-<!-- ko-fi :id=L3L215SZC :color=#5c6a00 -->
-    Buy me a Coffee
-<!-- ko-fi -->
+[![GitHub Sponsors](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub)](https://github.com/sponsors/jvtrigueros)
+
+<a class="button" href="https://ko-fi.com/L3L215SZC" target="_blank" rel="noopener">☕ Buy me a Coffee</a>
+
 `bitcoin:3AEqrkqahcjrcaGiG2PoJMJL4PKva5J3L7`
 
 </div>
