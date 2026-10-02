@@ -1,6 +1,10 @@
 # pawa
 > Audio recording for Discord
 
+<div style="text-align: center; margin-bottom: 2rem;">
+  <a class="button" style="font-size: 2.05rem;" href="https://discord.com/oauth2/authorize?client_id=338897906524225538&scope=applications.commands+bot&permissions=2251344896">Invite!</a>
+</div>
+
 <div align="center">
   <a href="https://discordbots.org/bot/338897906524225538">
     <img src="https://discordbots.org/api/widget/338897906524225538.png" alt="Discord Bots" />
