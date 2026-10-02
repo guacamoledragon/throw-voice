@@ -4,7 +4,6 @@
   - [Translations](translations.md)
 - Self Hosting
   - [PawaLite](pawalite.md)
-  - [Configuration](configuration.md)
 - Legal & Support
   - [Support](support.md)
   - [Privacy Policy](privacy.md)
