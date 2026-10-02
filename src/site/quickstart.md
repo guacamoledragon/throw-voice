@@ -22,7 +22,7 @@ With _two_ simple steps, you can record your own audio:
 The recording will either:
 
 * Be uploaded directly to Discord where you can keep it _forever_
-* Or, you'll be given a link where you can download your recording within **24 hours**
+* Or, you'll be given a link where you can download your recording within **24 hours**, or within **30 days** if your server has a [subscription](terms.md)
 
 > [!CAUTION] If you forget to download the recording before then, there's nothing I can do to restore the recording. It is gone.
 
