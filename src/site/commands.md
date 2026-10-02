@@ -19,8 +19,6 @@ This is the full list of commands available, but on a daily basis, you wont need
 
 ## Premium Commands
 
-> [!WARNING] These aren't available yet, but just a preview of what they'll do.
-
 |                                    Command | Description                                                                   |
 |-------------------------------------------:|-------------------------------------------------------------------------------|
 | [autorecord](commands/slash/autorecord.md) | Will automatically record audio channel after a certain number of people join |
