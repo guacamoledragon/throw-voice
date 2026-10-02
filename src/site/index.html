@@ -41,12 +41,14 @@
         --sidebar-name-font-weight: 400;
         --sidebar-group-title-font-weight: 400;
         --sidebar-toggle-alignment: start;
+        --button-shadow-color: #161a00;
     }
 
     @media (prefers-color-scheme: dark) {
         :root {
             --theme-color: #a9bd2f;
             --button-color: #161a00;
+            --button-shadow-color: color-mix(in srgb, var(--theme-color), black 50%);
         }
     }
 
@@ -57,7 +59,7 @@
     .markdown-section a.button {
         border-color: var(--button-bg);
         background: var(--button-bg);
-        box-shadow: 0 5px 0 #161a00;
+        box-shadow: 0 5px 0 var(--button-shadow-color);
         color: var(--button-color);
     }
 
