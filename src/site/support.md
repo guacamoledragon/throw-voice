@@ -1,8 +1,9 @@
 # Support
 
 **pawa** is a Discord bot that records voice channels. **Pawa Companion** is its iOS app: pawa's
-download links expire after 24 hours, and the app saves a recording to your phone, plays it with
-a real transport, and transcribes it on-device. The app opens recordings from a pawa link — on
+download links expire after 24 hours, or after 30 days for a server with a subscription, and the
+app saves a recording to your phone, plays it with a real transport, and transcribes it
+on-device. The app opens recordings from a pawa link — on
 its own it has nothing to play.
 
 ## Getting help
@@ -19,7 +20,8 @@ New to the bot? Start with the [quickstart](quickstart.md) and the
 `/stop` throws the recording away. Use `/save` to keep it.
 
 **The download link stopped working.**
-Links expire 24 hours after the recording is made, and the audio is deleted with them. Download
+Links expire 24 hours after the recording is made, or 30 days after it is made for a server with
+a subscription, and the audio is deleted with them. Download
 it, or save it with Pawa Companion, while the link is fresh.
 
 ## The app

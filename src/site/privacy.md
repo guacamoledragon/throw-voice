@@ -1,6 +1,6 @@
 # Privacy Policy
 
-Last updated 3 September 2026.
+Last updated 1 October 2026.
 
 This policy covers **pawa**, the Discord voice-channel recording bot, and **Pawa Companion**,
 its iOS app. The app opens recordings the bot made and does nothing on its own, so the two are
@@ -12,13 +12,15 @@ described together here.
 audio of everyone speaking in that channel while it runs. When you `/save`, the recording is
 either uploaded to Discord — where it lives under
 [Discord's privacy policy](https://discord.com/privacy) and stays as long as the message does —
-or stored by us and given a download link that stops working after 24 hours. Recordings we store
-are deleted after 24 hours. We do not listen to them, and we do not hand them to anyone.
+or stored by us and given a download link. A recording we store is deleted after 1 day (24
+hours), or after 30 days if the server has a subscription, and its link stops working at the
+same time. We do not listen to recordings, and we do not hand them to anyone.
 
 **What we keep.** Your server's and channels' Discord IDs and names, your bot settings, and
 metadata about each recording: its ID, size, timestamps and link. That is what makes the bot
-work across restarts. Our database holds no Discord user IDs, no message content, and nothing
-about who was in a channel.
+work across restarts. Our database holds no message content and nothing about who was in a
+channel. It holds no Discord user IDs either, unless you buy a subscription — see The
+subscription below.
 
 **Operating the service.** Our servers keep ordinary logs and performance metrics. They are for
 keeping the bot running, not for profiling you.
@@ -52,9 +54,32 @@ This documentation site counts page views with Plausible and Cloudflare, which s
 Google Analytics and PostHog, which set cookies and record how the pages are used. A content
 blocker or your browser's tracking protection will stop them, and the pages still work.
 
-You can sign in with Discord there. It is optional, we keep your sign-in only for as long as
-your session lasts, and we do not store your Discord account. Feedback you send from a recording
-page reaches us on Discord with your username attached.
+You can sign in with Discord there. It is optional unless you buy a subscription. We keep your
+sign-in only for as long as your session lasts, and if you do not buy, we do not store your
+Discord account. Feedback you send from a recording page reaches us on Discord with your
+username attached.
+
+## The subscription
+
+This applies only if you buy a subscription on **app.pawa.im**.
+
+**What we keep.** Your Discord user ID, the ID of the subscribed server, the status of the
+subscription, and the date it is paid through. We also keep a log of the payment events that
+RevenueCat sends us, and those events contain your Discord user ID.
+
+We keep this while the subscription is active. After it ends, we keep it for as long as we
+need it for our records, for example for taxes or a payment dispute. You can ask us to delete
+it — use the contact below.
+
+**Payment.** RevenueCat sells the subscription and Stripe processes the card. Your Discord user
+ID is your customer ID at RevenueCat. The email address and the payment details you type into
+the payment form go to RevenueCat and Stripe, under
+[RevenueCat's privacy policy](https://www.revenuecat.com/privacy) and
+[Stripe's privacy policy](https://stripe.com/privacy). We do not see or store your card
+details.
+
+**Your server list.** On the billing page, we read the list of your Discord servers from
+Discord, to show the servers you can subscribe. We do not store that list.
 
 ## Children
 
