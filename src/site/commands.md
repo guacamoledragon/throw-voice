@@ -2,7 +2,7 @@
 
 This is the full list of commands available, but on a daily basis, you wont need to use most of them. These commands aren't necessary but they do provide some quality of life improvements.
 
-> [!NOTE] _NOTE_ Anything between <> is mandatory. Anything in [] is optional. Vertical bar | means 'or', either side of bar is valid choice.
+> [!NOTE] Anything between <> is mandatory. Anything in [] is optional. Vertical bar | means 'or', either side of bar is valid choice.
 
 ## Slash Commands
 
