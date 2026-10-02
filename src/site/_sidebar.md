@@ -9,8 +9,6 @@
   - [Support](support.md)
   - [Privacy Policy](privacy.md)
   - [Terms of Use](terms.md)
-- Alternatives
-  - [vs. MEE6](mee6.md)
 - About
   - [Sponsors](sponsors.md)
   - [Changelog](changelog.md)
