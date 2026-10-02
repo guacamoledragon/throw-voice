@@ -2,19 +2,12 @@
   - [Quickstart](quickstart.md)
   - [Commands](commands.md)
   - [Translations](translations.md)
-
 - Self Hosting
-  - [DIY](self-hosting.md)
-  - [Pawa Lite](pawalite.md)
-  - [Configuration](configuration.md)
+  - [PawaLite](pawalite.md)
 - Legal & Support
   - [Support](support.md)
   - [Privacy Policy](privacy.md)
   - [Terms of Use](terms.md)
-- Attributions
+- About
   - [Sponsors](sponsors.md)
-- [Changelog](changelog.md)
----
-- Alternatives
-  - [vs. Craig](craig.md)
-  - [vs. MEE6](mee6.md)
+  - [Changelog](changelog.md)

@@ -1,6 +1,8 @@
 # recover
 > Recover a recording that failed to upload
 
+> [!WARNING] This command is only available in [PawaLite](pawalite.md).
+
 Use this command to attempt to recover a recording that failed to upload
 
 ## Syntax

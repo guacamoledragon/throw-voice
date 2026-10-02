@@ -2,34 +2,24 @@
 
 This is the full list of commands available, but on a daily basis, you wont need to use most of them. These commands aren't necessary but they do provide some quality of life improvements.
 
-?> _NOTE_ Anything between <> is mandatory. Anything in [] is optional. Vertical bar | means 'or', either side of bar is valid choice.
+> [!NOTE] Anything between <> is mandatory. Anything in [] is optional. Vertical bar | means 'or', either side of bar is valid choice.
 
 ## Slash Commands
 
 |                                    Command | Description                                                                                     |
 |-------------------------------------------:|-------------------------------------------------------------------------------------------------|
-| [autorecord](commands/slash/autorecord.md) | Will automatically record audio channel after a certain number of people join                   |
 |     [autosave](commands/slash/autosave.md) | Automatically save recording                                                                    |
 |     [autostop](commands/slash/autostop.md) | Configure the number of users in a voice channel before [pawa](https://pawa.im) stops recording |
-|  [ignore (beta)](commands/slash/ignore.md) | Ignore a bot during recording session.                                                          |
+|         [ignore](commands/slash/ignore.md) | Ignore a bot during recording session.                                                          |
 |             [info](commands/slash/info.md) | Displays information about [pawa](https://pawa.im) for the caller's server.                     |
 |             [lang](commands/slash/lang.md) | Specifies the language to use.                                                                  |
 |             [save](commands/slash/save.md) | Saves current recording, either provides a link or uploads directly to Discord                  |
 |             [stop](commands/slash/stop.md) | Stop recording                                                                                  |
 |         [volume](commands/slash/volume.md) | Set the recording volume                                                                        |
 
-## Beta Commands
+## Premium Commands
 
-### If you'd like to get notified when they're ready, please sign up
-
-<br/>
-<div style="text-align: center">
-  <a class="button" href="#/notify">Sign Up!</a>
-</div>
-
-!> These aren't available yet, but just a preview of what they'll do.
-
-|                              Command | Description                                      |
-|-------------------------------------:|--------------------------------------------------|
-| [recover](commands/slash/recover.md) | Attempts to recover a recording using Session ID |
-|             [send](commands/send.md) | Sends a short recording to a user                |
+|                                    Command | Description                                                                   |
+|-------------------------------------------:|-------------------------------------------------------------------------------|
+| [autorecord](commands/slash/autorecord.md) | Will automatically record audio channel after a certain number of people join |
+|       [recover](commands/slash/recover.md) | Attempts to recover a recording using Session ID                              |

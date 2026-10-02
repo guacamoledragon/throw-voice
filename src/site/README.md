@@ -1,11 +1,13 @@
 # pawa
 > Audio recording for Discord
 
-<div align="center">
-  <a href="https://discordbots.org/bot/338897906524225538">
-    <img src="https://discordbots.org/api/widget/338897906524225538.png" alt="Discord Bots" />
-  </a>
+<div style="text-align: center; margin-bottom: 2rem;">
+  <a class="button" style="font-size: 2.05rem;" href="https://discord.com/oauth2/authorize?client_id=338897906524225538&scope=applications.commands+bot&permissions=2251344896">Invite!</a>
+</div>
 
+<div align="center">
+
+  [![Discord Bots](https://top.gg/api/widget/servers/338897906524225538.svg)](https://top.gg/bot/338897906524225538)
   [![Discord Server Count](https://discordapp.com/api/guilds/408795211901173762/widget.png "Badge displaying number of members in Discord server")](https://discord.gg/gkvsNw8)
   [![Build Status](https://gitlab.com/pawabot/pawa/badges/master/pipeline.svg "Badge displaying build status")](https://gitlab.com/pawabot/pawa/commits/master)
 
@@ -24,50 +26,43 @@ See [Quickstart](quickstart.md) guide for more details.
 * Straightforward [commands](commands.md)
 * Uploads to Discord where you can keep recording _FOREVER_
 * Shareable recording URL
-* [Premium](commands.md) Advanced Commands
 
-# Donate
+## Donate
 If you enjoy using `pawa` please consider donating 🤗
 
 <div align="center">
 
-[![GitHub Sponsors](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub)](https://github.com/sponsors/jvtrigueros)  
-<!-- ko-fi :id=L3L215SZC :color=#5c6a00 -->
-    Buy me a Coffee
-<!-- ko-fi -->
-`bitcoin:3AEqrkqahcjrcaGiG2PoJMJL4PKva5J3L7`
+<a class="button" href="https://ko-fi.com/L3L215SZC" target="_blank" rel="noopener">☕ Buy me a Coffee</a>
 
 </div>
 
-# Spread the word!
+## Spread the word!
 
 * 🐤 Follow the [Twitter account](https://twitter.com/pawa_bot) or tweet using hashtag [#pawabot](https://twitter.com/search?q=%23pawabot)
 * 🗳️ Vote on [top.gg](https://top.gg/bot/pawa/vote)
 * ⭐ Leave a review on [bots.ondiscord.xyz](https://bots.ondiscord.xyz/bots/338897906524225538)
 * 🔄 Share with others!
 
-# Affiliates
+## Affiliates
 
 If you want to try hosting your own bot, or website. I've used these hosting platforms in the past, use my referral links:
 
 * **Limited Time** [Vultr](https://www.vultr.com/?ref=8984522-8H): $100 credit to spend over 30 days
 * [DigitalOcean](https://m.do.co/c/855a7903940d): $100 credit
 * [Linode](https://www.linode.com/?r=e655d87b0d382f2922e75de841b2f19d7403e2ca)
-* We collect anonymous basic analytics using [Simple Analytics](https://referral.simpleanalytics.com/pawa)
 
-# Self-hosting
+## Self-hosting
 
-Self-hosting instructions got a lot more complex, see the [self-hosting](self-hosting.md) section for more on how
-you can deploy the bot.
+To run `pawa` on your own computer, see [PawaLite](pawalite.md).
 
-# Attributions <!-- {docsify-ignore} -->
+## Attributions <!-- {docsify-ignore} -->
 
 - Original Java codebase by [ajm1996's](https://github.com/ajm1996) [DiscordEcho](https://github.com/ajm1996/DiscordEcho).
 
-# License
+## License
 
 ```
-Copyright (c) 2017-2022 Guacamole Dragon, LLC
+Copyright (c) 2017-2026 Guacamole Dragon, LLC
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
