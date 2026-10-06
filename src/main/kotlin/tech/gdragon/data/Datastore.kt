@@ -89,7 +89,7 @@ class S3Datastore(
           bucket = bucketName
           this.key = key
           body = ByteStream.fromFile(file)
-          contentType = "audio/mpeg"
+          contentType = if (key.endsWith(".edn")) "application/edn" else "audio/mpeg"
         }
       }
     }

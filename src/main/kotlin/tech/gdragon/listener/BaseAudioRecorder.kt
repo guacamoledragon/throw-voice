@@ -52,7 +52,7 @@ abstract class BaseAudioRecorder(
   companion object {
     private const val BITRATE = 128
     private const val AUDIO_QUEUE_CAPACITY = 2000
-    private const val BATCH_SIZE = 10 // ~200ms of audio at 50fps, mirrors CARH's buffer(200ms, 8)
+    const val BATCH_SIZE = 10 // ~200ms of audio at 50fps, mirrors CARH's buffer(200ms, 8)
     val DEFAULT_UPLOAD_WAIT: Duration = Duration.ofSeconds(60)
     val DEFAULT_DRAIN_WAIT: Duration = Duration.ofSeconds(10)
   }
@@ -75,6 +75,7 @@ abstract class BaseAudioRecorder(
   protected val durationCounter = AtomicLong(0L)
   protected val droppedFrameCount = AtomicLong(0L)
   protected val silencedUsers: MutableSet<Long> = mutableSetOf()
+  protected val timeline = SpeakerTimeline()
 
   // Recording session data
   protected var ulid: String = ULID.random()
@@ -142,6 +143,7 @@ abstract class BaseAudioRecorder(
       try {
         val audioData = audioQueue.poll(100, TimeUnit.MILLISECONDS)
         if (audioData != null && shouldProcessAudio(audioData)) {
+          timeline.add(audioData.users)
           batchBuffer.add(audioData)
         }
 
@@ -284,7 +286,10 @@ abstract class BaseAudioRecorder(
       "text-channel" to messageChannel.name,
       "session-id" to session,
       "audio.frames.dropped" to droppedFrameCount.get().toString(),
-      "audio.queue.depth" to audioQueue.size.toString()
+      "audio.queue.depth" to audioQueue.size.toString(),
+      "audio.speakers.count" to timeline.speakerCount.toString(),
+      "audio.speech.ms" to (timeline.speechFrames * SpeakerTimeline.FRAME_MS).toString(),
+      "audio.speech.overlap.ms" to (timeline.overlapFrames * SpeakerTimeline.FRAME_MS).toString()
     ) {
       try {
         logger.info { "Processing completed recording: $session, queue size: ${queue.size()}" }
@@ -310,6 +315,21 @@ abstract class BaseAudioRecorder(
         logger.error(e) { "Failed to process completed recording: $session" }
         handleRecordingError(messageChannel)
       }
+    }
+  }
+
+  /**
+   * Upload the speaker timeline next to the recording at [recordingKey]. A failure here does not fail the recording.
+   */
+  protected fun uploadSpeakers(recordingKey: String) {
+    val file = File("$dataDirectory/recordings/$ulid.speakers.edn")
+    try {
+      file.writeText(timeline.toEdn(session))
+      datastore.upload("${recordingKey.substringBeforeLast('.')}.speakers.edn", file)
+    } catch (e: Exception) {
+      logger.error(e) { "Could not upload the speaker timeline: $session" }
+    } finally {
+      file.delete()
     }
   }
 
@@ -438,7 +458,7 @@ abstract class BaseAudioRecorder(
 
       val audioData = combinedAudio.getAudioData(volume)
       if (audioData.isNotEmpty()) {
-        val data = AudioData(audioData, combinedAudio.users.size)
+        val data = AudioData(audioData, combinedAudio.users.associate { it.idLong to it.effectiveName })
 
         if (!audioQueue.offer(data)) {
           audioQueue.poll()
@@ -469,18 +489,18 @@ abstract class BaseAudioRecorder(
   // Shared data class
   protected data class AudioData(
     val data: ByteArray,
-    val userCount: Int
+    val users: Map<Long, String>
   ) {
     override fun equals(other: Any?): Boolean {
       if (this === other) return true
       if (javaClass != other?.javaClass) return false
       other as AudioData
-      return data.contentEquals(other.data) && userCount == other.userCount
+      return data.contentEquals(other.data) && users == other.users
     }
 
     override fun hashCode(): Int {
       var result = data.contentHashCode()
-      result = 31 * result + userCount
+      result = 31 * result + users.hashCode()
       return result
     }
   }
