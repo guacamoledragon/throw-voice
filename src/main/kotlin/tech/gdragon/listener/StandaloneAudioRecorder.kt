@@ -49,6 +49,8 @@ class StandaloneAudioRecorder(volume: Double, voiceChannel: AudioChannel, messag
 
       reportUploaded()
 
+      uploadSpeakers(recordingKey)
+
       // Cleanup local file
       if (recordingFile.delete()) {
         logger.info { "Successfully deleted local file ${recordingFile.name}" }

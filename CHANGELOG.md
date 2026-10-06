@@ -11,6 +11,7 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 - `AudioRecorder` interface to abstract both recorder implementations
 - Tests for both recorder implementations proving deadlock bugs in LEGACY and resilience in QUEUE
 - Maintenance mode. When it is on, `/record` and autorecord do not start a recording and tell the user. Active recordings continue until they save. `BOT_MAINTENANCE` sets the start value. `(repl/maintenance! true)` sets it while the bot runs.
+- Speaker timeline. Each saved recording uploads `<recording>.speakers.edn` next to the mp3. It lists who speaks, from what time to what time, in milliseconds. The save log has the new fields `audio.speakers.count`, `audio.speech.ms` and `audio.speech.overlap.ms`.
 
 ### Changed
 - The bot asks for the **Embed Links** permission. The invite link on the site and the `Invite URL:` log line include it. Guilds that added the bot before this change must give the permission themselves.

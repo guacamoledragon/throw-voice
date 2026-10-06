@@ -33,7 +33,7 @@ class SharedAudioRecorder(
   private val limitWarning = java.util.concurrent.atomic.AtomicBoolean(false)
 
   override fun shouldProcessAudio(audioData: AudioData): Boolean {
-    return !checkAfkStatus(audioData.userCount)
+    return !checkAfkStatus(audioData.users.size)
   }
 
   private fun checkAfkStatus(userCount: Int): Boolean {
@@ -70,6 +70,8 @@ class SharedAudioRecorder(
       queue.peek()?.let { oldData ->
         queue.remove()
         recordingSize.addAndGet(-oldData.size.toLong())
+        // ponytail: one queue entry is one batch, give or take the LAME delay of about 1 frame
+        timeline.trim(BATCH_SIZE.toLong())
       }
     }
   }
@@ -124,6 +126,8 @@ class SharedAudioRecorder(
       }
 
       reportUploaded()
+
+      if (result != null) uploadSpeakers("${voiceChannel.guild.id}/$filename")
 
       // Cleanup local file
       if (recordingFile.delete()) {
