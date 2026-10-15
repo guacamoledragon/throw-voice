@@ -176,11 +176,10 @@ needs a new release, not a rollback.
 ## Test on pawa-test
 
 pawa-test runs in Coolify, not in Docker Compose, so test with `--dry-run`. Its nREPL listens on
-`127.0.0.1:7888` on sakura. Open a tunnel first:
+`127.0.0.1:7888` on sakura, which is the default `--nrepl`. Run the script on sakura:
 
 ```sh
-ssh -L 17888:127.0.0.1:7888 -N 192.168.1.96
-bb scripts/deploy.clj --version test --dry-run --nrepl 127.0.0.1:17888 --window-start 00:00 --window-end 23:59 --poll 5
+bb scripts/deploy.clj --version test --dry-run --window-start 00:00 --window-end 23:59 --poll 5
 ```
 
 | Case | Expected result |
