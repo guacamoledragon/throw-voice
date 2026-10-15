@@ -1,43 +1,23 @@
 # Deploy script: restart the bot only when no recording is active
 
-Status: draft. Decision record: pawabot/meta#22.
-
 ## Goal
 
 A deploy must not stop an active recording. A user must not need to recover a recording after a
 deploy.
 
-## Non-goals
+## Scope
 
-- Two bot processes, or a shard handoff. Deferred in meta#22.
-- Split and resume (option D). Deferred until the deploy script fails to find a quiet moment
-  often (see "When this is not enough").
-- Deploys from CI or from the GitLab webhook. The operator starts each deploy.
-- Bot code changes. The bot already has everything the script needs.
+- The operator starts each deploy. There is no deploy from CI.
+- The script needs no bot code change.
 
-## What exists
+## Requirements
 
-| Part | Where | Note |
-|---|---|---|
-| `Pawa.maintenance` | `Pawa.kt` | In memory only. `/record` answers "maintenance" while it is on |
-| Voice connection of each guild | JDA `AudioManager.isConnected` | The bot records in a guild only while it is connected |
-| nREPL | prod: `127.0.0.1:7888` on `pawa.im` | Published by `docker-compose.yml` |
-| Image tag | `VERSION=` in `/opt/pawa/.env` | Example: `2.17.0-82bfd798` |
-| `BOT_MAINTENANCE=false` | `/opt/pawa/.env` | The new container starts with maintenance off |
-
-The jar has no Clojure files, so the bot cannot load `src/main/clojure/repl.clj` by itself. The
-script does not use that namespace. It sends forms that use the bot classes directly. The host has
-no `bb` and no Java.
-
-## Decision
-
-Wait until no recording is active, then restart. Do not cut a recording in a normal deploy.
-
-From 58 days of prod data (meta#22):
-
-- A quiet moment occurs between 07:00 and 10:00 UTC on 88 % of days. The median wait is 8 min.
-- There were never 2 days in sequence with no quiet moment.
-- A guild is offline for 10 to 90 s during the restart. One shard connects each ~6 s.
+| Part | Where |
+|---|---|
+| Image tag | `VERSION=` in `/opt/pawa/.env` |
+| Maintenance off at start | `BOT_MAINTENANCE=false` in `/opt/pawa/.env` |
+| Bot nREPL | `127.0.0.1:7888` on the host |
+| `bb` | `/usr/local/bin/bb` on the host |
 
 ## Usage
 
@@ -83,8 +63,7 @@ stateDiagram-v2
 ```
 
 1. Pull the image with `VERSION=<version> docker compose --compatibility pull bot`. Do not change
-   `.env` yet. If the bot crashes during the wait, Docker restarts it with the old image. If somebody
-   runs `just up` during the wait, the old version starts again.
+   `.env` yet.
 2. Sleep until `--window-start`. If the time is already in the window, start now.
 3. Each `--poll` seconds, send the count form (see "nREPL forms"). If the count is more than 0, wait.
 4. When the count is 0, set maintenance on. Wait 5 s and count again. The second count finds a
@@ -142,9 +121,7 @@ For a fix that cannot wait one day.
 4. Log each active session (`:guild`, `:session`) to the deploy log.
 5. Restart as in step 6 above.
 
-Recordings that the restart cuts are lost for the user. Their `.queue` files stay on disk, so the
-owner can recover them with `/recover`. Use `--now` only when a cut recording costs less than a day
-of delay.
+The restart stops each recording that is still active. Its `.queue` file stays on disk.
 
 ## Deploy log
 
@@ -155,8 +132,6 @@ Append one EDN map for each result to `/opt/pawa/deploy.log`:
 {:at "2026-10-16T10:00:00Z" :result :no-quiet-moment :version "2.18.0-abcd1234" :day 1}
 {:at "2026-10-16T07:31:00Z" :result :deployed-now :version "2.18.0-abcd1234" :previous "2.17.0-82bfd798" :cut [{:guild "..." :session "01M..."}]}
 ```
-
-This is the deploy log of pawabot/pawa#95.
 
 ## Rollback
 
@@ -182,7 +157,7 @@ needs a new release, not a rollback.
 ## Test on pawa-test
 
 pawa-test runs in Coolify, not in Docker Compose, so test with `--dry-run`. Its nREPL listens on
-`127.0.0.1:7888` on sakura, which is the default `--nrepl`. Run the script on sakura:
+`127.0.0.1:7888` on the pawa-test host, which is the default `--nrepl`. Run the script on that host:
 
 ```sh
 bb scripts/deploy.clj --version test --dry-run --window-start 00:00 --window-end 23:59 --poll 5
@@ -196,19 +171,3 @@ bb scripts/deploy.clj --version test --dry-run --window-start 00:00 --window-end
 | Press Ctrl-C while maintenance is on | Maintenance goes off. `/record` works |
 | Stop the bot during the wait | The script logs the connection errors and continues when the bot is back |
 | `--window-end` is 2 min from now, with a recording active | "no deploy today", then sleep until the next window |
-
-Test the Docker steps on prod with the first real deploy. They are two commands that the operator
-runs by hand today (`just pull`, `just up`).
-
-## When this is not enough
-
-At 2× today's traffic, the 07:00 to 10:00 window has a quiet moment on about 62 % of days, and a
-deploy can slip 3 days (meta#22). The signal is exit code 2. When it occurs more than once a month,
-start option D (split and resume, needs pawabot/pawa#93) or the shard handoff.
-
-## Tasks
-
-1. Write `scripts/deploy.clj` with the behavior, errors, `--now` and `--dry-run` above.
-2. Run the pawa-test cases.
-3. Install `bb` on `pawa.im`, copy the script, add the `justfile` recipe.
-4. Use the script for the next prod release, and close pawabot/pawa#95.
