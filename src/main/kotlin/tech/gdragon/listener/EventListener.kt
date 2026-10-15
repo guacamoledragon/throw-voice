@@ -234,6 +234,14 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
     val sessionId = parts[1]
     val guild = event.guild ?: return
 
+    if (!pawa.recoverEnabled && prefix in setOf(RecordingStartedReply.BUTTON_ID_PREFIX, RecoverConfirmationReply.CONFIRM_PREFIX)) {
+      event
+        .reply("Recover is disabled. Join the support server and post your Session ID: ${RecoverConfirmationReply.SUPPORT_SERVER_URL}")
+        .setEphemeral(true)
+        .queue()
+      return
+    }
+
     when (prefix) {
       RecordingStartedReply.BUTTON_ID_PREFIX -> {
         withLoggingContext("session-id" to sessionId, "guild" to guild.name) {
