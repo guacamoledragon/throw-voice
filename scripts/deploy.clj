@@ -76,7 +76,7 @@
 (defn repl!
   "Evaluate a form in the bot. While the bot is not reachable, try again each --poll seconds."
   [form]
-  (let [code (pr-str `(do (require 'repl) ~form))]
+  (let [code (pr-str form)]
     (loop []
       (let [result (try
                      (nrepl-eval code)
@@ -90,15 +90,28 @@
           (do (Thread/sleep (* 1000 (:poll opts))) (recur))
           (do (reset! down-since nil) (edn/read-string result)))))))
 
-(defn active-count [] (repl! '(count (:active (repl/active-recordings)))))
+;; The jar has no Clojure namespaces, so these forms use the bot classes directly.
+(def voice-guilds
+  '(filter (fn [g] (.isConnected (.getAudioManager g)))
+           (.getGuilds (.getShardManager (.api (org.koin.java.KoinJavaComponent/get tech.gdragon.discord.Bot))))))
+
+(defn maintenance-form [on?]
+  (list '.setMaintenance '(org.koin.java.KoinJavaComponent/get tech.gdragon.api.pawa.Pawa) (boolean on?)))
+
+(defn active-count [] (repl! (list 'count voice-guilds)))
 
 (defn active-sessions []
-  (repl! '(mapv (fn [r] (select-keys r [:guild :session :minutes])) (:active (repl/active-recordings)))))
+  (repl! (list 'mapv
+               '(fn [g]
+                  (let [h (.getReceivingHandler (.getAudioManager g))]
+                    {:guild   (.getName g)
+                     :session (when (instance? tech.gdragon.listener.AudioRecorder h) (.getSession h))}))
+               voice-guilds)))
 
 (def maintenance-on (atom false))
 
 (defn maintenance! [on?]
-  (repl! `(repl/maintenance! ~on?))
+  (repl! (maintenance-form on?))
   (reset! maintenance-on on?)
   (say "maintenance" (if on? "on" "off")))
 
@@ -209,7 +222,7 @@
   (.addShutdownHook (Runtime/getRuntime)
                     (Thread. #(when @maintenance-on
                                 (say "stopped with maintenance on, set it off")
-                                (try (nrepl-eval "(do (require 'repl) (repl/maintenance! false))")
+                                (try (nrepl-eval (pr-str (maintenance-form false)))
                                      (catch Exception e (say "could not set maintenance off:" (ex-message e)))))))
   (try
     (if (:now opts) (deploy-now!) (deploy-quiet!))

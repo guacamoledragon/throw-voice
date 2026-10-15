@@ -19,13 +19,15 @@ deploy.
 
 | Part | Where | Note |
 |---|---|---|
-| `(repl/active-recordings)` | `src/main/clojure/repl.clj` | `:active` has one entry for each guild with a voice connection |
-| `(repl/maintenance! on?)` | `src/main/clojure/repl.clj` | In memory only. `/record` answers "maintenance" while it is on |
+| `Pawa.maintenance` | `Pawa.kt` | In memory only. `/record` answers "maintenance" while it is on |
+| Voice connection of each guild | JDA `AudioManager.isConnected` | The bot records in a guild only while it is connected |
 | nREPL | prod: `127.0.0.1:7888` on `pawa.im` | Published by `docker-compose.yml` |
 | Image tag | `VERSION=` in `/opt/pawa/.env` | Example: `2.17.0-82bfd798` |
 | `BOT_MAINTENANCE=false` | `/opt/pawa/.env` | The new container starts with maintenance off |
 
-The prod build `2.17.0-82bfd798` has both REPL functions. The host has no `bb` and no Java.
+The jar has no Clojure files, so the bot cannot load `src/main/clojure/repl.clj` by itself. The
+script does not use that namespace. It sends forms that use the bot classes directly. The host has
+no `bb` and no Java.
 
 ## Decision
 
@@ -99,11 +101,15 @@ stateDiagram-v2
 ### nREPL forms
 
 ```clojure
-(require 'repl)
-(count (:active (repl/active-recordings)))
-(repl/maintenance! true)
-(repl/maintenance! false)
+;; voice-guilds
+(filter (fn [g] (.isConnected (.getAudioManager g)))
+        (.getGuilds (.getShardManager (.api (org.koin.java.KoinJavaComponent/get tech.gdragon.discord.Bot)))))
+
+(count voice-guilds)
+(.setMaintenance (org.koin.java.KoinJavaComponent/get tech.gdragon.api.pawa.Pawa) true)
 ```
+
+`--now` also reads the guild name and the session of each voice guild.
 
 The client uses `bencode.core` (built into bb). It opens a socket, writes
 `{"op" "eval" "code" ...}`, and reads messages until `status` has `done`. Open one connection for
@@ -133,7 +139,7 @@ For a fix that cannot wait one day.
 1. Pull the image.
 2. Set maintenance on.
 3. Count each `--poll` seconds until the count is 0, or until `--deadline` minutes.
-4. Log each active session (`:guild`, `:session`, `:minutes`) to the deploy log.
+4. Log each active session (`:guild`, `:session`) to the deploy log.
 5. Restart as in step 6 above.
 
 Recordings that the restart cuts are lost for the user. Their `.queue` files stay on disk, so the
@@ -147,7 +153,7 @@ Append one EDN map for each result to `/opt/pawa/deploy.log`:
 ```clojure
 {:at "2026-10-16T07:08:30Z" :result :deployed :version "2.18.0-abcd1234" :previous "2.17.0-82bfd798" :waited-min 8}
 {:at "2026-10-16T10:00:00Z" :result :no-quiet-moment :version "2.18.0-abcd1234" :day 1}
-{:at "2026-10-16T07:31:00Z" :result :deployed-now :version "2.18.0-abcd1234" :previous "2.17.0-82bfd798" :cut [{:guild "..." :session "01M..." :minutes 42}]}
+{:at "2026-10-16T07:31:00Z" :result :deployed-now :version "2.18.0-abcd1234" :previous "2.17.0-82bfd798" :cut [{:guild "..." :session "01M..."}]}
 ```
 
 This is the deploy log of pawabot/pawa#95.
