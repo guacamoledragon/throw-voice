@@ -180,7 +180,7 @@ pawa-test runs in Coolify, not in Docker Compose, so test with `--dry-run`. Its 
 
 ```sh
 ssh -L 17888:127.0.0.1:7888 -N 192.168.1.96
-bb scripts/deploy.clj --version test --dry-run --nrepl 127.0.0.1:17888 --window-start <now> --poll 5
+bb scripts/deploy.clj --version test --dry-run --nrepl 127.0.0.1:17888 --window-start 00:00 --window-end 23:59 --poll 5
 ```
 
 | Case | Expected result |
