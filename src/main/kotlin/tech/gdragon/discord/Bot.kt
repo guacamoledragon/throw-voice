@@ -2,11 +2,13 @@ package tech.gdragon.discord
 
 import club.minnced.discord.jdave.interop.JDaveSessionFactory
 import dev.minn.jda.ktx.coroutines.await
+import dev.minn.jda.ktx.events.CoroutineEventManager
+import dev.minn.jda.ktx.events.getDefaultScope
 import dev.minn.jda.ktx.events.onCommand
 import dev.minn.jda.ktx.interactions.commands.message
 import dev.minn.jda.ktx.interactions.commands.updateCommands
-import dev.minn.jda.ktx.jdabuilder.injectKTX
 import io.github.oshai.kotlinlogging.KotlinLogging
+import kotlinx.coroutines.Dispatchers
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.audio.AudioModuleConfig
@@ -54,6 +56,8 @@ class Bot(private val token: String, private val pawa: Pawa) {
       Permission.VOICE_SPEAK,
       Permission.VOICE_USE_VAD,
     )
+
+    fun eventManager() = CoroutineEventManager(getDefaultScope(context = Dispatchers.IO))
   }
 
   lateinit var shardManager: ShardManager
@@ -94,7 +98,7 @@ class Bot(private val token: String, private val pawa: Pawa) {
           AudioModuleConfig()
             .withDaveSessionFactory(JDaveSessionFactory())
         )
-        .injectKTX()
+        .setEventManagerProvider { eventManager() }
         .build()
 
       // Wait until all shards are connected
