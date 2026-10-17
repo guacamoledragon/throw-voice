@@ -153,7 +153,7 @@
           since    (Instant/now)
           limit    (.plus (now) health-limit)]
       (say "restart:" previous "->" (:version opts))
-      (sh! {} "docker" "compose" "--compatibility" "up" "-d" "bot")
+      (sh! {"VERSION" (:version opts)} "docker" "compose" "--compatibility" "up" "-d" "bot")
       (reset! maintenance-on false)
       (loop []
         (cond
