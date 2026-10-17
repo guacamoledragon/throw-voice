@@ -9,7 +9,9 @@ import net.dv8tion.jda.api.audio.AudioReceiveHandler
 import net.dv8tion.jda.api.audio.CombinedAudio
 import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.User
+import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel
+import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel
 import net.dv8tion.jda.api.utils.messages.MessageEditData
 import org.apache.commons.io.FileUtils
@@ -352,13 +354,18 @@ abstract class BaseAudioRecorder(
   /** The recording embed that [announceSave] sent. The upload edits it with the result. */
   private var saveReply: Message? = null
 
+  /** False when the bot cannot embed links in the save channel. Then the recording message is text. */
+  private var embedLinks = true
+
   /**
    * Send the recording embed, with View Recording disabled until the upload is done.
    */
   private fun announceSave(messageChannel: MessageChannel) {
     val saving = ":floppy_disk: _${translator.saving}_"
     val recording = recording ?: return BotUtils.sendMessage(messageChannel, saving)
-    val reply = RecordingReply(recording, pawa.config.appUrl, saving, uploaded = false)
+    embedLinks = messageChannel !is GuildChannel ||
+      messageChannel.guild.selfMember.hasPermission(messageChannel, Permission.MESSAGE_EMBED_LINKS)
+    val reply = RecordingReply(recording, pawa.config.appUrl, saving, uploaded = false, embedLinks = embedLinks)
     saveReply = messageChannel.sendMessage(reply.message).complete()
   }
 
@@ -368,14 +375,14 @@ abstract class BaseAudioRecorder(
   protected fun reportFailure(messageChannel: MessageChannel, message: String) {
     val recording = recording
     if (saveReply == null || recording == null) return BotUtils.sendMessage(messageChannel, message)
-    editReply(RecordingReply(recording, pawa.config.appUrl, message, uploaded = false))
+    editReply(RecordingReply(recording, pawa.config.appUrl, message, uploaded = false, embedLinks = embedLinks))
   }
 
   /**
    * Show the uploaded recording in the recording embed.
    */
   protected fun reportUploaded() {
-    recording?.let { editReply(RecordingReply(it, pawa.config.appUrl)) }
+    recording?.let { editReply(RecordingReply(it, pawa.config.appUrl, embedLinks = embedLinks)) }
   }
 
   private fun editReply(reply: RecordingReply) {
