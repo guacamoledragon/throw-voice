@@ -1,5 +1,7 @@
 package tech.gdragon.listener
 
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
+import net.dv8tion.jda.api.Permission
 import io.kotest.core.annotation.Isolate
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.engine.spec.tempdir
@@ -552,5 +554,30 @@ class SharedAudioRecorderTest : FunSpec({
     recorder.disconnect(lock)
 
     verify { BotUtils.uploadFile(mockMessageChannel, any(), "${recorder.session}.mp3", replyMessage) }
+  }
+
+  test("without Embed Links, the recording message is text with the View Recording button").config(
+    timeout = kotlin.time.Duration.parse("15s")
+  ) {
+    val channel = mockk<TextChannel>(relaxed = true) {
+      every { sendMessage(capture(sent)) } returns mockk(relaxed = true) {
+        every { complete() } returns replyMessage
+      }
+    }
+    every { channel.guild.selfMember.hasPermission(channel, Permission.MESSAGE_EMBED_LINKS) } returns false
+    val recorder = SharedAudioRecorder(1.0, mockVoiceChannel, channel)
+    feedAudioFrames(recorder, 30)
+
+    val (_, lock) = recorder.saveRecording(mockVoiceChannel, channel)
+    recorder.disconnect(lock)
+
+    val announced = sent.single()
+    announced.embeds shouldBe emptyList()
+    announced.content shouldContain recorder.session
+    viewRecording(announced.components).isDisabled shouldBe true
+    val uploaded = edits.last()
+    uploaded.embeds shouldBe emptyList()
+    uploaded.content shouldContain recorder.session
+    viewRecording(uploaded.components).isDisabled shouldBe false
   }
 })

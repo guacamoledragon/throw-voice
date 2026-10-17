@@ -15,7 +15,8 @@ class RecordingReply(
   recording: Recording,
   appBaseUrl: String,
   description: String? = "Here's your recording, enjoy!",
-  uploaded: Boolean = true
+  uploaded: Boolean = true,
+  embedLinks: Boolean = true
 ) {
   private val guildId = recording.readValues[Tables.Recordings.guild].value
   private val sessionId = recording.id.value
@@ -37,6 +38,8 @@ class RecordingReply(
   private val recordingUrl = recording.url.orEmpty()
 
   private val voteUrl = "https://top.gg/bot/pawa/vote"
+  private val showLocation =
+    recordingUrl.isNotEmpty() && (appBaseUrl.startsWith("discord://") || recordingUrl.startsWith("file://"))
 
   val embed = Embed {
     title = "Session ID: `$sessionId`"
@@ -70,7 +73,7 @@ class RecordingReply(
       inline = true
     }
     // Without an app URL, the stored URL is the only link
-    if (recordingUrl.isNotEmpty() && (appBaseUrl.startsWith("discord://") || recordingUrl.startsWith("file://"))) {
+    if (showLocation) {
       field {
         name = "Recording Location"
         value = recordingUrl
@@ -85,7 +88,12 @@ class RecordingReply(
   )
 
   val message = MessageCreate {
-    embeds += embed
+    if (embedLinks) {
+      embeds += embed
+    } else {
+      content = listOfNotNull(description, "_Session ID: `$sessionId`_", recordingUrl.takeIf { showLocation })
+        .joinToString("\n")
+    }
     components += component
   }
 }
