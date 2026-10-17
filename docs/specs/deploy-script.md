@@ -71,7 +71,7 @@ stateDiagram-v2
 5. If the count is not 0, set maintenance off and go back to step 3.
 6. If the count is still 0:
    1. Write `VERSION=<version>` in `.env`. Keep the old value for the deploy log.
-   2. Run `docker compose --compatibility up -d bot`.
+   2. Run `VERSION=<version> docker compose --compatibility up -d bot`.
 7. Read `docker compose logs --since <restart time> bot` until it has `Invite URL:`. The limit is
    5 min.
 8. At `--window-end`, log "no deploy today" and go back to step 2. After `--max-days` windows,
