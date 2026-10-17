@@ -48,8 +48,10 @@ import tech.gdragon.listener.SharedAudioRecorder
 import tech.gdragon.listener.StandaloneAudioRecorder
 import java.io.File
 import java.io.FileInputStream
+import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
+import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.util.concurrent.TimeUnit
 import net.dv8tion.jda.api.entities.Guild as DiscordGuild
@@ -57,6 +59,14 @@ import tech.gdragon.i18n.Record as RecordTranslator
 
 object BotUtils {
   private val logger = KotlinLogging.logger {}
+
+  fun interactionContext(event: GenericCommandInteractionEvent): Map<String, String?> = mapOf(
+    "command" to event.name,
+    "guild" to event.guild?.name,
+    "guild.id" to event.guild?.id,
+    "jda.shard.id" to event.jda.shardInfo.shardId.toString(),
+    "interaction.age.ms" to Duration.between(event.timeCreated, OffsetDateTime.now()).toMillis().toString(),
+  )
 
   const val TRIGOMAN = 96802905322962944L
 
