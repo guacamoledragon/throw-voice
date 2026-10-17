@@ -18,6 +18,7 @@ import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel
+import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel
 import net.dv8tion.jda.api.entities.channel.unions.AudioChannelUnion
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent
@@ -477,9 +478,12 @@ object BotUtils {
       FileInputStream(file)
     }
 
+    val canReply = messageChannel !is GuildChannel ||
+      messageChannel.guild.selfMember.hasPermission(messageChannel, Permission.MESSAGE_HISTORY)
+
     return messageChannel
       .sendFiles(fileUpload)
-      .apply { replyTo?.let { setMessageReference(it).failOnInvalidReply(false) } }
+      .apply { replyTo?.takeIf { canReply }?.let { setMessageReference(it).failOnInvalidReply(false) } }
       .complete()
   }
 

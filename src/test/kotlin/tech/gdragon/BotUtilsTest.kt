@@ -2,17 +2,37 @@ package tech.gdragon
 
 import io.azam.ulidj.ULID
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.engine.spec.tempfile
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.longs.shouldBeInRange
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
+import net.dv8tion.jda.api.Permission
+import net.dv8tion.jda.api.entities.Message
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
+import net.dv8tion.jda.api.requests.restaction.MessageCreateAction
+import net.dv8tion.jda.api.utils.FileUpload
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent
 import java.time.Duration
 import java.time.OffsetDateTime
 
 class BotUtilsTest : FunSpec({
+
+  test("uploadFile sends the file without a reply when the bot cannot read the message history") {
+    val channel = mockk<TextChannel>(relaxed = true)
+    every { channel.guild.selfMember.hasPermission(channel, Permission.MESSAGE_HISTORY) } returns false
+    val action = mockk<MessageCreateAction>(relaxed = true)
+    every { channel.sendFiles(*anyVararg<FileUpload>()) } returns action
+    every { action.setMessageReference(any<Message>()) } returns action
+    every { action.complete() } returns mockk()
+
+    BotUtils.uploadFile(channel, tempfile(), "recording.mp3", mockk())
+
+    verify(exactly = 0) { action.setMessageReference(any<Message>()) }
+  }
 
   test("interactionContext gives the age of the interaction in milliseconds") {
     val event = mockk<GenericCommandInteractionEvent>(relaxed = true)
