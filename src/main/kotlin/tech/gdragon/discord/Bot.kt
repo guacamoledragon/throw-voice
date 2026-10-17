@@ -2,15 +2,21 @@ package tech.gdragon.discord
 
 import club.minnced.discord.jdave.interop.JDaveSessionFactory
 import dev.minn.jda.ktx.coroutines.await
+import dev.minn.jda.ktx.events.CoroutineEventListener
+import dev.minn.jda.ktx.events.CoroutineEventManager
+import dev.minn.jda.ktx.events.getDefaultScope
 import dev.minn.jda.ktx.events.onCommand
 import dev.minn.jda.ktx.interactions.commands.message
 import dev.minn.jda.ktx.interactions.commands.updateCommands
-import dev.minn.jda.ktx.jdabuilder.injectKTX
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.github.oshai.kotlinlogging.withLoggingContext
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.audio.AudioModuleConfig
 import net.dv8tion.jda.api.entities.Activity
+import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent
 import net.dv8tion.jda.api.requests.GatewayIntent
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder
 import net.dv8tion.jda.api.sharding.ShardManager
@@ -22,6 +28,7 @@ import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.core.inList
 import org.koin.java.KoinJavaComponent.getKoin
+import tech.gdragon.BotUtils
 import tech.gdragon.api.pawa.Pawa
 import tech.gdragon.commands.audio.Record
 import tech.gdragon.commands.audio.Save
@@ -39,10 +46,12 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 import tech.gdragon.i18n.AutoStop as AutoStopTranslator
 
-class Bot(private val token: String, private val pawa: Pawa) {
-  private val logger = KotlinLogging.logger {}
+typealias CommandHandler = suspend CoroutineEventListener.(GenericCommandInteractionEvent) -> Unit
 
+class Bot(private val token: String, private val pawa: Pawa) {
   companion object {
+    private val logger = KotlinLogging.logger {}
+
     val PERMISSIONS = listOf(
       Permission.MESSAGE_ATTACH_FILES,
       Permission.MESSAGE_EMBED_LINKS,
@@ -54,6 +63,20 @@ class Bot(private val token: String, private val pawa: Pawa) {
       Permission.VOICE_SPEAK,
       Permission.VOICE_USE_VAD,
     )
+
+    fun eventManager() = CoroutineEventManager(getDefaultScope(context = Dispatchers.IO))
+
+    fun logFailures(consumer: CommandHandler): CommandHandler = { event ->
+      try {
+        consumer(event)
+      } catch (e: CancellationException) {
+        throw e
+      } catch (e: Exception) {
+        withLoggingContext(BotUtils.interactionContext(event)) {
+          logger.error(e) { "Command failed: ${event.name}" }
+        }
+      }
+    }
   }
 
   lateinit var shardManager: ShardManager
@@ -94,7 +117,7 @@ class Bot(private val token: String, private val pawa: Pawa) {
           AudioModuleConfig()
             .withDaveSessionFactory(JDaveSessionFactory())
         )
-        .injectKTX()
+        .setEventManagerProvider { eventManager() }
         .build()
 
       // Wait until all shards are connected
@@ -180,8 +203,8 @@ class Bot(private val token: String, private val pawa: Pawa) {
 
   private fun registerSlashCommands() {
     shardManager.run {
-      onCommand(AutoRecord.command.name, consumer = AutoRecord.slashHandler(pawa))
-      onCommand(AutoStop.command.name) { event ->
+      onCommand(AutoRecord.command.name, consumer = logFailures(AutoRecord.slashHandler(pawa)))
+      onCommand(AutoStop.command.name, consumer = logFailures { event ->
         if (event.isFromGuild) {
           event.guild?.let { guild ->
             val channel = event.getOption("channel")?.asChannel?.asAudioChannel()
@@ -202,11 +225,11 @@ class Bot(private val token: String, private val pawa: Pawa) {
             } ?: event.reply("Error").await()
           }
         }
-      }
+      })
 
-      onCommand(AutoSave.command.name, consumer = AutoSave.slashHandler(pawa))
-      onCommand(Ignore.command.name, consumer = Ignore.slashHandler(pawa))
-      onCommand(Info.command.name) { event ->
+      onCommand(AutoSave.command.name, consumer = logFailures(AutoSave.slashHandler(pawa)))
+      onCommand(Ignore.command.name, consumer = logFailures(Ignore.slashHandler(pawa)))
+      onCommand(Info.command.name, consumer = logFailures { event ->
         if (event.isFromGuild) {
           event.guild?.let {
             event
@@ -218,14 +241,14 @@ class Bot(private val token: String, private val pawa: Pawa) {
             .reply(":no_entry: _Must be in a server to run this command!_")
             .await()
         }
-      }
-      onCommand(Language.command.name, consumer = Language.slashHandler(pawa))
-      onCommand(Record.command.name, consumer = Record.slashHandler(pawa))
-      onCommand(Recover.command.name, consumer = Recover.slashHandler(pawa))
-      onCommand(Stop.command.name, consumer = Stop.slashHandler(pawa))
-      onCommand(Save.command.name, consumer = Save.slashHandler(pawa))
-      onCommand(SaveDestination.command.name, consumer = SaveDestination.slashHandler(pawa))
-      onCommand(Volume.command.name, consumer = Volume.slashHandler(pawa))
+      })
+      onCommand(Language.command.name, consumer = logFailures(Language.slashHandler(pawa)))
+      onCommand(Record.command.name, consumer = logFailures(Record.slashHandler(pawa)))
+      onCommand(Recover.command.name, consumer = logFailures(Recover.slashHandler(pawa)))
+      onCommand(Stop.command.name, consumer = logFailures(Stop.slashHandler(pawa)))
+      onCommand(Save.command.name, consumer = logFailures(Save.slashHandler(pawa)))
+      onCommand(SaveDestination.command.name, consumer = logFailures(SaveDestination.slashHandler(pawa)))
+      onCommand(Volume.command.name, consumer = logFailures(Volume.slashHandler(pawa)))
     }
   }
 

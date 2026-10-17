@@ -321,10 +321,11 @@ class EventListener(val pawa: Pawa) : ListenerAdapter(), KoinComponent {
 
   override fun onSlashCommandInteraction(event: SlashCommandInteractionEvent) {
     val commandName = event.interaction.name
+    val context = BotUtils.interactionContext(event)
     val sessionId = event.interaction.getOption<String>("session-id") ?:
       pawa.recordings.filterValues { it == event.guild?.idLong }.keys.firstOrNull()
     event.guild?.let(BotUtils::updateActivity)
-    withLoggingContext("command" to commandName, "session-id" to sessionId) {
+    withLoggingContext(context + ("session-id" to sessionId)) {
       logger.info {
         "Executing command: $commandName"
       }
