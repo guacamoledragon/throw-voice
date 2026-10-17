@@ -1,5 +1,6 @@
 package tech.gdragon.discord
 
+import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
@@ -7,6 +8,7 @@ import io.kotest.matchers.string.shouldContain
 import io.mockk.mockk
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.events.GenericEvent
+import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent
 import net.dv8tion.jda.api.hooks.EventListener
 import java.io.File
 import java.util.concurrent.CountDownLatch
@@ -36,5 +38,12 @@ class BotTest : FunSpec({
     } finally {
       release.countDown()
     }
+  }
+
+  test("logFailures keeps an exception inside the command handler") {
+    val event = mockk<GenericCommandInteractionEvent>(relaxed = true)
+    val handler = Bot.logFailures { throw IllegalStateException("10062: Unknown interaction") }
+
+    shouldNotThrowAny { handler(mockk(), event) }
   }
 })
