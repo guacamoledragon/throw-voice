@@ -124,11 +124,12 @@ this agent.
    restart drops all shards and can lose an in-flight recording/upload. Note any
    spike and its timing.
 
-4. **Recording Upload Failures board.** Check the failure rate and especially
-   the **`Upload did not finish`** panel — now that MR !141 is deployed, a
-   non-zero value here means uploads are *genuinely hanging* (not crashing). Zero
-   here while leftover `.mp3` keeps growing means losses are **crash-induced**,
-   not hangs.
+4. **Recording Upload Failures board.** Check the **Lost recordings** panels.
+   The **Slow uploads** panel (`Upload did not finish`) is not a loss signal.
+   Since 2026-09-27 each recording uploads to Discord and then to the
+   datastore, so 3–5 % of saves pass the 60 s wait. All 318 of these from
+   2026-09-28 to 2026-10-18 finished later. A slow upload is a hang only when
+   no `Finished uploading file` line for that session follows it.
 
 5. **Honeycomb queries** (env `prod`, dataset `pawa`) if you need raw numbers —
    filter `message` with `starts-with`:
@@ -137,7 +138,8 @@ this agent.
    - Datastore fallback engagements (post-!142): `Discord attachment upload
      failed` — how often Discord refused a file and the fallback delivered it
    - Processing failures: `Failed to process completed recording`
-   - Hung uploads (MR !141 signal): `Upload did not finish`
+   - Slow uploads: `Upload did not finish` (a hang only without a later
+     `Finished uploading file` for the same session)
    - Restarts: `ONLINE: Connected to`
    - Gateway churn: `Got disconnected from WebSocket` / `Reconnect failed` / `Missed`
 
@@ -147,8 +149,8 @@ Both leave an un-uploaded `.mp3` on disk and produce a recovery request. Tell
 them apart — the fix differs:
 
 - **Hang** → there IS an `Upload did not finish within 60s…` WARN
-  (`tech.gdragon.listener.BaseAudioRecorder`) for that `session-id`, and **no
-  restart** near that time. Root cause is a stuck network call. Next step:
+  (`tech.gdragon.listener.BaseAudioRecorder`) for that `session-id`, **no**
+  later `Finished uploading file` for it, and **no restart** near that time. Root cause is a stuck network call. Next step:
   instrument `BotUtils.uploadFile` (Discord) and `datastore.upload` (S3/Minio) in
   `SharedAudioRecorder.uploadRecording` with timeouts + timing logs to find which
   call hangs.
