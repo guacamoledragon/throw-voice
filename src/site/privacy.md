@@ -1,6 +1,6 @@
 # Privacy Policy
 
-Last updated 1 October 2026.
+Last updated 18 October 2026.
 
 This policy covers **pawa**, the Discord voice-channel recording bot, and **Pawa Companion**,
 its iOS app. The app opens recordings the bot made and does nothing on its own, so the two are
@@ -14,7 +14,7 @@ either uploaded to Discord — where it lives under
 [Discord's privacy policy](https://discord.com/privacy) and stays as long as the message does —
 or stored by us and given a download link. A recording we store is deleted after 1 day (24
 hours), or after 30 days if the server has a subscription, and its link stops working at the
-same time. We do not listen to recordings, and we do not hand them to anyone.
+same time. We do not hand recordings to anyone.
 
 **What we keep.** Your server's and channels' Discord IDs and names, your bot settings, and
 metadata about each recording: its ID, size, timestamps and link. That is what makes the bot
