@@ -57,6 +57,7 @@ abstract class BaseAudioRecorder(
     const val BATCH_SIZE = 10 // ~200ms of audio at 50fps, mirrors CARH's buffer(200ms, 8)
     val DEFAULT_UPLOAD_WAIT: Duration = Duration.ofSeconds(60)
     val DEFAULT_DRAIN_WAIT: Duration = Duration.ofSeconds(10)
+    const val DEFAULT_MIN_SPEECH_MS = 5000L
   }
 
   protected val logger = KotlinLogging.logger { }
@@ -65,6 +66,10 @@ abstract class BaseAudioRecorder(
   protected val dataDirectory: String by lazy { getKoin().getProperty("BOT_DATA_DIR", "./") }
   protected val fileFormat: String = getKoin().getProperty("BOT_FILE_FORMAT", "mp3").lowercase()
   protected val vbr = getKoin().getProperty<String>("BOT_MP3_VBR").toBoolean()
+
+  /** A recording with less speech than this is not saved. Read at save time from `BOT_MIN_SPEECH_MS`. */
+  private val minSpeechMs: Long
+    get() = getKoin().getProperty<String>("BOT_MIN_SPEECH_MS")?.toLongOrNull() ?: DEFAULT_MIN_SPEECH_MS
 
   // Core recording infrastructure
   protected val audioQueue: BlockingQueue<AudioData> = LinkedBlockingQueue(AUDIO_QUEUE_CAPACITY)
@@ -281,6 +286,7 @@ abstract class BaseAudioRecorder(
 
   private fun processCompletedRecording(voiceChannel: AudioChannel, messageChannel: MessageChannel) {
     val queue = queueFile ?: return
+    val noSpeech = timeline.speechFrames * SpeakerTimeline.FRAME_MS < minSpeechMs
 
     withLoggingContext(
       "guild" to voiceChannel.guild.name,
@@ -291,10 +297,13 @@ abstract class BaseAudioRecorder(
       "audio.queue.depth" to audioQueue.size.toString(),
       "audio.speakers.count" to timeline.speakerCount.toString(),
       "audio.speech.ms" to (timeline.speechFrames * SpeakerTimeline.FRAME_MS).toString(),
-      "audio.speech.overlap.ms" to (timeline.overlapFrames * SpeakerTimeline.FRAME_MS).toString()
+      "audio.speech.overlap.ms" to (timeline.overlapFrames * SpeakerTimeline.FRAME_MS).toString(),
+      "audio.skipped.no_speech" to noSpeech.toString()
     ) {
       try {
         logger.info { "Processing completed recording: $session, queue size: ${queue.size()}" }
+
+        if (noSpeech) return@withLoggingContext handleNoSpeech(messageChannel)
 
         val recordingFile = File("$dataDirectory/recordings/$ulid.$fileFormat")
         queueFileIntoMp3(queue, recordingFile)
@@ -338,6 +347,12 @@ abstract class BaseAudioRecorder(
   private fun handleEmptyRecording(channel: MessageChannel) {
     reportFailure(channel, ":no_entry_sign: _${translator.empty}_")
     transaction { recordingRecord?.delete() }
+  }
+
+  private fun handleNoSpeech(channel: MessageChannel) {
+    reportFailure(channel, ":no_entry_sign: _${translator.noSpeech}_")
+    transaction { recordingRecord?.delete() }
+    File("$dataDirectory/recordings/$ulid.queue").delete()
   }
 
   private fun handleRecordingError(channel: MessageChannel) {
