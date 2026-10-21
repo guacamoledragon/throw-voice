@@ -598,7 +598,10 @@ class SharedAudioRecorderTest : FunSpec({
       val (_, lock) = recorder.saveRecording(mockVoiceChannel, mockMessageChannel)
       recorder.disconnect(lock)
 
-      edits.last().embeds.single().description shouldContain "Nobody spoke during this recording"
+      val notSaved = edits.last()
+      notSaved.content shouldContain "Nobody spoke during this recording"
+      notSaved.embeds shouldBe emptyList()
+      notSaved.components shouldBe emptyList()
       verify(exactly = 0) { mockDatastore.upload(match { it.contains(recorder.session) }, any()) }
       verify(exactly = 0) { BotUtils.uploadFile(any(), any(), "${recorder.session}.mp3", any()) }
       File(tempDir, "recordings/${recorder.session}.mp3").exists() shouldBe false

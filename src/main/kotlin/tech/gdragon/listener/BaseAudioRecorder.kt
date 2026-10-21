@@ -13,6 +13,7 @@ import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel
+import net.dv8tion.jda.api.utils.messages.MessageEditBuilder
 import net.dv8tion.jda.api.utils.messages.MessageEditData
 import org.apache.commons.io.FileUtils
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
@@ -345,12 +346,12 @@ abstract class BaseAudioRecorder(
   }
 
   private fun handleEmptyRecording(channel: MessageChannel) {
-    reportFailure(channel, ":no_entry_sign: _${translator.empty}_")
+    reportNotSaved(channel, ":no_entry_sign: _${translator.empty}_")
     transaction { recordingRecord?.delete() }
   }
 
   private fun handleNoSpeech(channel: MessageChannel) {
-    reportFailure(channel, ":no_entry_sign: _${translator.noSpeech}_")
+    reportNotSaved(channel, ":no_entry_sign: _${translator.noSpeech}_")
     transaction { recordingRecord?.delete() }
     File("$dataDirectory/recordings/$ulid.queue").delete()
   }
@@ -391,6 +392,19 @@ abstract class BaseAudioRecorder(
     val recording = recording
     if (saveReply == null || recording == null) return BotUtils.sendMessage(messageChannel, message)
     editReply(RecordingReply(recording, pawa.config.appUrl, message, uploaded = false, embedLinks = embedLinks))
+  }
+
+  /**
+   * Replace the recording embed with [message] as text, with no buttons, for a recording that was not saved.
+   */
+  private fun reportNotSaved(messageChannel: MessageChannel, message: String) {
+    val reply = saveReply ?: return BotUtils.sendMessage(messageChannel, message)
+    try {
+      val text = MessageEditBuilder().setContent(message).setEmbeds(emptyList()).setComponents(emptyList()).build()
+      reply.editMessage(text).complete()
+    } catch (e: Exception) {
+      logger.error(e) { "Error editing the recording message: $session" }
+    }
   }
 
   /**
