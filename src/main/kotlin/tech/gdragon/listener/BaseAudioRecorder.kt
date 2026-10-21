@@ -13,7 +13,6 @@ import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel
-import net.dv8tion.jda.api.utils.messages.MessageEditBuilder
 import net.dv8tion.jda.api.utils.messages.MessageEditData
 import org.apache.commons.io.FileUtils
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
@@ -395,16 +394,15 @@ abstract class BaseAudioRecorder(
   }
 
   /**
-   * Replace the recording embed with [message] as text, with no buttons, for a recording that was not saved.
+   * Delete the recording embed and send [message] as text, for a recording that was not saved.
    */
   private fun reportNotSaved(messageChannel: MessageChannel, message: String) {
-    val reply = saveReply ?: return BotUtils.sendMessage(messageChannel, message)
     try {
-      val text = MessageEditBuilder().setContent(message).setEmbeds(emptyList()).setComponents(emptyList()).build()
-      reply.editMessage(text).complete()
+      saveReply?.delete()?.complete()
     } catch (e: Exception) {
-      logger.error(e) { "Error editing the recording message: $session" }
+      logger.error(e) { "Could not delete the recording message: $session" }
     }
+    BotUtils.sendMessage(messageChannel, message)
   }
 
   /**
