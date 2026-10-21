@@ -20,6 +20,7 @@ import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel
 import net.dv8tion.jda.api.utils.messages.MessageCreateData
 import net.dv8tion.jda.api.utils.messages.MessageEditData
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import org.koin.core.context.GlobalContext
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.dsl.module
@@ -152,6 +153,7 @@ class SharedAudioRecorderTest : FunSpec({
           "BOT_FILE_FORMAT" to "mp3",
           "BOT_STANDALONE" to "false",
           "BOT_MP3_VBR" to "false",
+          "BOT_MIN_SPEECH_MS" to "0",
         )
       )
       modules(module {
@@ -579,5 +581,45 @@ class SharedAudioRecorderTest : FunSpec({
     uploaded.embeds shouldBe emptyList()
     uploaded.content shouldContain recorder.session
     viewRecording(uploaded.components).isDisabled shouldBe false
+  }
+
+  fun withMinSpeech(ms: String, block: () -> Unit) {
+    GlobalContext.get().setProperty("BOT_MIN_SPEECH_MS", ms)
+    try { block() } finally { GlobalContext.get().setProperty("BOT_MIN_SPEECH_MS", "0") }
+  }
+
+  test("with less speech than BOT_MIN_SPEECH_MS, the recording is not saved and the user is told").config(
+    timeout = kotlin.time.Duration.parse("15s")
+  ) {
+    withMinSpeech("601") {
+      val recorder = SharedAudioRecorder(1.0, mockVoiceChannel, mockMessageChannel)
+      feedAudioFrames(recorder, 30)
+
+      val (_, lock) = recorder.saveRecording(mockVoiceChannel, mockMessageChannel)
+      recorder.disconnect(lock)
+
+      verify { replyMessage.delete() }
+      verify { BotUtils.sendMessage(mockMessageChannel, ":no_entry_sign: _Nobody spoke during this recording, so it was not saved._") }
+      verify(exactly = 0) { mockDatastore.upload(match { it.contains(recorder.session) }, any()) }
+      verify(exactly = 0) { BotUtils.uploadFile(any(), any(), "${recorder.session}.mp3", any()) }
+      File(tempDir, "recordings/${recorder.session}.mp3").exists() shouldBe false
+      File(tempDir, "recordings/${recorder.session}.queue").exists() shouldBe false
+      transaction { Recording.findById(recorder.session) } shouldBe null
+    }
+  }
+
+  test("with speech equal to BOT_MIN_SPEECH_MS, the recording uploads").config(
+    timeout = kotlin.time.Duration.parse("15s")
+  ) {
+    withMinSpeech("600") {
+      val recorder = SharedAudioRecorder(1.0, mockVoiceChannel, mockMessageChannel)
+      feedAudioFrames(recorder, 30)
+
+      val (_, lock) = recorder.saveRecording(mockVoiceChannel, mockMessageChannel)
+      recorder.disconnect(lock)
+
+      verify { mockDatastore.upload("$guildId/${recorder.session}.mp3", any()) }
+      viewRecording(edits.last().components).isDisabled shouldBe false
+    }
   }
 })

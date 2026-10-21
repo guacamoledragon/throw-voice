@@ -198,6 +198,7 @@ class Save(lang: Lang) {
   val description: String = resource.getString("save.description")
   val saving: String = resource.getString("save.saving")
   val empty: String = resource.getString("save.empty")
+  val noSpeech: String = resource.getString("save.no_speech")
   val errorCreating: String = resource.getString("save.error_creating")
   val errorUploading: String = resource.getString("save.error_uploading")
 }
