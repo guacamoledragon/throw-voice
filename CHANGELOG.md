@@ -18,6 +18,7 @@ and this project **DOES NOT** adhere to [Semantic Versioning](https://semver.org
 - Every save path (`/save`, `/stop` with autosave, autostop and AFK) sends one recording embed. When the upload is done, the bot edits the embed. With `APP_URL`, **View Recording** is enabled. With `APP_URL=discord://`, the embed shows the stored URL. If the upload fails, the embed shows the error. The separate upload message with the link is removed. PawaLite shows the same embed.
 - All recorder interactions now go through the `AudioRecorder` interface instead of hard-casting to concrete types
 - Every recording uploads to the datastore, and `recordings.url` stores the datastore URL. The Discord attachment still posts to the channel. If the datastore upload fails, the Discord URL is stored.
+- The bot does not ask for the privileged **Message Content** intent. **Recover Recording** still reads the message, because Discord sends the message content with the command. Release this change before 2027-01-19, when Discord removes the intent from the app.
 
 ### Deprecated
 

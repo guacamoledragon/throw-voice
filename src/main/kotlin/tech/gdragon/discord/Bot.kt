@@ -97,7 +97,6 @@ class Bot(private val token: String, private val pawa: Pawa) {
       val intents = listOf(
         GatewayIntent.GUILD_MESSAGES,
         GatewayIntent.GUILD_VOICE_STATES,
-        GatewayIntent.MESSAGE_CONTENT,
       )
       val disabledCache = listOf(
         CacheFlag.ACTIVITY,
