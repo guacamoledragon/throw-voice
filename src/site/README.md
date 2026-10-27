@@ -1,5 +1,5 @@
-# pawa
-> Audio recording for Discord
+# pawa: Discord voice channel recording bot
+> Two commands, one MP3
 
 <div style="text-align: center; margin-bottom: 2rem;">
   <a class="button" style="font-size: 2.05rem;" href="https://discord.com/oauth2/authorize?client_id=338897906524225538&scope=applications.commands+bot&permissions=2251344896">Invite!</a>
@@ -15,9 +15,9 @@
 
 ## What is `pawa`?
 
-`pawa` is a simple audio recording bot for Discord. With **two** simple commands you can generate a single MP3 file!
+`pawa` is a bot that records Discord voice channels. Join a voice channel, type `/record`, and type `/save` when you're done. You get **one** MP3 of the whole call.
 
-See [Quickstart](quickstart.md) guide for more details.
+New here? Watch the short video in the [Quickstart](quickstart.md), or read [How to Record a Discord Voice Channel](record-voice-channel.md). Picking between bots? See [Craig vs pawa](craig-vs-pawa.md).
 
 ## Features
 
