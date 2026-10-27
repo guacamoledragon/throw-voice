@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>pawa - Audio recording for Discord.</title>
-  <meta name="description" content="Audio recording for Discord">
+  <title>pawa - Discord voice channel recording bot</title>
+  <meta name="description" content="pawa records Discord voice channels. Type /record, then /save, and get one MP3 of the whole call. Free to use.">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@5.0.0/dist/themes/core.min.css">
   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@5.0.0/dist/themes/addons/core-dark.min.css" media="(prefers-color-scheme: dark)">
@@ -16,16 +16,16 @@
   <!-- Facebook Meta Tags -->
   <meta property="og:url" content="https://pawa.im">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="pawa - Audio recording for Discord.">
-  <meta property="og:description" content="Audio recording for Discord">
+  <meta property="og:title" content="pawa - Discord voice channel recording bot">
+  <meta property="og:description" content="pawa records Discord voice channels. Type /record, then /save, and get one MP3 of the whole call. Free to use.">
   <meta property="og:image" content="https://pawa.im/_media/pawa-banner.png">
 
   <!-- Twitter Meta Tags -->
   <meta name="twitter:card" content="summary_large_image">
   <meta property="twitter:domain" content="pawa.im">
   <meta property="twitter:url" content="https://pawa.im">
-  <meta name="twitter:title" content="pawa - Audio recording for Discord.">
-  <meta name="twitter:description" content="Audio recording for Discord">
+  <meta name="twitter:title" content="pawa - Discord voice channel recording bot">
+  <meta name="twitter:description" content="pawa records Discord voice channels. Type /record, then /save, and get one MP3 of the whole call. Free to use.">
   <meta name="twitter:image" content="https://pawa.im/_media/pawa-banner.png">
 
   <!-- Meta Tags Generated via https://www.opengraph.xyz -->
@@ -87,6 +87,14 @@
         height: auto;
     }
 
+    #app {
+      display: block;
+      height: auto;
+      max-width: var(--content-max-width);
+      margin: 0 auto;
+      padding: 2rem 1rem;
+    }
+
     .sponsors {
       height: 100px;
       width: 100px;
@@ -104,6 +112,8 @@
       },
       loadSidebar: true,
       name: 'pawa',
+      // An empty name makes docsify keep the page's <title> on the home route
+      pageTitleFormatter: name => location.hash.length > 2 ? name : '',
       repo: '',
       subMaxLevel: 2
     }

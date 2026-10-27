@@ -2,6 +2,10 @@
   - [Quickstart](quickstart.md)
   - [Commands](commands.md)
   - [Translations](translations.md)
+- Guides
+  - [Record a voice channel](record-voice-channel.md)
+  - [Does Discord have a recorder?](native-recording.md)
+  - [Craig vs pawa](craig-vs-pawa.md)
 - Self Hosting
   - [PawaLite](pawalite.md)
 - Legal & Support
